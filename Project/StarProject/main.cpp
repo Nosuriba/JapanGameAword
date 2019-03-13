@@ -2,9 +2,9 @@
 
 int main()
 {
-	LpGame.Init();
-	LpGame.Run();
-	LpGame.End();
+	Game::GetInstance().Init();
+	Game::GetInstance().Run();
+	Game::GetInstance().End();
 
 	return 0;
 }

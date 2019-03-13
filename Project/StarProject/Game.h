@@ -2,8 +2,6 @@
 
 #include <memory>
 
-#define LpGame (Game::GetInstance())
-
 class Game
 {
 public:

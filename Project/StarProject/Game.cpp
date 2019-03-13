@@ -14,7 +14,7 @@ Game::~Game()
 void Game::Init()
 {
 	DxLib::ChangeWindowMode(TRUE);
-	DxLib::SetGraphMode(640, 640, 32);
+	DxLib::SetGraphMode(1280, 740, 32);
 	DxLib::ChangeWindowMode(true);
 	DxLib::SetWindowText("ñºèÃñ¢ê›íËÇæÇº(ÅL•É÷•`)");
 	if (DxLib_Init() == -1)
