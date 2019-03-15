@@ -6,5 +6,6 @@ class Enemy :
 public:
 	Enemy();
 	~Enemy();
+	void Update();
 };
 
