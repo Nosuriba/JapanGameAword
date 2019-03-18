@@ -7,5 +7,6 @@ public:
 	Enemy();
 	~Enemy();
 	void Update();
+	void Draw();
 };
 
