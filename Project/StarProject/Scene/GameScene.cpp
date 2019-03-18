@@ -2,6 +2,7 @@
 #include "../Input.h"
 #include "../Game.h"
 #include "ResultScene.h"
+#include "../Object/Object.h"
 
 void GameScene::Wait(const Input & p)
 {
@@ -14,6 +15,11 @@ void GameScene::Wait(const Input & p)
 GameScene::GameScene()
 {
 	gameimg = DxLib::LoadGraph("../img/gamescene.png");
+
+	_obj.reset(new Object());
+
+	_obj->Init("../Model/Earth/earth_100.pmx",Vector3(0,0,0));
+
 	_updater = &GameScene::Wait;
 }
 
@@ -25,6 +31,7 @@ GameScene::~GameScene()
 void GameScene::Draw()
 {
 	DxLib::DrawExtendGraph(0, 0, 1280, 740, gameimg, true);
+	_obj->Draw();
 }
 
 void GameScene::Update(const Input & p)
