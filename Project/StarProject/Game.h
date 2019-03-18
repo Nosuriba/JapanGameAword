@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "Scene/Scene.h"
 
 class Game
 {
@@ -14,6 +15,8 @@ public:
 	void Run();
 	void End();
 
+	void ChangeScene(Scene *scene);
+
 private:
 	Game();
 	~Game();
@@ -26,5 +29,6 @@ private:
 	};
 
 	static std::unique_ptr<Game, GameDeleter> s_Instance;
+	std::shared_ptr<Scene> _scene;
 };
 
