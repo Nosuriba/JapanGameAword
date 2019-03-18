@@ -12,7 +12,9 @@ public:
 	virtual void Draw();
 protected:
 	std::string fileName;
+	VECTOR startPos, endPos;
 	Vector3		pos;
+	Vector3	    scrPos;
 	int			handle;
 	bool dieFlag, hitFlag;
 	
