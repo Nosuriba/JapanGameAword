@@ -95,7 +95,7 @@ void Object::Update()
 							 modelPos3D.y + nowHitPos3D.y,
 							 modelPos3D.z + nowHitPos3D.z);
 
-		DxLib::MV1SetPosition(handle, nowModelPos3D);
+		pos = Vector3(nowModelPos3D.x, nowModelPos3D.y, nowModelPos3D.z);		// マウスカーソルの位置を渡している
 	}
 	
 	

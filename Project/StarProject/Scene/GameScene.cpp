@@ -6,10 +6,11 @@
 
 void GameScene::Wait(const Input & p)
 {
+	Draw();
 	if (p.IsTrigger(PAD_INPUT_1)) {
 		Game::GetInstance().ChangeScene(new ResultScene());
 	}
-	Draw();
+	//Draw();
 }
 
 GameScene::GameScene()
@@ -31,6 +32,7 @@ GameScene::~GameScene()
 void GameScene::Draw()
 {
 	DxLib::DrawExtendGraph(0, 0, 1280, 740, gameimg, true);
+	_obj->Update();
 	_obj->Draw();
 }
 
