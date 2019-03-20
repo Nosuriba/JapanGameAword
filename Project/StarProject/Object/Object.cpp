@@ -32,7 +32,6 @@ void Object::Init(std::string fileName, const Vector3& pos)
 void Object::Update()
 {
 	int mouseX, mouseY = 0;
-
 	DxLib::GetMousePoint(&mouseX, &mouseY);
 	
 	/// モデルの動作確認(仮設定)
@@ -40,33 +39,33 @@ void Object::Update()
 	{
 		if (DxLib::GetMouseInput() & MOUSE_INPUT_LEFT)
 		{
-			/// endとstartの値が同じになっているので、その原因を探る
 			VECTOR scrPos, scrPos2, worldPos, worldPos2;
 
-			scrPos = VGet((float)mouseX, (float)mouseY, 0);
+			scrPos  = VGet((float)mouseX, (float)mouseY, 0);
 			scrPos2 = VGet((float)mouseX, (float)mouseY, 1.f);
 
-			worldPos = VGet(scrPos.x, scrPos.y, scrPos.z);
+			worldPos  = VGet(scrPos.x, scrPos.y, scrPos.z);
 			worldPos2 = VGet(scrPos2.x, scrPos2.y, scrPos2.z);
 
+			/// マウスカーソルの位置から真っ直ぐレイを飛ばしている
 			startPos = ConvScreenPosToWorldPos(worldPos);
-			endPos = ConvScreenPosToWorldPos(worldPos2);
+			endPos	 = ConvScreenPosToWorldPos(worldPos2);
 
+			/// どのモデルと当たり判定を取るかの設定
 			DxLib::MV1RefreshCollInfo(handle, -1);
 
-			auto result = DxLib::MV1CollCheck_Line(handle, -1, startPos, endPos);
+			/// レイがモデルに当たったかの判定
+			auto rayHitCheck = DxLib::MV1CollCheck_Line(handle, -1, startPos, endPos);
 
-			if (result.HitFlag)
+			if (rayHitCheck.HitFlag)
 			{
 				catchFlag = true;
-
 				catchPos = Vector3(mouseX, mouseY, 0);
 
 				modelPos3D = DxLib::MV1GetPosition(handle);
 
-				hitPos3D = result.HitPosition;
+				hitPos3D = rayHitCheck.HitPosition;
 				hitPos2D = ConvWorldPosToScreenPos(hitPos3D);
-
 			}
 		}
 	}
@@ -77,25 +76,26 @@ void Object::Update()
 			catchFlag = false;
 		}
 
-		float moveX, moveY;
+		Vector3 movePos;
 		VECTOR nowHitPos2D;
 		VECTOR nowHitPos3D;
 		VECTOR nowModelPos3D;
 
-		moveX = (float)(mouseX - catchPos.x);
-		moveY = (float)(mouseY - catchPos.y);
+		movePos = Vector3((float)(mouseX - catchPos.x),
+						  (float)(mouseY - catchPos.y),
+						   0);
+		
+		nowHitPos2D	  = VGet(hitPos2D.x + movePos.x,
+						     hitPos2D.y + movePos.y,
+						     hitPos2D.z);
 
-		nowHitPos2D = VGet(hitPos2D.x + moveX,
-						   hitPos2D.y + moveY,
-						   hitPos2D.z);
+		nowHitPos3D	  = ConvScreenPosToWorldPos(nowHitPos2D);
 
-		nowHitPos3D = ConvScreenPosToWorldPos(nowHitPos2D);
+		nowModelPos3D = VGet(modelPos3D.x + nowHitPos3D.x - hitPos3D.x,
+							 modelPos3D.y + nowHitPos3D.y - hitPos3D.y,
+							 modelPos3D.z + nowHitPos3D.z - hitPos3D.z);
 
-		nowModelPos3D = VGet(modelPos3D.x + nowHitPos3D.x,
-							 modelPos3D.y + nowHitPos3D.y,
-							 modelPos3D.z + nowHitPos3D.z);
-
-		pos = Vector3(nowModelPos3D.x, nowModelPos3D.y, nowModelPos3D.z);		// マウスカーソルの位置を渡している
+		pos = Vector3(nowModelPos3D.x, nowModelPos3D.y, 0);
 	}
 	
 	
