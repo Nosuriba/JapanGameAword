@@ -12,11 +12,11 @@ public:
 	virtual void Draw();
 protected:
 	std::string fileName;
-	VECTOR startPos, endPos, scrPos;
+	VECTOR		startPos, endPos, scrPos, hitPos2D, hitPos3D, modelPos3D;
 	Vector3		pos;
-	Vector3		dbgRay;
+	Vector3		catchPos;
 	int			handle;
-	bool dieFlag, hitFlag;
+	bool dieFlag, hitFlag, catchFlag;
 	void DebugDraw();
 };
 

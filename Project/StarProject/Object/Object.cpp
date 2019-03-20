@@ -4,11 +4,15 @@ Object::Object()
 {
 	fileName = "";
 	pos		 = Vector3(0, 0, 0);
+	catchPos = Vector3(0, 0, 0);
 	scrPos	 = VGet(0, 0, 0);
 	startPos = VGet(0, 0, 0);
 	endPos	 = VGet(0, 0, 0);
+	hitPos2D = VGet(0, 0, 0);
+	hitPos3D = VGet(0, 0, 0);
+	modelPos3D = VGet(0, 0, 0);
 	handle	 = 0;
-	dieFlag  = hitFlag = false;
+	dieFlag  = catchFlag = hitFlag = false;
 }
 
 Object::~Object()
@@ -28,23 +32,69 @@ void Object::Init(std::string fileName, const Vector3& pos)
 
 void Object::Update()
 {
+	int mouseX, mouseY = 0;
+
+	DxLib::GetMousePoint(&mouseX, &mouseY);
+	
 	/// モデルの動作確認(仮設定)
-	if (DxLib::GetMouseInput() & MOUSE_INPUT_LEFT)
+	if (!catchFlag)
 	{
-		int mouseX, mouseY = 0;
+		if (DxLib::GetMouseInput() & MOUSE_INPUT_LEFT)
+		{
+			scrPos = VGet(mouseX, mouseY, 0);
+			/// endとstartの値が同じになっているので、その原因を探る
+			auto mouseScr = VGet(scrPos.x, scrPos.y, scrPos.z);
+			startPos = ConvScreenPosToWorldPos(mouseScr);
 
-		DxLib::GetMousePoint(&mouseX, &mouseY);
-		scrPos = VGet(mouseX, mouseY, 0);
+			scrPos.z = 1.f;
+			endPos = ConvScreenPosToWorldPos(mouseScr);
 
-		auto mouseScr = VGet(scrPos.x, scrPos.y, scrPos.z);
-		startPos = ConvScreenPosToWorldPos(mouseScr);
+			DxLib::MV1RefreshCollInfo(handle, -1);
 
-		scrPos.z = 1.f;
-		endPos = ConvScreenPosToWorldPos(mouseScr);
-		
-		dbgRay = Vector3(endPos.x - startPos.x, endPos.y - startPos.y, endPos.z - startPos.z);
-		
+			auto result = MV1CollCheck_Line(handle, -1, startPos, endPos);
+
+			if (result.HitFlag)
+			{
+				catchFlag = true;
+
+				catchPos = Vector3(mouseX, mouseY, 0);
+
+				modelPos3D = DxLib::MV1GetPosition(handle);
+
+				hitPos3D = result.HitPosition;
+				hitPos2D = ConvWorldPosToScreenPos(hitPos3D);
+
+			}
+		}
 	}
+	else
+	{
+		if (!(DxLib::GetMouseInput() & MOUSE_INPUT_LEFT))
+		{
+			catchFlag = false;
+		}
+
+		float moveX, moveY;
+		VECTOR nowHitPos2D;
+		VECTOR nowHitPos3D;
+		VECTOR nowModelPos3D;
+
+		moveX = (float)(mouseX - catchPos.x);
+		moveY = (float)(mouseY - catchPos.y);
+
+		nowHitPos2D = VGet(hitPos2D.x + moveX,
+						   hitPos2D.y + moveY,
+						   hitPos2D.z);
+
+		nowHitPos3D = ConvScreenPosToWorldPos(nowHitPos2D);
+
+		nowModelPos3D = VGet(modelPos3D.x + nowHitPos3D.x,
+							 modelPos3D.y + nowHitPos3D.y,
+							 modelPos3D.z + nowHitPos3D.z);
+
+		DxLib::MV1SetPosition(handle, nowModelPos3D);
+	}
+	
 	
 }
 
