@@ -5,7 +5,6 @@ Object::Object()
 	fileName = "";
 	pos		 = Vector3(0, 0, 0);
 	catchPos = Vector3(0, 0, 0);
-	scrPos	 = VGet(0, 0, 0);
 	startPos = VGet(0, 0, 0);
 	endPos	 = VGet(0, 0, 0);
 	hitPos2D = VGet(0, 0, 0);
@@ -41,17 +40,21 @@ void Object::Update()
 	{
 		if (DxLib::GetMouseInput() & MOUSE_INPUT_LEFT)
 		{
-			scrPos = VGet(mouseX, mouseY, 0);
 			/// endとstartの値が同じになっているので、その原因を探る
-			auto mouseScr = VGet(scrPos.x, scrPos.y, scrPos.z);
-			startPos = ConvScreenPosToWorldPos(mouseScr);
+			VECTOR scrPos, scrPos2, worldPos, worldPos2;
 
-			scrPos.z = 1.f;
-			endPos = ConvScreenPosToWorldPos(mouseScr);
+			scrPos = VGet((float)mouseX, (float)mouseY, 0);
+			scrPos2 = VGet((float)mouseX, (float)mouseY, 1.f);
+
+			worldPos = VGet(scrPos.x, scrPos.y, scrPos.z);
+			worldPos2 = VGet(scrPos2.x, scrPos2.y, scrPos2.z);
+
+			startPos = ConvScreenPosToWorldPos(worldPos);
+			endPos = ConvScreenPosToWorldPos(worldPos2);
 
 			DxLib::MV1RefreshCollInfo(handle, -1);
 
-			auto result = MV1CollCheck_Line(handle, -1, startPos, endPos);
+			auto result = DxLib::MV1CollCheck_Line(handle, -1, startPos, endPos);
 
 			if (result.HitFlag)
 			{
@@ -112,6 +115,4 @@ void Object::DebugDraw()
 	auto dbg = 20;
 	DxLib::DrawFormatString(0, 0, 0xffffff, "地球の座標(X)  %d", (int)(pos.x));
 	DxLib::DrawFormatString(0, dbg * 1, 0xffffff, "地球の座標(Y)  %d", (int)(pos.y));
-	DxLib::DrawFormatString(0, dbg * 2, 0xffffff, "マウスの座標(X)  %d", (int)(scrPos.x));
-	DxLib::DrawFormatString(0, dbg * 3, 0xffffff, "マウスの座標(Y)  %d", (int)(scrPos.y));
 }

@@ -12,7 +12,7 @@ public:
 	virtual void Draw();
 protected:
 	std::string fileName;
-	VECTOR		startPos, endPos, scrPos, hitPos2D, hitPos3D, modelPos3D;
+	VECTOR		startPos, endPos, hitPos2D, hitPos3D, modelPos3D;
 	Vector3		pos;
 	Vector3		catchPos;
 	int			handle;
