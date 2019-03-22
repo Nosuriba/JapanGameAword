@@ -2,7 +2,8 @@
 #include "../Input.h"
 #include "../Game.h"
 #include "ResultScene.h"
-#include "../Object/Object.h"
+//#include "../Object/Object.h"
+#include "../Object/Player.h"
 
 void GameScene::Wait(const Input & p)
 {
@@ -17,7 +18,7 @@ GameScene::GameScene()
 {
 	gameimg = DxLib::LoadGraph("../img/gamescene.png");
 
-	_obj.reset(new Object());
+	_obj.reset(new Player());
 
 	_obj->Init("../Model/Earth/earth_100.pmx",Vector3(0,0,0));
 

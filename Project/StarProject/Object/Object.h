@@ -18,10 +18,5 @@ protected:
 	int			mouseX, mouseY;
 	int			handle;
 	bool dieFlag, hitFlag, catchFlag;
-	void DebugDraw();
-private:
-	/// プレイヤー側に持っていく予定
-	void CheckHitModel();			// レイがモデルと当たったかの判定用
-	void MoveModel();				// モデルの操作用
 };
 
