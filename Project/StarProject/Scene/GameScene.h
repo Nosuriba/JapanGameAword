@@ -10,7 +10,7 @@ class GameScene : public Scene
 private:
 	int gameimg;
 
-	std::shared_ptr<Object> _obj;
+	std::shared_ptr<Object> _player;
 
 	void (GameScene::*_updater)(const Input &p);
 	void Wait(const Input &p);

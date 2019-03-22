@@ -18,9 +18,9 @@ GameScene::GameScene()
 {
 	gameimg = DxLib::LoadGraph("../img/gamescene.png");
 
-	_obj.reset(new Player());
+	_player.reset(new Player());
 
-	_obj->Init("../Model/Earth/earth_100.pmx",Vector3(0,0,0));
+	_player->Init("../Model/Earth/earth_100.pmx",Vector3(0,0,0));
 
 	_updater = &GameScene::Wait;
 }
@@ -33,8 +33,8 @@ GameScene::~GameScene()
 void GameScene::Draw()
 {
 	DxLib::DrawExtendGraph(0, 0, 1280, 740, gameimg, true);
-	_obj->Update();
-	_obj->Draw();
+	_player->Update();
+	_player->Draw();
 }
 
 void GameScene::Update(const Input & p)
