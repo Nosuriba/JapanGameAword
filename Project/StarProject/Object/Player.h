@@ -1,16 +1,19 @@
 #pragma once
 #include "Object.h"
+
+class Input;
+
 class Player :
 	public Object
 {
 public:
 	Player();
 	~Player();
-	void Update();
+	void Update(const Input & p);
 	void Draw();
 	void DebugDraw();
 private:
-	void CheckHitModel();
-	void MoveModel();
+	void CheckHitModel(const Input & p);
+	void MoveModel(const Input & p);
 };
 

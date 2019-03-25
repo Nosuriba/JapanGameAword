@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "../Input.h"
 
 Enemy::Enemy()
 {
@@ -9,7 +10,7 @@ Enemy::~Enemy()
 {
 }
 
-void Enemy::Update()
+void Enemy::Update(const Input & p)
 {
 }
 

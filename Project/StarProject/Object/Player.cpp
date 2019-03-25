@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "../Input.h"
 
 Player::Player()
 {
@@ -8,17 +9,17 @@ Player::~Player()
 {
 }
 
-void Player::Update()
+void Player::Update(const Input & p)
 {
 	DxLib::GetMousePoint(&mouseX, &mouseY);
 
 	if (catchFlag)
 	{
-		MoveModel();
+		MoveModel(p);
 	}
 	else
 	{
-		CheckHitModel();
+		CheckHitModel(p);
 	}
 }
 
@@ -36,9 +37,9 @@ void Player::DebugDraw()
 	DxLib::DrawFormatString(0, dbg * 1, 0xffffff, "ínãÖÇÃç¿ïW(Y)  %d", (int)(pos.y));
 }
 
-void Player::CheckHitModel()
+void Player::CheckHitModel(const Input & p)
 {
-	if (DxLib::GetMouseInput() & MOUSE_INPUT_LEFT)
+	if (p.IsMousePressed(MOUSE_INPUT_LEFT))
 	{
 		VECTOR scrPos[2], worldPos[2];
 
@@ -74,9 +75,9 @@ void Player::CheckHitModel()
 	}
 }
 
-void Player::MoveModel()
+void Player::MoveModel(const Input & p)
 {
-	if (!(DxLib::GetMouseInput() & MOUSE_INPUT_LEFT))
+	if (!(p.IsMousePressed(MOUSE_INPUT_LEFT)))
 	{
 		catchFlag = false;
 	}

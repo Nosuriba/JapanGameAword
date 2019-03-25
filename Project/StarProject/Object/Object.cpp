@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "../Input.h"
 
 Object::Object()
 {
@@ -30,7 +31,7 @@ void Object::Init(std::string fileName, const Vector3& pos)
 	DxLib::SetCameraPositionAndTarget_UpVecY(VGet(0, 20, -20), VGet(0.f, 10.f, 0.f));
 }
 
-void Object::Update()
+void Object::Update(const Input & p)
 {
 }
 

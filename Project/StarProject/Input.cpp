@@ -19,11 +19,23 @@ const bool Input::IsTrigger(int p) const
 	return (_InputKey & p) && !(_lastInputKey);
 }
 
+const bool Input::IsMousePressed(int p) const
+{
+	return _mouseInput & p;
+}
+
+const bool Input::IsMouseTrigger(int p) const
+{
+	return (_mouseInput & p) && !(_lastMouseInput);
+}
+
 void Input::Update()
 {
-	_lastInputKey = _InputKey;
+	_lastInputKey   = _InputKey;
+	_lastMouseInput = _mouseInput;
 
-	_InputKey = DxLib::GetJoypadInputState(DX_INPUT_KEY_PAD1);
+	_InputKey   = DxLib::GetJoypadInputState(DX_INPUT_KEY_PAD1);
+	_mouseInput = DxLib::GetMouseInput();
 
 	//PAD_INPUT_DOWN　	// ↓チェックマスク(下キー or テンキーの２キー)
 	//PAD_INPUT_LEFT　	// ←チェックマスク(左キー or テンキーの４キー)
