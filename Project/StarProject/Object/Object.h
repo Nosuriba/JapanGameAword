@@ -16,6 +16,8 @@ protected:
 	std::string fileName;
 	VECTOR		startPos, endPos, hitPos2D, hitPos3D, modelPos3D;
 	Vector3		pos;
+	Vector3		vel;
+	Vector3		angle;
 	Vector3		catchPos;
 	int			mouseX, mouseY;
 	int			handle;

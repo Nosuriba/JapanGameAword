@@ -5,12 +5,12 @@ Object::Object()
 {
 	fileName = "";
 	pos		 = Vector3(0, 0, 0);
+	vel		 = Vector3(0, 0, 0);
+	angle	 = Vector3(0, 0, 0);
 	catchPos = Vector3(0, 0, 0);
-	startPos = VGet(0, 0, 0);
-	endPos	 = VGet(0, 0, 0);
-	hitPos2D = VGet(0, 0, 0);
-	hitPos3D = VGet(0, 0, 0);
-	modelPos3D = VGet(0, 0, 0);
+
+	startPos = endPos = hitPos2D = hitPos3D = modelPos3D = VGet(0, 0, 0);
+
 	mouseX	 = mouseY = 0;
 	handle	 = 0;
 	dieFlag  = catchFlag = hitFlag = false;

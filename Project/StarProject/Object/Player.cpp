@@ -11,6 +11,8 @@ Player::~Player()
 
 void Player::Update(const Input & p)
 {
+	angle += Vector3(0.f, 0.01f, 0.f);
+
 	DxLib::GetMousePoint(&mouseX, &mouseY);
 
 	if (catchFlag)
@@ -25,7 +27,8 @@ void Player::Update(const Input & p)
 
 void Player::Draw()
 {
-	DxLib::MV1SetPosition(handle, VGet(pos.x, pos.y, pos.z));	/// モデル座標の設定
+	DxLib::MV1SetPosition(handle, VGet(pos.x, pos.y, pos.z));			/// モデル座標の設定
+	DxLib::MV1SetRotationXYZ(handle, VGet(angle.x, angle.y, angle.z));  /// モデルの回転
 	DxLib::MV1DrawModel(handle);
 	DebugDraw();
 }
@@ -43,11 +46,11 @@ void Player::CheckHitModel(const Input & p)
 	{
 		VECTOR scrPos[2], worldPos[2];
 
-		scrPos[0] = VGet((float)mouseX, (float)mouseY, 0);
-		scrPos[1] = VGet((float)mouseX, (float)mouseY, 1.f);
+		scrPos[0] = VGet((float)mouseX, (float)mouseY, 0);			// スクリーンの始点
+		scrPos[1] = VGet((float)mouseX, (float)mouseY, 1.f);		// スクリーンの終点
 
-		worldPos[0] = VGet(scrPos[0].x, scrPos[0].y, scrPos[0].z);
-		worldPos[1] = VGet(scrPos[1].x, scrPos[1].y, scrPos[1].z);
+		worldPos[0] = VGet(scrPos[0].x, scrPos[0].y, scrPos[0].z);	// ワールド座標の始点
+		worldPos[1] = VGet(scrPos[1].x, scrPos[1].y, scrPos[1].z);	// ワールド座標の終点
 
 		/// レイの始点と終点の設定を行っている
 		startPos = ConvScreenPosToWorldPos(worldPos[0]);
