@@ -15,5 +15,7 @@ public:
 private:
 	void CheckHitModel(const Input & p);
 	void MoveModel(const Input & p);
+
+	bool mouseDebug = false;;
 };
 

@@ -11,7 +11,21 @@ Player::~Player()
 
 void Player::Update(const Input & p)
 {
+	/// 地球を飛ばす処理で追加したところ。
+	auto velControl = [](Vector3 vel)
+	{
+		auto v = vel;
+
+		v.x = (abs(v.x) < 1.0f ? v.x = 0 : v.x = v.x * 0.8f);
+		v.y = (abs(v.y) < 1.0f ? v.y = 0 : v.y = v.y * 0.8f);
+
+		return v;
+
+	};
+	vel = velControl(vel);
+	pos += vel;
 	angle += Vector3(0.f, 0.01f, 0.f);
+
 
 	DxLib::GetMousePoint(&mouseX, &mouseY);
 
@@ -23,6 +37,8 @@ void Player::Update(const Input & p)
 	{
 		CheckHitModel(p);
 	}
+
+	mouseDebug = p.IsMousePressed(MOUSE_INPUT_LEFT);
 }
 
 void Player::Draw()
@@ -38,6 +54,15 @@ void Player::DebugDraw()
 	auto dbg = 20;
 	DxLib::DrawFormatString(0, 0, 0xffffff, "地球の座標(X)  %d", (int)(pos.x));
 	DxLib::DrawFormatString(0, dbg * 1, 0xffffff, "地球の座標(Y)  %d", (int)(pos.y));
+	if (mouseDebug)
+	{
+		DxLib::DrawExtendString(300, 0, 2.0, 2.0, "クリック中", 0x0000ff);
+	}
+	else
+	{
+		DxLib::DrawExtendString(300, 0, 2.0, 2.0, "クリックしてないよ", 0x0000ff);
+	}
+	
 }
 
 void Player::CheckHitModel(const Input & p)
@@ -80,6 +105,12 @@ void Player::CheckHitModel(const Input & p)
 
 void Player::MoveModel(const Input & p)
 {
+	///　マイナス以下の値が打ち切られてるので、原因を探る
+	auto Clamp = [](const float& val, const float& minVal = -10.0f, const float& maxVal = 10.0f)
+	{
+		return  max(minVal, min(maxVal, val));
+	};
+
 	if (!(p.IsMousePressed(MOUSE_INPUT_LEFT)))
 	{
 		catchFlag = false;
@@ -92,19 +123,21 @@ void Player::MoveModel(const Input & p)
 
 	/// モデルの移動した分の座標を求めている
 	movePos = Vector3((float)(mouseX - catchPos.x),
-		(float)(mouseY - catchPos.y),
-		0);
+					  (float)(mouseY - catchPos.y),
+					   0);
 
 	nowHitPos2D = VGet(hitPos2D.x + movePos.x,
-		hitPos2D.y + movePos.y,
-		hitPos2D.z);
+					   hitPos2D.y + movePos.y,
+					   hitPos2D.z);
 
 	nowHitPos3D = ConvScreenPosToWorldPos(nowHitPos2D);
 
 	/// 移動後のモデル座標を設定している。
 	nowModelPos3D = VGet(modelPos3D.x + nowHitPos3D.x - hitPos3D.x,
-		modelPos3D.y + nowHitPos3D.y - hitPos3D.y,
-		modelPos3D.z + nowHitPos3D.z - hitPos3D.z);
+						 modelPos3D.y + nowHitPos3D.y - hitPos3D.y,
+						 modelPos3D.z + nowHitPos3D.z - hitPos3D.z);
 
-	pos = Vector3(nowModelPos3D.x, nowModelPos3D.y, 0);
+	/// 地球を飛ばす処理で追加したところ。
+	vel = Vector3(Clamp(nowModelPos3D.x - pos.x), Clamp(nowModelPos3D.y - pos.y), 0);
+	//pos = Vector3(nowModelPos3D.x, nowModelPos3D.y, 0);
 }
