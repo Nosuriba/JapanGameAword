@@ -11,20 +11,19 @@ Player::~Player()
 
 void Player::Update(const Input & p)
 {
-	/// 地球を飛ばす処理で追加したところ。
-	auto velControl = [](Vector3 vel)
+	/// 地球を投げる処理で追加したところ。
+	auto velControl = [](const Vector3& vel)
 	{
 		auto v = vel;
-
-		v.x = (abs(v.x) < 1.0f ? v.x = 0 : v.x = v.x * 0.8f);
-		v.y = (abs(v.y) < 1.0f ? v.y = 0 : v.y = v.y * 0.8f);
+		v.x = (abs(v.x) < 0.1f ? v.x = 0 : v.x = v.x * 0.85f);
+		v.y = (abs(v.y) < 0.1f ? v.y = 0 : v.y = v.y * 0.85f);
 
 		return v;
 
 	};
-	vel = velControl(vel);
-	pos += vel;
-	angle += Vector3(0.f, 0.01f, 0.f);
+	vel	   = velControl(vel);
+	pos   += vel;
+	angle += Vector3(0.f, 0.01f, 0.f);			/// 地球を自転させてるだけ
 
 
 	DxLib::GetMousePoint(&mouseX, &mouseY);
@@ -137,7 +136,7 @@ void Player::MoveModel(const Input & p)
 						 modelPos3D.y + nowHitPos3D.y - hitPos3D.y,
 						 modelPos3D.z + nowHitPos3D.z - hitPos3D.z);
 
-	/// 地球を飛ばす処理で追加したところ。
+	/// 地球を投げる処理で追加したところ。
 	vel = Vector3(Clamp(nowModelPos3D.x - pos.x), Clamp(nowModelPos3D.y - pos.y), 0);
 	//pos = Vector3(nowModelPos3D.x, nowModelPos3D.y, 0);
 }

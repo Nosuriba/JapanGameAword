@@ -21,7 +21,7 @@ GameScene::GameScene()
 
 	_player.reset(new Player());
 
-	_player->Init("../Model/Earth/earth_100.pmx",Vector3(0,0,0));
+	_player->Init("../Model/Earth/earth_100.pmx",Vector3(0,0,50));
 
 	_updater = &GameScene::Wait;
 }
