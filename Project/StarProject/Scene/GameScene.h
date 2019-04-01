@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene.h"
 #include <memory>
+#include <vector>
 
 class Input;
 class Object;
@@ -11,6 +12,7 @@ private:
 	int gameimg;
 
 	std::shared_ptr<Object> _player;
+	std::vector<std::shared_ptr<Object>> _enemy;
 
 	void (GameScene::*_updater)(const Input &p);
 	void Wait(const Input &p);
