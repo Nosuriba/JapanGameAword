@@ -19,12 +19,11 @@ void Player::Update(const Input & p)
 		v.y = (abs(v.y) < 0.1f ? v.y = 0 : v.y = v.y * 0.85f);
 
 		return v;
-
 	};
+
 	vel	   = velControl(vel);
 	pos   += vel;
 	angle += Vector3(0.f, 0.01f, 0.f);			/// 地球を自転させてるだけ
-
 
 	DxLib::GetMousePoint(&mouseX, &mouseY);
 
@@ -51,7 +50,7 @@ void Player::Draw()
 void Player::DebugDraw()
 {
 	auto dbg = 20;
-	DxLib::DrawFormatString(0, 0, 0xffffff, "地球の座標(X)  %d", (int)(pos.x));
+	DxLib::DrawFormatString(0, 0,		0xffffff, "地球の座標(X)  %d", (int)(pos.x));
 	DxLib::DrawFormatString(0, dbg * 1, 0xffffff, "地球の座標(Y)  %d", (int)(pos.y));
 	if (mouseDebug)
 	{

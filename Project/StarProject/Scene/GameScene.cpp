@@ -4,11 +4,19 @@
 #include "ResultScene.h"
 //#include "../Object/Object.h"
 #include "../Object/Player.h"
+#include "../Object/Enemy.h"
 
 void GameScene::Wait(const Input & p)
 {
 	_player->Update(p);
 	Draw();
+	for (auto itr = _enemy.begin(); itr != _enemy.end(); itr++)
+	{
+		(*itr)->Update(p);
+		(*itr)->Draw();
+	}
+
+
 	if (p.IsTrigger(PAD_INPUT_1)) {
 		Game::GetInstance().ChangeScene(new ResultScene());
 	}
@@ -18,11 +26,14 @@ void GameScene::Wait(const Input & p)
 GameScene::GameScene()
 {
 	gameimg = DxLib::LoadGraph("../img/gamescene.png");
-
 	_player.reset(new Player());
 
-	_player->Init("../Model/Earth/earth_100.pmx",Vector3(0,0,50));
-
+	_player->Init("../Model/Moon/moon_100.pmx",Vector3(0,0,50));
+	for (int i = 0; i < 5; i++)
+	{
+		_enemy.push_back(std::make_shared<Enemy>());
+		_enemy[i]->Init("../Model/Earth/earth_100.pmx", Vector3(i * 10, 0, 50));
+	}
 	_updater = &GameScene::Wait;
 }
 
