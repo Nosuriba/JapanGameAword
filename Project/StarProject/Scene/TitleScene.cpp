@@ -5,10 +5,10 @@
 
 void TitleScene::Wait(const Input & p)
 {
+	Draw();
 	if (p.IsTrigger(PAD_INPUT_1)) {
 		Game::GetInstance().ChangeScene(new GameScene());
 	}
-	Draw();
 }
 
 TitleScene::TitleScene()
