@@ -128,8 +128,8 @@
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Object\Enemy.cpp" />
+    <ClCompile Include="Object\Model.cpp" />
     <ClCompile Include="Object\Object.cpp" />
     <ClCompile Include="Object\Player.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
@@ -142,8 +142,8 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="Object\Enemy.h" />
+    <ClInclude Include="Object\Model.h" />
     <ClInclude Include="Object\Object.h" />
     <ClInclude Include="Object\Player.h" />
     <ClInclude Include="Scene\GameScene.h" />

@@ -54,8 +54,8 @@
     <ClInclude Include="Camera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Object\Model.h">
+      <Filter>Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -95,8 +95,8 @@
     <ClCompile Include="Camera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Object\Model.cpp">
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
