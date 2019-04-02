@@ -13,9 +13,7 @@ public:
 	void Draw();
 	void DebugDraw();
 private:
-	void CheckHitModel(const Input & p);
-	void MoveModel(const Input & p);
-
-	bool mouseDebug = false;;
+	void Move(const Input & p);
+	bool mouseDebug = false;
 };
 
