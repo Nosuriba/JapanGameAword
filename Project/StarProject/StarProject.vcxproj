@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{799BF689-9231-4F6C-82CB-664FCCB1EE8A}</ProjectGuid>
     <RootNamespace>StarProject</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -129,7 +129,6 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object\Enemy.cpp" />
-    <ClCompile Include="Object\Model.cpp" />
     <ClCompile Include="Object\Object.cpp" />
     <ClCompile Include="Object\Player.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
@@ -143,7 +142,6 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Object\Enemy.h" />
-    <ClInclude Include="Object\Model.h" />
     <ClInclude Include="Object\Object.h" />
     <ClInclude Include="Object\Player.h" />
     <ClInclude Include="Scene\GameScene.h" />

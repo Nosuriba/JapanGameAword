@@ -11,9 +11,6 @@ public:
 	~Player();
 	void Update(const Input & p);
 	void Draw();
-	void DebugDraw();
 private:
-	void Move(const Input & p);
-	bool mouseDebug = false;
 };
 

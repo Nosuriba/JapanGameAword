@@ -11,7 +11,5 @@ public:
 	~Enemy();
 	void Update(const Input & p);
 	void Draw();
-	void CheckHitModel(const Input & p);
-	void MoveModel(const Input & p);
 };
 
