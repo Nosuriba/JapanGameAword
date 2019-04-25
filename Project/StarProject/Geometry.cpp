@@ -24,10 +24,10 @@ Vector2 Vector2::Normalized()
 	return Vector2(x / size, y / size);
 }
 
-//VECTOR Vector3::V_Cast()
-//{
-//	return VGet(x, y, z);
-//}
+VECTOR Vector2::V_Cast()
+{
+	return VGet(x, y, 0);
+}
 
 Vector2 operator+(const Vector2 & lv, const Vector2 rv)
 {

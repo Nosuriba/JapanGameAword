@@ -40,7 +40,7 @@ struct Vector2 {
 
 
 	// Vector3Å®VECTORÇ÷ïœä∑
-	//VECTOR V_Cast();
+	VECTOR V_Cast();
 };
 
 Vector2 operator+(const Vector2& lv, const Vector2 rv);
