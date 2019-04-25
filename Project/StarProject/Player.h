@@ -28,5 +28,6 @@ public:
 
 	void Update();
 	void Draw();
+	Star GetInfo();
 };
 

@@ -1,8 +1,11 @@
 #pragma once
 #include "Scene.h"
+#include <memory>
 
 class Input;
-class Object;
+class Player;
+class Enemy;
+class Collision;
 
 class GameScene : public Scene
 {
@@ -11,6 +14,10 @@ private:
 
 	void (GameScene::*_updater)(const Input &p);
 	void Wait(const Input &p);
+
+	std::shared_ptr<Player> _pl;
+	std::shared_ptr<Enemy> _ene;
+	std::shared_ptr<Collision> _col;
 
 public:
 	GameScene();

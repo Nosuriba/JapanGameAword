@@ -38,7 +38,6 @@ struct Vector2 {
 
 	Vector2 Normalized();
 
-
 	// Vector3Å®VECTORÇ÷ïœä∑
 	VECTOR V_Cast();
 };

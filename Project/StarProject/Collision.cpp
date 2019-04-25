@@ -37,22 +37,22 @@ bool Collision::TriToSqr(const std::array<Vector2, 5> &_vert, const Position2 &_
 		auto AB1 = (_vert[i].x - _vert[(i + 2) % 5].x) * (sqrA.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - sqrA.x);
 		auto AB2 = (_vert[i].x - _vert[(i + 2) % 5].x) * (sqrB.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - sqrB.x);
 		auto AB3 = (sqrA.x - sqrB.x) * (_vert[i].y - sqrA.y) + (sqrA.y - sqrB.y) * (sqrA.x - _vert[i].x);
-		auto AB4 = (sqrA.x - sqrB.x) * (_vert[(i + 2) % 5].x - sqrA.y) + (sqrA.y - sqrB.y) * (sqrA.x - _vert[(i + 2) % 5].x);
+		auto AB4 = (sqrA.x - sqrB.x) * (_vert[(i + 2) % 5].y - sqrA.y) + (sqrA.y - sqrB.y) * (sqrA.x - _vert[(i + 2) % 5].x);
 
 		auto BC1 = (_vert[i].x - _vert[(i + 2) % 5].x) * (sqrB.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - sqrB.x);
 		auto BC2 = (_vert[i].x - _vert[(i + 2) % 5].x) * (sqrC.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - sqrC.x);
 		auto BC3 = (sqrB.x - sqrC.x) * (_vert[i].y - sqrB.y) + (sqrB.y - sqrC.y) * (sqrB.x - _vert[i].x);
-		auto BC4 = (sqrB.x - sqrC.x) * (_vert[(i + 2) % 5].x - sqrB.y) + (sqrB.y - sqrC.y) * (sqrB.x - _vert[(i + 2) % 5].x);
+		auto BC4 = (sqrB.x - sqrC.x) * (_vert[(i + 2) % 5].y - sqrB.y) + (sqrB.y - sqrC.y) * (sqrB.x - _vert[(i + 2) % 5].x);
 
 		auto CD1 = (_vert[i].x - _vert[(i + 2) % 5].x) * (sqrC.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - sqrC.x);
 		auto CD2 = (_vert[i].x - _vert[(i + 2) % 5].x) * (sqrD.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - sqrD.x);
 		auto CD3 = (sqrC.x - sqrD.x) * (_vert[i].y - sqrC.y) + (sqrC.y - sqrD.y) * (sqrC.x - _vert[i].x);
-		auto CD4 = (sqrC.x - sqrD.x) * (_vert[(i + 2) % 5].x - sqrC.y) + (sqrC.y - sqrD.y) * (sqrC.x - _vert[(i + 2) % 5].x);
+		auto CD4 = (sqrC.x - sqrD.x) * (_vert[(i + 2) % 5].y - sqrC.y) + (sqrC.y - sqrD.y) * (sqrC.x - _vert[(i + 2) % 5].x);
 
 		auto DA1 = (_vert[i].x - _vert[(i + 2) % 5].x) * (sqrD.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - sqrD.x);
 		auto DA2 = (_vert[i].x - _vert[(i + 2) % 5].x) * (sqrA.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - sqrA.x);
 		auto DA3 = (sqrD.x - sqrA.x) * (_vert[i].y - sqrD.y) + (sqrD.y - sqrA.y) * (sqrD.x - _vert[i].x);
-		auto DA4 = (sqrD.x - sqrA.x) * (_vert[(i + 2) % 5].x - sqrD.y) + (sqrD.y - sqrA.y) * (sqrD.x - _vert[(i + 2) % 5].x);
+		auto DA4 = (sqrD.x - sqrA.x) * (_vert[(i + 2) % 5].y - sqrD.y) + (sqrD.y - sqrA.y) * (sqrD.x - _vert[(i + 2) % 5].x);
 
 		if (((AB1 * AB2 < 0) && (AB3 * AB4 < 0)) ||
 			((BC1 * BC2 < 0) && (BC3 * BC4 < 0)) ||

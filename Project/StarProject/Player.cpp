@@ -113,3 +113,8 @@ void Player::Draw()
 		}
 	}
 }
+
+Star Player::GetInfo()
+{
+	return star;
+}
