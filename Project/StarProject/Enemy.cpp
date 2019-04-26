@@ -3,6 +3,7 @@
 
 Enemy::Enemy()
 {
+	/// e¸×½‚É‚µ‚Ä‚¢‚é‚Ì‚ÅA‚±‚±‚Ì‰Šú‰»‚ÍŒã‚ÅÁ‚·‚©‚à
 	auto pos  = Vector2(400, 400);
 	auto size = Size(50, 50);
 	auto rect = Rect(pos, size);
@@ -16,12 +17,8 @@ Enemy::~Enemy()
 
 void Enemy::Draw()
 {
-	DxLib::DrawBox(
-		enemy._pos.x - enemy._size.width / 2,
-		enemy._pos.y - enemy._size.height / 2,
-		enemy._pos.x + enemy._size.width / 2,
-		enemy._pos.y + enemy._size.height / 2,
-		color, false);
+	DxLib::DrawBox(enemy._rect.Left(), enemy._rect.Top(),
+				   enemy._rect.Right(), enemy._rect.Bottom(), color, false);
 }
 
 void Enemy::Update()

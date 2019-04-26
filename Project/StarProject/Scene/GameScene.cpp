@@ -22,8 +22,6 @@ GameScene::GameScene()
 
 	_pl.reset(new Player());
 
-	_ene.reset(new Enemy());
-
 	_col.reset(new Collision());
 
 	_updater = &GameScene::Wait;
@@ -54,8 +52,6 @@ void GameScene::Draw()
 
 	_pl->Draw();
 
-	//_ene->Draw();
-
 	for (auto itr : _enemies)
 	{
 		itr->Draw();
@@ -66,29 +62,20 @@ void GameScene::Update(const Input & p)
 {
 	_pl->Update();
 
-	//_ene->Update();
 
 	for (auto itr : _enemies)
 	{
 		itr->Update();
 	}
 
-	/*if (_col->TriToSqr(_pl->GetInfo().vertexs, _ene->GetInfo()._pos, _ene->GetInfo()._size)) {
-		_ene->ChangeColor();
-	}
-	else {
-		_ene->ResetColor();
-	}*/
-
 	for (auto itr : _enemies)
 	{
 		if (_col->TriToSqr(_pl->GetInfo().vertexs, itr->GetInfo()._pos, itr->GetInfo()._size)) {
-		itr->ChangeColor();
-	}
-	else {
-		itr->ResetColor();
-	}
-
+			itr->ChangeColor();
+		}
+		else {
+			itr->ResetColor();
+		}
 	}
 
 	(this->*_updater)(p);

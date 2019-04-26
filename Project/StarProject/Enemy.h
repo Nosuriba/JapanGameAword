@@ -19,7 +19,9 @@ class Enemy
 private:
 protected:
 	EnemyInfo enemy;
+	Vector2 _vel;
 	int color;
+
 public:
 	Enemy();
 	~Enemy();

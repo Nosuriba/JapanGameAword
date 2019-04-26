@@ -4,6 +4,16 @@ class Diodon :
 	public Enemy
 {
 private:
+	void Swim();
+	void Swell();
+	void Die();
+
+	void SwimUpdate();
+	void SwellUpdate();
+	void DieUpdate();
+
+	void (Diodon::*updater)();
+
 public:
 	Diodon();
 	~Diodon();

@@ -7,9 +7,39 @@ Diodon::Diodon()
 	auto rect = Rect(pos, size);
 
 	enemy = EnemyInfo(pos, size, rect);
+	_vel  = Vector2();
+
+	Swim();
 }
 
 Diodon::~Diodon()
+{
+}
+
+void Diodon::Swim()
+{
+	updater = &Diodon::SwimUpdate;
+}
+
+void Diodon::Swell()
+{
+	updater = &Diodon::SwellUpdate;
+}
+
+void Diodon::Die()
+{
+	updater = &Diodon::DieUpdate;
+}
+
+void Diodon::SwimUpdate()
+{
+}
+
+void Diodon::SwellUpdate()
+{
+}
+
+void Diodon::DieUpdate()
 {
 }
 
@@ -23,6 +53,10 @@ void Diodon::Draw()
 
 void Diodon::Update()
 {
+	(this->*updater)();
+
+	enemy._pos += _vel;
+	enemy._rect = Rect(enemy._pos, enemy._size);
 }
 
 EnemyInfo Diodon::GetInfo()
@@ -32,7 +66,7 @@ EnemyInfo Diodon::GetInfo()
 
 void Diodon::ChangeColor()
 {
-	color = 0x00ff00;
+	color = 0x888800;
 }
 
 void Diodon::ResetColor()
