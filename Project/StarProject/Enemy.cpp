@@ -3,10 +3,11 @@
 
 Enemy::Enemy()
 {
-	auto pos = Vector2(400, 400);
+	auto pos  = Vector2(400, 400);
 	auto size = Size(50, 50);
+	auto rect = Rect(pos, size);
 
-	enemy = EnemyInfo(pos, size);
+	enemy = EnemyInfo(pos, size, rect);
 }
 
 Enemy::~Enemy()

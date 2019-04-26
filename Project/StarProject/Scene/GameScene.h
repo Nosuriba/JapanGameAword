@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include <memory>
 
+#include <vector>
 class Input;
 class Player;
 class Enemy;
@@ -18,6 +19,8 @@ private:
 	std::shared_ptr<Player> _pl;
 	std::shared_ptr<Enemy> _ene;
 	std::shared_ptr<Collision> _col;
+
+	std::vector<std::shared_ptr<Enemy>> _enemies;		/// ‰¼‚Ì•`‰æ
 
 public:
 	GameScene();

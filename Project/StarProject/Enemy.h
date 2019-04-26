@@ -4,25 +4,29 @@
 struct EnemyInfo {
 	Position2 _pos;
 	Size _size;
-	EnemyInfo() :_pos(0, 0), _size(0, 0) {};
-	EnemyInfo(const Position2& _pos, const Size& _size) {
-		this->_pos = _pos;
+	Rect _rect;
+	
+	EnemyInfo() :_pos(0, 0), _size(0, 0), _rect(_pos, _size){};
+	EnemyInfo(const Position2& _pos, const Size& _size, const Rect& _rect) {
+		this->_pos  = _pos;
 		this->_size = _size;
+		this->_rect = _rect;
 	}
 };
 
 class Enemy
 {
 private:
+protected:
 	EnemyInfo enemy;
 	int color;
 public:
 	Enemy();
 	~Enemy();
-	void Draw();
-	void Update();
-	EnemyInfo GetInfo();
-	void ChangeColor();
-	void ResetColor();
+	virtual void Draw();
+	virtual void Update();
+	virtual EnemyInfo GetInfo();
+	virtual void ChangeColor();
+	virtual void ResetColor();
 };
 
