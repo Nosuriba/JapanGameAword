@@ -70,12 +70,14 @@ void GameScene::Update(const Input & p)
 
 	for (auto itr : _enemies)
 	{
-		if (_col->TriToSqr(_pl->GetInfo().vertexs, itr->GetInfo()._pos, itr->GetInfo()._size)) {
+		if (_col->TriToSqr(_pl->GetInfo().vertexs, itr->GetInfo()._pos, itr->GetInfo()._size)) 
+		{
 			itr->ChangeColor();
 		}
 		else {
 			itr->ResetColor();
 		}
+
 	}
 
 	(this->*_updater)(p);

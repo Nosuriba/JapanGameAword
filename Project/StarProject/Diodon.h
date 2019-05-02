@@ -8,11 +8,13 @@ private:
 	void Swell();
 	void Die();
 
-	void SwimUpdate();
-	void SwellUpdate();
+	void SwimUpdate();		
+	void SwellUpdate();		/// –c‚ç‚ñ‚¾ó‘Ô
 	void DieUpdate();
 
 	void (Diodon::*updater)();
+
+	bool _turnFlag;			/// true:‰E•ûŒü, false:¶•ûŒü
 
 public:
 	Diodon();

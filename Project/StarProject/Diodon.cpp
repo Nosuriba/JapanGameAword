@@ -1,5 +1,7 @@
 #include "Diodon.h"
 
+const float maxSpeed = 3.0f;
+
 Diodon::Diodon()
 {
 	auto pos  = Vector2(300, 300);
@@ -8,6 +10,8 @@ Diodon::Diodon()
 
 	enemy = EnemyInfo(pos, size, rect);
 	_vel  = Vector2();
+
+	_turnFlag = true;
 
 	Swim();
 }
@@ -23,6 +27,7 @@ void Diodon::Swim()
 
 void Diodon::Swell()
 {
+	_vel.x = 0;
 	updater = &Diodon::SwellUpdate;
 }
 
@@ -33,19 +38,33 @@ void Diodon::Die()
 
 void Diodon::SwimUpdate()
 {
+	/// とりあえず、左右に動かしている。
+	if (_turnFlag)
+	{
+		_vel.x += 0.05f;
+		_turnFlag = (_vel.x < maxSpeed ? true : false);
+	}
+	else
+	{
+		_vel.x -= 0.05f;
+		_turnFlag = (_vel.x < -maxSpeed ? true : false);
+	}
 }
 
 void Diodon::SwellUpdate()
 {
+	/// 一定時間浮くと、上昇が止まるようにする
+	_vel.y = -0.5f;
 }
 
 void Diodon::DieUpdate()
 {
+	/// たぶん死なない設定にすると思う
 }
 
 void Diodon::Draw()
 {
-	DxLib::DrawBox(enemy._rect.Left(), enemy._rect.Top(),
+	DxLib::DrawBox(enemy._rect.Left(),  enemy._rect.Top(),
 				   enemy._rect.Right(), enemy._rect.Bottom(), color, false);
 
 	DxLib::DrawString(0, 40, "ﾊﾘｾﾝﾎﾞﾝの表示", 0xffffff);
@@ -66,6 +85,7 @@ EnemyInfo Diodon::GetInfo()
 
 void Diodon::ChangeColor()
 {
+	Swell();
 	color = 0x888800;
 }
 
