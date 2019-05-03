@@ -1,6 +1,9 @@
 #pragma once
 #include <array>
+#include <memory>
 #include "Geometry.h"
+
+class Camera;
 
 struct Star {
 	float r;
@@ -16,6 +19,8 @@ struct Star {
 class Player
 {
 private:
+	const std::shared_ptr<Camera>& _camera;
+
 	Star star;
 
 	Vector2 vel;
@@ -23,7 +28,7 @@ private:
 	char Buf[256];
 
 public:
-	Player();
+	Player(const std::shared_ptr<Camera>& c);
 	~Player();
 
 	void Update();

@@ -2,9 +2,11 @@
 
 #include <DxLib.h>
 
+#include "Camera.h"
+
 constexpr float deceleration = 0.9f;
 
-Player::Player()
+Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 {
 	star.center = Vector2(500, 300);
 	star.r = 50;
@@ -89,18 +91,20 @@ void Player::Update()
 
 void Player::Draw()
 {
-	DrawCircleAA(star.center.x, star.center.y, 2.0f, 32, 0x00ff00);
+	auto c = _camera->CameraCorrection();
+
+	DrawCircleAA(star.center.x - c.x, star.center.y - c.y, 2.0f, 32, 0x00ff00);
 	for (int i = 0; i < star.vertexs.size(); i++)
 	{
-		DrawCircleAA(star.vertexs[i].x, star.vertexs[i].y, 2.0f, 32, star.axis == i ? 0xff00ff : 0x00ff00);
+		DrawCircleAA(star.vertexs[i].x - c.x, star.vertexs[i].y - c.y, 2.0f, 32, star.axis == i ? 0xff00ff : 0x00ff00);
 	}
 
 	for (int i = 0; i < star.vertexs.size(); i++)
 	{
 		DrawLineAA(
-			star.vertexs[i].x, star.vertexs[i].y,
-			star.vertexs[(i + 2) % star.vertexs.size()].x, star.vertexs[(i + 2) % star.vertexs.size()].y,
-			0x00ff00);
+			star.vertexs[i].x - c.x, star.vertexs[i].y - c.y,
+			star.vertexs[(i + 2) % star.vertexs.size()].x - c.x, star.vertexs[(i + 2) % star.vertexs.size()].y - c.y,
+			0xff0000);
 	}
 
 	for (auto i = 0; i < star.shot.size(); i++)
@@ -108,8 +112,9 @@ void Player::Draw()
 		if (star.shot[i])
 		{
 			auto v = star.vertexs[i] - star.center;
-			DrawLineAA(star.vertexs[i].x, star.vertexs[i].y,
-				star.vertexs[i].x + v.x * 10, star.vertexs[i].y + v.y * 10, 0xff0000);
+			DrawLineAA(star.vertexs[i].x - c.x, star.vertexs[i].y - c.y,
+				star.vertexs[i].x + v.x * 10 - c.x, star.vertexs[i].y + v.y * 10 - c.y,
+				0xff0000);
 		}
 	}
 }

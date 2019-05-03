@@ -3,6 +3,9 @@
 #include "Input.h"
 #include "Scene/TitleScene.h"
 
+constexpr int screen_x = 1280;
+constexpr int screen_y = 740;
+
 std::unique_ptr<Game, Game::GameDeleter> Game::s_Instance(new Game());
 
 Game::Game()
@@ -13,9 +16,14 @@ Game::~Game()
 {
 }
 
+const Vector2 Game::GetScreenSize() const
+{
+	return Vector2(screen_x, screen_y);
+}
+
 void Game::Init()
 {
-	DxLib::SetGraphMode(1280, 740, 32);
+	DxLib::SetGraphMode(screen_x, screen_y, 32);
 	DxLib::ChangeWindowMode(true);
 	DxLib::SetWindowText("ñºèÃñ¢ê›íËÇæÇº(ÅL•É÷•`)");
 	if (DxLib_Init() == -1)

@@ -7,6 +7,7 @@
 #include "../Fish.h"
 #include "../Diodon.h"
 #include "../Collision.h"
+#include "../Camera.h"
 
 void GameScene::Wait(const Input & p)
 {
@@ -20,7 +21,9 @@ GameScene::GameScene()
 {
 	gameimg = DxLib::LoadGraph("../img/game.png");
 
-	_pl.reset(new Player());
+	_camera.reset(new Camera());
+
+	_pl.reset(new Player(_camera));
 
 	_col.reset(new Collision());
 
@@ -50,6 +53,7 @@ void GameScene::Draw()
 	DxLib::GetWindowSize(&sizex, &sizey);
 	//DxLib::DrawExtendGraph(0, 0, sizex, sizey, gameimg, true);
 
+	_camera->Draw();
 	_pl->Draw();
 
 	for (auto itr : _enemies)
@@ -79,6 +83,8 @@ void GameScene::Update(const Input & p)
 		}
 
 	}
+
+	_camera->Update(_pl->GetInfo().center);
 
 	(this->*_updater)(p);
 }

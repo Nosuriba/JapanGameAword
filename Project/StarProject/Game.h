@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "Scene/Scene.h"
+#include "Geometry.h"
 
 class Game
 {
@@ -16,6 +17,8 @@ public:
 	void End();
 
 	void ChangeScene(Scene *scene);
+
+	const Vector2 GetScreenSize() const;
 
 private:
 	Game();
