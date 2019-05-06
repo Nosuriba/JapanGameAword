@@ -8,6 +8,7 @@ class Player;
 class Enemy;
 class Collision;
 class Camera;
+class Obstacle;
 
 class GameScene : public Scene
 {
@@ -21,6 +22,7 @@ private:
 	std::shared_ptr<Enemy> _ene;
 	std::shared_ptr<Collision> _col;
 	std::shared_ptr<Camera> _camera;
+	std::shared_ptr<Obstacle> _obj;
 
 	std::vector<std::shared_ptr<Enemy>> _enemies;		/// ‰¼‚Ì•`‰æ
 

@@ -8,6 +8,7 @@
 #include "../Diodon.h"
 #include "../Collision.h"
 #include "../Camera.h"
+#include "../Obstacle.h"
 
 void GameScene::Wait(const Input & p)
 {
@@ -27,6 +28,8 @@ GameScene::GameScene()
 
 	_col.reset(new Collision());
 
+	_obj.reset(new Obstacle());
+
 	_updater = &GameScene::Wait;
 
 	for (int i = 0; i < 2; ++i)
@@ -40,6 +43,8 @@ GameScene::GameScene()
 			_enemies.push_back(std::make_shared<Diodon>());
 		}
 	}
+
+	_obj->ObjCreate(Vector2(300,300),Size(40,40));
 }
 
 GameScene::~GameScene()
@@ -60,6 +65,8 @@ void GameScene::Draw()
 	{
 		itr->Draw();
 	}
+
+	_obj->Draw();
 }
 
 void GameScene::Update(const Input & p)
