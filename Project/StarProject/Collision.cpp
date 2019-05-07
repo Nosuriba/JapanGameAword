@@ -63,3 +63,23 @@ bool Collision::TriToSqr(const std::array<Vector2, 5> &_vert, const Position2 &_
 	}
 	return false;
 }
+
+bool Collision::WatarToSqr(const Position2 & _posA, const Position2 & _posB, const Vector2 & _vec)
+{
+	const int r = 5;
+
+	auto _vecA = _vec;
+
+	auto _vecB = _posA - _posB;
+
+	auto _t = Dot(_vecA.Normalized(), _vecB);
+
+	auto _p = _posB + (_vecA.Normalized() * _t);
+
+	auto _d = _posA - _p;
+
+	if (_d.Magnitude() <= r) {
+		return true;
+	}
+	return false;
+}
