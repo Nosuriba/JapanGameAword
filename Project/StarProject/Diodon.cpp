@@ -91,5 +91,8 @@ void Diodon::ChangeColor()
 
 void Diodon::ResetColor()
 {
+	/// debug—p
+	_vel.y = 0;
+	Swim();
 	color = 0xffff00;
 }

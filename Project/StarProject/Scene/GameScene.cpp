@@ -81,14 +81,15 @@ void GameScene::Update(const Input & p)
 
 	for (auto itr : _enemies)
 	{
-		if (_col->TriToSqr(_pl->GetInfo().vertexs, itr->GetInfo()._pos, itr->GetInfo()._size)) 
+		for (int i = 0; i < _pl->debugShot().size(); ++i)
 		{
-			itr->ChangeColor();
+			if (_col->WatarToSqr(_pl->GetInfo().center, itr->GetInfo()._pos, _pl->debugShot()[i]))
+			{
+				itr->ChangeColor();
+				break;
+			}
+			
 		}
-		else {
-			itr->ResetColor();
-		}
-
 	}
 
 	_camera->Update(_pl->GetInfo().center);

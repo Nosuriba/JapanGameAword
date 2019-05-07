@@ -36,5 +36,7 @@ public:
 	void Draw();
 	Star GetInfo();
 	const std::vector<Vector2> GetShot();
+	const std::array<Vector2, 5> debugShot();
+
 };
 
