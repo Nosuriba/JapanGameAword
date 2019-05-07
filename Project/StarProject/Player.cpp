@@ -66,6 +66,10 @@ void Player::Update()
 		star.shot[4] = true;
 		vel += (star.center - star.vertexs[4]).Normalized();
 	}
+	if (Buf[KEY_INPUT_LSHIFT])
+	{
+		vel = Vector2();
+	}
 
 	MATRIX mat;
 	if (star.axis < 0)

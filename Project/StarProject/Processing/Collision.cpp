@@ -66,7 +66,7 @@ bool Collision::TriToSqr(const std::array<Vector2, 5> &_vert, const Position2 &_
 
 bool Collision::WatarToSqr(const Position2 & _posA, const Position2 & _posB, const Vector2 & _vec)
 {
-	const int r = 5;
+	const int r = 40;
 
 	auto _vecA = _vec;
 
@@ -78,7 +78,7 @@ bool Collision::WatarToSqr(const Position2 & _posA, const Position2 & _posB, con
 
 	auto _d = _posA - _p;
 
-	if (_d.Magnitude() <= r) {
+	if (_d.Magnitude() <= r + r) {
 		return true;
 	}
 	return false;
