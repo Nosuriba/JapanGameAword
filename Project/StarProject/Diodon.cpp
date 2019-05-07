@@ -1,8 +1,9 @@
 #include "Diodon.h"
+#include "Camera.h"
 
 const float maxSpeed = 3.0f;
 
-Diodon::Diodon()
+Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
 	auto pos  = Vector2(300, 300);
 	auto size = Size(80, 50);
@@ -64,8 +65,10 @@ void Diodon::DieUpdate()
 
 void Diodon::Draw()
 {
-	DxLib::DrawBox(enemy._rect.Left(),  enemy._rect.Top(),
-				   enemy._rect.Right(), enemy._rect.Bottom(), color, false);
+	auto camera = _camera->CameraCorrection();
+
+	DxLib::DrawBox(enemy._rect.Left() - camera.x,  enemy._rect.Top() - camera.y,
+				   enemy._rect.Right() - camera.x , enemy._rect.Bottom() - camera.y, color, false);
 
 	DxLib::DrawString(0, 40, "ÊØ¾ÝÎÞÝ‚Ì•\Ž¦", 0xffffff);
 }

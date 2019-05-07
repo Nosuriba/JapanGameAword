@@ -1,5 +1,9 @@
 #pragma once
 #include "Enemy.h"
+#include <memory>
+
+class Camera;
+
 class Diodon :
 	public Enemy
 {
@@ -16,8 +20,10 @@ private:
 
 	bool _turnFlag;			/// true:‰E•ûŒü, false:¶•ûŒü
 
+	std::shared_ptr<Camera> _camera;
+
 public:
-	Diodon();
+	Diodon(std::shared_ptr<Camera>& camera);
 	~Diodon();
 	void Draw();
 	void Update();

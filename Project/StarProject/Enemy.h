@@ -1,5 +1,8 @@
 #pragma once
 #include "Geometry.h"
+#include <memory>
+
+class Camera;
 
 struct EnemyInfo {
 	Position2 _pos;
@@ -17,13 +20,15 @@ struct EnemyInfo {
 class Enemy
 {
 private:
+	std::shared_ptr<Camera>& _camera;
+
 protected:
 	EnemyInfo enemy;
 	Vector2 _vel;
 	int color;
+	Enemy(std::shared_ptr<Camera>& camera);
 
 public:
-	Enemy();
 	~Enemy();
 	virtual void Draw();
 	virtual void Update();

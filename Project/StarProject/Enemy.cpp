@@ -1,7 +1,8 @@
 #include "Enemy.h"
 #include <DxLib.h>
+#include "Camera.h"
 
-Enemy::Enemy()
+Enemy::Enemy(std::shared_ptr<Camera>& camera):_camera(camera)
 {
 	/// e¸×½‚É‚µ‚Ä‚¢‚é‚Ì‚ÅA‚±‚±‚Ì‰Šú‰»‚ÍŒã‚ÅÁ‚·‚©‚à
 	auto pos  = Vector2(400, 400);

@@ -36,11 +36,11 @@ GameScene::GameScene()
 	{
 		if (i <= 0)
 		{
-			_enemies.push_back(std::make_shared<Fish>());
+			_enemies.push_back(std::make_shared<Fish>(_camera));
 		}
 		else
 		{
-			_enemies.push_back(std::make_shared<Diodon>());
+			_enemies.push_back(std::make_shared<Diodon>(_camera));
 		}
 	}
 

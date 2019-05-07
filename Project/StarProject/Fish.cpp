@@ -1,8 +1,9 @@
 #include "Fish.h"
 #include "Collision.h"
 #include "Player.h"
+#include "Camera.h"
 
-Fish::Fish()
+Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
 	auto pos  = Vector2(200, 200);
 	auto size = Size(80, 50);
@@ -40,9 +41,11 @@ void Fish::DieUpdate()
 
 void Fish::Draw()
 {
+	auto camera = _camera->CameraCorrection();
+
 	/// ‚Ç‚ê‚ğ‘€ì‚µ‚Ä‚¢‚é‚©‚ÌŠm”F‚Å˜g‚ğ“h‚è‚Â‚Ô‚µ‚Ä‚¢‚é
-	DxLib::DrawBox(enemy._rect.Left(), enemy._rect.Top(),
-				   enemy._rect.Right(), enemy._rect.Bottom(), color, true);
+	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
+				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, true);
 
 	DxLib::DrawString(0, 0, "‹›‚Ì•\¦", 0xffffff);
 }
