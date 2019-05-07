@@ -5,7 +5,10 @@ Obstacle::Obstacle(std::shared_ptr<Camera>& camera):_camera(camera)
 {
 	auto pos = Vector2();
 	auto size = Size();
-	auto obj = ObjectInfo(pos, size);
+	auto rect = Rect(pos, size);
+	auto obj = ObjectInfo(pos, size, rect);
+
+	rockimg = LoadGraph("../img/rock.png");
 }
 
 Obstacle::~Obstacle()
@@ -17,8 +20,11 @@ void Obstacle::Draw()
 	auto camera = _camera->CameraCorrection();
 
 	for (auto &obj : _obj) {
-		DxLib::DrawBox(obj._pos.x - obj._size.width / 2 - camera.x, obj._pos.y - obj._size.height / 2 - camera.y,
-			obj._pos.x + obj._size.width / 2 - camera.x, obj._pos.y + obj._size.height / 2 - camera.y,0xff00ff,true);
+		DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+			obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, rockimg, true);
+
+		DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+			obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, 0xff00ff, false);
 	}
 }
 
@@ -30,7 +36,8 @@ void Obstacle::ObjCreate(const Vector2 & _pos, const Size & _size)
 {
 	auto pos = _pos;
 	auto size = _size;
-	auto obj = ObjectInfo(pos, size);
+	auto rect = Rect(pos, size);
+	auto obj = ObjectInfo(pos, size, rect);
 	_obj.emplace_back(obj);
 }
 

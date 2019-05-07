@@ -5,7 +5,7 @@
 
 Camera::Camera()
 {
-	_img = LoadGraph("../img/umi.jpg");
+	_img = LoadGraph("../img/çªïl.png");
 
  	GetGraphSizeF(_img, &_range.x, &_range.y);
 }
