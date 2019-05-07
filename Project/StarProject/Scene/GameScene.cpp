@@ -28,7 +28,7 @@ GameScene::GameScene()
 
 	_col.reset(new Collision());
 
-	_obj.reset(new Obstacle());
+	_obj.reset(new Obstacle(_camera));
 
 	_updater = &GameScene::Wait;
 
