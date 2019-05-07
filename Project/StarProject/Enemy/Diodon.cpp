@@ -8,7 +8,7 @@ const Size swellSize  = Size(90, 90);
 Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
 	auto pos  = Vector2(300, 300);
-	auto size = Size(80, 50);
+	auto size = Size(50, 50);
 	auto rect = Rect(pos, size);
 
 	enemy = EnemyInfo(pos, size, rect);
