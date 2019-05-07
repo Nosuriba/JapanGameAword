@@ -143,20 +143,9 @@ const std::vector<Vector2> Player::GetShot()
 		{
 			v.push_back(star.vertexs[i] - star.center);
 		}
-	}
-
-	return v;
-}
-
-const std::array<Vector2, 5> Player::debugShot()
-{
-	std::array<Vector2, 5> v;
-	for (auto i = 0; i < star.shot.size(); i++)
-	{
-		v[i] = Vector2(0, 0);
-		if (star.shot[i])
+		else
 		{
-			v[i] = (star.vertexs[i] - star.center);
+			v.push_back(Vector2(0, 0));
 		}
 	}
 

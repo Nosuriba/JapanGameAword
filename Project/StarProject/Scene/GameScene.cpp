@@ -81,8 +81,8 @@ void GameScene::Update(const Input & p)
 
 	for (auto itr : _enemies)
 	{
-		auto sVec = _pl->debugShot();
-		for (int i = 0; i < _pl->debugShot().size(); ++i)
+		auto sVec = _pl->GetShot();
+		for (int i = 0; i < _pl->GetShot().size(); ++i)
 		{
 			if (_col->WatarToSqr(_pl->GetInfo().vertexs[i], itr->GetInfo()._pos, sVec[i]))
 			{
