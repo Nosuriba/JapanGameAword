@@ -49,7 +49,7 @@ void Fish::Draw()
 	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
 				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, true);
 
-	DxLib::DrawString(0, 0, "‹›‚Ì•\Ž¦", 0xffffff);
+	DxLib::DrawString(0, 0, "‹›‚Ì•\Ž¦", 0x000000);
 }
 
 void Fish::Update()

@@ -72,7 +72,7 @@ void Diodon::Draw()
 	DxLib::DrawBox(enemy._rect.Left() - camera.x,  enemy._rect.Top() - camera.y,
 				   enemy._rect.Right() - camera.x , enemy._rect.Bottom() - camera.y, color, true);
 
-	DxLib::DrawString(0, 40, "守据无輦虝\帵", 0xffffff);
+	DxLib::DrawString(0, 40, "守据无輦虝\帵", 0x000000);
 }
 
 void Diodon::Update()

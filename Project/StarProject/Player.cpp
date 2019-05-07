@@ -113,14 +113,18 @@ void Player::Draw()
 		{
 			auto v = star.vertexs[i] - star.center;
 			DrawLineAA(star.vertexs[i].x - c.x, star.vertexs[i].y - c.y,
-				star.vertexs[i].x + v.x * 10 - c.x, star.vertexs[i].y + v.y * 10 - c.y,
-				0xff0000);
+					   star.vertexs[i].x + v.x * 10 - c.x, star.vertexs[i].y + v.y * 10 - c.y,
+					   0xff0000);
+
+		/*	/// ¼®¯Ä‚Ìdebug—p•`‰æ
+			auto debug = (debugShot()[i].x == 0 ? Vector2(0, 0) : debugShot()[i] - star.center);
+
+			DrawLineAA(star.vertexs[i].x - c.x, star.vertexs[i].y - c.y,
+				star.vertexs[i].x + debug.x - c.x, star.vertexs[i].y + debug.y - c.y,
+				0xffffff);*/
 		}
 
-		/*/// ¼®¯Ä‚Ìdebug—p•`‰æ
-		auto debug = (debugShot()[i].x == 0 ? Vector2(0, 0) : debugShot()[i] - star.center);
 		
-		DrawLine(star.vertexs[i].x - c.x, star.vertexs[i].y - c.y, debug.x - c.x, debug.y - c.y, 0xffffff);*/
 	}
 }
 
