@@ -12,6 +12,8 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	enemy = EnemyInfo(pos, size, rect);
 	_vel = Vector2();
 
+	color = 0x88ff88;
+
 	Swim();
 }
 
@@ -47,7 +49,7 @@ void Fish::Draw()
 	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
 				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, true);
 
-	DxLib::DrawString(0, 0, "‹›‚Ì•\Ž¦", 0xffffff);
+	DxLib::DrawString(0, 0, "‹›‚Ì•\Ž¦", 0x000000);
 }
 
 void Fish::Update()
@@ -72,10 +74,10 @@ EnemyInfo Fish::GetInfo()
 
 void Fish::ChangeColor()
 {
-	color = 0xaaaaff;
+	color = 0x66dd66;
 }
 
 void Fish::ResetColor()
 {
-	color = 0xffffff;
+	color = 0x88ff88;
 }
