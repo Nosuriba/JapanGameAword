@@ -1,6 +1,9 @@
 #pragma once
 #include "Geometry.h"
 #include <vector>
+#include <memory>
+
+class Camera;
 
 struct ObjectInfo {
 	Vector2 _pos;
@@ -16,8 +19,10 @@ class Obstacle
 {
 private:
 	std::vector<ObjectInfo> _obj;
+	std::shared_ptr<Camera>& _camera;
+
 public:
-	Obstacle();
+	Obstacle(std::shared_ptr<Camera>& camera);
 	~Obstacle();
 	void Draw();
 	void Update();
