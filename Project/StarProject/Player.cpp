@@ -123,3 +123,18 @@ Star Player::GetInfo()
 {
 	return star;
 }
+
+const std::vector<Vector2> Player::GetShot()
+{
+	std::vector<Vector2> v;
+	v.clear();
+	for (auto i = 0; i < star.shot.size(); i++)
+	{
+		if (star.shot[i])
+		{
+			v.push_back(star.vertexs[i] - star.center);
+		}
+	}
+
+	return v;
+}

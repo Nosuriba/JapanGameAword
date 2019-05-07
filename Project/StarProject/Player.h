@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <vector>
 #include <memory>
 #include "Geometry.h"
 
@@ -34,5 +35,6 @@ public:
 	void Update();
 	void Draw();
 	Star GetInfo();
+	const std::vector<Vector2> GetShot();
 };
 
