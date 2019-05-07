@@ -12,6 +12,8 @@ Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	enemy = EnemyInfo(pos, size, rect);
 	_vel  = Vector2();
 
+	color = 0x77bbff;
+
 	_turnFlag = true;
 
 	Swim();
@@ -68,7 +70,7 @@ void Diodon::Draw()
 	auto camera = _camera->CameraCorrection();
 
 	DxLib::DrawBox(enemy._rect.Left() - camera.x,  enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x , enemy._rect.Bottom() - camera.y, color, false);
+				   enemy._rect.Right() - camera.x , enemy._rect.Bottom() - camera.y, color, true);
 
 	DxLib::DrawString(0, 40, "ÊØ¾ÝÎÞÝ‚Ì•\Ž¦", 0xffffff);
 }
@@ -89,7 +91,7 @@ EnemyInfo Diodon::GetInfo()
 void Diodon::ChangeColor()
 {
 	Swell();
-	color = 0x888800;
+	color = 0x5599dd;
 }
 
 void Diodon::ResetColor()
@@ -97,5 +99,5 @@ void Diodon::ResetColor()
 	/// debug—p
 	_vel.y = 0;
 	Swim();
-	color = 0xffff00;
+	color = 0x77bbff;
 }
