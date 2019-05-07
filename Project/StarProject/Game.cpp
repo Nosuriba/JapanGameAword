@@ -1,6 +1,6 @@
 #include <DxLib.h>
 #include "Game.h"
-#include "Input.h"
+#include "Processing/Input.h"
 #include "Scene/TitleScene.h"
 
 constexpr int screen_x = 1280;

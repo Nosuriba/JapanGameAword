@@ -1,5 +1,5 @@
 #include "Diodon.h"
-#include "Camera.h"
+#include "../Camera.h"
 
 const float maxSpeed = 3.0f;
 

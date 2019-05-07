@@ -1,5 +1,5 @@
 #include "ResultScene.h"
-#include "../Input.h"
+#include "../Processing/Input.h"
 #include "../Game.h"
 #include "TitleScene.h"
 

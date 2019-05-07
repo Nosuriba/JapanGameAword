@@ -1,5 +1,5 @@
 #include "Obstacle.h"
-#include "Camera.h"
+#include "../Camera.h"
 
 Obstacle::Obstacle(std::shared_ptr<Camera>& camera):_camera(camera)
 {

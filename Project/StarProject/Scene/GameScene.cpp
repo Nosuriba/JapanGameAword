@@ -1,14 +1,14 @@
 #include "GameScene.h"
-#include "../Input.h"
+#include "../Processing/Input.h"
 #include "../Game.h"
 #include "ResultScene.h"
 #include "../Player.h"
-#include "../Enemy.h"
-#include "../Fish.h"
-#include "../Diodon.h"
-#include "../Collision.h"
+#include "../Enemy/Enemy.h"
+#include "../Enemy/Fish.h"
+#include "../Enemy/Diodon.h"
+#include "../Processing/Collision.h"
 #include "../Camera.h"
-#include "../Obstacle.h"
+#include "../Object/Obstacle.h"
 
 void GameScene::Wait(const Input & p)
 {

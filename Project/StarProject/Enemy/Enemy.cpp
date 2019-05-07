@@ -1,6 +1,6 @@
 #include "Enemy.h"
 #include <DxLib.h>
-#include "Camera.h"
+#include "../Camera.h"
 
 Enemy::Enemy(std::shared_ptr<Camera>& camera):_camera(camera)
 {

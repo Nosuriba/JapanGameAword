@@ -1,7 +1,7 @@
 #include "Fish.h"
-#include "Collision.h"
-#include "Player.h"
-#include "Camera.h"
+#include "../Processing/Collision.h"
+#include "../Player.h"
+#include "../Camera.h"
 
 Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {

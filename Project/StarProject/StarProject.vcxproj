@@ -124,9 +124,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Diodon.cpp" />
-    <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="Fish.cpp" />
+    <ClCompile Include="Enemy\Diodon.cpp" />
+    <ClCompile Include="Enemy\Enemy.cpp" />
+    <ClCompile Include="Enemy\Fish.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object\DestroyableObject.cpp" />
@@ -144,9 +144,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Diodon.h" />
-    <ClInclude Include="Enemy.h" />
-    <ClInclude Include="Fish.h" />
+    <ClInclude Include="Enemy\Diodon.h" />
+    <ClInclude Include="Enemy\Enemy.h" />
+    <ClInclude Include="Enemy\Fish.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Object\DestroyableObject.h" />
     <ClInclude Include="Object\ImmortalObject.h" />

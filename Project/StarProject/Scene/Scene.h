@@ -1,5 +1,5 @@
 #pragma once
-#include "../Input.h"
+#include "../Processing/Input.h"
 
 class Scene
 {

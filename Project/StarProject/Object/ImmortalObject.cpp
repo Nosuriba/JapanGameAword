@@ -1,8 +1,8 @@
 #include "ImmortalObject.h"
+#include "../Camera.h"
 
 
-
-ImmortalObject::ImmortalObject()
+ImmortalObject::ImmortalObject(std::shared_ptr<Camera>& camera):Obstacle(camera),_camera(camera)
 {
 }
 
