@@ -124,16 +124,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Diodon.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Fish.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Geometry.cpp" />
-    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Obstacle.cpp" />
+    <ClCompile Include="Object\DestroyableObject.cpp" />
+    <ClCompile Include="Object\ImmortalObject.cpp" />
+    <ClCompile Include="Object\Obstacle.cpp" />
+    <ClCompile Include="Object\PredatoryObject.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Processing\Collision.cpp" />
+    <ClCompile Include="Processing\Geometry.cpp" />
+    <ClCompile Include="Processing\Input.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Scene\ResultScene.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
@@ -141,15 +144,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Collision.h" />
     <ClInclude Include="Diodon.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Fish.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Geometry.h" />
-    <ClInclude Include="Input.h" />
-    <ClInclude Include="Obstacle.h" />
+    <ClInclude Include="Object\DestroyableObject.h" />
+    <ClInclude Include="Object\ImmortalObject.h" />
+    <ClInclude Include="Object\Obstacle.h" />
+    <ClInclude Include="Object\PredatoryObject.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Processing\Collision.h" />
+    <ClInclude Include="Processing\Geometry.h" />
+    <ClInclude Include="Processing\Input.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Scene\ResultScene.h" />
     <ClInclude Include="Scene\Scene.h" />
