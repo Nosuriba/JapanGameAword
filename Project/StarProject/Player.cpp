@@ -33,8 +33,6 @@ void Player::Update()
 	vel = vel * deceleration;
 	star.axis = -1;
 
-
-
 	if (Buf[KEY_INPUT_NUMPAD8])		star.axis = 0;
 	if (Buf[KEY_INPUT_NUMPAD6])		star.axis = 1;
 	if (Buf[KEY_INPUT_NUMPAD3])		star.axis = 2;
@@ -119,16 +117,7 @@ void Player::Draw()
 			DrawLineAA(star.vertexs[i].x - c.x, star.vertexs[i].y - c.y,
 					   star.vertexs[i].x + v.x * 10 - c.x, star.vertexs[i].y + v.y * 10 - c.y,
 					   0xff0000);
-
-		/*	/// ¼®¯Ä‚Ìdebug—p•`‰æ
-			auto debug = (debugShot()[i].x == 0 ? Vector2(0, 0) : debugShot()[i] - star.center);
-
-			DrawLineAA(star.vertexs[i].x - c.x, star.vertexs[i].y - c.y,
-				star.vertexs[i].x + debug.x - c.x, star.vertexs[i].y + debug.y - c.y,
-				0xffffff);*/
 		}
-
-		
 	}
 }
 
