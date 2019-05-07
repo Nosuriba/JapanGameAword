@@ -30,6 +30,7 @@ void Fish::Swim()
 
 void Fish::Die()
 {
+	_vel = Vector2(0, 0);
 	updater = &Fish::DieUpdate;
 }
 
@@ -75,7 +76,7 @@ EnemyInfo Fish::GetInfo()
 
 void Fish::ChangeColor()
 {
-	_vel.x = 0;
+	Die();
 	color = 0x66dd66;
 }
 

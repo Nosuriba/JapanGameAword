@@ -18,7 +18,6 @@ private:
 	void (Fish::*updater)();
 
 	std::shared_ptr<Camera>& _camera;
-
 public:
 	Fish(std::shared_ptr<Camera>& camera);
 	~Fish();
