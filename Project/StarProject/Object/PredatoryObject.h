@@ -9,7 +9,7 @@ class PredatoryObject :
 {
 private:
 	std::shared_ptr<Camera>& _camera;
-	std::vector<ObjectInfo> _predatory;
+	ObjectInfo _predatory;
 
 	int predatoryimg;
 
@@ -19,7 +19,7 @@ public:
 
 	void Draw();
 	void Update();
-	void ObjCreate(const Position2& pos, const Size& size);
-	std::vector<ObjectInfo> GetInfo();
+	void Break();
+	ObjectInfo GetInfo();
 };
 

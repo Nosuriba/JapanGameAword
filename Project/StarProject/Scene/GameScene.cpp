@@ -31,8 +31,6 @@ GameScene::GameScene()
 
 	_col.reset(new Collision());
 
-	_obj.reset(new Obstacle(_camera));
-
 	_destroy.reset(new DestroyableObject(_camera));
 
 	_predatory.reset(new PredatoryObject(_camera));
@@ -53,9 +51,10 @@ GameScene::GameScene()
 		}
 	}
 
-	_destroy->ObjCreate(Vector2(300,300),Size(40,40));
-	_predatory->ObjCreate(Vector2(300,200),Size(40,40));
-	_immortal->ObjCreate(Vector2(300,400),Size(40,40));
+	//オブジェクトの生成
+	_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera));
+	_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera));
+	_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera));
 }
 
 GameScene::~GameScene()
@@ -67,7 +66,6 @@ void GameScene::Draw()
 {
 	int sizex, sizey;
 	DxLib::GetWindowSize(&sizex, &sizey);
-	//DxLib::DrawExtendGraph(0, 0, sizex, sizey, gameimg, true);
 
 	_camera->Draw();
 	_pl->Draw();
@@ -77,10 +75,15 @@ void GameScene::Draw()
 		itr->Draw();
 	}
 
-	_obj->Draw();
-	_destroy->Draw();
-	_predatory->Draw();
-	_immortal->Draw();
+	for (auto &destroy : _destroyObj) {
+		destroy->Draw();
+	}
+	for (auto &predatory : _predatoryObj) {
+		predatory->Draw();
+	}
+	for (auto &immortal : _immortalObj) {
+		immortal->Draw();
+	}
 }
 
 void GameScene::Update(const Input & p)
@@ -102,6 +105,39 @@ void GameScene::Update(const Input & p)
 			{
 				itr->ChangeColor();
 				break;
+			}
+		}
+	}
+
+	//破壊可能オブジェクト
+	for (auto &destroy : _destroyObj) {
+		auto sVec = _pl->GetShot();
+		for (int i = 0; i < sVec.size(); ++i) {
+			if (_col->WaterToSqr(_pl->GetInfo().vertexs[i], sVec[i], destroy->GetInfo()._rect))
+			{
+				destroy->Break();
+			}
+		}
+	}
+
+	//破壊不可オブジェクト
+	for (auto &predatry : _predatoryObj) {
+		auto sVec = _pl->GetShot();
+		for (int i = 0; i < sVec.size(); ++i) {
+			if (_col->WaterToSqr(_pl->GetInfo().vertexs[i], sVec[i], predatry->GetInfo()._rect))
+			{
+				predatry->Break();
+			}
+		}
+	}
+
+	//捕食対象
+	for (auto &immortal : _immortalObj) {
+		auto sVec = _pl->GetShot();
+		for (int i = 0; i < sVec.size(); ++i) {
+			if (_col->WaterToSqr(_pl->GetInfo().vertexs[i], sVec[i], immortal->GetInfo()._rect))
+			{
+				immortal->Break();
 			}
 		}
 	}

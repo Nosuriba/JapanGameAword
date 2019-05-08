@@ -5,11 +5,12 @@
 
 PredatoryObject::PredatoryObject(std::shared_ptr<Camera>& camera):Obstacle(camera),_camera(camera)
 {
-	auto pos = Position2();
-	auto size = Size();
+	auto pos = Position2(400,300);
+	auto size = Size(40,40);
 	auto rect = Rect(pos, size);
+	auto color = 0xff00ff;
 
-	auto object = ObjectInfo(pos, size, rect);
+	obj = ObjectInfo(pos, size, rect, color);
 
 	predatoryimg = DxLib::LoadGraph("../img/predatory.png");
 }
@@ -22,30 +23,23 @@ void PredatoryObject::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	for (auto &predatory : _predatory) {
-		DxLib::DrawExtendGraph(predatory._rect.Left() - camera.x, predatory._rect.Top() - camera.y,
-			predatory._rect.Right() - camera.x, predatory._rect.Bottom() - camera.y, predatoryimg, true);
+	DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, predatoryimg, true);
 
-		DxLib::DrawBox(predatory._rect.Left() - camera.x, predatory._rect.Top() - camera.y,
-			predatory._rect.Right() - camera.x, predatory._rect.Bottom() - camera.y, 0xff00ff, false);
-	}
+	DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, obj._color, false);
 }
 
 void PredatoryObject::Update()
 {
 }
 
-void PredatoryObject::ObjCreate(const Position2 & _pos, const Size & _size)
+void PredatoryObject::Break()
 {
-	auto pos = _pos;
-	auto size = _size;
-	auto rect = Rect(pos, size);
-
-	auto object = ObjectInfo(pos, size, rect);
-	_predatory.push_back(object);
+	obj._color = 0x000000;
 }
 
-std::vector<ObjectInfo> PredatoryObject::GetInfo()
+ObjectInfo PredatoryObject::GetInfo()
 {
-	return _predatory;
+	return obj;
 }

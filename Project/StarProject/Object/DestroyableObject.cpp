@@ -4,11 +4,12 @@
 
 DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera):Obstacle(camera),_camera(camera)
 {
-	auto pos = Position2();
-	auto size = Size();
+	auto pos = Position2(400,400);
+	auto size = Size(40,40);
 	auto rect = Rect(pos, size);
+	auto color = 0xff00ff;
 
-	auto object = ObjectInfo(pos, size, rect);
+	obj = ObjectInfo(pos, size, rect, color);
 
 	destroyimg = DxLib::LoadGraph("../img/destroy.png");
 }
@@ -21,30 +22,23 @@ void DestroyableObject::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	for (auto &destroy : _destroy) {
-		DxLib::DrawExtendGraph(destroy._rect.Left() - camera.x, destroy._rect.Top() - camera.y,
-			destroy._rect.Right() - camera.x, destroy._rect.Bottom() - camera.y, destroyimg, true);
+	DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, destroyimg, true);
 
-		DxLib::DrawBox(destroy._rect.Left() - camera.x, destroy._rect.Top() - camera.y,
-			destroy._rect.Right() - camera.x, destroy._rect.Bottom() - camera.y, 0xff00ff, false);
-	}
+	DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, obj._color, false);
 }
 
 void DestroyableObject::Update()
 {
 }
 
-void DestroyableObject::ObjCreate(const Position2 & _pos, const Size & _size)
+void DestroyableObject::Break()
 {
-	auto pos = _pos;
-	auto size = _size;
-	auto rect = Rect(pos, size);
-
-	auto object = ObjectInfo(pos, size, rect);
-	_destroy.push_back(object);
+	obj._color = 0x000000;
 }
 
-std::vector<ObjectInfo> DestroyableObject::GetInfo()
+ObjectInfo DestroyableObject::GetInfo()
 {
-	return _destroy;
+	return obj;
 }

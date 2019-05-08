@@ -21,8 +21,8 @@ public:
 	~ImmortalObject();
 	void Draw();
 	void Update();
+	void Break();
 
-	void ObjCreate(const Position2& _pos, const Size& _size);
-	std::vector<ObjectInfo> GetInfo();
+	ObjectInfo GetInfo();
 };
 

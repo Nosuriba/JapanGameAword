@@ -28,12 +28,15 @@ private:
 	std::shared_ptr<Collision> _col;
 	std::shared_ptr<Camera> _camera;
 
-	std::shared_ptr<Obstacle> _obj;
+	std::vector<std::shared_ptr<Enemy>> _enemies;		/// ‰¼‚Ì•`‰æ
+
 	std::shared_ptr<DestroyableObject> _destroy;
 	std::shared_ptr<PredatoryObject> _predatory;
 	std::shared_ptr<ImmortalObject> _immortal;
 
-	std::vector<std::shared_ptr<Enemy>> _enemies;		/// ‰¼‚Ì•`‰æ
+	std::vector<std::shared_ptr<DestroyableObject>> _destroyObj;
+	std::vector<std::shared_ptr<PredatoryObject>> _predatoryObj;
+	std::vector<std::shared_ptr<ImmortalObject>> _immortalObj;
 
 public:
 	GameScene();

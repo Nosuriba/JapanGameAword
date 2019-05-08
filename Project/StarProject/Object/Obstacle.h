@@ -9,11 +9,13 @@ struct ObjectInfo {
 	Vector2 _pos;
 	Size _size;
 	Rect _rect;
-	ObjectInfo() :_pos(0, 0), _size(0, 0), _rect(_pos,_size) {};
-	ObjectInfo(const Vector2 &pos, const Size & size, const Rect& rect) {
+	int _color;
+	ObjectInfo() :_pos(0, 0), _size(0, 0), _rect(_pos, _size), _color(0) {};
+	ObjectInfo(const Vector2 &pos, const Size & size, const Rect& rect, const int& color) {
 		_pos = pos;
 		_size = size;
 		_rect = rect;
+		_color = color;
 	}
 };
 
@@ -23,8 +25,8 @@ private:
 	std::vector<ObjectInfo> _obj;
 	std::shared_ptr<Camera>& _camera;
 
-	int rockimg;
-
+protected:
+	ObjectInfo obj;
 public:
 	Obstacle(std::shared_ptr<Camera>& camera);
 	~Obstacle();
