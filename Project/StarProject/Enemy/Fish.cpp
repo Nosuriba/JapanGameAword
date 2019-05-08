@@ -1,7 +1,11 @@
+#include <math.h>
 #include "Fish.h"
 #include "../Processing/Collision.h"
 #include "../Player.h"
 #include "../Camera.h"
+
+const int distance = 150;		/// 探知できる距離
+const int deg = 30;				/// ﾌﾟﾚｲﾔｰを探知する方向を求めるための角度
 
 Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
@@ -11,6 +15,16 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 
 	enemy = EnemyInfo(pos, size, rect);
 	_vel = Vector2();
+
+	for (int i = 0; i < 2; ++i)
+	{
+		auto rad = (deg - ((deg * 2) * i)) * DX_PI / 180;	
+		auto cosD = cos(rad);
+		auto sinD = sin(rad);
+
+		auto pos = Vector2(enemy._rect.Left(), enemy._rect.Top() + (enemy._size.height / 2));
+		searchPos.push_back(enemy._pos + Vector2(distance * cosD, -distance * sinD));
+	}
 
 	color = 0x88ff88;
 
@@ -47,11 +61,17 @@ void Fish::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	/// どれを操作しているかの確認で枠を塗りつぶしている
 	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
 				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, true);
 
-	DxLib::DrawString(0, 0, "魚の表示", 0x000000);
+	/// 探知できる範囲の描画
+	for (int i = 0; i < searchPos.size(); ++i)
+	{
+		DxLib::DrawLineAA(enemy._rect.Left() - camera.x, enemy._pos.y - camera.y,
+					      searchPos[i].x - camera.x, searchPos[i].y - camera.y, 0x0000ff, 3.0);
+	}
+	DxLib::DrawLineAA(searchPos[0].x - camera.x, searchPos[0].y - camera.y,
+					  searchPos[1].x - camera.x, searchPos[1].y - camera.y, 0x0000ff, 3.0);
 }
 
 void Fish::Update()
@@ -65,8 +85,18 @@ void Fish::Update()
 
 	enemy._pos += _vel;
 	enemy._rect = Rect(enemy._pos, enemy._size);
-
 	enemy._pos = DebugRoop(enemy._pos);
+
+	/// 探知する距離の終点座標を移動している
+	for (int i = 0; i < searchPos.size(); ++i)
+	{
+		auto rad = (deg - ((deg * 2) * i)) * DX_PI / 180;
+		auto cosD = cos(rad);
+		auto sinD = sin(rad);
+
+		auto pos = Vector2(enemy._rect.Left(), enemy._rect.Top() + (enemy._size.height / 2));
+		searchPos[i] = Vector2(pos - Vector2(distance * cosD, distance * sinD));
+	}
 }
 
 EnemyInfo Fish::GetInfo()

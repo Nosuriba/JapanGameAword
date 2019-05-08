@@ -19,7 +19,6 @@ private:
 	std::shared_ptr<Camera> _camera;
 
 	int riseCnt;			/// •‚ã‚·‚éÀ²Ğİ¸Ş‚ğ’²®‚·‚é‚½‚ß‚Ì¶³İÄ
-	bool _turnFlag;			/// true:‰E•ûŒü, false:¶•ûŒü
 
 public:
 	Diodon(std::shared_ptr<Camera>& camera);
