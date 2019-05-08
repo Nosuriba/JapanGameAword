@@ -1,12 +1,14 @@
 #include "Diodon.h"
 #include "../Camera.h"
 
-const float maxSpeed = 3.0f;
+const float riseSpeed = 0.8f;
+const float maxSpeed  = 3.0f;
+const Size swellSize  = Size(90, 90);
 
 Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
 	auto pos  = Vector2(300, 300);
-	auto size = Size(80, 50);
+	auto size = Size(50, 50);
 	auto rect = Rect(pos, size);
 
 	enemy = EnemyInfo(pos, size, rect);
@@ -14,6 +16,7 @@ Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 
 	color = 0x77bbff;
 
+	riseCnt = 0;
 	_turnFlag = true;
 
 	Swim();
@@ -31,12 +34,8 @@ void Diodon::Swim()
 void Diodon::Swell()
 {
 	_vel.x = 0;
+	_turnFlag = true;
 	updater = &Diodon::SwellUpdate;
-}
-
-void Diodon::Die()
-{
-	updater = &Diodon::DieUpdate;
 }
 
 void Diodon::SwimUpdate()
@@ -56,13 +55,44 @@ void Diodon::SwimUpdate()
 
 void Diodon::SwellUpdate()
 {
-	/// ˆê’èŽžŠÔ•‚‚­‚ÆAã¸‚ªŽ~‚Ü‚é‚æ‚¤‚É‚·‚é
-	_vel.y = -0.5f;
-}
+	auto SizeScaling = [](const Size& enemy, const Size& swell)
+	{
+		auto size = enemy;
 
-void Diodon::DieUpdate()
-{
-	/// ‚½‚Ô‚ñŽ€‚È‚È‚¢Ý’è‚É‚·‚é‚ÆŽv‚¤
+		/// •‚ÌŠgk
+		if (size.width != swell.width)
+		{
+			size.width = (size.width > swell.width ? size.width - 1 : size.width + 1);
+		}
+
+		/// ‚‚³‚ÌŠgk
+		if (size.height != swell.height)
+		{
+			size.height = (size.height > swell.height ? size.height - 1 : size.height + 1);
+		}
+		return size;
+	};
+
+	riseCnt++;
+	if (riseCnt > 180)
+	{
+		if (_turnFlag)
+		{
+			_vel.y += 0.02f;
+			_turnFlag = (_vel.y <  riseSpeed? true : false);
+		}
+		else
+		{
+			_vel.y -= 0.02f;
+			_turnFlag = (_vel.y < -riseSpeed ? true : false);
+		}
+	}
+	else
+	{
+		_vel.y = -0.5f;
+	}
+	
+	enemy._size = SizeScaling(enemy._size, swellSize);
 }
 
 void Diodon::Draw()
@@ -96,8 +126,5 @@ void Diodon::ChangeColor()
 
 void Diodon::ResetColor()
 {
-	/// debug—p
-	_vel.y = 0;
-	Swim();
 	color = 0x77bbff;
 }

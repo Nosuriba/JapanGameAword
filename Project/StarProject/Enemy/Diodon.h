@@ -10,17 +10,16 @@ class Diodon :
 private:
 	void Swim();
 	void Swell();
-	void Die();
 
 	void SwimUpdate();		
 	void SwellUpdate();		/// –c‚ç‚ñ‚¾ó‘Ô
-	void DieUpdate();
 
 	void (Diodon::*updater)();
 
-	bool _turnFlag;			/// true:‰E•ûŒü, false:¶•ûŒü
-
 	std::shared_ptr<Camera> _camera;
+
+	int riseCnt;			/// •‚ã‚·‚éÀ²Ğİ¸Ş‚ğ’²®‚·‚é‚½‚ß‚Ì¶³İÄ
+	bool _turnFlag;			/// true:‰E•ûŒü, false:¶•ûŒü
 
 public:
 	Diodon(std::shared_ptr<Camera>& camera);
