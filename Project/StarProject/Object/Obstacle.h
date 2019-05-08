@@ -30,7 +30,5 @@ public:
 	~Obstacle();
 	void Draw();
 	void Update();
-	void ObjCreate(const Vector2 &_pos, const Size & _size);
-	std::vector<ObjectInfo> GetObjectInfo();
 };
 

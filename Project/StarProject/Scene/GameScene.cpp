@@ -9,6 +9,9 @@
 #include "../Processing/Collision.h"
 #include "../Camera.h"
 #include "../Object/Obstacle.h"
+#include "../Object/DestroyableObject.h"
+#include "../Object/PredatoryObject.h"
+#include "../Object/ImmortalObject.h"
 
 void GameScene::Wait(const Input & p)
 {
@@ -30,6 +33,12 @@ GameScene::GameScene()
 
 	_obj.reset(new Obstacle(_camera));
 
+	_destroy.reset(new DestroyableObject(_camera));
+
+	_predatory.reset(new PredatoryObject(_camera));
+
+	_immortal.reset(new ImmortalObject(_camera));
+
 	_updater = &GameScene::Wait;
 
 	for (int i = 0; i < 2; ++i)
@@ -44,7 +53,9 @@ GameScene::GameScene()
 		}
 	}
 
-	_obj->ObjCreate(Vector2(300,300),Size(40,40));
+	_destroy->ObjCreate(Vector2(300,300),Size(40,40));
+	_predatory->ObjCreate(Vector2(300,200),Size(40,40));
+	_immortal->ObjCreate(Vector2(300,400),Size(40,40));
 }
 
 GameScene::~GameScene()
@@ -67,6 +78,9 @@ void GameScene::Draw()
 	}
 
 	_obj->Draw();
+	_destroy->Draw();
+	_predatory->Draw();
+	_immortal->Draw();
 }
 
 void GameScene::Update(const Input & p)

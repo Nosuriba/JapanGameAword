@@ -3,12 +3,17 @@
 #include <memory>
 
 #include <vector>
+
 class Input;
 class Player;
 class Enemy;
 class Collision;
 class Camera;
+
 class Obstacle;
+class DestroyableObject;
+class PredatoryObject;
+class ImmortalObject;
 
 class GameScene : public Scene
 {
@@ -22,7 +27,11 @@ private:
 	std::shared_ptr<Enemy> _ene;
 	std::shared_ptr<Collision> _col;
 	std::shared_ptr<Camera> _camera;
+
 	std::shared_ptr<Obstacle> _obj;
+	std::shared_ptr<DestroyableObject> _destroy;
+	std::shared_ptr<PredatoryObject> _predatory;
+	std::shared_ptr<ImmortalObject> _immortal;
 
 	std::vector<std::shared_ptr<Enemy>> _enemies;		/// ‰¼‚Ì•`‰æ
 

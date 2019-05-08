@@ -95,11 +95,4 @@ bool Collision::WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const 
 		return true;
 	}
 	return false;
-
-	/*auto _d = _posA - _p;
-
-	if (_d.Magnitude() <= r + r) {
-		return true;
-	}
-	return false;*/
 }
