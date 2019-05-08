@@ -64,22 +64,42 @@ bool Collision::TriToSqr(const std::array<Vector2, 5> &_vert, const Position2 &_
 	return false;
 }
 
-bool Collision::WatarToSqr(const Position2 & _posA, const Position2 & _posB, const Vector2 & _vec)
+bool Collision::WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const Rect& _rectB)
 {
-	const int r = 40;
+	//_posA = player,_vec = laser,_rectB = enemy;
+
+	const int r = 30;
 
 	auto _vecA = _vec;
 
-	auto _vecB = _posA - _posB;
+	auto _vecB = _rectB.center - _posA;
 
 	auto _t = Dot(_vecA.Normalized(), _vecB);
 
-	auto _p = _posB + (_vecA.Normalized() * _t);
+	auto _p = _posA + (_vecA.Normalized() * max(0,_t));
 
-	auto _d = _posA - _p;
+
+	auto termA = ((_rectB.Left() < _p.x) && (_rectB.Right() > _p.x) && (_rectB.Top() - r < _p.y) && (_rectB.Bottom() + r > _p.y));
+
+	auto termB = ((_rectB.Top() < _p.y) && (_rectB.Bottom() > _p.y) && (_rectB.Right() - r < _p.x) && (_rectB.Left() + r > _p.x));
+
+	auto termC = ((_rectB.Left() - _p.x)*(_rectB.Left() - _p.x) + (_rectB.Top() - _p.y)*(_rectB.Top() - _p.y) < r*r);
+
+	auto termD = ((_rectB.Right() - _p.x)*(_rectB.Right() - _p.x) + (_rectB.Top() - _p.y)*(_rectB.Top() - _p.y) < r*r);
+
+	auto termE = ((_rectB.Right() - _p.x)*(_rectB.Right() - _p.x) + (_rectB.Bottom() - _p.y)*(_rectB.Bottom() - _p.y) < r*r);
+
+	auto termF = ((_rectB.Left() - _p.x)*(_rectB.Left() - _p.x) + (_rectB.Bottom() - _p.y)*(_rectB.Bottom() - _p.y) < r*r);
+
+	if (termA || termB || termC || termD || termE || termF) {
+		return true;
+	}
+	return false;
+
+	/*auto _d = _posA - _p;
 
 	if (_d.Magnitude() <= r + r) {
 		return true;
 	}
-	return false;
+	return false;*/
 }

@@ -84,7 +84,7 @@ void GameScene::Update(const Input & p)
 		auto sVec = _pl->GetShot();
 		for (int i = 0; i < _pl->GetShot().size(); ++i)
 		{
-			if (_col->WatarToSqr(_pl->GetInfo().vertexs[i], itr->GetInfo()._pos, sVec[i]))
+			if (_col->WaterToSqr(_pl->GetInfo().vertexs[i], sVec[i],itr->GetInfo()._rect))
 			{
 				itr->ChangeColor();
 				break;

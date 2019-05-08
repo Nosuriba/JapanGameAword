@@ -11,7 +11,7 @@ public:
 	Collision();
 	~Collision();
 	bool TriToSqr(const std::array<Vector2, 5> &_vert, const Position2 &_pos, const Size &_size);
-	bool WatarToSqr(const Position2 & _posA, const Position2 & _posB, const Vector2 & _vec);
+	bool WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const Rect& _rect);
 
 };
 
