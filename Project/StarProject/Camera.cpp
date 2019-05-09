@@ -29,7 +29,7 @@ void Camera::Update(const Vector2& p)
 
 void Camera::Draw()
 {
-	DrawGraph(0 - _correction.x, 0 - _correction.y, _img, true);
+	//DrawGraph(0 - _correction.x, 0 - _correction.y, _img, true);
 }
 
 const Vector2 Camera::CameraCorrection() const

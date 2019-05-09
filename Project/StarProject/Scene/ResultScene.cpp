@@ -13,13 +13,23 @@ void ResultScene::Wait(const Input & p)
 
 ResultScene::ResultScene()
 {
-	resultimg = DxLib::LoadGraph("../img/result.png");
+	//フォントのロード
+	LPCSTR font = "H2O-Shadow.ttf";
+	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
+	}
+	else {
+		MessageBox(nullptr, "失敗", "", MB_OK);
+	}
+
+	SetFontSize(64);
+
+	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
+
 	_updater = &ResultScene::Wait;
 }
 
 ResultScene::~ResultScene()
 {
-	DxLib::DeleteGraph(resultimg);
 }
 
 void ResultScene::Update(const Input & p)
@@ -29,5 +39,6 @@ void ResultScene::Update(const Input & p)
 
 void ResultScene::Draw()
 {
-	DxLib::DrawExtendGraph(0, 0, 1280, 740, resultimg, true);
+	auto size = Game::GetInstance().GetScreenSize();
+	DrawString(size.x / 2 - GetFontSize() * 2, size.y / 2, "Result", 0xff00ff);
 }

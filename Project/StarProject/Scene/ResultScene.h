@@ -6,7 +6,6 @@ class Input;
 class ResultScene : public Scene
 {
 private:
-	int resultimg;
 	void (ResultScene::*_updater)(const Input &p);
 	void Wait(const Input &p);
 
