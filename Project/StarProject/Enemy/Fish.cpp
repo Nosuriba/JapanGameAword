@@ -16,14 +16,10 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	enemy = EnemyInfo(pos, size, rect);
 	_vel = Vector2();
 
-	for (int i = 0; i < 2; ++i)
+	_turnFlag = false;
+	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
-		auto rad = (deg - ((deg * 2) * i)) * DX_PI / 180;	
-		auto cosD = cos(rad);
-		auto sinD = sin(rad);
-
-		auto pos = Vector2(enemy._rect.Left(), enemy._rect.Top() + (enemy._size.height / 2));
-		searchPos.push_back(enemy._pos + Vector2(distance * cosD, -distance * sinD));
+		enemy._searchVert[i] = enemy._pos;
 	}
 
 	color = 0x88ff88;
@@ -57,6 +53,40 @@ void Fish::DieUpdate()
 {
 }
 
+void Fish::searchMove()
+{
+	for (int i = 0; i < enemy._searchVert.size(); ++i)
+	{
+		if (i == 0)
+		{
+			enemy._searchVert[i] = _turnFlag ? Vector2(enemy._rect.Right(), enemy._rect.Top() + (enemy._size.height / 2)) :
+										 Vector2(enemy._rect.Left(), enemy._rect.Top() + (enemy._size.height / 2));
+		}
+		else
+		{
+			double  rad, cosD, sinD;
+			Vector2 pos;
+			if (_turnFlag)
+			{
+				rad = (deg - ((deg * 2) * (i - 1))) * DX_PI / 180;
+				cosD = cos(rad);
+				sinD = sin(rad);
+
+				pos = Vector2(enemy._rect.Right(), enemy._rect.Top() + (enemy._size.height / 2));
+			}
+			else
+			{
+				rad = (180 - deg + ((deg * 2) * (i - 1))) * DX_PI / 180;
+				cosD = cos(rad);
+				sinD = sin(rad);
+
+				pos = Vector2(enemy._rect.Left(), enemy._rect.Top() + (enemy._size.height / 2));
+			}
+			enemy._searchVert[i] = Vector2(pos + Vector2(distance * cosD, -distance * sinD));
+		}
+	}
+}
+
 void Fish::Draw()
 {
 	auto camera = _camera->CameraCorrection();
@@ -65,13 +95,14 @@ void Fish::Draw()
 				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, true);
 
 	/// ’T’m‚Å‚«‚é”ÍˆÍ‚Ì•`‰æ
-	for (int i = 0; i < searchPos.size(); ++i)
+	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
-		DxLib::DrawLineAA(enemy._rect.Left() - camera.x, enemy._pos.y - camera.y,
-					      searchPos[i].x - camera.x, searchPos[i].y - camera.y, 0x0000ff, 3.0);
+		DxLib::DrawCircle(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,5, 0xff2222);
+
+		DxLib::DrawLineAA(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,
+						  enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 3.0);
 	}
-	DxLib::DrawLineAA(searchPos[0].x - camera.x, searchPos[0].y - camera.y,
-					  searchPos[1].x - camera.x, searchPos[1].y - camera.y, 0x0000ff, 3.0);
+	
 }
 
 void Fish::Update()
@@ -88,15 +119,7 @@ void Fish::Update()
 	enemy._pos = DebugRoop(enemy._pos);
 
 	/// ’T’m‚·‚é‹——£‚ÌI“_À•W‚ðˆÚ“®‚µ‚Ä‚¢‚é
-	for (int i = 0; i < searchPos.size(); ++i)
-	{
-		auto rad = (deg - ((deg * 2) * i)) * DX_PI / 180;
-		auto cosD = cos(rad);
-		auto sinD = sin(rad);
-
-		auto pos = Vector2(enemy._rect.Left(), enemy._rect.Top() + (enemy._size.height / 2));
-		searchPos[i] = Vector2(pos - Vector2(distance * cosD, distance * sinD));
-	}
+	searchMove();
 }
 
 EnemyInfo Fish::GetInfo()
