@@ -9,13 +9,20 @@ class Diodon :
 private:
 	void Swim();
 	void Swell();
+	void Shot();
+	void Die();
 
 	void SwimUpdate();		
 	void SwellUpdate();		/// –c‚ç‚ñ‚¾ó‘Ô
+	void ShotUpdate();
+	void DieUpdate();
+
+	
 
 	void (Diodon::*updater)();
 
 	std::shared_ptr<Camera> _camera;
+	std::array<Vector2, 8>  _dirPos;		// ¼®¯Ä‚·‚é•ûŒü
 
 	int riseCnt;			/// •‚ã‚·‚éÀ²Ğİ¸Ş‚ğ’²®‚·‚é‚½‚ß‚Ì¶³İÄ
 

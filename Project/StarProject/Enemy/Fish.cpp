@@ -41,6 +41,10 @@ void Fish::Swim()
 void Fish::Die()
 {
 	_vel = Vector2(0, 0);
+	for (int i = 0; i < enemy._searchVert.size(); ++i)
+	{
+		enemy._searchVert[i] = enemy._pos;
+	}
 	updater = &Fish::DieUpdate;
 }
 
@@ -59,8 +63,8 @@ void Fish::searchMove()
 	{
 		if (i == 0)
 		{
-			enemy._searchVert[i] = _turnFlag ? Vector2(enemy._rect.Right(), enemy._rect.Top() + (enemy._size.height / 2)) :
-										 Vector2(enemy._rect.Left(), enemy._rect.Top() + (enemy._size.height / 2));
+			enemy._searchVert[i] = _turnFlag ? Vector2(enemy._rect.Right(), enemy._pos.y) :
+											   Vector2(enemy._rect.Left(),  enemy._pos.y);
 		}
 		else
 		{
@@ -72,7 +76,7 @@ void Fish::searchMove()
 				cosD = cos(rad);
 				sinD = sin(rad);
 
-				pos = Vector2(enemy._rect.Right(), enemy._rect.Top() + (enemy._size.height / 2));
+				pos = Vector2(enemy._rect.Right(), enemy._pos.y);
 			}
 			else
 			{
@@ -80,7 +84,7 @@ void Fish::searchMove()
 				cosD = cos(rad);
 				sinD = sin(rad);
 
-				pos = Vector2(enemy._rect.Left(), enemy._rect.Top() + (enemy._size.height / 2));
+				pos = Vector2(enemy._rect.Left(), enemy._pos.y);
 			}
 			enemy._searchVert[i] = Vector2(pos + Vector2(distance * cosD, -distance * sinD));
 		}
@@ -119,7 +123,11 @@ void Fish::Update()
 	enemy._pos = DebugRoop(enemy._pos);
 
 	/// 探知する距離の終点座標を移動している
-	searchMove();
+	if (updater != &Fish::DieUpdate)
+	{
+		searchMove();
+	}
+	
 }
 
 EnemyInfo Fish::GetInfo()
@@ -140,16 +148,18 @@ void Fish::ResetColor()
 
 void Fish::CalTrackVel(const Vector2 & pos, bool col)
 {
-	if (col)
+	if (updater != &Fish::DieUpdate)
 	{
-		auto vec = pos - enemy._pos;
-		vec.Normalize();
-		_vel = Vector2(2.0f * vec.x, 2.0f * vec.y);
+		if (col)
+		{
+			auto vec = pos - enemy._pos;
+			vec.Normalize();
+			_vel = Vector2(2.0f * vec.x, 2.0f * vec.y);
+		}
+		else
+		{
+			_vel.x = (_turnFlag ? 2.0 : -2.f);
+			_vel.y = 0;
+		}
 	}
-	else
-	{
-		_vel.x = (_turnFlag ? 2.0 : -2.f);
-		_vel.y = 0;
-	}
-	
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "../Processing/Geometry.h"
 #include <memory>
+#include <vector>
 #include <array>
 
 class Camera;
@@ -19,6 +20,23 @@ struct EnemyInfo {
 	}
 };
 
+struct ShotInfo {
+	Position2 _pos;
+	Vector2 _vel;
+	Size _size;
+	Rect _rect;
+	
+
+	ShotInfo() : _pos(0, 0), _vel(0,0),_size(0, 0), _rect(_pos, _size) {};
+	ShotInfo(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
+	{
+		this->_pos  = _pos;
+		this->_vel = _vel;
+		this->_size = _size;
+		this->_rect = _rect;
+	}
+};
+
 class Enemy
 {
 private:
@@ -26,6 +44,7 @@ private:
 
 protected:
 	EnemyInfo enemy;
+	std::vector<ShotInfo> shot;
 	Vector2 _vel;
 	int color;
 	bool _turnFlag;			// true:‰E•ûŒü, false:¶•ûŒü
