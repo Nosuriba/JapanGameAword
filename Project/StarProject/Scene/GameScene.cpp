@@ -16,15 +16,22 @@
 void GameScene::Wait(const Input & p)
 {
 	Draw();
+	_updater = &GameScene::Run;
+}
+
+void GameScene::Run(const Input & p)
+{
+	Draw();
 	if (p.IsTrigger(PAD_INPUT_10)) {
+		Game::GetInstance().ChangeScene(new ResultScene());
+	}
+	if (totaltime == 0) {
 		Game::GetInstance().ChangeScene(new ResultScene());
 	}
 }
 
 GameScene::GameScene()
 {
-	gameimg = DxLib::LoadGraph("../img/game.png");
-
 	_camera.reset(new Camera());
 
 	_pl.reset(new Player(_camera));
@@ -55,6 +62,10 @@ GameScene::GameScene()
 	_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera));
 	_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera));
 	_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera));
+
+	flame = 0;
+	time = 60;
+	totaltime = 60;
 }
 
 GameScene::~GameScene()
@@ -66,6 +77,18 @@ void GameScene::Draw()
 {
 	int sizex, sizey;
 	DxLib::GetWindowSize(&sizex, &sizey);
+
+	//フォントのロード
+	LPCSTR font = "H2O-Shadow.ttf";
+	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
+	}
+	else {
+		MessageBox(nullptr, "失敗", "", MB_OK);
+	}
+
+	SetFontSize(64);
+
+	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
 
 	_camera->Draw();
 	_pl->Draw();
@@ -84,12 +107,19 @@ void GameScene::Draw()
 	for (auto &immortal : _immortalObj) {
 		immortal->Draw();
 	}
+
+	auto one = totaltime % 10;
+	auto ten = totaltime / 10;
+
+	DrawFormatString(sizex / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
+	DrawFormatString(sizex / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
 }
 
 void GameScene::Update(const Input & p)
 {
-	_pl->Update();
+	flame++;
 
+	_pl->Update();
 
 	for (auto itr : _enemies)
 	{
@@ -145,6 +175,8 @@ void GameScene::Update(const Input & p)
 			}
 		}
 	}
+
+	totaltime = time - (flame / 60);
 
 	_camera->Update(_pl->GetInfo().center);
 
