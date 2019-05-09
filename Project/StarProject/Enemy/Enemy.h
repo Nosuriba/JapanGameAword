@@ -26,6 +26,8 @@ protected:
 	EnemyInfo enemy;
 	Vector2 _vel;
 	int color;
+	bool _turnFlag;			/// true:‰E•ûŒü, false:¶•ûŒü
+
 	Enemy(std::shared_ptr<Camera>& camera);
 
 public:
