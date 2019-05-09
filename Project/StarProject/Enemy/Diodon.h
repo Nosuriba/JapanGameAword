@@ -17,14 +17,13 @@ private:
 	void ShotUpdate();
 	void DieUpdate();
 
-	
-
 	void (Diodon::*updater)();
 
 	std::shared_ptr<Camera> _camera;
 	std::array<Vector2, 8>  _dirPos;		// ¼®¯Ä‚·‚é•ûŒü
 
-	int riseCnt;			/// •‚ã‚·‚éÀ²Ğİ¸Ş‚ğ’²®‚·‚é‚½‚ß‚Ì¶³İÄ
+	int riseCnt;			// •‚ã‚·‚éÀ²Ğİ¸Ş‚ğ’²®‚·‚é‚½‚ß‚Ì¶³İÄ
+	int blastCnt;			// ”š”j‚·‚é‚Ü‚Å‚ÌŠÔŠu
 
 public:
 	Diodon(std::shared_ptr<Camera>& camera);

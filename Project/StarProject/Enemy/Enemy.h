@@ -26,7 +26,7 @@ struct ShotInfo {
 	Size _size;
 	Rect _rect;
 	
-	int debugColor;		/// debug—p
+	int debugColor;		/// debug—p(Œã‚ÅÁ‚·)
 
 	ShotInfo() : _pos(0, 0), _vel(0,0),_size(0, 0), _rect(_pos, _size) {};
 	ShotInfo(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
@@ -50,6 +50,7 @@ protected:
 	Vector2 _vel;
 	int color;
 	bool _turnFlag;			// true:‰E•ûŒü, false:¶•ûŒü
+	bool _dieFlag;			// true:€–S, false:¶‘¶
 
 	Enemy(std::shared_ptr<Camera>& camera);
 

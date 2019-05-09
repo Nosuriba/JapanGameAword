@@ -1,7 +1,5 @@
 #include <math.h>
 #include "Fish.h"
-#include "../Processing/Collision.h"
-#include "../Player.h"
 #include "../Camera.h"
 
 const int distance = 150;		/// ’T’m‚Å‚«‚é‹——£
@@ -12,11 +10,11 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	auto pos  = Vector2(200, 200);
 	auto size = Size(80, 50);
 	auto rect = Rect(pos, size);
-
 	enemy	 = EnemyInfo(pos, size, rect);
 	_vel	 = Vector2();
 
 	_turnFlag = false;
+	_dieFlag  = false;
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
 		enemy._searchVert[i] = enemy._pos;
@@ -41,6 +39,7 @@ void Fish::Swim()
 void Fish::Die()
 {
 	_vel = Vector2(0, 0);
+	_dieFlag = true;
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
 		enemy._searchVert[i] = enemy._pos;
@@ -70,6 +69,7 @@ void Fish::searchMove()
 		{
 			double  rad, cosD, sinD;
 			Vector2 pos;
+
 			if (_turnFlag)
 			{
 				rad = (deg - ((deg * 2) * (i - 1))) * DX_PI / 180;
@@ -96,17 +96,19 @@ void Fish::Draw()
 	auto camera = _camera->CameraCorrection();
 
 	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, true);
+				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, !_dieFlag);
 
 	/// ’T’m‚Å‚«‚é”ÍˆÍ‚Ì•`‰æ
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
-		DxLib::DrawCircle(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,5, 0xff2222);
+		if (!_dieFlag)
+		{
+			DxLib::DrawCircle(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y, 5, 0xff2222);
 
-		DxLib::DrawLineAA(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,
-						  enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 3.0);
+			DxLib::DrawLineAA(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,
+				enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 3.0);
+		}
 	}
-	
 }
 
 void Fish::Update()

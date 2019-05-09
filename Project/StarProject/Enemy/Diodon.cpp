@@ -14,10 +14,12 @@ Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	enemy = EnemyInfo(pos, size, rect);
 	_vel  = Vector2();
 
-	riseCnt = 0;
+	riseCnt = blastCnt = 0;
 	_turnFlag = true;
+	_dieFlag  = false;
 	color = 0x77bbff;
 
+	/// ºÆØƒÇë≈Ç¬à íuÇÃê›íË
 	for (int i = 0; i < _dirPos.size(); ++i)
 	{
 		if ((i % 4) == 0)
@@ -29,7 +31,6 @@ Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 		{
 			auto posX = enemy._pos.x + (enemy._rect.Width()  / 2 - (enemy._rect.Width() * (i / 4)));
 			auto posY = enemy._pos.y + (enemy._rect.Height() / 2 * ((i - 1 + (i / 4 * 2)) % 3)) - enemy._rect.Height() / 2;
-
 			_dirPos[i] = Vector2(posX, posY);
 		}
 	}
@@ -79,6 +80,9 @@ void Diodon::Shot()
 
 void Diodon::Die()
 {
+	_vel	 = Vector2(0, 0);
+	_dieFlag = true;
+	updater  = &Diodon::DieUpdate;
 }
 
 void Diodon::SwimUpdate()
@@ -101,13 +105,11 @@ void Diodon::SwellUpdate()
 	auto SizeScaling = [](const Size& enemy, const Size& swell)
 	{
 		auto size = enemy;
-
 		/// ïùÇÃägèk
 		if (size.width != swell.width)
 		{
 			size.width = (size.width > swell.width ? size.width - 1 : size.width + 1);
 		}
-
 		/// çÇÇ≥ÇÃägèk
 		if (size.height != swell.height)
 		{
@@ -129,6 +131,18 @@ void Diodon::SwellUpdate()
 			_vel.y -= 0.02f;
 			_turnFlag = (_vel.y < -riseSpeed ? true : false);
 		}
+
+		if (enemy._size.width >= swellSize.width &&
+			enemy._size.height >= swellSize.height)
+		{
+			if (blastCnt <= 0)
+			{
+				Shot();
+				_vel = Vector2(0, 0);
+				_dieFlag = true;
+			}
+			blastCnt--;
+		}
 	}
 	else
 	{
@@ -149,15 +163,15 @@ void Diodon::ShotUpdate()
 
 void Diodon::DieUpdate()
 {
-}
 
+}
 
 void Diodon::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
 	DxLib::DrawBox(enemy._rect.Left() - camera.x,  enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x , enemy._rect.Bottom() - camera.y, color, true);
+				   enemy._rect.Right() - camera.x , enemy._rect.Bottom() - camera.y, color, !_dieFlag);
 
 	for (auto itr : shot)
 	{
@@ -198,12 +212,28 @@ void Diodon::ChangeShotColor(const int& num)
 
 void Diodon::ChangeColor()
 {
-	if (updater != &Diodon::ShotUpdate)
+	if (!_dieFlag)
 	{
-		_vel = Vector2(0, 0);
-		Shot();
+		/// âjÇ¢Ç≈Ç¢ÇÈéû
+		if (updater == &Diodon::SwimUpdate)
+		{
+			Swell();
+			blastCnt = 120;
+			color = 0x5599dd;
+			return;
+		}
+
+		/// ìGÇ™ñcÇÁÇ›Ç´Ç¡ÇΩèÛë‘ÇÃéû
+		if (updater == &Diodon::SwellUpdate &&
+			enemy._size.width  == swellSize.width &&
+			enemy._size.height == swellSize.height)
+		{
+			_vel = Vector2(0, 0);
+			Die();
+		}
+		
 	}
-	color = 0x5599dd;
+	
 }
 
 void Diodon::ResetColor()
