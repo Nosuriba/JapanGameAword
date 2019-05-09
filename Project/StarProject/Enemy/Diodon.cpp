@@ -71,6 +71,7 @@ void Diodon::Shot()
 		vel = Vector2(2.f * vec.x, 2.f * vec.y);
 
 		shot.push_back(ShotInfo(_dirPos[i], vel, size, rect));
+		shot[i].debugColor = 0xffffff;
 	}
 
 	updater = &Diodon::ShotUpdate;
@@ -161,7 +162,7 @@ void Diodon::Draw()
 	for (auto itr : shot)
 	{
 		DxLib::DrawBox(itr._rect.Left() - camera.x, itr._rect.Top() - camera.y,
-					   itr._rect.Right() - camera.x, itr._rect.Bottom() - camera.y, 0xffffff, true);
+					   itr._rect.Right() - camera.x, itr._rect.Bottom() - camera.y, itr.debugColor, true);
 	}
 
 }
@@ -183,6 +184,16 @@ void Diodon::Update()
 EnemyInfo Diodon::GetInfo()
 {
 	return enemy;
+}
+
+shot_vector Diodon::GetShotInfo()
+{
+	return shot;
+}
+
+void Diodon::ChangeShotColor(const int& num)
+{
+	shot[num].debugColor = 0xeeee00;
 }
 
 void Diodon::ChangeColor()

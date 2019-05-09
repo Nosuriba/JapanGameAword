@@ -26,6 +26,7 @@ struct ShotInfo {
 	Size _size;
 	Rect _rect;
 	
+	int debugColor;		/// debug用
 
 	ShotInfo() : _pos(0, 0), _vel(0,0),_size(0, 0), _rect(_pos, _size) {};
 	ShotInfo(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
@@ -37,6 +38,7 @@ struct ShotInfo {
 	}
 };
 
+using shot_vector = std::vector<ShotInfo>;
 class Enemy
 {
 private:
@@ -44,7 +46,7 @@ private:
 
 protected:
 	EnemyInfo enemy;
-	std::vector<ShotInfo> shot;
+	shot_vector shot;
 	Vector2 _vel;
 	int color;
 	bool _turnFlag;			// true:右方向, false:左方向
@@ -56,6 +58,8 @@ public:
 	virtual void Draw();
 	virtual void Update();
 	virtual EnemyInfo GetInfo();
+	virtual shot_vector GetShotInfo();
+	virtual void ChangeShotColor(const int& num);
 	virtual void ChangeColor();
 	virtual void ResetColor();
 	virtual void CalTrackVel(const Vector2& pos, bool col);		// 追尾する速度の計算用

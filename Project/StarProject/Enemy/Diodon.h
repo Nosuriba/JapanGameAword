@@ -32,6 +32,8 @@ public:
 	void Draw();
 	void Update();
 	EnemyInfo GetInfo();
+	shot_vector GetShotInfo();
+	void ChangeShotColor(const int& num);
 	void ChangeColor();
 	void ResetColor();
 	void CalTrackVel(const Vector2& pos, bool col);

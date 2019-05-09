@@ -1,15 +1,9 @@
-#include "Enemy.h"
 #include <DxLib.h>
+#include "Enemy.h"
 #include "../Camera.h"
 
 Enemy::Enemy(std::shared_ptr<Camera>& camera):_camera(camera)
 {
-	/// êe∏◊ΩÇ…ÇµÇƒÇ¢ÇÈÇÃÇ≈ÅAÇ±Ç±ÇÃèâä˙âªÇÕå„Ç≈è¡Ç∑Ç©Ç‡
-	auto pos  = Vector2(400, 400);
-	auto size = Size(50, 50);
-	auto rect = Rect(pos, size);
-
-	enemy = EnemyInfo(pos, size, rect);
 }
 
 Enemy::~Enemy()
@@ -18,8 +12,6 @@ Enemy::~Enemy()
 
 void Enemy::Draw()
 {
-	DxLib::DrawBox(enemy._rect.Left(), enemy._rect.Top(),
-				   enemy._rect.Right(), enemy._rect.Bottom(), color, false);
 }
 
 void Enemy::Update()
@@ -31,17 +23,23 @@ EnemyInfo Enemy::GetInfo()
 	return enemy;
 }
 
+shot_vector Enemy::GetShotInfo()
+{
+	return shot;
+}
+
+void Enemy::ChangeShotColor(const int& num)
+{
+}
+
 void Enemy::ChangeColor()
 {
-	color = 0xff0000;
 }
 
 void Enemy::ResetColor()
 {
-	color = 0xff00ff;
 }
 
 void Enemy::CalTrackVel(const Vector2 & pos, bool col)
 {
-	/// âΩÇ‡èëÇ©Ç»Ç¢
 }

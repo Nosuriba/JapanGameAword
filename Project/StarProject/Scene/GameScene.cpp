@@ -138,6 +138,15 @@ void GameScene::Update(const Input & p)
 			}
 			itr->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().vertexs, itr->GetInfo()._searchVert));
 		}
+
+		/// ﾌﾟﾚｲﾔｰとｼｮｯﾄの当たり判定
+		for (int i = 0; i < itr->GetShotInfo().size(); ++i)
+		{
+			if (_col->TriToSqr(_pl->GetInfo().vertexs, itr->GetShotInfo()[i]._pos, itr->GetShotInfo()[i]._size))
+			{
+				itr->ChangeShotColor(i);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
+			}
+		}
 	}
 
 	//破壊可能オブジェクト

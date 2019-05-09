@@ -135,6 +135,16 @@ EnemyInfo Fish::GetInfo()
 	return enemy;
 }
 
+shot_vector Fish::ShotGetInfo()
+{
+	return shot;
+}
+
+void Fish::ChangeShotColor(const int & num)
+{
+	/// ¼®¯Ä‚ğ‘Å‚Á‚Ä‚¢‚È‚¢‚Ì‚ÅA‰½‚à‘‚©‚È‚¢
+}
+
 void Fish::ChangeColor()
 {
 	Die();
