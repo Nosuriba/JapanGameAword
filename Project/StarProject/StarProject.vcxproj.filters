@@ -78,6 +78,9 @@
     <ClInclude Include="Enemy\Fish.h">
       <Filter>Enemy</Filter>
     </ClInclude>
+    <ClInclude Include="Scene\SelectScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -133,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="Enemy\Fish.cpp">
       <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\SelectScene.cpp">
+      <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
