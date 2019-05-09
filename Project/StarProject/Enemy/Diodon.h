@@ -27,5 +27,6 @@ public:
 	EnemyInfo GetInfo();
 	void ChangeColor();
 	void ResetColor();
+	void CalTrackVel(const Vector2& pos);
 };
 

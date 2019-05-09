@@ -29,25 +29,25 @@ Collision::~Collision()
 bool Collision::TriToTri(const std::array<Vector2, 5>& _vert, const std::array<Vector2, 3>& _tri)
 {
 	Vector2 triA = _tri[0];
-	Vector2 triB = _tri[1];
+ 	Vector2 triB = _tri[1];
 	Vector2 triC = _tri[2];
 
 	for (int i = 0; i < _vert.size(); ++i)
 	{
-		auto AB1 = (_vert[i].x - _vert[(i + 2) % _vert.size()].x) * (triA.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % _vert.size()].y) * (_vert[i].x - triA.x);
-		auto AB2 = (_vert[i].x - _vert[(i + 2) % _vert.size()].x) * (triB.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % _vert.size()].y) * (_vert[i].x - triB.x);
+		auto AB1 = (_vert[i].x - _vert[(i + 2) % 5].x) * (triA.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - triA.x);
+		auto AB2 = (_vert[i].x - _vert[(i + 2) % 5].x) * (triB.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - triB.x);
 		auto AB3 = (triA.x - triB.x) * (_vert[i].y - triA.y) + (triA.y - triB.y) * (triA.x - _vert[i].x);
 		auto AB4 = (triA.x - triB.x) * (_vert[(i + 2) % 5].y - triA.y) + (triA.y - triB.y) * (triA.x - _vert[(i + 2) % 5].x);
 
-		auto BC1 = (_vert[i].x - _vert[(i + 2) % _vert.size()].x) * (triB.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % _vert.size()].y) * (_vert[i].x - triB.x);
-		auto BC2 = (_vert[i].x - _vert[(i + 2) % _vert.size()].x) * (triC.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % _vert.size()].y) * (_vert[i].x - triC.x);
+		auto BC1 = (_vert[i].x - _vert[(i + 2) % 5].x) * (triB.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - triB.x);
+		auto BC2 = (_vert[i].x - _vert[(i + 2) % 5].x) * (triC.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - triC.x);
 		auto BC3 = (triB.x - triC.x) * (_vert[i].y - triB.y) + (triB.y - triC.y) * (triB.x - _vert[i].x);
 		auto BC4 = (triB.x - triC.x) * (_vert[(i + 2) % 5].y - triB.y) + (triB.y - triC.y) * (triB.x - _vert[(i + 2) % 5].x);
 
-		auto CA1 = (_vert[i].x - _vert[(i + 2) % _vert.size()].x) * (triC.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % _vert.size()].y) * (_vert[i].x - triC.x);
-		auto CA2 = (_vert[i].x - _vert[(i + 2) % _vert.size()].x) * (triA.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % _vert.size()].y) * (_vert[i].x - triA.x);
+		auto CA1 = (_vert[i].x - _vert[(i + 2) % 5].x) * (triC.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - triC.x);
+		auto CA2 = (_vert[i].x - _vert[(i + 2) % 5].x) * (triA.y - _vert[i].y) + (_vert[i].y - _vert[(i + 2) % 5].y) * (_vert[i].x - triA.x);
 		auto CA3 = (triC.x - triA.x) * (_vert[i].y - triC.y) + (triC.y - triA.y) * (triC.x - _vert[i].x);
-		auto CA4 = (triC.x - triA.x) * (_vert[(i + 2) % 5].y - triA.y) + (triC.y - triA.y) * (triC.x - _vert[(i + 2) % 5].x);
+		auto CA4 = (triC.x - triA.x) * (_vert[(i + 2) % 5].y - triC.y) + (triC.y - triA.y) * (triC.x - _vert[(i + 2) % 5].x);
 
 		if ((AB1 * AB2 < 0) && (AB3 * AB4 < 0) ||
 			(BC1 * BC2 < 0) && (BC3 * BC4 < 0) ||

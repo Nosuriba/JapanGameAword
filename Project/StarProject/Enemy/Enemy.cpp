@@ -40,3 +40,8 @@ void Enemy::ResetColor()
 {
 	color = 0xff00ff;
 }
+
+void Enemy::CalTrackVel(const Vector2 & pos)
+{
+	/// âΩÇ‡èëÇ©Ç»Ç¢
+}
