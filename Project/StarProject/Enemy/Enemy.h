@@ -39,5 +39,6 @@ public:
 	virtual EnemyInfo GetInfo();
 	virtual void ChangeColor();
 	virtual void ResetColor();
+	virtual void CalTrackVel(const Vector2& pos);		// ’Ç”ö‚·‚é‘¬“x‚ÌŒvŽZ—p
 };
 
