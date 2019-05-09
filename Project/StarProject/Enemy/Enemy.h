@@ -39,6 +39,6 @@ public:
 	virtual EnemyInfo GetInfo();
 	virtual void ChangeColor();
 	virtual void ResetColor();
-	virtual void CalTrackVel(const Vector2& pos);		// 追尾する速度の計算用
+	virtual void CalTrackVel(const Vector2& pos, bool col);		// 追尾する速度の計算用
 };
 

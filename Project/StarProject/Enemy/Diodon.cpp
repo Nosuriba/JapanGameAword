@@ -128,7 +128,7 @@ void Diodon::ResetColor()
 	color = 0x77bbff;
 }
 
-void Diodon::CalTrackVel(const Vector2 & pos)
+void Diodon::CalTrackVel(const Vector2 & pos, bool col)
 {
 	/// ì¡Ç…ïKóvÇ»Ç¢ÇÃÇ≈âΩÇ‡èëÇ©Ç»Ç¢
 }

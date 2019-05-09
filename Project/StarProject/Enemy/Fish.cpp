@@ -13,9 +13,8 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	auto size = Size(80, 50);
 	auto rect = Rect(pos, size);
 
-	enemy = EnemyInfo(pos, size, rect);
-	_vel = Vector2();
-	_starPos = Vector2();
+	enemy	 = EnemyInfo(pos, size, rect);
+	_vel	 = Vector2();
 
 	_turnFlag = false;
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
@@ -39,12 +38,6 @@ void Fish::Swim()
 	updater = &Fish::SwimUpdate;
 }
 
-void Fish::Tracking()
-{
-	//_vel.x = 0;
-	updater = &Fish::TrackingUpdate;
-}
-
 void Fish::Die()
 {
 	_vel = Vector2(0, 0);
@@ -54,25 +47,6 @@ void Fish::Die()
 void Fish::SwimUpdate()
 {
 
-}
-
-void Fish::TrackingUpdate()
-{
-	auto chgUpdate = false;
-	if (_turnFlag)
-	{
-		chgUpdate = (enemy._pos.x > _starPos.x);
-	}
-	else
-	{
-		chgUpdate = (enemy._pos.x < _starPos.x);
-	}
-
-	if (chgUpdate)
-	{
-		_vel.y = 0;
-		Swim();
-	}
 }
 
 void Fish::DieUpdate()
@@ -164,16 +138,18 @@ void Fish::ResetColor()
 	color = 0x88ff88;
 }
 
-void Fish::CalTrackVel(const Vector2 & pos)
+void Fish::CalTrackVel(const Vector2 & pos, bool col)
 {
-	if (updater != &Fish::TrackingUpdate)
+	if (col)
 	{
-		Tracking();
-		_starPos = pos;
 		auto vec = pos - enemy._pos;
 		vec.Normalize();
-
 		_vel = Vector2(2.0f * vec.x, 2.0f * vec.y);
+	}
+	else
+	{
+		_vel.x = (_turnFlag ? 2.0 : -2.f);
+		_vel.y = 0;
 	}
 	
 }

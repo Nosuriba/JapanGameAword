@@ -9,21 +9,17 @@ class Fish :
 {
 private:
 	void Swim();
-	void Tracking();
 	void Die();
 
 	void SwimUpdate();
-	void TrackingUpdate();
 	void DieUpdate();
 
-	void searchMove();
+	void searchMove();			// 探知する範囲を移動させている
 
 	void (Fish::*updater)();
 
 	std::shared_ptr<Camera>& _camera;
 
-	Vector2 _starPos;			// ﾌﾟﾚｲﾔｰの座標保管用
-	int invCnt = 0;				// 移動を止める間隔用
 public:
 	Fish(std::shared_ptr<Camera>& camera);
 	~Fish();
@@ -32,6 +28,6 @@ public:
 	EnemyInfo GetInfo();
 	void ChangeColor();
 	void ResetColor();
-	void CalTrackVel(const Vector2& pos);
+	void CalTrackVel(const Vector2& pos, bool col);
 };
 

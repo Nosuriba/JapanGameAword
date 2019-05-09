@@ -41,7 +41,7 @@ void Enemy::ResetColor()
 	color = 0xff00ff;
 }
 
-void Enemy::CalTrackVel(const Vector2 & pos)
+void Enemy::CalTrackVel(const Vector2 & pos, bool col)
 {
 	/// âΩÇ‡èëÇ©Ç»Ç¢
 }
