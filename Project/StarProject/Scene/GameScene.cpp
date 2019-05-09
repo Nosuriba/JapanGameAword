@@ -136,10 +136,7 @@ void GameScene::Update(const Input & p)
 				itr->ChangeColor();
 				break;
 			}*/
-			if (_col->TriToTri(_pl->GetInfo().vertexs, itr->GetInfo()._searchVert))
-			{
-				itr->CalTrackVel(_pl->GetInfo().center);
-			}
+			itr->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().vertexs, itr->GetInfo()._searchVert));
 		}
 	}
 
