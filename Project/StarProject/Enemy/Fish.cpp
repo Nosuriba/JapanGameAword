@@ -40,6 +40,7 @@ void Fish::Swim()
 void Fish::Escape()
 {
 	auto camera = _camera->CameraCorrection();
+
 	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -maxSpeed : maxSpeed);
 	_vel.y = 0;
 
@@ -95,7 +96,7 @@ void Fish::searchMove()
 		}
 		else
 		{
-			double  rad, cosD, sinD;
+			float  rad, cosD, sinD;
 			Vector2 pos;
 
 			if (_turnFlag)
@@ -123,13 +124,11 @@ void Fish::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	auto L = enemy._pos.x - (enemy._size.width / 2);
-	auto T = enemy._pos.y - (enemy._size.height / 2);
-	auto R = enemy._pos.x + (enemy._size.width / 2);
-	auto B = enemy._pos.y + (enemy._size.height / 2);
+	auto sPos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y - (enemy._size.height / 2));
+	auto ePos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y + (enemy._size.height / 2));
 
-	DxLib::DrawBox(L - camera.x, T - camera.y,
-		R - camera.x, B - camera.y, color, (updater != &Fish::EscapeUpdate));
+	DxLib::DrawBox(sPos.x - camera.x, sPos.y - camera.y,
+				   ePos.x - camera.x, ePos.y - camera.y, color, (updater != &Fish::EscapeUpdate));
 
 	/// ’T’m‚Å‚«‚é”ÍˆÍ‚Ì•`‰æ
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
@@ -196,17 +195,17 @@ void Fish::ChangeShotColor(const int & num)
 
 void Fish::CalTrackVel(const Vector2 & pos, bool col)
 {
-	if (updater != &Fish::DieUpdate)
+	if (updater != &Fish::EscapeUpdate && !enemy._dieFlag)
 	{
 		if (col)
 		{
 			auto vec = pos - enemy._pos;
 			vec.Normalize();
-			_vel = Vector2(2.0f * vec.x, 2.0f * vec.y);
+			_vel = Vector2(maxSpeed * vec.x, maxSpeed * vec.y);
 		}
 		else
 		{
-			_vel.x = (_turnFlag ? 2.0 : -2.f);
+			_vel.x = (_turnFlag ? maxSpeed : -maxSpeed);
 			_vel.y = 0;
 		}
 	}

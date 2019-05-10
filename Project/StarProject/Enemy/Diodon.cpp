@@ -3,12 +3,12 @@
 #include "../Camera.h"
 
 const float riseSpeed = 0.8f;
-const Size swellSize  = Size(90, 90);
+const int swellSize  = 100;
 
 Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
 	auto pos  = Vector2(600, 300);
-	auto size = Size(50, 50);
+	auto size = Size(swellSize / 2, swellSize / 2);
 	auto rect = Rect(pos, size);
 
 	enemy = EnemyInfo(pos, size, rect);
@@ -24,8 +24,8 @@ Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	{
 		if ((i % 4) == 0)
 		{
-			_dirPos[i] = (i == 0 ? Vector2(enemy._pos.x, enemy._rect.Top()) :
-								   Vector2(enemy._pos.x, enemy._rect.Bottom()));
+			_dirPos[i] = (i == 0 ? Vector2(enemy._pos.x, (float)enemy._rect.Top()) :
+								   Vector2(enemy._pos.x, (float)enemy._rect.Bottom()));
 		}
 		else
 		{
@@ -143,8 +143,8 @@ void Diodon::SwellUpdate()
 			_turnFlag = (_vel.y < -riseSpeed ? true : false);
 		}
 
-		if (enemy._size.width >= swellSize.width &&
-			enemy._size.height >= swellSize.height)
+		if (enemy._size.width  >= swellSize &&
+			enemy._size.height >= swellSize)
 		{
 			if (blastCnt <= 0)
 			{
@@ -159,7 +159,7 @@ void Diodon::SwellUpdate()
 		_vel.y = -0.5f;
 	}
 	
-	enemy._size = SizeExpanding(enemy._size, swellSize);
+	enemy._size = SizeExpanding(enemy._size, Size(swellSize,swellSize));
 }
 
 void Diodon::ShotUpdate()
@@ -179,10 +179,19 @@ void Diodon::ShotUpdate()
 
 void Diodon::EscapeUpdate()
 {
+	if (enemy._size.width > swellSize / 2 && enemy._size.height > swellSize / 2)
+	{
+		_vel.x *= 1.04f;
+		_vel.y *= 1.07f;
 
+		enemy._size.width--;
+		enemy._size.height--;
+	}
 	/// âÊñ äOÇ…èoÇΩéûÅAéÄñSèÛë‘Ç…Ç∑ÇÈ
-	if (enemy._pos.x + enemy._size.width / 2 < 0 || 
-		enemy._pos.x - enemy._size.width / 2 > Game::GetInstance().GetScreenSize().x)
+	if (enemy._pos.x + enemy._size.width / 2  < 0 || 
+		enemy._pos.x - enemy._size.width / 2  > Game::GetInstance().GetScreenSize().x ||
+		enemy._pos.y + enemy._size.height / 2 < 0 ||
+		enemy._pos.y - enemy._size.height / 2 > Game::GetInstance().GetScreenSize().y)
 	{
 		Die();
 	}
@@ -216,13 +225,11 @@ void Diodon::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	auto L = enemy._pos.x - (enemy._size.width  / 2);
-	auto T = enemy._pos.y - (enemy._size.height / 2);
-	auto R = enemy._pos.x + (enemy._size.width  / 2);
-	auto B = enemy._pos.y + (enemy._size.height / 2);
+	auto sPos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y - (enemy._size.height / 2));
+	auto ePos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y + (enemy._size.height / 2));
 
-	DxLib::DrawBox(L - camera.x,  T - camera.y,
-				   R - camera.x , B - camera.y, color, (updater != &Diodon::EscapeUpdate));
+	DxLib::DrawBox(sPos.x - camera.x,  sPos.y - camera.y,
+				   ePos.x - camera.x , ePos.y - camera.y, color, (updater != &Diodon::EscapeUpdate));
 
 	for (auto itr : shot)
 	{
@@ -278,11 +285,11 @@ void Diodon::CalEscapeDir(const Vector2 & vec)
 
 		/// ìGÇ™ñcÇÁÇ›Ç´Ç¡ÇΩèÛë‘ÇÃéû
 		if (updater == &Diodon::SwellUpdate &&
-			enemy._size.width == swellSize.width &&
-			enemy._size.height == swellSize.height)
+			enemy._size.width  == swellSize &&
+			enemy._size.height == swellSize)
 		{
 			/// ìGÇ™ì¶Ç∞ÇƒÇ¢Ç≠èàóùÇÃê›íËÇèëÇ≠
-			_vel = Vector2(maxSpeed * vec.x, maxSpeed * vec.y);
+			_vel = Vector2((maxSpeed / 4) * vec.x, (maxSpeed / 4) * vec.y);
 			Escape();
 		}
 	}
