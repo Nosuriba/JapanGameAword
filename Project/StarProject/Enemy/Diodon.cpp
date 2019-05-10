@@ -135,7 +135,7 @@ void Diodon::SwellUpdate()
 		if (_turnFlag)
 		{
 			_vel.y += 0.02f;
-			_turnFlag = (_vel.y <  riseSpeed? true : false);
+			_turnFlag = (_vel.y < riseSpeed ? true : false);
 		}
 		else
 		{
@@ -181,9 +181,8 @@ void Diodon::EscapeUpdate()
 {
 	if (enemy._size.width > swellSize / 2 && enemy._size.height > swellSize / 2)
 	{
-		_vel.x *= 1.04f;
-		_vel.y *= 1.07f;
-
+		_vel.x *= 1.08f;
+		_vel.y *= 0.9995f;
 		enemy._size.width--;
 		enemy._size.height--;
 	}
@@ -228,8 +227,8 @@ void Diodon::Draw()
 	auto sPos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y - (enemy._size.height / 2));
 	auto ePos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y + (enemy._size.height / 2));
 
-	DxLib::DrawBox(sPos.x - camera.x,  sPos.y - camera.y,
-				   ePos.x - camera.x , ePos.y - camera.y, color, (updater != &Diodon::EscapeUpdate));
+	DxLib::DrawBox(sPos.x - camera.x, sPos.y - camera.y,
+				   ePos.x - camera.x, ePos.y - camera.y, color, (updater != &Diodon::EscapeUpdate));
 
 	for (auto itr : shot)
 	{
@@ -289,7 +288,7 @@ void Diodon::CalEscapeDir(const Vector2 & vec)
 			enemy._size.height == swellSize)
 		{
 			/// ìGÇ™ì¶Ç∞ÇƒÇ¢Ç≠èàóùÇÃê›íËÇèëÇ≠
-			_vel = Vector2((maxSpeed / 4) * vec.x, (maxSpeed / 4) * vec.y);
+			_vel = Vector2((maxSpeed / 4) * vec.x, (maxSpeed * 2) * vec.y);
 			Escape();
 		}
 	}
