@@ -5,7 +5,7 @@
 
 void ResultScene::FadeIn(const Input & p)
 {
-	if (flame > 60) {
+	if (flame >= 60) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &ResultScene::Wait;
 	}
@@ -18,9 +18,11 @@ void ResultScene::FadeOut(const Input & p)
 {
 	if (flame > 180) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		BubbleDraw();
 		Game::GetInstance().ChangeScene(new TitleScene());
 	}
 	else {
+		BubbleCreate();
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / 180.0f);
 		Draw();
 	}
@@ -72,4 +74,5 @@ void ResultScene::Draw()
 {
 	auto size = Game::GetInstance().GetScreenSize();
 	DrawString(size.x / 2 - GetFontSize() * 2, size.y / 2, "Result", 0xff00ff);
+	BubbleDraw();
 }
