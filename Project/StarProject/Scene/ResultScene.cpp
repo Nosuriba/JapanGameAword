@@ -16,7 +16,7 @@ void ResultScene::FadeIn(const Input & p)
 
 void ResultScene::FadeOut(const Input & p)
 {
-	if (flame > 180) {
+	if (flame >= 180) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		BubbleDraw();
 		Game::GetInstance().ChangeScene(new TitleScene());
