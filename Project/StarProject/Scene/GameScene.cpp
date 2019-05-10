@@ -15,25 +15,25 @@
 
 void GameScene::FadeIn(const Input & p)
 {
-	if (wait > 60) {
+	if (wait >= 60) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &GameScene::Wait;
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)flame / 60.0f);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / 60.0f);
 	Draw();
 }
 
 void GameScene::FadeOut(const Input & p)
 {
-	if (wait > 180) {
+	if (wait >= 180) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		BubbleDraw();
 		Game::GetInstance().ChangeScene(new ResultScene());
 	}
 	else {
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)flame / 180.0f);
-		Draw();
 		BubbleCreate();
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)wait / 180.0f);
+		Draw();
 	}
 }
 
@@ -84,6 +84,18 @@ GameScene::GameScene()
 		}
 	}
 
+	//フォントのロード
+	LPCSTR font = "H2O-Shadow.ttf";
+	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
+	}
+	else {
+		MessageBox(nullptr, "失敗", "", MB_OK);
+	}
+
+	SetFontSize(64);
+
+	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
+
 	//オブジェクトの生成
 	_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera));
 	_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera));
@@ -104,18 +116,6 @@ void GameScene::Draw()
 {
 	int sizex, sizey;
 	DxLib::GetWindowSize(&sizex, &sizey);
-
-	//フォントのロード
-	LPCSTR font = "H2O-Shadow.ttf";
-	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
-	}
-	else {
-		MessageBox(nullptr, "失敗", "", MB_OK);
-	}
-
-	SetFontSize(64);
-
-	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
 
 	_camera->Draw();
 	_pl->Draw();

@@ -6,7 +6,7 @@
 
 void SelectScene::FadeIn(const Input & p)
 {
-	if (flame > 60) {
+	if (flame >= 60) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &SelectScene::Wait;
 	}
@@ -16,7 +16,7 @@ void SelectScene::FadeIn(const Input & p)
 
 void SelectScene::FadeOut(const Input & p)
 {
-	if (flame > 180) {
+	if (flame >= 180) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		BubbleDraw();
 		Game::GetInstance().ChangeScene(new GameScene());
