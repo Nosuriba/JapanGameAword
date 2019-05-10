@@ -13,6 +13,28 @@
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
 
+void GameScene::FadeIn(const Input & p)
+{
+	if (wait > 60) {
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		_updater = &GameScene::Wait;
+	}
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)flame / 60.0f);
+	Draw();
+}
+
+void GameScene::FadeOut(const Input & p)
+{
+	if (wait > 180) {
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		Game::GetInstance().ChangeScene(new ResultScene());
+	}
+	else {
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)flame / 180.0f);
+		Draw();
+	}
+}
+
 void GameScene::Wait(const Input & p)
 {
 	Draw();
@@ -23,10 +45,12 @@ void GameScene::Run(const Input & p)
 {
 	Draw();
 	if (p.IsTrigger(PAD_INPUT_10)) {
-		Game::GetInstance().ChangeScene(new ResultScene());
+		wait = 0;
+		_updater = &GameScene::FadeOut;
 	}
-	if (totaltime == 0) {
-		Game::GetInstance().ChangeScene(new ResultScene());
+	else if (totaltime == 0) {
+		wait = 0;
+		_updater = &GameScene::FadeOut;
 	}
 }
 
@@ -44,7 +68,7 @@ GameScene::GameScene()
 
 	_immortal.reset(new ImmortalObject(_camera));
 
-	_updater = &GameScene::Wait;
+	_updater = &GameScene::FadeIn;
 
 	for (int i = 0; i < 2; ++i)
 	{
@@ -64,6 +88,7 @@ GameScene::GameScene()
 	_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera));
 
 	flame = 0;
+	wait = 0;
 	time = 60;
 	totaltime = 60;
 }
@@ -119,6 +144,7 @@ void GameScene::Draw()
 void GameScene::Update(const Input & p)
 {
 	flame++;
+	wait++;
 
 	_pl->Update(p);
 

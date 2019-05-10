@@ -6,26 +6,42 @@
 
 void SelectScene::FadeIn(const Input & p)
 {
+	if (flame > 60) {
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		_updater = &SelectScene::Wait;
+	}
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / 60.0f);
+	Draw();
 }
 
 void SelectScene::FadeOut(const Input & p)
 {
+	if (flame > 180) {
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		Game::GetInstance().ChangeScene(new GameScene());
+	}
+	else {
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / 180.0f);
+		Draw();
+	}
 }
 
 void SelectScene::Wait(const Input & p)
 {
-	auto& game = Game::GetInstance();
-
 	Draw();
 
-	if (p.IsTrigger(PAD_INPUT_10)) {
-		Bubble::GetInstance().Create();
-		game.ChangeScene(new GameScene());
-	}
+	_updater = &SelectScene::Run;
 }
 
 void SelectScene::Run(const Input & p)
 {
+	Draw();
+
+	if (p.IsTrigger(PAD_INPUT_10)) {
+		flame = 0;
+		Bubble::GetInstance().Create();
+		_updater = &SelectScene::FadeOut;
+	}
 }
 
 SelectScene::SelectScene()
@@ -42,11 +58,14 @@ SelectScene::SelectScene()
 
 	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
 
-	_updater = &SelectScene::Wait;
+	_updater = &SelectScene::FadeIn;
+
+	flame = 0;
 }
 
 SelectScene::~SelectScene()
 {
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void SelectScene::Draw()
@@ -60,5 +79,6 @@ void SelectScene::Draw()
 
 void SelectScene::Update(const Input & p)
 {
+	flame++;
 	(this->*_updater)(p);
 }

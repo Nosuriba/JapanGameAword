@@ -3,12 +3,40 @@
 #include "../Game.h"
 #include "TitleScene.h"
 
-void ResultScene::Wait(const Input & p)
+void ResultScene::FadeIn(const Input & p)
 {
-	if (p.IsTrigger(PAD_INPUT_10)) {
+	if (flame > 60) {
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		_updater = &ResultScene::Wait;
+	}
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / 60.0f);
+	Draw();
+
+}
+
+void ResultScene::FadeOut(const Input & p)
+{
+	if (flame > 180) {
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		Game::GetInstance().ChangeScene(new TitleScene());
 	}
+	else {
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / 180.0f);
+		Draw();
+	}
+}
+
+void ResultScene::Wait(const Input & p)
+{
 	Draw();
+	if (p.IsTrigger(PAD_INPUT_10)) {
+		flame = 0;
+		_updater = &ResultScene::FadeOut;
+	}
+}
+
+void ResultScene::Run(const Input & p)
+{
 }
 
 ResultScene::ResultScene()
@@ -25,7 +53,9 @@ ResultScene::ResultScene()
 
 	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
 
-	_updater = &ResultScene::Wait;
+	_updater = &ResultScene::FadeIn;
+
+	flame = 0;
 }
 
 ResultScene::~ResultScene()
@@ -34,6 +64,7 @@ ResultScene::~ResultScene()
 
 void ResultScene::Update(const Input & p)
 {
+	flame++;
 	(this->*_updater)(p);
 }
 

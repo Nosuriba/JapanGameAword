@@ -19,7 +19,9 @@ class ImmortalObject;
 class GameScene : public Scene
 {
 private:
-	void (GameScene::*_updater)(const Input &p);
+	void (GameScene::*_updater)(const Input &p); 
+	void FadeIn(const Input& p);
+	void FadeOut(const Input& p);
 	void Wait(const Input &p);
 	void Run(const Input& p);
 
@@ -41,6 +43,8 @@ private:
 	int flame;
 	int time;
 	int totaltime;
+
+	int wait;
 
 public:
 	GameScene();

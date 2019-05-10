@@ -11,6 +11,7 @@ private:
 	void Wait(const Input& p);
 	void Run(const Input& p);
 
+	int flame;
 public:
 	SelectScene();
 	~SelectScene();
