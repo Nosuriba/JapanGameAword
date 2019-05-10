@@ -219,7 +219,7 @@ void GameScene::Update(const Input & p)
 
 	if (_enemies.size() <= 0)
 	{
-		DrawExtendString(0, 0, 1.0, 1.0, "Not Enemy", 0xffffff);
+		DrawString(0, 0, "Not Enemy", 0xffffff);
 	}
 
 	totaltime = time - (flame / 60);

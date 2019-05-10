@@ -7,7 +7,7 @@
 class Camera;
 
 struct EnemyInfo {
-	Position2 _pos;
+	Position2 _pos;		// “G‚Ì’†S“_
 	Size _size;
 	Rect _rect;
 	std::array<Vector2, 3> _searchVert;

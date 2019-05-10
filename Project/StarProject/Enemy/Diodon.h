@@ -10,14 +10,16 @@ private:
 	void Swim();
 	void Swell();
 	void Shot();
+	void Escape();
 	void Die();
 
 	void SwimUpdate();		
 	void SwellUpdate();		/// 膨らんだ状態
 	void ShotUpdate();
+	void EscapeUpdate();
 	void DieUpdate();
 
-	bool CheckOutScreen();  /// ｼｮｯﾄが画面外に行ったかの判定用
+	bool CheckOutScreen();		 // ｼｮｯﾄが画面外に行ったかの判定用
 
 	void (Diodon::*updater)();
 

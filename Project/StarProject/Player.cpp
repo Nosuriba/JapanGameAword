@@ -151,12 +151,14 @@ void Player::Draw()
 		// 足の先端までのライン
 		Vector2 pre = leg.halfway_point[0];
 		float t = 40.0f;
+		int color = 0xff9933;
 		for (auto& l : leg.halfway_point)
 		{
-			DrawLineAA(pre.x - c.x, pre.y - c.y, l.x - c.x, l.y - c.y, 0xff9933, t);//軌跡描画
+			DrawLineAA(pre.x - c.x, pre.y - c.y, l.x - c.x, l.y - c.y, color, t);//軌跡描画
 			pre.x = l.x;//前の位置記憶
 			pre.y = l.y;
 			t /= 1.3f;
+			color /= 2;
 		}
 
 		if (leg.state == LEG_STATE::SHOT)
