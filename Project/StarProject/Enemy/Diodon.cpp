@@ -3,7 +3,6 @@
 #include "../Camera.h"
 
 const float riseSpeed = 0.8f;
-const float maxSpeed  = 3.0f;
 const Size swellSize  = Size(90, 90);
 
 Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
@@ -85,10 +84,6 @@ void Diodon::Shot()
 
 void Diodon::Escape()
 {
-	auto camera = _camera->CameraCorrection();
-	/// “¦‚°‚Ä‚¢‚­•ûŒü‚Ìİ’è
-	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -2.0f : 2.0f);
-	_vel.y = 0;
 	updater = &Diodon::EscapeUpdate;
 }
 
@@ -103,7 +98,7 @@ void Diodon::Die()
 
 void Diodon::SwimUpdate()
 {
-	/// ‚Æ‚è‚ ‚¦‚¸A¶‰E‚É“®‚©‚µ‚Ä‚¢‚éB
+
 	if (_turnFlag)
 	{
 		_vel.x += 0.05f;
@@ -118,19 +113,18 @@ void Diodon::SwimUpdate()
 
 void Diodon::SwellUpdate()
 {
-	auto SizeScaling = [](const Size& enemy, const Size& swell)
+	auto SizeExpanding = [](const Size& enemy, const Size& swell)
 	{
-
 		auto size = enemy;
-		/// •‚ÌŠgk
+		/// •‚ÌŠg‘å
 		if (size.width != swell.width)
 		{
-			size.width = (size.width > swell.width ? size.width - 1 : size.width + 1);
+			size.width = size.width + 1;
 		}
-		/// ‚‚³‚ÌŠgk
+		/// ‚‚³‚ÌŠg‘å
 		if (size.height != swell.height)
 		{
-			size.height = (size.height > swell.height ? size.height - 1 : size.height + 1);
+			size.height = size.height + 1;
 		}
 		return size;
 	};
@@ -165,7 +159,7 @@ void Diodon::SwellUpdate()
 		_vel.y = -0.5f;
 	}
 	
-	enemy._size = SizeScaling(enemy._size, swellSize);
+	enemy._size = SizeExpanding(enemy._size, swellSize);
 }
 
 void Diodon::ShotUpdate()
@@ -185,6 +179,7 @@ void Diodon::ShotUpdate()
 
 void Diodon::EscapeUpdate()
 {
+
 	/// ‰æ–ÊŠO‚Éo‚½A€–Só‘Ô‚É‚·‚é
 	if (enemy._pos.x + enemy._size.width / 2 < 0 || 
 		enemy._pos.x - enemy._size.width / 2 > Game::GetInstance().GetScreenSize().x)
@@ -220,10 +215,10 @@ bool Diodon::CheckOutScreen()
 void Diodon::Draw()
 {
 	auto camera = _camera->CameraCorrection();
-	
-	auto L = enemy._pos.x - (enemy._size.width / 2);
+
+	auto L = enemy._pos.x - (enemy._size.width  / 2);
 	auto T = enemy._pos.y - (enemy._size.height / 2);
-	auto R = enemy._pos.x + (enemy._size.width / 2);
+	auto R = enemy._pos.x + (enemy._size.width  / 2);
 	auto B = enemy._pos.y + (enemy._size.height / 2);
 
 	DxLib::DrawBox(L - camera.x,  T - camera.y,
@@ -251,7 +246,6 @@ void Diodon::Update()
 	{
 		enemy._rect = Rect(enemy._pos, enemy._size);
 	}
-	
 
 	/// ¼®¯Ä‚ğo‚·À•W‚ÌXV
 	for (int i = 0; i < _dirPos.size(); ++i)
@@ -270,12 +264,7 @@ shot_vector Diodon::GetShotInfo()
 	return shot;
 }
 
-void Diodon::ChangeShotColor(const int& num)
-{
-	shot[num].debugColor = 0xeeee00;
-}
-
-void Diodon::ChangeColor()
+void Diodon::CalEscapeDir(const Vector2 & vec)
 {
 	if (!enemy._dieFlag)
 	{
@@ -283,26 +272,25 @@ void Diodon::ChangeColor()
 		if (updater == &Diodon::SwimUpdate)
 		{
 			Swell();
-			blastCnt = 120;
-			color = 0x5599dd;
+			blastCnt = 60;
 			return;
 		}
 
 		/// “G‚ª–c‚ç‚İ‚«‚Á‚½ó‘Ô‚Ì
 		if (updater == &Diodon::SwellUpdate &&
-			enemy._size.width  == swellSize.width &&
+			enemy._size.width == swellSize.width &&
 			enemy._size.height == swellSize.height)
 		{
 			/// “G‚ª“¦‚°‚Ä‚¢‚­ˆ—‚Ìİ’è‚ğ‘‚­
+			_vel = Vector2(maxSpeed * vec.x, maxSpeed * vec.y);
 			Escape();
 		}
 	}
-	
 }
 
-void Diodon::ResetColor()
+void Diodon::ChangeShotColor(const int& num)
 {
-	color = 0x77bbff;
+	shot[num].debugColor = 0xeeee00;
 }
 
 void Diodon::CalTrackVel(const Vector2 & pos, bool col)

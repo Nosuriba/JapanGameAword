@@ -170,7 +170,10 @@ void GameScene::Update(const Input & p)
 		{
 			if (_col->WaterToSqr(_pl->GetInfo().legs[p].tip, sVec[p],_enemies[i]->GetInfo()._rect))
 			{
-				_enemies[i]->ChangeColor();
+				auto vec = _enemies[i]->GetInfo()._pos - _pl->GetInfo().legs[p].tip;
+				vec.Normalize();
+
+				_enemies[i]->CalEscapeDir(vec);
 				break;
 			}
 			_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));

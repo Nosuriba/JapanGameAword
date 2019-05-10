@@ -32,11 +32,7 @@ void Enemy::ChangeShotColor(const int& num)
 {
 }
 
-void Enemy::ChangeColor()
-{
-}
-
-void Enemy::ResetColor()
+void Enemy::CalEscapeDir(const Vector2& vec)
 {
 }
 

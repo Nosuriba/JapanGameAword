@@ -40,8 +40,7 @@ void Fish::Swim()
 void Fish::Escape()
 {
 	auto camera = _camera->CameraCorrection();
-	/// “¦‚°‚Ä‚¢‚­•ûŒü‚Ìİ’è
-	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -2.0f : 2.0f);
+	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -maxSpeed : maxSpeed);
 	_vel.y = 0;
 
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
@@ -182,20 +181,17 @@ shot_vector Fish::ShotGetInfo()
 	return shot;
 }
 
+void Fish::CalEscapeDir(const Vector2 & vec)
+{
+	if (updater != &Fish::EscapeUpdate && !enemy._dieFlag)
+	{
+		Escape();
+	}
+}
+
 void Fish::ChangeShotColor(const int & num)
 {
 	/// ¼®¯Ä‚ğ‘Å‚Á‚Ä‚¢‚È‚¢‚Ì‚ÅA‰½‚à‘‚©‚È‚¢
-}
-
-void Fish::ChangeColor()
-{
-	Escape();
-	color = 0x66dd66;
-}
-
-void Fish::ResetColor()
-{
-	color = 0x88ff88;
 }
 
 void Fish::CalTrackVel(const Vector2 & pos, bool col)
