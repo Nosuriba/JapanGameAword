@@ -78,7 +78,7 @@ void Bubble::Move()
 		p_element[idx].x += p_element[idx].vx;
 		p_element[idx].y += p_element[idx].vy;
 		// ‰Á‘¬•”•ª
-		//p_element[idx].vy += -12;
+		p_element[idx].vy += -12;
 		//p_element[idx].vx += (int)(p_element[idx].x/100) % 2 ? 101: -101;
 		p_element[idx].light -= V_Speed;
 	};

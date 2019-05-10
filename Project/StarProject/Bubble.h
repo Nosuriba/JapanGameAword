@@ -5,8 +5,13 @@
 #include <vector>
 #include <thread>
 
+#ifdef _DEBUG
+#define BubbleCreate void tmp
+#define BubbleDraw void tmp
+#else
 #define BubbleCreate Bubble::GetInstance().Create
 #define BubbleDraw Bubble::GetInstance().Draw
+#endif
 
 constexpr int ElementNum = 1000;
 
