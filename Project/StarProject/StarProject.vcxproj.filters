@@ -81,6 +81,12 @@
     <ClInclude Include="Scene\SelectScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Scene\AMP.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Bubble.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -138,6 +144,9 @@
       <Filter>Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Scene\SelectScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Bubble.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
