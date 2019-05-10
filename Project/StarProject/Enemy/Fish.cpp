@@ -1,5 +1,6 @@
 #include <math.h>
 #include "Fish.h"
+#include "../Game.h"
 #include "../Camera.h"
 
 const int distance = 150;		/// 探知できる距離
@@ -36,14 +37,26 @@ void Fish::Swim()
 	updater = &Fish::SwimUpdate;
 }
 
-void Fish::Die()
+void Fish::Escape()
 {
-	_vel = Vector2(0, 0);
-	enemy._dieFlag = true;
+	auto camera = _camera->CameraCorrection();
+	/// 逃げていく方向の設定
+	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -2.0f : 2.0f);
+	_vel.y = 0;
+
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
 		enemy._searchVert[i] = enemy._pos;
 	}
+	updater = &Fish::EscapeUpdate;
+
+}
+
+void Fish::Die()
+{
+	_vel = Vector2(0, 0);
+	enemy._dieFlag = true;
+	
 	updater = &Fish::DieUpdate;
 }
 
@@ -52,8 +65,24 @@ void Fish::SwimUpdate()
 
 }
 
+void Fish::EscapeUpdate()
+{
+	/// 画面外に出た時、死亡状態にする
+	if (enemy._pos.x + enemy._size.width / 2 < 0 ||
+		enemy._pos.x - enemy._size.width / 2 > Game::GetInstance().GetScreenSize().x)
+	{
+		Die();
+	}
+}
+
 void Fish::DieUpdate()
 {
+	/// 画面外に出た時、死亡状態にする
+	if (enemy._pos.x + enemy._size.width / 2 < 0 ||
+		enemy._pos.x - enemy._size.width / 2 > Game::GetInstance().GetScreenSize().x)
+	{
+		Die();
+	}
 }
 
 void Fish::searchMove()
@@ -95,8 +124,13 @@ void Fish::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, !enemy._dieFlag);
+	auto L = enemy._pos.x - (enemy._size.width / 2);
+	auto T = enemy._pos.y - (enemy._size.height / 2);
+	auto R = enemy._pos.x + (enemy._size.width / 2);
+	auto B = enemy._pos.y + (enemy._size.height / 2);
+
+	DxLib::DrawBox(L - camera.x, T - camera.y,
+		R - camera.x, B - camera.y, color, (updater != &Fish::EscapeUpdate));
 
 	/// 探知できる範囲の描画
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
@@ -110,23 +144,32 @@ void Fish::Draw()
 
 void Fish::Update()
 {
+	auto velX = _vel.x;
+	auto screenX = Game::GetInstance().GetScreenSize().x;
 	/// ﾃﾞﾊﾞｯｸﾞ用のループ
-	auto DebugRoop = [](const Position2& pos)
+	auto DebugRoop = [&velX, &screenX](const Position2& pos)
 	{
-		return (pos.x < 0 ? Position2(1280, pos.y) : pos);
+		if (velX > 0)
+		{
+			(pos.x - 60 > screenX ? Position2(0, pos.y) : pos);
+		}
+		return (pos.x + 60 < 0 ? Position2(screenX, pos.y) : pos);
 	};
 	(this->*updater)();
 
 	enemy._pos += _vel;
-	enemy._rect = Rect(enemy._pos, enemy._size);
-	enemy._pos = DebugRoop(enemy._pos);
-
-	/// 探知する距離の終点座標を移動している
-	if (updater != &Fish::DieUpdate)
+	if (updater == &Fish::EscapeUpdate || enemy._dieFlag)
 	{
+		auto size = Size(0, 0);
+		enemy._rect = Rect(enemy._pos, size);
+	}
+	else
+	{
+		enemy._rect = Rect(enemy._pos, enemy._size);
 		searchMove();
 	}
 	
+	enemy._pos = DebugRoop(enemy._pos);
 }
 
 EnemyInfo Fish::GetInfo()
@@ -146,7 +189,7 @@ void Fish::ChangeShotColor(const int & num)
 
 void Fish::ChangeColor()
 {
-	Die();
+	Escape();
 	color = 0x66dd66;
 }
 

@@ -9,9 +9,11 @@ class Fish :
 {
 private:
 	void Swim();
+	void Escape();
 	void Die();
 
 	void SwimUpdate();
+	void EscapeUpdate();
 	void DieUpdate();
 
 	void searchMove();			// ’T’m‚·‚é”ÍˆÍ‚ðˆÚ“®‚³‚¹‚Ä‚¢‚é

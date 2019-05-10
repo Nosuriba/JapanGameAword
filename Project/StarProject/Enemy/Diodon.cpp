@@ -8,7 +8,7 @@ const Size swellSize  = Size(90, 90);
 
 Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
-	auto pos  = Vector2(300, 300);
+	auto pos  = Vector2(600, 300);
 	auto size = Size(50, 50);
 	auto rect = Rect(pos, size);
 
@@ -83,11 +83,21 @@ void Diodon::Shot()
 	updater = &Diodon::ShotUpdate;
 }
 
+void Diodon::Escape()
+{
+	auto camera = _camera->CameraCorrection();
+	/// 逃げていく方向の設定
+	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -2.0f : 2.0f);
+	_vel.y = 0;
+	updater = &Diodon::EscapeUpdate;
+}
+
 void Diodon::Die()
 {
-	_vel	 = Vector2(0, 0);
-	enemy._size = Size(0, 0);
 	enemy._dieFlag = true;
+	_vel		= Vector2(0, 0);
+	enemy._size = Size(0, 0);
+
 	updater  = &Diodon::DieUpdate;
 }
 
@@ -110,6 +120,7 @@ void Diodon::SwellUpdate()
 {
 	auto SizeScaling = [](const Size& enemy, const Size& swell)
 	{
+
 		auto size = enemy;
 		/// 幅の拡縮
 		if (size.width != swell.width)
@@ -172,6 +183,16 @@ void Diodon::ShotUpdate()
 	}
 }
 
+void Diodon::EscapeUpdate()
+{
+	/// 画面外に出た時、死亡状態にする
+	if (enemy._pos.x + enemy._size.width / 2 < 0 || 
+		enemy._pos.x - enemy._size.width / 2 > Game::GetInstance().GetScreenSize().x)
+	{
+		Die();
+	}
+}
+
 void Diodon::DieUpdate()
 {
 
@@ -199,9 +220,14 @@ bool Diodon::CheckOutScreen()
 void Diodon::Draw()
 {
 	auto camera = _camera->CameraCorrection();
+	
+	auto L = enemy._pos.x - (enemy._size.width / 2);
+	auto T = enemy._pos.y - (enemy._size.height / 2);
+	auto R = enemy._pos.x + (enemy._size.width / 2);
+	auto B = enemy._pos.y + (enemy._size.height / 2);
 
-	DxLib::DrawBox(enemy._rect.Left()  - camera.x,  enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x , enemy._rect.Bottom() - camera.y, color, !enemy._dieFlag);
+	DxLib::DrawBox(L - camera.x,  T - camera.y,
+				   R - camera.x , B - camera.y, color, (updater != &Diodon::EscapeUpdate));
 
 	for (auto itr : shot)
 	{
@@ -216,7 +242,16 @@ void Diodon::Update()
 	(this->*updater)();
 
 	enemy._pos += _vel;
-	enemy._rect = Rect(enemy._pos, enemy._size);
+	if (updater == &Diodon::EscapeUpdate || enemy._dieFlag)
+	{
+		auto size = Size(0, 0);
+		enemy._rect = Rect(enemy._pos, size);
+	}
+	else
+	{
+		enemy._rect = Rect(enemy._pos, enemy._size);
+	}
+	
 
 	/// ｼｮｯﾄを出す座標の更新
 	for (int i = 0; i < _dirPos.size(); ++i)
@@ -258,10 +293,9 @@ void Diodon::ChangeColor()
 			enemy._size.width  == swellSize.width &&
 			enemy._size.height == swellSize.height)
 		{
-			_vel = Vector2(0, 0);
-			Die();
+			/// 敵が逃げていく処理の設定を書く
+			Escape();
 		}
-		
 	}
 	
 }
@@ -273,5 +307,5 @@ void Diodon::ResetColor()
 
 void Diodon::CalTrackVel(const Vector2 & pos, bool col)
 {
-	/// 特に必要ないので何も書かない
+	/// 追従なし
 }
