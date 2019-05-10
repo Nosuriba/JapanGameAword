@@ -40,6 +40,20 @@ private:
 	std::vector<std::shared_ptr<PredatoryObject>> _predatoryObj;
 	std::vector<std::shared_ptr<ImmortalObject>> _immortalObj;
 
+	//スクリーン
+	int firstscreen;
+	int secondscreen;
+	int thirdscreen;
+
+	int shader_time;
+	int shaderhandle;
+
+	VERTEX2DSHADER vertex[4];
+
+	//イメージ
+	int sea;
+	int sea_effect;
+
 	int flame;
 	int time;
 	int totaltime;
