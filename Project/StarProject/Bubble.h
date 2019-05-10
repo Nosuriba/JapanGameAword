@@ -13,7 +13,7 @@
 #define BubbleDraw Bubble::GetInstance().Draw
 #endif
 
-constexpr int ElementNum = 1000;
+constexpr int ElementNum = 10000;
 
 constexpr int SCREEN_SIZE_X = 1280;
 constexpr int SCREEN_SIZE_Y = 740;

@@ -4,10 +4,9 @@
 
 int Bubble::PCnt = 0;
 
-using namespace concurrency;
-std::unique_ptr<Bubble, Bubble::Bubble_deleter> Bubble::particle(new Bubble(SCREEN_SIZE_X/2, SCREEN_SIZE_Y+100));
+std::unique_ptr<Bubble, Bubble::Bubble_deleter> Bubble::particle(new Bubble(SCREEN_SIZE_X/2, SCREEN_SIZE_Y+250));
 
-constexpr int UseGpuNum = 100;
+constexpr int BubbleMax = 10 ;
 constexpr int Vec = 200;
 constexpr int V_Speed = 1;
 constexpr int V_Cnt = 255/ V_Speed;
@@ -33,28 +32,30 @@ void Bubble::Create()
 {
 	if (!thread.joinable())
 	{
-		thread = std::thread([=] {for (int num = 0; num < 5; num++)
-		{
-			std::random_device rd;
-			std::mt19937 Rand(rd());
-			int i = 0;
-			for (i = 0; i < ElementNum; i++)
+		thread = std::thread([=] {
+			for (int num = 0; num < BubbleMax; num++)
 			{
-				if (p_el[i].light <= 0)
+				std::random_device rd;
+				std::mt19937 Rand(rd());
+				int i = 0;
+				for (i = 0; i < ElementNum; i++)
 				{
-					break;
+					if (p_el[i].light <= 0)
+					{
+						break;
+					}
 				}
-			}
-			p_el[i].x = (x) * 100;
-			p_el[i].y = (y) * 100;
-			p_el[i].light = 255;
-			p_el[i].rad = (Rand()%4)+1;
+				p_el[i].x = (x) * 100;
+				p_el[i].y = (y) * 100;
+				p_el[i].light = 255;
+				p_el[i].rad = (Rand()%4)+1;
 
-			int Theta = Rand() % 360;
-			p_el[i].vx = cos(Theta)*Vec * 4;
-			p_el[i].vy = sin(Theta % 180 - 90)*Vec;
-			//------------------------------------------------//
-		}});
+				int Theta = Rand() % 360;
+				p_el[i].vx = cos(Theta)*Vec * 4;
+				p_el[i].vy = sin(Theta % 180 - 90)*Vec;
+				//------------------------------------------------//
+			}
+		});
 	}
 	if (thread.joinable())
 	{
@@ -64,8 +65,8 @@ void Bubble::Create()
 
 void Bubble::Move()
 {
-	array_view<Element>p_element(ElementNum, p_el);
-	auto move = [p_element = p_element](index<1> idx)restrict(amp){
+	concurrency::array_view<Element>p_element(ElementNum, p_el);
+	auto move = [p_element = p_element](concurrency::index<1> idx)restrict(amp){
 		if (p_element[idx].light < 10){
 			p_element[idx].light = 0;
 			return;
@@ -78,12 +79,12 @@ void Bubble::Move()
 		p_element[idx].x += p_element[idx].vx;
 		p_element[idx].y += p_element[idx].vy;
 		// ‰Á‘¬•”•ª
-		p_element[idx].vy += -12;
-		//p_element[idx].vx += (int)(p_element[idx].x/100) % 2 ? 101: -101;
+		p_element[idx].vy += -15;
+		p_element[idx].vx += (int)(p_element[idx].x/100) % 2 ? 101: -101;
 		p_element[idx].light -= V_Speed;
 	};
 	// GPU‚Å“®‚©‚µ‚Ä‚é
-	parallel_for_each(p_element.get_extent(), move);
+	concurrency::parallel_for_each(p_element.get_extent(), move);
 }
 
 void Bubble::Draw()
