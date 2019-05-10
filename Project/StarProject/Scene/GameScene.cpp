@@ -126,25 +126,33 @@ void GameScene::Update(const Input & p)
 		itr->Update();
 	}
 
-	for (auto itr : _enemies)
+	for (int i = 0; i < _enemies.size(); ++i)
 	{
-		auto sVec = _pl->GetShot();
-		for (int i = 0; i < _pl->GetShot().size(); ++i)
+		/// “G‚ÌŽ€–Sˆ—
+		if (_enemies[i]->GetInfo()._dieFlag)
 		{
-			if (_col->WaterToSqr(_pl->GetInfo().vertexs[i], sVec[i],itr->GetInfo()._rect))
-			{
-				itr->ChangeColor();
-				break;
-			}
-			itr->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().vertexs, itr->GetInfo()._searchVert));
+			_enemies.erase(_enemies.begin() + i);
+			continue;
 		}
 
-		/// ÌßÚ²Ô°‚Æ¼®¯Ä‚Ì“–‚½‚è”»’è
-		for (int i = 0; i < itr->GetShotInfo().size(); ++i)
+		auto sVec = _pl->GetShot();
+		/// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
+		for (int p = 0; p < _pl->GetShot().size(); ++p)
 		{
-			if (_col->TriToSqr(_pl->GetInfo().vertexs, itr->GetShotInfo()[i]._pos, itr->GetShotInfo()[i]._size))
+			if (_col->WaterToSqr(_pl->GetInfo().vertexs[p], sVec[p],_enemies[i]->GetInfo()._rect))
 			{
-				itr->ChangeShotColor(i);		/// ÌßÚ²Ô°‚É“–‚½‚Á‚½’e‚ÌF‚ð•Ï‚¦‚Ä‚¢‚éB
+				_enemies[i]->ChangeColor();
+				break;
+			}
+			_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().vertexs, _enemies[i]->GetInfo()._searchVert));
+		}
+		
+		/// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
+		for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
+		{
+			if (_col->TriToSqr(_pl->GetInfo().vertexs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
+			{
+				_enemies[i]->ChangeShotColor(s);		/// ÌßÚ²Ô°‚É“–‚½‚Á‚½’e‚ÌF‚ð•Ï‚¦‚Ä‚¢‚éB
 			}
 		}
 	}
@@ -180,6 +188,11 @@ void GameScene::Update(const Input & p)
 				immortal->Break();
 			}
 		}
+	}
+
+	if (_enemies.size() <= 0)
+	{
+		DrawExtendString(0, 0, 1.0, 1.0, "Not Enemy", 0xffffff);
 	}
 
 	totaltime = time - (flame / 60);

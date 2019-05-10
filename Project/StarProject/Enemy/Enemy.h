@@ -11,6 +11,7 @@ struct EnemyInfo {
 	Size _size;
 	Rect _rect;
 	std::array<Vector2, 3> _searchVert;
+	bool _dieFlag;		// true:€–S, false:¶‘¶
 	
 	EnemyInfo() :_pos(0, 0), _size(0, 0), _rect(_pos, _size){};
 	EnemyInfo(const Position2& _pos, const Size& _size, const Rect& _rect) {
@@ -49,8 +50,7 @@ protected:
 	shot_vector shot;
 	Vector2 _vel;
 	int color;
-	bool _turnFlag;			// true:‰E•ûŒü, false:¶•ûŒü
-	bool _dieFlag;			// true:€–S, false:¶‘¶
+	bool _turnFlag;			// true:‰E•ûŒü, false:¶•ûŒü		
 
 	Enemy(std::shared_ptr<Camera>& camera);
 

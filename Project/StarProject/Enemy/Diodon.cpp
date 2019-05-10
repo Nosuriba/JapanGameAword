@@ -1,4 +1,5 @@
 #include "Diodon.h"
+#include "../Game.h"
 #include "../Camera.h"
 
 const float riseSpeed = 0.8f;
@@ -16,7 +17,7 @@ Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 
 	riseCnt = blastCnt = 0;
 	_turnFlag = true;
-	_dieFlag  = false;
+	enemy._dieFlag  = false;
 	color = 0x77bbff;
 
 	/// ｼｮｯﾄを打つ位置の設定
@@ -75,13 +76,18 @@ void Diodon::Shot()
 		shot[i].debugColor = 0xffffff;
 	}
 
+	/// 直接的なｻｲｽﾞ変更で問題が出れば、処理を変える
+	_vel = Vector2(0, 0);
+	enemy._size = Size(0, 0);
+	
 	updater = &Diodon::ShotUpdate;
 }
 
 void Diodon::Die()
 {
 	_vel	 = Vector2(0, 0);
-	_dieFlag = true;
+	enemy._size = Size(0, 0);
+	enemy._dieFlag = true;
 	updater  = &Diodon::DieUpdate;
 }
 
@@ -139,7 +145,6 @@ void Diodon::SwellUpdate()
 			{
 				Shot();
 				_vel = Vector2(0, 0);
-				_dieFlag = true;
 			}
 			blastCnt--;
 		}
@@ -154,10 +159,16 @@ void Diodon::SwellUpdate()
 
 void Diodon::ShotUpdate()
 {
+	auto debug = shot.size();
 	for (int i = 0; i < shot.size(); ++i)
 	{
 		shot[i]._pos += shot[i]._vel;
 		shot[i]._rect = Rect(shot[i]._pos, shot[i]._size);
+	}
+
+	if (CheckOutScreen())
+	{
+		Die();
 	}
 }
 
@@ -166,16 +177,35 @@ void Diodon::DieUpdate()
 
 }
 
+bool Diodon::CheckOutScreen()
+{
+	for (int i = 0; i < shot.size(); ++i)
+	{
+		/// とりあえず、画面外に行くとｼｮｯﾄを消すようにしている
+		if (shot[i]._pos.x < 0 || shot[i]._pos.y < 0 ||
+			shot[i]._pos.x > Game::GetInstance().GetScreenSize().x ||
+			shot[i]._pos.y > Game::GetInstance().GetScreenSize().y)
+		{
+			shot.erase(shot.begin() + i);
+		}
+	}
+	if (shot.size() <= 0)
+	{
+		return true;
+	}
+	return false;
+}
+
 void Diodon::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	DxLib::DrawBox(enemy._rect.Left() - camera.x,  enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x , enemy._rect.Bottom() - camera.y, color, !_dieFlag);
+	DxLib::DrawBox(enemy._rect.Left()  - camera.x,  enemy._rect.Top() - camera.y,
+				   enemy._rect.Right() - camera.x , enemy._rect.Bottom() - camera.y, color, !enemy._dieFlag);
 
 	for (auto itr : shot)
 	{
-		DxLib::DrawBox(itr._rect.Left() - camera.x, itr._rect.Top() - camera.y,
+		DxLib::DrawBox(itr._rect.Left()  - camera.x, itr._rect.Top() - camera.y,
 					   itr._rect.Right() - camera.x, itr._rect.Bottom() - camera.y, itr.debugColor, true);
 	}
 
@@ -212,7 +242,7 @@ void Diodon::ChangeShotColor(const int& num)
 
 void Diodon::ChangeColor()
 {
-	if (!_dieFlag)
+	if (!enemy._dieFlag)
 	{
 		/// 泳いでいる時
 		if (updater == &Diodon::SwimUpdate)

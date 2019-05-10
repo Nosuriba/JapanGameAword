@@ -17,6 +17,8 @@ private:
 	void ShotUpdate();
 	void DieUpdate();
 
+	bool CheckOutScreen();  /// ¼®¯Ä‚ª‰æ–ÊŠO‚És‚Á‚½‚©‚Ì”»’è—p
+
 	void (Diodon::*updater)();
 
 	std::shared_ptr<Camera> _camera;

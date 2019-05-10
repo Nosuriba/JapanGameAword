@@ -14,7 +14,7 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	_vel	 = Vector2();
 
 	_turnFlag = false;
-	_dieFlag  = false;
+	enemy._dieFlag  = false;
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
 		enemy._searchVert[i] = enemy._pos;
@@ -39,7 +39,7 @@ void Fish::Swim()
 void Fish::Die()
 {
 	_vel = Vector2(0, 0);
-	_dieFlag = true;
+	enemy._dieFlag = true;
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
 		enemy._searchVert[i] = enemy._pos;
@@ -96,18 +96,15 @@ void Fish::Draw()
 	auto camera = _camera->CameraCorrection();
 
 	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, !_dieFlag);
+				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, color, !enemy._dieFlag);
 
 	/// ’T’m‚Å‚«‚é”ÍˆÍ‚Ì•`‰æ
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
-		if (!_dieFlag)
-		{
-			DxLib::DrawCircle(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y, 5, 0xff2222);
+		DxLib::DrawCircle(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y, 5, 0xff2222);
 
-			DxLib::DrawLineAA(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,
-				enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 3.0);
-		}
+		DxLib::DrawLineAA(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,
+						  enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 3.0);
 	}
 }
 
