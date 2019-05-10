@@ -27,11 +27,13 @@ void GameScene::FadeOut(const Input & p)
 {
 	if (wait > 180) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		BubbleDraw();
 		Game::GetInstance().ChangeScene(new ResultScene());
 	}
 	else {
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)flame / 180.0f);
 		Draw();
+		BubbleCreate();
 	}
 }
 
@@ -138,7 +140,7 @@ void GameScene::Draw()
 
 	DrawFormatString(sizex / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
 	DrawFormatString(sizex / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
-	Bubble::GetInstance().Draw();
+	BubbleDraw();
 }
 
 void GameScene::Update(const Input & p)

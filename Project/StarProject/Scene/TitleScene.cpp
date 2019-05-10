@@ -17,15 +17,14 @@ void TitleScene::FadeOut(const Input & p)
 {
 	if (flame >= 180) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		Bubble::GetInstance().Draw();
+		BubbleDraw();
 		Game::GetInstance().ChangeScene(new SelectScene());
 	}
 	else {
-		Bubble::GetInstance().Create();
+		BubbleCreate();
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / 180.0f);
 		Draw();
 	}
-	
 }
 
 void TitleScene::Wait(const Input & p)
@@ -83,5 +82,5 @@ void TitleScene::Draw()
 	DxLib::DrawExtendGraph(0, 0, 1280, 740, titleimg, true);
 
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 4.0f / 2.0f, size.y / 2 + GetFontSize() * 3, "START",0xa000f0);
-	Bubble::GetInstance().Draw();
+	BubbleDraw();
 }

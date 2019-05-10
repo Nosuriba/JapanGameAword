@@ -18,11 +18,13 @@ void SelectScene::FadeOut(const Input & p)
 {
 	if (flame > 180) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		BubbleDraw();
 		Game::GetInstance().ChangeScene(new GameScene());
 	}
 	else {
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / 180.0f);
 		Draw();
+		BubbleCreate();
 	}
 }
 
@@ -39,7 +41,6 @@ void SelectScene::Run(const Input & p)
 
 	if (p.IsTrigger(PAD_INPUT_10)) {
 		flame = 0;
-		Bubble::GetInstance().Create();
 		_updater = &SelectScene::FadeOut;
 	}
 }
@@ -74,7 +75,7 @@ void SelectScene::Draw()
 	auto size = game.GetScreenSize();
 
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 3.0f / 2.0f, size.y / 2, "Select", 0xa000f0);
-	Bubble::GetInstance().Draw();
+	BubbleDraw();
 }
 
 void SelectScene::Update(const Input & p)

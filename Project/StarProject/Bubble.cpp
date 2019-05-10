@@ -33,7 +33,7 @@ void Bubble::Create()
 {
 	if (!thread.joinable())
 	{
-		thread = std::thread([=] {for (int num = 0; num < 1; num++)
+		thread = std::thread([=] {for (int num = 0; num < 5; num++)
 		{
 			std::random_device rd;
 			std::mt19937 Rand(rd());
@@ -78,8 +78,8 @@ void Bubble::Move()
 		p_element[idx].x += p_element[idx].vx;
 		p_element[idx].y += p_element[idx].vy;
 		// ‰Á‘¬•”•ª
-		p_element[idx].vy += -15;
-		//	p_element[idx].vx += (int)(p_element[idx].x/100) % 2 ? 101: -101;
+		//p_element[idx].vy += -12;
+		//p_element[idx].vx += (int)(p_element[idx].x/100) % 2 ? 101: -101;
 		p_element[idx].light -= V_Speed;
 	};
 	// GPU‚Å“®‚©‚µ‚Ä‚é

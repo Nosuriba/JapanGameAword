@@ -5,6 +5,9 @@
 #include <vector>
 #include <thread>
 
+#define BubbleCreate Bubble::GetInstance().Create
+#define BubbleDraw Bubble::GetInstance().Draw
+
 constexpr int ElementNum = 1000;
 
 constexpr int SCREEN_SIZE_X = 1280;
@@ -30,6 +33,8 @@ private:
 
 	int cnt,p;
 	float x, y;
+
+	int timer = 0;
 
 	static int PCnt;
 
