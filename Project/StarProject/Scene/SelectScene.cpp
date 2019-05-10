@@ -11,6 +11,7 @@ void SelectScene::Wait(const Input & p)
 	Draw();
 
 	if (p.IsTrigger(PAD_INPUT_10)) {
+		Bubble::GetInstance().Create();
 		game.ChangeScene(new GameScene());
 	}
 }
@@ -42,6 +43,7 @@ void SelectScene::Draw()
 	auto size = game.GetScreenSize();
 
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 3.0f / 2.0f, size.y / 2, "Select", 0xa000f0);
+	Bubble::GetInstance().Draw();
 }
 
 void SelectScene::Update(const Input & p)

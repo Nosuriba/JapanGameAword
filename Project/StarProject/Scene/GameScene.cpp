@@ -113,6 +113,7 @@ void GameScene::Draw()
 
 	DrawFormatString(sizex / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
 	DrawFormatString(sizex / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
+	Bubble::GetInstance().Draw();
 }
 
 void GameScene::Update(const Input & p)

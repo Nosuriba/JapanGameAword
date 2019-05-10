@@ -1,5 +1,6 @@
 #pragma once
 #include "../Processing/Input.h"
+#include "../Bubble.h"
 
 class Scene
 {
