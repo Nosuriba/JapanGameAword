@@ -55,7 +55,7 @@ void Player::Update(const Input& in)
 	float theta_l, theta_r;
 	theta_l = theta_r = 0.0f;
 
-	std::array<int, 2> idx;
+	std::array<int, 2> idx = { -1,-1 };
 
 	for (int i = 0; i < _star.legs.size(); i++)
 	{
