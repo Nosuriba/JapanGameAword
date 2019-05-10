@@ -4,6 +4,14 @@
 #include "GameScene.h"
 
 
+void SelectScene::FadeIn(const Input & p)
+{
+}
+
+void SelectScene::FadeOut(const Input & p)
+{
+}
+
 void SelectScene::Wait(const Input & p)
 {
 	auto& game = Game::GetInstance();
@@ -14,6 +22,10 @@ void SelectScene::Wait(const Input & p)
 		Bubble::GetInstance().Create();
 		game.ChangeScene(new GameScene());
 	}
+}
+
+void SelectScene::Run(const Input & p)
+{
 }
 
 SelectScene::SelectScene()
