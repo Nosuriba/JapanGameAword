@@ -51,4 +51,44 @@ void Input::Update()
 	//PAD_INPUT_8　		// 8ボタンチェックマスク(Ｗキー)
 	//PAD_INPUT_9　		// 9ボタンチェックマスク(ＥＳＣキー)
 	//PAD_INPUT_10　	// 10ボタンチェックマスク(スペースキー)
+
+	_old = _input;
+
+	// 入力状態を取得
+	GetJoypadXInputState(DX_INPUT_PAD1, &_input);
+}
+
+const bool Input::Push(const BUTTON & b)
+{
+	if (_input.Buttons[(int)b])
+		return true;
+	return false;
+}
+
+const bool Input::Trigger(const BUTTON & b)
+{
+	if (_input.Buttons[(int)b] && _old.Buttons[(int)b] == 0)
+		return true;
+	return false;
+}
+
+const int Input::PushTrigger(const TRIGGER & t)
+{
+	if (t == TRIGGER::LEFT) return _input.LeftTrigger;
+	if (t == TRIGGER::RIGHT) return _input.RightTrigger;
+	return 0;
+}
+
+const int Input::TriggerTrigger(const TRIGGER & t)
+{
+	if (t == TRIGGER::LEFT && _old.LeftTrigger == 0) return _input.LeftTrigger;
+	if (t == TRIGGER::RIGHT && _old.RightTrigger == 0) return _input.RightTrigger;
+	return 0;
+}
+
+const Vector2 Input::Stick(const STICK & s)
+{
+	if (s == STICK::LEFT)return Vector2(_input.ThumbLX / 10000, -_input.ThumbLY / 10000);
+	if (s == STICK::RIGHT)return Vector2(_input.ThumbRX / 10000, -_input.ThumbRY / 10000);
+	return Vector2();
 }

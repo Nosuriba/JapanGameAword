@@ -120,7 +120,7 @@ void GameScene::Update(const Input & p)
 {
 	flame++;
 
-	_pl->Update();
+	_pl->Update(p);
 
 	for (auto itr : _enemies)
 	{
@@ -140,18 +140,18 @@ void GameScene::Update(const Input & p)
 		/// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
 		for (int p = 0; p < _pl->GetShot().size(); ++p)
 		{
-			if (_col->WaterToSqr(_pl->GetInfo().vertexs[p], sVec[p],_enemies[i]->GetInfo()._rect))
+			if (_col->WaterToSqr(_pl->GetInfo().legs[p].tip, sVec[p],_enemies[i]->GetInfo()._rect))
 			{
 				_enemies[i]->ChangeColor();
 				break;
 			}
-			_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().vertexs, _enemies[i]->GetInfo()._searchVert));
+			_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));
 		}
 		
 		/// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
 		for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
 		{
-			if (_col->TriToSqr(_pl->GetInfo().vertexs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
+			if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
 			{
 				_enemies[i]->ChangeShotColor(s);		/// ÌßÚ²Ô°‚É“–‚½‚Á‚½’e‚ÌF‚ð•Ï‚¦‚Ä‚¢‚éB
 			}
@@ -162,7 +162,7 @@ void GameScene::Update(const Input & p)
 	for (auto &destroy : _destroyObj) {
 		auto sVec = _pl->GetShot();
 		for (int i = 0; i < sVec.size(); ++i) {
-			if (_col->WaterToSqr(_pl->GetInfo().vertexs[i], sVec[i], destroy->GetInfo()._rect))
+			if (_col->WaterToSqr(_pl->GetInfo().legs[i].tip, sVec[i], destroy->GetInfo()._rect))
 			{
 				destroy->Break();
 			}
@@ -173,7 +173,7 @@ void GameScene::Update(const Input & p)
 	for (auto &predatry : _predatoryObj) {
 		auto sVec = _pl->GetShot();
 		for (int i = 0; i < sVec.size(); ++i) {
-			if (_col->WaterToSqr(_pl->GetInfo().vertexs[i], sVec[i], predatry->GetInfo()._rect))
+			if (_col->WaterToSqr(_pl->GetInfo().legs[i].tip, sVec[i], predatry->GetInfo()._rect))
 			{
 				predatry->Break();
 			}
@@ -184,7 +184,7 @@ void GameScene::Update(const Input & p)
 	for (auto &immortal : _immortalObj) {
 		auto sVec = _pl->GetShot();
 		for (int i = 0; i < sVec.size(); ++i) {
-			if (_col->WaterToSqr(_pl->GetInfo().vertexs[i], sVec[i], immortal->GetInfo()._rect))
+			if (_col->WaterToSqr(_pl->GetInfo().legs[i].tip, sVec[i], immortal->GetInfo()._rect))
 			{
 				immortal->Break();
 			}

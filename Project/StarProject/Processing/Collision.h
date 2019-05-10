@@ -1,6 +1,8 @@
 #pragma once
 #include "Geometry.h"
 #include <array>
+#include <vector>
+#include "../Player.h"
 
 class Collision
 {
@@ -10,8 +12,8 @@ private:
 public:
 	Collision();
 	~Collision();
-	bool TriToTri(const std::array<Vector2, 5>& _vert, const std::array<Vector2, 3>& _tri);
-	bool TriToSqr(const std::array<Vector2, 5> &_vert, const Position2 &_pos, const Size &_size);
+	bool TriToTri(const std::vector<Leg>& _leg, const std::array<Vector2, 3>& _tri);
+	bool TriToSqr(const std::vector<Leg>& _leg, const Position2 &_pos, const Size &_size);
 	bool WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const Rect& _rect);
 
 };
