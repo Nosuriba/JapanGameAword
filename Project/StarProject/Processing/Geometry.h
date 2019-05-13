@@ -52,6 +52,7 @@ Vector2 operator/(const Vector2& lv, const float rv);
 Vector2 operator/(const Vector2& lv, const Vector2& rv);
 
 float Dot(const Vector2& v1, const Vector2& v2);
+float Cross(const Vector2& v1, const Vector2& v2);
 //Vector2 Cross(const Vector2& v1, const Vector2& v2);
 
 typedef Vector2 Position2;
