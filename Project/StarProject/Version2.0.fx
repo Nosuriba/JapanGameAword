@@ -38,8 +38,6 @@ PS_OUTPUT main(PS_INPUT input)
     TextureColor = tex2D(Texture, float2(input.uv.x + uvtmpx, input.uv.y));
 
     //if (0.3 < input.pos.y && input.pos.y < 0.7)
-    
-    TextureColor.rgb *= 2;
 
     output.color = TextureColor;
 
