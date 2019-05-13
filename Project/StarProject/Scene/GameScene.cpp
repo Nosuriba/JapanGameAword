@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "../Processing/Input.h"
 #include "../Game.h"
+#include "../ResourceManager.h"
 #include "ResultScene.h"
 #include "../Player.h"
 #include "../Enemy/Enemy.h"
@@ -100,9 +101,10 @@ GameScene::GameScene()
 	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
 
 	//‰æ‘œ‚Ì“Ç‚İ‚İ
-	sea = LoadGraph("../img/sea.png");
-	sea_effect = LoadGraph("../img/sea2.png");
-	beach = LoadGraph("../img/»•l2.png");
+	auto& manager = ResourceManager::GetInstance();
+	sea			= manager.LoadImg("../img/sea.png");
+	sea_effect	= manager.LoadImg("../img/sea2.png");
+	beach		= manager.LoadImg("../img/»•l.png");
 
 	//’¸“_‚Ìİ’è
 
