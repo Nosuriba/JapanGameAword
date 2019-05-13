@@ -102,7 +102,7 @@ GameScene::GameScene()
 	//‰æ‘œ‚Ì“Ç‚Ýž‚Ý
 	sea = LoadGraph("../img/sea.png");
 	sea_effect = LoadGraph("../img/sea2.png");
-	beach = LoadGraph("../img/»•l.png");
+	beach = LoadGraph("../img/»•l2.png");
 
 	//’¸“_‚ÌÝ’è
 
@@ -148,7 +148,7 @@ void GameScene::Draw()
 	ClearDrawScreen();
 
 	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
-		sizex - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, beach, true);
+		_camera->GetRange().x - _camera->CameraCorrection().x, _camera->GetRange().y - _camera->CameraCorrection().y, beach, true);
 
 	_pl->Draw();
 
@@ -205,8 +205,6 @@ void GameScene::Draw()
 	SetDrawScreen(DX_SCREEN_BACK);
 
 	ClearDrawScreen();
-
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	DrawGraph(0, 0, firstscreen, true);
 
