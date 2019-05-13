@@ -1,6 +1,7 @@
 #include "TitleScene.h"
 #include "../Processing/Input.h"
 #include "../Game.h"
+#include "../ResourceManager.h"
 #include "SelectScene.h"
 
 void TitleScene::FadeIn(const Input & p)
@@ -44,7 +45,7 @@ void TitleScene::Run(const Input & p)
 
 TitleScene::TitleScene()
 {
-	titleimg = DxLib::LoadGraph("../img/title.png");
+	titleimg = ResourceManager::GetInstance().LoadImg("../img/title.png");
 	flame = 0;
 
 	//フォントのロード
@@ -65,7 +66,6 @@ TitleScene::TitleScene()
 
 TitleScene::~TitleScene()
 {
-	DxLib::DeleteGraph(titleimg);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 

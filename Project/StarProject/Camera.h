@@ -4,8 +4,6 @@
 class Camera
 {
 private:
-	int _img;
-
 	Vector2 _pos;
 	Vector2 _range;
 

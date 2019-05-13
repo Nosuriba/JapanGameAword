@@ -5,8 +5,6 @@
 
 Camera::Camera()
 {
- 	//GetGraphSizeF(_img, &_range.x, &_range.y);
-
 	_range = Vector2(2000, 1500);
 }
 
