@@ -172,14 +172,14 @@ void GameScene::Draw()
 
 	DrawFormatString(sizex / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
 	DrawFormatString(sizex / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
-	BubbleDraw();
 
 	//secondスクリーン
 	SetDrawScreen(secondscreen);
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0, 0 , sizex * 2, sizey, sea_effect, true);
+	//DrawExtendGraph(0, 0 , sizex * 2, sizey, sea_effect, true);
+	DrawRotaGraph(sizex / 2, sizey / 2 , 1.5, 0, sea_effect, true, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
 	SetUseTextureToShader(0, secondscreen);
@@ -200,6 +200,17 @@ void GameScene::Draw()
 
 	DrawExtendGraph(0, 0, sizex * 2, sizey, sea, true);
 
+	//シェーダで使うテクスチャは先ほど作った描画可能画像
+	SetUseTextureToShader(0, thirdscreen);
+
+	//シェーダーに情報を渡す
+	SetPSConstSF(0, shader_time / 100.0f);
+
+	//ピクセルシェーダのセット
+	SetUsePixelShader(Game::GetInstance().GetShaderHandle());
+
+	DrawPrimitive2DToShader(vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
+
 
 	//バック描画
 	SetDrawScreen(DX_SCREEN_BACK);
@@ -212,11 +223,13 @@ void GameScene::Draw()
 
 	DrawGraph(0 - 200, 0, secondscreen, true);
 
-	SetDrawBlendMode(DX_BLENDMODE_ADD, 60);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
 
 	DrawGraph(0 - 200, 0, thirdscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	BubbleDraw();
 
 }
 
