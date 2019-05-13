@@ -127,6 +127,7 @@
     <ClCompile Include="Enemy\Diodon.cpp" />
     <ClCompile Include="Enemy\Enemy.cpp" />
     <ClCompile Include="Enemy\Fish.cpp" />
+    <ClCompile Include="Enemy\Octopus.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object\DestroyableObject.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="Enemy\Diodon.h" />
     <ClInclude Include="Enemy\Enemy.h" />
     <ClInclude Include="Enemy\Fish.h" />
+    <ClInclude Include="Enemy\Octopus.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Object\DestroyableObject.h" />
     <ClInclude Include="Object\ImmortalObject.h" />
