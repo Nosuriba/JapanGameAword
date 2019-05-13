@@ -4,16 +4,16 @@
 #include <random>
 #include "../StarProject/Scene/AMP.h"
 
-constexpr int offset = 250;					// Yの値をどのくらい下げるかのｵﾌｾｯﾄ
+constexpr int offset		= 250;					// Yの値をどのくらい下げるかのｵﾌｾｯﾄ
 std::unique_ptr<Bubble, Bubble::Bubble_deleter> Bubble::particle(new Bubble(SCREEN_SIZE_X/2, SCREEN_SIZE_Y+ offset));
 
-constexpr int Magnification = 100;			// 倍率
-constexpr int Vec = 2* Magnification;		// ｽﾋﾟｰﾄﾞ
-constexpr int BubbleMax = 5;				// 一回の生成で出す泡の量
+constexpr int Magnification = 100;					// 倍率
+constexpr int Vec			= 2 * Magnification;	// ｽﾋﾟｰﾄﾞ
+constexpr int BubbleMax		= 100;					// 一回の生成で出す泡の量
 
-constexpr int V_Speed = 1;					// 消える速度
-constexpr int V_Light = 10;					// 消える明るさ
-constexpr int V_Cnt = 0xff/ V_Speed;		// 消えるまでのﾌﾚｰﾑ数
+constexpr int V_Speed		= 1;					// 消える速度
+constexpr int V_Light		= 10;					// 消える明るさ
+constexpr int V_Cnt			= 0xff/ V_Speed;		// 消えるまでのﾌﾚｰﾑ数
 
 Bubble::Bubble(int _x, int _y)
 {
@@ -55,7 +55,10 @@ void Bubble::Create()
 						break;
 					}
 				}
-
+				if (i==ELEMENT_NUM)
+				{
+					return;
+				}
 				// 初期値の設定
 				p_el[i].x = (x) * Magnification;
 				p_el[i].y = (y) * Magnification;
