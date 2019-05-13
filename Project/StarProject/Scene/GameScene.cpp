@@ -102,7 +102,7 @@ GameScene::GameScene()
 	//‰æ‘œ‚Ì“Ç‚İ‚İ
 	sea = LoadGraph("../img/sea.png");
 	sea_effect = LoadGraph("../img/sea2.png");
-	beach = LoadGraph("../img/»•l2.png");
+	beach = LoadGraph("../img/»•l.png");
 
 	//’¸“_‚Ìİ’è
 
