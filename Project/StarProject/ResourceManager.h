@@ -5,6 +5,7 @@ class ResourceManager
 {
 private:
 	std::map<std::string, int> _imgMap;
+	std::map<std::string, int> _soundMap;
 
 	ResourceManager();
 	~ResourceManager();
@@ -23,5 +24,6 @@ public:
 	}
 
 	int LoadImg(std::string name);
+	int LoadSound(std::string name);
 };
 

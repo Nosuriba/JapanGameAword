@@ -5,7 +5,6 @@
 ResourceManager::ResourceManager()
 {
 	_imgMap.clear();
-	//LoadImg("../img/umi.png");
 }
 
 
@@ -24,4 +23,13 @@ int ResourceManager::LoadImg(std::string name)
 		_imgMap[name] = LoadGraph(name.c_str());
 	}
 	return _imgMap[name];
+}
+
+int ResourceManager::LoadSound(std::string name)
+{
+	if (_soundMap.find(name) == _soundMap.end())
+	{
+		_soundMap[name] = LoadGraph(name.c_str());
+	}
+	return _soundMap[name];
 }
