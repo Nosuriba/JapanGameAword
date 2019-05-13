@@ -4,6 +4,22 @@
 class Player;
 class Camera;
 
+struct CtlInfo
+{
+	Vector2 pos;
+	Vector2 vel;
+	bool flag;
+
+	CtlInfo() : pos(0, 0), vel(0, 0), flag(false) {};
+	CtlInfo(const Vector2& pos, const Vector2& vel, bool flag)
+	{
+		this->pos  = pos;
+		this->vel  = vel;
+		this->flag = flag;
+	}
+
+};
+
 class Fish :
 	public Enemy
 {
@@ -23,7 +39,9 @@ private:
 	void (Fish::*updater)();
 
 	std::shared_ptr<Camera>& _camera;
-
+	std::vector<std::vector<Vector2>> dCtlPos;
+	std::vector<Vector2> sPoints;
+	std::vector<CtlInfo> ctlPoint;
 	std::vector<Vector2> midPos;
 	std::array<EnemyInfo, 5> divEnemy;		/// •ªŠ„‚µ‚½À•W
 	std::array<int, 5> divImage;
@@ -32,7 +50,7 @@ private:
 	int image;			// ‰æ‘œID
 	bool ctlFlag;		// true:‰ÁZ, false:Œ¸Z
 
-	const int mPoint = 10;
+	
 public:
 	Fish(std::shared_ptr<Camera>& camera);
 	~Fish();
