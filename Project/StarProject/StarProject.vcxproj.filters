@@ -87,8 +87,8 @@
     <ClInclude Include="Bubble.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy\Octopus.h">
-      <Filter>Enemy</Filter>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -152,8 +152,8 @@
     <ClCompile Include="Bubble.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy\Octopus.cpp">
-      <Filter>Enemy</Filter>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
