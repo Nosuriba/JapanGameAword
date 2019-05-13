@@ -9,7 +9,7 @@ std::unique_ptr<Bubble, Bubble::Bubble_deleter> Bubble::particle(new Bubble(SCRE
 
 constexpr int Magnification = 100;			// ”{—¦
 constexpr int Vec = 2* Magnification;		// ½Ëß°ÄŞ
-constexpr int BubbleMax = 5;				// ˆê‰ñ‚Ìcreate‚Åo‚·–A‚Ì—Ê
+constexpr int BubbleMax = 5;				// ˆê‰ñ‚Ì¶¬‚Åo‚·–A‚Ì—Ê
 
 constexpr int V_Speed = 1;					// Á‚¦‚é‘¬“x
 constexpr int V_Light = 10;					// Á‚¦‚é–¾‚é‚³

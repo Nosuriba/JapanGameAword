@@ -5,11 +5,9 @@
 
 Camera::Camera()
 {
-	_img = LoadGraph("../img/çªïl.png");
-
  	//GetGraphSizeF(_img, &_range.x, &_range.y);
 
-	_range = Vector2(3000, 3000);
+	_range = Vector2(2000, 1500);
 }
 
 
@@ -31,12 +29,14 @@ void Camera::Update(const Vector2& p)
 
 void Camera::Draw()
 {
-	auto size = Game::GetInstance().GetScreenSize();
-	DrawExtendGraph(0 - _correction.x, 0 - _correction.y, _img, 
-		size.x - _correction.x, size.y - _correction.y, true);
 }
 
 const Vector2 Camera::CameraCorrection() const
 {
 	return _correction;
+}
+
+const Vector2 Camera::GetRange() const
+{
+	return _range;
 }

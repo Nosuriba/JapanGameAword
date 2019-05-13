@@ -9,15 +9,25 @@ const int deg = 30;				/// ﾌﾟﾚｲﾔｰを探知する方向を求めるための角度
 Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
 	auto pos  = Vector2(200, 200);
-	auto size = Size(80, 50);
+	auto size = Size(90, 50);
 	auto rect = Rect(pos, size);
 	enemy	 = EnemyInfo(pos, size, rect);
 	_vel	 = Vector2();
 
-	ctlPos = enemy._pos;
-	ctlVel = 0.f;
+	ctlPos = Vector2(enemy._rect.Left(), enemy._pos.y);
+	ctlVel = Vector2();
+	ctlFlag = false;
 	_turnFlag = false;
 	enemy._dieFlag  = false;
+
+	/// 分割した座標の指定
+	for (int i = 0; i < divEnemy.size(); ++i)
+	{
+		divEnemy[i]._size = Size(enemy._size.width / divEnemy.size(), enemy._size.height);
+		divEnemy[i]._pos = enemy._pos + Vector2(i * (enemy._size.width / divEnemy.size()), enemy._size.height);
+		divEnemy[i]._rect = Rect(divEnemy[i]._pos, divEnemy[i]._size);
+	}
+
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
 		enemy._searchVert[i] = enemy._pos;
@@ -103,7 +113,7 @@ void Fish::searchMove()
 
 			if (_turnFlag)
 			{
-				rad = (deg - ((deg * 2) * (i - 1))) * DX_PI / 180;
+				rad = (deg - ((deg * 2) * (i))) * DX_PI / 180;
 				cosD = cos(rad);
 				sinD = sin(rad);
 
@@ -111,7 +121,7 @@ void Fish::searchMove()
 			}
 			else
 			{
-				rad = (180 - deg + ((deg * 2) * (i - 1))) * DX_PI / 180;
+				rad = (180 - deg + ((deg * 2) * (i))) * DX_PI / 180;
 				cosD = cos(rad);
 				sinD = sin(rad);
 
@@ -122,6 +132,66 @@ void Fish::searchMove()
 	}
 }
 
+void Fish::CalCurve()
+{
+	//// 敵の速度をｺﾒﾝﾄｱｳﾄしているので、後で直す
+	ctlVel.y += (ctlFlag ? 0.2f : -0.2f);
+	if (ctlFlag)
+	{
+		ctlFlag = (ctlVel.y > 2.0f ? false : true);
+	}
+	else
+	{
+		ctlFlag = (ctlVel.y < -2.0f ? true : false);
+	}
+	ctlPos += ctlVel;
+	
+
+	/// ﾍﾞｼﾞｪ曲線の計算
+	midPos.resize(mPoint);
+	midPos[0] = Vector2(enemy._rect.Left(), enemy._rect.Top());
+	for (int i = 0; i < mPoint; ++i)
+	{
+		float b = (float)i / mPoint;
+		float a = 1.0f - b;
+
+		midPos[i].x = (a * a * enemy._rect.Left()) + (2 * a * b * ctlPos.x) + (b * b * enemy._rect.Right());
+		midPos[i].y = (a * a * enemy._rect.Top())  + (2 * a * b * ctlPos.y) + (b * b * enemy._rect.Bottom());
+	}
+}
+
+void Fish::CalNormalVec()
+{
+	ctlVel.y += (ctlFlag ? 0.2f : -0.2f);
+	if (ctlFlag)
+	{
+		ctlFlag = (ctlVel.y > 2.0f ? false : true);
+	}
+	else
+	{
+		ctlFlag = (ctlVel.y < -2.0f ? true : false);
+	}
+
+	divEnemy[0]._pos += ctlVel;
+	for (int i = 1; i < divEnemy.size(); ++i)
+	{
+		auto A = Vector2(divEnemy[i]._pos.x + divEnemy[i]._rect.Right(),
+						 divEnemy[i]._pos.y + divEnemy[i]._rect.Bottom());
+		auto B = Vector2(divEnemy[i]._pos.x + divEnemy[i]._rect.Left(), divEnemy[i]._pos.y + divEnemy[i]._rect.Top());
+		auto C = Vector2(divEnemy[i]._pos.x + divEnemy[i]._rect.Right(), divEnemy[i]._pos.y + divEnemy[i]._rect.Top());
+
+		auto AB = B - A;
+		auto BC = C - B;
+		AB.Normalize();
+		BC.Normalize();
+		
+		auto cross = Cross(AB, BC);
+		divEnemy[i]._pos = Vector2(divEnemy[i]._pos.x + (enemy._size.width * cross),
+								   divEnemy[i]._pos.y + (enemy._size.height * cross));
+
+	}
+}
+
 void Fish::Draw()
 {
 
@@ -129,21 +199,40 @@ void Fish::Draw()
 
 	auto sPos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y - (enemy._size.height / 2));
 	auto ePos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y + (enemy._size.height / 2));
+	/// 通常の描画
+	/*DxLib::DrawBox(sPos.x - camera.x, sPos.y - camera.y,
+					ePos.x - camera.x, ePos.y - camera.y, color, (updater != &Fish::EscapeUpdate));*/
 
-	DxLib::DrawBox(sPos.x - camera.x, sPos.y - camera.y,
-		ePos.x - camera.x, ePos.y - camera.y, color, (updater != &Fish::EscapeUpdate));
+	/// 画像の読み込み
+	int sizeX = 0;
+	int sizeY = 0;
+	DxLib::GetImageSize_File("resource/fish.png", &sizeX, &sizeY);
+	DxLib::LoadDivGraph("resource/fish.png", divEnemy.size(), divEnemy.size(), 1, 
+						 sizeX / divEnemy.size(), sizeY, &divImage[0]);
 
+	/// ﾍﾞｼﾞｪ曲線を用いての描画
 	/*Vector2 pre = midPos[0];		/// 前の座標
 	float t = 40.0f;
 	for (auto& m : midPos)
 	{
-		DxLib::DrawLine(pre.x - camera.x, pre.y - camera.y,
+		DxLib::DrawLineAA(pre.x - camera.x, pre.y - camera.y,
 					     m.x - camera.x, m.y - camera.y, color, 20);
 		pre.x = m.x;
 		pre.y = m.y;
 		t /= 1.3;
 	}*/
-	
+
+
+
+	for (int i = 0; i < divEnemy.size(); ++i)
+	{
+		auto p1 = Vector2(divEnemy[i]._pos.x - divEnemy[i]._size.width / 2, divEnemy[i]._pos.y - divEnemy[i]._size.height / 2);		// 左上
+		auto p2 = Vector2(divEnemy[i]._pos.x + divEnemy[i]._size.width / 2, divEnemy[i]._pos.y - divEnemy[i]._size.height / 2);		// 右上
+		auto p3 = Vector2(divEnemy[i]._pos.x + divEnemy[i]._size.width / 2, divEnemy[i]._pos.y + divEnemy[i]._size.height / 2);		// 右下
+		auto p4 = Vector2(divEnemy[i]._pos.x - divEnemy[i]._size.width / 2, divEnemy[i]._pos.y + divEnemy[i]._size.height / 2);		// 左下
+		DxLib::DrawModiGraph(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, divImage[i], true);
+
+	}
 
 	/// 探知できる範囲の描画
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
@@ -170,7 +259,7 @@ void Fish::Update()
 	};
 	(this->*updater)();
 
-	enemy._pos += _vel;
+	//enemy._pos += _vel;
 	if (updater == &Fish::EscapeUpdate || enemy._dieFlag)
 	{
 		auto size = Size(0, 0);
@@ -183,20 +272,8 @@ void Fish::Update()
 	}
 	enemy._pos = DebugRoop(enemy._pos);
 
-	/*ctlVel = 0.5f;
-	ctlPos.y += 2.0f;
-
-	/// ﾍﾞｼﾞｪ曲線の計算
-	midPos.resize(mPoint);
-	midPos[0] = Vector2(enemy._rect.Left(), enemy._rect.Top());
-	for (int i = 0; i < mPoint; ++i)
-	{
-		float b = (float)i / mPoint;
-		float a = 1.0f - b;
-
-		midPos[i].x = (a * a * enemy._rect.Left()) + (2 * a * b * ctlPos.x) + (b * b * enemy._rect.Right());
-		midPos[i].y = (a * a * enemy._rect.Top()) + (2 * a * b * ctlPos.y) + (b * b * enemy._rect.Bottom());
-	}*/
+	//CalCurve();
+	CalNormalVec();
 }
 
 EnemyInfo Fish::GetInfo()

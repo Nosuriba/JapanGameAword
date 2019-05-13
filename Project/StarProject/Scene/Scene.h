@@ -2,6 +2,14 @@
 #include "../Processing/Input.h"
 #include "../Bubble.h"
 
+// ÃÞÊÞ¯¸Þ‚ÌŽž’·‚¢‚©‚ç’Z‚­‚·‚é
+#ifdef _DEBUG
+const int WAITFRAME = 60;
+#else
+const int WAITFRAME = 120;
+#endif // DEBUG
+
+
 class Scene
 {
 public:

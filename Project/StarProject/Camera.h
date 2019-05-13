@@ -20,5 +20,7 @@ public:
 
 	// ï\é¶ï‚ê≥
 	const Vector2 CameraCorrection() const;
+
+	const Vector2 GetRange() const;
 };
 

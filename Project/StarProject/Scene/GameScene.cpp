@@ -15,24 +15,24 @@
 
 void GameScene::FadeIn(const Input & p)
 {
-	if (wait >= 60) {
-		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	if (wait >= WAITFRAME) {
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &GameScene::Wait;
 	}
-	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / 60.0f);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / WAITFRAME);
 	Draw();
 }
 
 void GameScene::FadeOut(const Input & p)
 {
-	if (wait >= 180) {
+	if (wait >= WAITFRAME) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		BubbleDraw();
 		Game::GetInstance().ChangeScene(new ResultScene());
 	}
 	else {
 		BubbleCreate();
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)wait / 180.0f);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)wait / WAITFRAME);
 		Draw();
 	}
 }
@@ -102,9 +102,7 @@ GameScene::GameScene()
 	//画像の読み込み
 	sea = LoadGraph("../img/sea.png");
 	sea_effect = LoadGraph("../img/sea2.png");
-
-	//ピクセルシェーダ読み込み
-	shaderhandle = LoadPixelShader("../Version2.0.pso");
+	beach = LoadGraph("../img/砂浜.png");
 
 	//頂点の設定
 
@@ -143,12 +141,15 @@ void GameScene::Draw()
 	int sizex, sizey;
 	DxLib::GetWindowSize(&sizex, &sizey);
 
+
 	//firstスクリーン
 	SetDrawScreen(firstscreen);
 
 	ClearDrawScreen();
 
-	_camera->Draw();
+	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
+		_camera->GetRange().x - _camera->CameraCorrection().x, _camera->GetRange().y - _camera->CameraCorrection().y, beach, true);
+
 	_pl->Draw();
 
 	for (auto itr : _enemies)
@@ -171,15 +172,14 @@ void GameScene::Draw()
 
 	DrawFormatString(sizex / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
 	DrawFormatString(sizex / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
-	BubbleDraw();
 
 	//secondスクリーン
 	SetDrawScreen(secondscreen);
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0 - 200 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
-		sizex * 2 - 200 - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, sea_effect, true);
+	//DrawExtendGraph(0, 0 , sizex * 2, sizey, sea_effect, true);
+	DrawRotaGraph(sizex / 2, sizey / 2 , 1.5, 0, sea_effect, true, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
 	SetUseTextureToShader(0, secondscreen);
@@ -188,7 +188,7 @@ void GameScene::Draw()
 	SetPSConstSF(0, shader_time / 100.0f);
 
 	//ピクセルシェーダのセット
-	SetUsePixelShader(shaderhandle);
+	SetUsePixelShader(Game::GetInstance().GetShaderHandle());
 
 	DrawPrimitive2DToShader(vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
@@ -198,8 +198,18 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0 - 200 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
-		sizex * 2 - 200 - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, sea, true);
+	DrawExtendGraph(0, 0, sizex * 2, sizey, sea, true);
+
+	//シェーダで使うテクスチャは先ほど作った描画可能画像
+	SetUseTextureToShader(0, thirdscreen);
+
+	//シェーダーに情報を渡す
+	SetPSConstSF(0, shader_time / 100.0f);
+
+	//ピクセルシェーダのセット
+	SetUsePixelShader(Game::GetInstance().GetShaderHandle());
+
+	DrawPrimitive2DToShader(vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
 
 	//バック描画
@@ -209,17 +219,18 @@ void GameScene::Draw()
 
 	DrawGraph(0, 0, firstscreen, true);
 
-	SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
-	DrawGraph(0, 0, secondscreen, true);
+	DrawGraph(0 - 200, 0, secondscreen, true);
 
-	SetDrawBlendMode(DX_BLENDMODE_ADD, 60);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
 
-	DrawGraph(0, 0, thirdscreen, true);
+	DrawGraph(0 - 200, 0, thirdscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	ScreenFlip();
+	BubbleDraw();
+
 }
 
 void GameScene::Update(const Input & p)

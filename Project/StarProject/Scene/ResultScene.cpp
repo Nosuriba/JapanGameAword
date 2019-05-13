@@ -5,25 +5,25 @@
 
 void ResultScene::FadeIn(const Input & p)
 {
-	if (flame >= 60) {
+	if (flame >= WAITFRAME) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &ResultScene::Wait;
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / 60.0f);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / WAITFRAME);
 	Draw();
 
 }
 
 void ResultScene::FadeOut(const Input & p)
 {
-	if (flame >= 180) {
+	if (flame >= WAITFRAME) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		BubbleDraw();
 		Game::GetInstance().ChangeScene(new TitleScene());
 	}
 	else {
 		BubbleCreate();
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / 180.0f);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / WAITFRAME);
 		Draw();
 	}
 }
