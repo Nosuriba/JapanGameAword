@@ -29,6 +29,8 @@ class Octopus :
 {
 private:
 
+	const int numMaxItr = 6;
+
 	void Die();
 	void DieUpdate();
 
