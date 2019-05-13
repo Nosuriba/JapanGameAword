@@ -138,6 +138,7 @@
     <ClCompile Include="Processing\Collision.cpp" />
     <ClCompile Include="Processing\Geometry.cpp" />
     <ClCompile Include="Processing\Input.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Scene\ResultScene.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Processing\Collision.h" />
     <ClInclude Include="Processing\Geometry.h" />
     <ClInclude Include="Processing\Input.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene\AMP.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Scene\ResultScene.h" />
