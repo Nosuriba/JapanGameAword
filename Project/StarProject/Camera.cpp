@@ -31,12 +31,14 @@ void Camera::Update(const Vector2& p)
 
 void Camera::Draw()
 {
-	auto size = Game::GetInstance().GetScreenSize();
-	DrawExtendGraph(0 - _correction.x, 0 - _correction.y, _img, 
-		size.x - _correction.x, size.y - _correction.y, true);
 }
 
 const Vector2 Camera::CameraCorrection() const
 {
 	return _correction;
+}
+
+const Vector2 Camera::GetRange() const
+{
+	return _range;
 }

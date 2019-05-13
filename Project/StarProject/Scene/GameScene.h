@@ -46,13 +46,13 @@ private:
 	int thirdscreen;
 
 	int shader_time;
-	int shaderhandle;
 
 	VERTEX2DSHADER vertex[4];
 
 	//ƒCƒ[ƒW
 	int sea;
 	int sea_effect;
+	int beach;
 
 	int flame;
 	int time;

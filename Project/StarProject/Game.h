@@ -19,7 +19,9 @@ public:
 	void ChangeScene(Scene *scene);
 
 	const Vector2 GetScreenSize() const;
+	const int GetShaderHandle() const;
 
+	int shaderhandle;
 private:
 	Game();
 	~Game();
