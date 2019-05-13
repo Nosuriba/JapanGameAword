@@ -21,21 +21,30 @@ const Vector2 Game::GetScreenSize() const
 	return Vector2(screen_x, screen_y);
 }
 
+const int Game::GetShaderHandle() const
+{
+	return shaderhandle;
+}
+
 void Game::Init()
 {
 	DxLib::SetGraphMode(screen_x, screen_y, 32);
 	DxLib::ChangeWindowMode(true);
+
+	SetUseDirect3DVersion(DX_DIRECT3D_9EX);
+
 	DxLib::SetWindowText("名称未設定だぞ(´･ω･`)");
 	if (DxLib_Init() == -1)
 	{
 		return;
 	}
-	//ピクセルシェーダ読み込み
-	int shaderhandle = LoadPixelShader("Versionw2.0.pso");
 
-	SetUseDirect3DVersion(DX_DIRECT3D_9EX);
+	//ピクセルシェーダ読み込み
+	shaderhandle = LoadPixelShader("Version2.0.pso");
+
 	DxLib::SetDrawScreen(DX_SCREEN_BACK);
 	SetTextureAddressModeUV(DX_TEXADDRESS_BORDER, DX_TEXADDRESS_WRAP);
+
 	ChangeScene(new TitleScene());
 }
 

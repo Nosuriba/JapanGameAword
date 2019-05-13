@@ -102,9 +102,7 @@ GameScene::GameScene()
 	//画像の読み込み
 	sea = LoadGraph("../img/sea.png");
 	sea_effect = LoadGraph("../img/sea2.png");
-
-	//ピクセルシェーダ読み込み
-	shaderhandle = LoadPixelShader("../Version2.0.pso");
+	beach = LoadGraph("../img/砂浜.png");
 
 	//頂点の設定
 
@@ -143,12 +141,15 @@ void GameScene::Draw()
 	int sizex, sizey;
 	DxLib::GetWindowSize(&sizex, &sizey);
 
+
 	//firstスクリーン
 	SetDrawScreen(firstscreen);
 
 	ClearDrawScreen();
 
-	_camera->Draw();
+	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
+		sizex - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, beach, true);
+
 	_pl->Draw();
 
 	for (auto itr : _enemies)
@@ -178,8 +179,7 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0 - 200 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
-		sizex * 2 - 200 - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, sea_effect, true);
+	DrawExtendGraph(0, 0 , sizex * 2, sizey, sea_effect, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
 	SetUseTextureToShader(0, secondscreen);
@@ -188,7 +188,7 @@ void GameScene::Draw()
 	SetPSConstSF(0, shader_time / 100.0f);
 
 	//ピクセルシェーダのセット
-	SetUsePixelShader(shaderhandle);
+	SetUsePixelShader(Game::GetInstance().GetShaderHandle());
 
 	DrawPrimitive2DToShader(vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
@@ -198,8 +198,7 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0 - 200 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
-		sizex * 2 - 200 - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, sea, true);
+	DrawExtendGraph(0, 0, sizex * 2, sizey, sea, true);
 
 
 	//バック描画
@@ -207,19 +206,20 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	DrawGraph(0, 0, firstscreen, true);
 
-	SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
-	DrawGraph(0, 0, secondscreen, true);
+	DrawGraph(0 - 200, 0, secondscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 60);
 
-	DrawGraph(0, 0, thirdscreen, true);
+	DrawGraph(0 - 200, 0, thirdscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	ScreenFlip();
 }
 
 void GameScene::Update(const Input & p)

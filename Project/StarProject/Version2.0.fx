@@ -40,8 +40,6 @@ PS_OUTPUT main(PS_INPUT input)
     //if (0.3 < input.pos.y && input.pos.y < 0.7)
     
     TextureColor.rgb *= 2;
-    
-    
 
     output.color = TextureColor;
 
