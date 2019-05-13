@@ -22,6 +22,11 @@ private:
 
 	std::shared_ptr<Camera>& _camera;
 
+	std::vector<Vector2> midPos;
+	Vector2 ctlPos;		/// 制御点
+	float ctlVel;		/// 制御点の速度加算用
+
+	const int mPoint = 10;
 public:
 	Fish(std::shared_ptr<Camera>& camera);
 	~Fish();
