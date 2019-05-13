@@ -15,24 +15,24 @@
 
 void GameScene::FadeIn(const Input & p)
 {
-	if (wait >= 60) {
-		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	if (wait >= WAITFRAME) {
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &GameScene::Wait;
 	}
-	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / 60.0f);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / WAITFRAME);
 	Draw();
 }
 
 void GameScene::FadeOut(const Input & p)
 {
-	if (wait >= 180) {
+	if (wait >= WAITFRAME) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		BubbleDraw();
 		Game::GetInstance().ChangeScene(new ResultScene());
 	}
 	else {
 		BubbleCreate();
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)wait / 180.0f);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)wait / WAITFRAME);
 		Draw();
 	}
 }

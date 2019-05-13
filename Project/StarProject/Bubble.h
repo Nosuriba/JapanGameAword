@@ -13,7 +13,7 @@
 #endif
 
 // パーティクルの最大要素数
-constexpr int ELEMENT_NUM = 10000;
+constexpr int ELEMENT_NUM = 1000;
 
 /// スクリーンサイズ
 constexpr int SCREEN_SIZE_X = 1280;
@@ -28,7 +28,6 @@ struct Element
 	int light = 0;
 	int rad = 1;
 };
-
 
 class Bubble
 {
@@ -58,4 +57,3 @@ public:
 	void Create();
 	void Draw();
 };
-
