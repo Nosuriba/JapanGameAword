@@ -22,6 +22,11 @@ private:
 
 	std::shared_ptr<Camera>& _camera;
 
+	std::vector<Vector2> midPos;
+	Vector2 ctlPos;		/// 制御点
+	float ctlVel;		/// 制御点の速度加算用
+
+	const int mPoint = 10;
 public:
 	Fish(std::shared_ptr<Camera>& camera);
 	~Fish();
@@ -29,9 +34,8 @@ public:
 	void Update();
 	EnemyInfo GetInfo();
 	shot_vector ShotGetInfo();
+	void CalEscapeDir(const Vector2& vec);
 	void ChangeShotColor(const int& num);
-	void ChangeColor();
-	void ResetColor();
 	void CalTrackVel(const Vector2& pos, bool col);
 };
 

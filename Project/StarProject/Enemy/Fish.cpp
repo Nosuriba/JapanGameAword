@@ -14,6 +14,8 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	enemy	 = EnemyInfo(pos, size, rect);
 	_vel	 = Vector2();
 
+	ctlPos = enemy._pos;
+	ctlVel = 0.f;
 	_turnFlag = false;
 	enemy._dieFlag  = false;
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
@@ -40,8 +42,8 @@ void Fish::Swim()
 void Fish::Escape()
 {
 	auto camera = _camera->CameraCorrection();
-	/// 逃げていく方向の設定
-	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -2.0f : 2.0f);
+
+	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -maxSpeed : maxSpeed);
 	_vel.y = 0;
 
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
@@ -96,7 +98,7 @@ void Fish::searchMove()
 		}
 		else
 		{
-			double  rad, cosD, sinD;
+			float  rad, cosD, sinD;
 			Vector2 pos;
 
 			if (_turnFlag)
@@ -122,15 +124,26 @@ void Fish::searchMove()
 
 void Fish::Draw()
 {
+
 	auto camera = _camera->CameraCorrection();
 
-	auto L = enemy._pos.x - (enemy._size.width / 2);
-	auto T = enemy._pos.y - (enemy._size.height / 2);
-	auto R = enemy._pos.x + (enemy._size.width / 2);
-	auto B = enemy._pos.y + (enemy._size.height / 2);
+	auto sPos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y - (enemy._size.height / 2));
+	auto ePos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y + (enemy._size.height / 2));
 
-	DxLib::DrawBox(L - camera.x, T - camera.y,
-		R - camera.x, B - camera.y, color, (updater != &Fish::EscapeUpdate));
+	DxLib::DrawBox(sPos.x - camera.x, sPos.y - camera.y,
+		ePos.x - camera.x, ePos.y - camera.y, color, (updater != &Fish::EscapeUpdate));
+
+	/*Vector2 pre = midPos[0];		/// 前の座標
+	float t = 40.0f;
+	for (auto& m : midPos)
+	{
+		DxLib::DrawLine(pre.x - camera.x, pre.y - camera.y,
+					     m.x - camera.x, m.y - camera.y, color, 20);
+		pre.x = m.x;
+		pre.y = m.y;
+		t /= 1.3;
+	}*/
+	
 
 	/// 探知できる範囲の描画
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
@@ -144,9 +157,9 @@ void Fish::Draw()
 
 void Fish::Update()
 {
+	/// ﾃﾞﾊﾞｯｸﾞ用のループ
 	auto velX = _vel.x;
 	auto screenX = Game::GetInstance().GetScreenSize().x;
-	/// ﾃﾞﾊﾞｯｸﾞ用のループ
 	auto DebugRoop = [&velX, &screenX](const Position2& pos)
 	{
 		if (velX > 0)
@@ -168,8 +181,22 @@ void Fish::Update()
 		enemy._rect = Rect(enemy._pos, enemy._size);
 		searchMove();
 	}
-	
 	enemy._pos = DebugRoop(enemy._pos);
+
+	/*ctlVel = 0.5f;
+	ctlPos.y += 2.0f;
+
+	/// ﾍﾞｼﾞｪ曲線の計算
+	midPos.resize(mPoint);
+	midPos[0] = Vector2(enemy._rect.Left(), enemy._rect.Top());
+	for (int i = 0; i < mPoint; ++i)
+	{
+		float b = (float)i / mPoint;
+		float a = 1.0f - b;
+
+		midPos[i].x = (a * a * enemy._rect.Left()) + (2 * a * b * ctlPos.x) + (b * b * enemy._rect.Right());
+		midPos[i].y = (a * a * enemy._rect.Top()) + (2 * a * b * ctlPos.y) + (b * b * enemy._rect.Bottom());
+	}*/
 }
 
 EnemyInfo Fish::GetInfo()
@@ -182,35 +209,32 @@ shot_vector Fish::ShotGetInfo()
 	return shot;
 }
 
+void Fish::CalEscapeDir(const Vector2 & vec)
+{
+	if (updater != &Fish::EscapeUpdate && !enemy._dieFlag)
+	{
+		Escape();
+	}
+}
+
 void Fish::ChangeShotColor(const int & num)
 {
 	/// ｼｮｯﾄを打っていないので、何も書かない
 }
 
-void Fish::ChangeColor()
-{
-	Escape();
-	color = 0x66dd66;
-}
-
-void Fish::ResetColor()
-{
-	color = 0x88ff88;
-}
-
 void Fish::CalTrackVel(const Vector2 & pos, bool col)
 {
-	if (updater != &Fish::DieUpdate)
+	if (updater != &Fish::EscapeUpdate && !enemy._dieFlag)
 	{
 		if (col)
 		{
 			auto vec = pos - enemy._pos;
 			vec.Normalize();
-			_vel = Vector2(2.0f * vec.x, 2.0f * vec.y);
+			_vel = Vector2(maxSpeed * vec.x, maxSpeed * vec.y);
 		}
 		else
 		{
-			_vel.x = (_turnFlag ? 2.0 : -2.f);
+			_vel.x = (_turnFlag ? maxSpeed : -maxSpeed);
 			_vel.y = 0;
 		}
 	}

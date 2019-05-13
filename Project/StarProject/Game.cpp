@@ -30,7 +30,12 @@ void Game::Init()
 	{
 		return;
 	}
+	//ピクセルシェーダ読み込み
+	int shaderhandle = LoadPixelShader("Versionw2.0.pso");
+
+	SetUseDirect3DVersion(DX_DIRECT3D_9EX);
 	DxLib::SetDrawScreen(DX_SCREEN_BACK);
+	SetTextureAddressModeUV(DX_TEXADDRESS_BORDER, DX_TEXADDRESS_WRAP);
 	ChangeScene(new TitleScene());
 }
 

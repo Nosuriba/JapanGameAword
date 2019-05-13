@@ -54,15 +54,16 @@ protected:
 
 	Enemy(std::shared_ptr<Camera>& camera);
 
+	const float maxSpeed = 3.0f;
+
 public:
 	~Enemy();
 	virtual void Draw();
 	virtual void Update();
 	virtual EnemyInfo GetInfo();
 	virtual shot_vector GetShotInfo();
-	virtual void ChangeShotColor(const int& num);
-	virtual void ChangeColor();
-	virtual void ResetColor();
+	virtual void ChangeShotColor(const int& num);		/// debug用
+	virtual void CalEscapeDir(const Vector2& vec);
 	virtual void CalTrackVel(const Vector2& pos, bool col);		// 追尾する速度の計算用
 };
 

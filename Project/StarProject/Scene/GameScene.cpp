@@ -16,10 +16,10 @@
 void GameScene::FadeIn(const Input & p)
 {
 	if (wait >= 60) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &GameScene::Wait;
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / 60.0f);
+	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / 60.0f);
 	Draw();
 }
 
@@ -58,6 +58,7 @@ void GameScene::Run(const Input & p)
 
 GameScene::GameScene()
 {
+	auto& size = Game::GetInstance().GetScreenSize();
 	_camera.reset(new Camera());
 
 	_pl.reset(new Player(_camera));
@@ -70,7 +71,9 @@ GameScene::GameScene()
 
 	_immortal.reset(new ImmortalObject(_camera));
 
-	_updater = &GameScene::FadeIn;
+	firstscreen = MakeScreen(size.x * 2, size.y);
+	secondscreen = MakeScreen(size.x * 2, size.y);
+	thirdscreen = MakeScreen(size.x * 2, size.y);
 
 	for (int i = 0; i < 2; ++i)
 	{
@@ -96,6 +99,25 @@ GameScene::GameScene()
 
 	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
 
+	//画像の読み込み
+	sea = LoadGraph("../img/sea.png");
+	sea_effect = LoadGraph("../img/sea2.png");
+
+	//ピクセルシェーダ読み込み
+	shaderhandle = LoadPixelShader("../Version2.0.pso");
+
+	//頂点の設定
+
+	for (int i = 0; i < 4; i++)
+	{
+		vertex[i].pos = VGet((i % 2)* (size.x * 2 - 200), (i / 2)*size.y, 0);
+		vertex[i].rhw = 1.0f;
+		vertex[i].dif = GetColorU8(255, 255, 255, 255);
+		vertex[i].spc = GetColorU8(0, 0, 0, 0);
+		vertex[i].u = vertex[i].su = (float)(i % 2);
+		vertex[i].v = vertex[i].sv = (float)(i / 2);
+	}
+
 	//オブジェクトの生成
 	_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera));
 	_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera));
@@ -105,6 +127,10 @@ GameScene::GameScene()
 	wait = 0;
 	time = 60;
 	totaltime = 60;
+
+	shader_time = 0;
+
+	_updater = &GameScene::FadeIn;
 }
 
 GameScene::~GameScene()
@@ -116,6 +142,11 @@ void GameScene::Draw()
 {
 	int sizex, sizey;
 	DxLib::GetWindowSize(&sizex, &sizey);
+
+	//firstスクリーン
+	SetDrawScreen(firstscreen);
+
+	ClearDrawScreen();
 
 	_camera->Draw();
 	_pl->Draw();
@@ -141,12 +172,59 @@ void GameScene::Draw()
 	DrawFormatString(sizex / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
 	DrawFormatString(sizex / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
 	BubbleDraw();
+
+	//secondスクリーン
+	SetDrawScreen(secondscreen);
+
+	ClearDrawScreen();
+
+	DrawExtendGraph(0 - 200 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
+		sizex * 2 - 200 - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, sea_effect, true);
+
+	//シェーダで使うテクスチャは先ほど作った描画可能画像
+	SetUseTextureToShader(0, secondscreen);
+
+	//シェーダーに情報を渡す
+	SetPSConstSF(0, shader_time / 100.0f);
+
+	//ピクセルシェーダのセット
+	SetUsePixelShader(shaderhandle);
+
+	DrawPrimitive2DToShader(vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
+
+
+	//thirdスクリーン
+	SetDrawScreen(thirdscreen);
+
+	ClearDrawScreen();
+
+	DrawExtendGraph(0 - 200 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
+		sizex * 2 - 200 - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, sea, true);
+
+
+	//バック描画
+	SetDrawScreen(DX_SCREEN_BACK);
+
+	ClearDrawScreen();
+
+	DrawGraph(0, 0, firstscreen, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
+
+	DrawGraph(0, 0, secondscreen, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 60);
+
+	DrawGraph(0, 0, thirdscreen, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	ScreenFlip();
 }
 
 void GameScene::Update(const Input & p)
 {
-	flame++;
-	wait++;
+	flame++; wait++; shader_time++;
 
 	_pl->Update(p);
 
@@ -170,7 +248,10 @@ void GameScene::Update(const Input & p)
 		{
 			if (_col->WaterToSqr(_pl->GetInfo().legs[p].tip, sVec[p],_enemies[i]->GetInfo()._rect))
 			{
-				_enemies[i]->ChangeColor();
+				auto vec = _enemies[i]->GetInfo()._pos - _pl->GetInfo().legs[p].tip;
+				vec.Normalize();
+
+				_enemies[i]->CalEscapeDir(vec);
 				break;
 			}
 			_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));
