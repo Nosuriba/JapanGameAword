@@ -5,11 +5,9 @@
 
 Camera::Camera()
 {
-	_img = LoadGraph("../img/çªïl.png");
-
  	//GetGraphSizeF(_img, &_range.x, &_range.y);
 
-	_range = Vector2(3000, 3000);
+	_range = Vector2(2000, 1500);
 }
 
 
