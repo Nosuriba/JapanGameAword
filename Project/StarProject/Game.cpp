@@ -21,9 +21,9 @@ const Vector2 Game::GetScreenSize() const
 	return Vector2(screen_x, screen_y);
 }
 
-const int Game::GetShaderHandle() const
+const std::vector<int> Game::GetShaderHandle() const
 {
-	return shaderhandle;
+	return _handle;
 }
 
 void Game::Init()
@@ -40,10 +40,14 @@ void Game::Init()
 	}
 
 	//ピクセルシェーダ読み込み
-	shaderhandle = LoadPixelShader("Version2.0.pso");
+	wavehandle = LoadPixelShader("Wave.pso");
+	shadowhandle = LoadPixelShader("Shadow.pso");
+
+	_handle.push_back(wavehandle);
+	_handle.push_back(shadowhandle);
 
 	DxLib::SetDrawScreen(DX_SCREEN_BACK);
-	SetTextureAddressModeUV(DX_TEXADDRESS_BORDER, DX_TEXADDRESS_WRAP);
+	SetTextureAddressModeUV(DX_TEXADDRESS_BORDER, DX_TEXADDRESS_BORDER);
 
 	ChangeScene(new TitleScene());
 }

@@ -26,8 +26,6 @@ struct ShotInfo {
 	Vector2 _vel;
 	Size _size;
 	Rect _rect;
-	
-	int debugColor;		/// debug用(後で消す)
 
 	ShotInfo() : _pos(0, 0), _vel(0,0),_size(0, 0), _rect(_pos, _size) {};
 	ShotInfo(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
@@ -62,7 +60,7 @@ public:
 	virtual void Update();
 	virtual EnemyInfo GetInfo();
 	virtual shot_vector GetShotInfo();
-	virtual void ChangeShotColor(const int& num);		/// debug用
+	virtual void ShotDelete(const int& num);					// ｼｮｯﾄが当たった時削除するためのもの
 	virtual void CalEscapeDir(const Vector2& vec);
 	virtual void CalTrackVel(const Vector2& pos, bool col);		// 追尾する速度の計算用
 };

@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include "Processing/Geometry.h"
+#include "Particle/Water.h"
 
 class Camera;
 class Input;
@@ -23,6 +24,7 @@ struct Leg {
 };
 
 struct Star {
+	int level;				// ƒŒƒxƒ‹
 	float r;				// ‘«‚Ì’·‚³
 	Vector2 center;			// ’†S
 	std::vector<Leg> legs;	// ‘«
@@ -32,12 +34,18 @@ class Player
 {
 private:
 	const std::shared_ptr<Camera>& _camera;
+	std::vector<std::shared_ptr<Particle>> _particle;
 
 	Star _star;
 
 	Vector2 _vel;
 
 	char Buf[256];
+
+	void (Player::*_updater)(const Input& in);
+	void Normal(const Input& in);
+	void Move(const Input& in);
+	void Die(const Input& in);
 
 public:
 	Player(const std::shared_ptr<Camera>& c);
@@ -47,6 +55,6 @@ public:
 	void Draw();
 	Star GetInfo();
 	const std::vector<Vector2> GetShot();
-
+	void LevelUP();
 };
 

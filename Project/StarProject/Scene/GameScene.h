@@ -44,10 +44,12 @@ private:
 	int firstscreen;
 	int secondscreen;
 	int thirdscreen;
+	int _4thscreen;
 
 	int shader_time;
 
-	VERTEX2DSHADER vertex[4];
+	VERTEX2DSHADER wave_vertex[4];
+	VERTEX2DSHADER shadow_vertex[4];
 
 	//ÉCÉÅÅ[ÉW
 	int sea;

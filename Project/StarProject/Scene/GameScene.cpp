@@ -14,6 +14,8 @@
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
 
+const int shader_offset = 50;
+
 void GameScene::FadeIn(const Input & p)
 {
 	if (wait >= WAITFRAME) {
@@ -28,11 +30,11 @@ void GameScene::FadeOut(const Input & p)
 {
 	if (wait >= WAITFRAME) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		BubbleDraw();
+		(*FadeBubble).Draw();
 		Game::GetInstance().ChangeScene(new ResultScene());
 	}
 	else {
-		BubbleCreate();
+		(*FadeBubble).Create();
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)wait / WAITFRAME);
 		Draw();
 	}
@@ -72,9 +74,10 @@ GameScene::GameScene()
 
 	_immortal.reset(new ImmortalObject(_camera));
 
-	firstscreen = MakeScreen(size.x * 2, size.y);
-	secondscreen = MakeScreen(size.x * 2, size.y);
-	thirdscreen = MakeScreen(size.x * 2, size.y);
+	firstscreen = MakeScreen(size.x, size.y);
+	secondscreen = MakeScreen(size.x - 1, size.y - 1);
+	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
+	_4thscreen = MakeScreen(size.x, size.y);
 
 	for (int i = 0; i < 2; ++i)
 	{
@@ -106,16 +109,26 @@ GameScene::GameScene()
 	sea_effect	= manager.LoadImg("../img/sea2.png");
 	beach		= manager.LoadImg("../img/砂浜.png");
 
-	//頂点の設定
-
+	//波のシェーダー頂点
 	for (int i = 0; i < 4; i++)
 	{
-		vertex[i].pos = VGet((i % 2)* (size.x * 2 - 200), (i / 2)*size.y, 0);
-		vertex[i].rhw = 1.0f;
-		vertex[i].dif = GetColorU8(255, 255, 255, 255);
-		vertex[i].spc = GetColorU8(0, 0, 0, 0);
-		vertex[i].u = vertex[i].su = (float)(i % 2);
-		vertex[i].v = vertex[i].sv = (float)(i / 2);
+		wave_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y -1, 0);
+		wave_vertex[i].rhw = 1.0f;
+		wave_vertex[i].dif = GetColorU8(255, 255, 255, 255);
+		wave_vertex[i].spc = GetColorU8(0, 0, 0, 0);
+		wave_vertex[i].u = wave_vertex[i].su = (float)(i % 2);
+		wave_vertex[i].v = wave_vertex[i].sv = (float)(i / 2);
+	}
+
+	//影のシェーダー
+	for (int i = 0; i < 4; i++)
+	{
+		shadow_vertex[i].pos = VGet((i % 2)* size.x -1, (i / 2)*size.y -1, 0);
+		shadow_vertex[i].rhw = 1.0f;
+		shadow_vertex[i].dif = GetColorU8(255, 255, 255, 255);
+		shadow_vertex[i].spc = GetColorU8(0, 0, 0, 0);
+		shadow_vertex[i].u = shadow_vertex[i].su = (float)(i % 2);
+		shadow_vertex[i].v = shadow_vertex[i].sv = (float)(i / 2);
 	}
 
 	//オブジェクトの生成
@@ -144,13 +157,27 @@ void GameScene::Draw()
 	DxLib::GetWindowSize(&sizex, &sizey);
 
 
-	//firstスクリーン
+	//firstスクリーン(砂浜)
 	SetDrawScreen(firstscreen);
 
 	ClearDrawScreen();
 
 	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
 		_camera->GetRange().x - _camera->CameraCorrection().x, _camera->GetRange().y - _camera->CameraCorrection().y, beach, true);
+
+	auto one = totaltime % 10;
+	auto ten = totaltime / 10;
+
+	DrawFormatString(sizex / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
+	DrawFormatString(sizex / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
+
+
+
+
+	//secondスクリーン(影)
+	SetDrawScreen(secondscreen);
+
+	ClearDrawScreen();
 
 	_pl->Draw();
 
@@ -169,38 +196,24 @@ void GameScene::Draw()
 		immortal->Draw();
 	}
 
-	auto one = totaltime % 10;
-	auto ten = totaltime / 10;
-
-	DrawFormatString(sizex / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
-	DrawFormatString(sizex / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
-
-	//secondスクリーン
-	SetDrawScreen(secondscreen);
-
-	ClearDrawScreen();
-
-	//DrawExtendGraph(0, 0 , sizex * 2, sizey, sea_effect, true);
-	DrawRotaGraph(sizex / 2, sizey / 2 , 1.5, 0, sea_effect, true, true);
-
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
 	SetUseTextureToShader(0, secondscreen);
 
-	//シェーダーに情報を渡す
-	SetPSConstSF(0, shader_time / 100.0f);
-
 	//ピクセルシェーダのセット
-	SetUsePixelShader(Game::GetInstance().GetShaderHandle());
+	SetUsePixelShader(Game::GetInstance().GetShaderHandle()[1]);
 
-	DrawPrimitive2DToShader(vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
+	DrawPrimitive2DToShader(shadow_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
+	
 
 
-	//thirdスクリーン
+
+
+	//thirdスクリーン(波シェーダー)
 	SetDrawScreen(thirdscreen);
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0, 0, sizex * 2, sizey, sea, true);
+	DrawExtendGraph(sizex, sizey, 0, 0, sea_effect, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
 	SetUseTextureToShader(0, thirdscreen);
@@ -209,9 +222,34 @@ void GameScene::Draw()
 	SetPSConstSF(0, shader_time / 100.0f);
 
 	//ピクセルシェーダのセット
-	SetUsePixelShader(Game::GetInstance().GetShaderHandle());
+	SetUsePixelShader(Game::GetInstance().GetShaderHandle()[0]);
 
-	DrawPrimitive2DToShader(vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
+	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
+
+	
+
+
+
+	//_4thスクリーン(波)
+	SetDrawScreen(_4thscreen);
+
+	ClearDrawScreen();
+
+	DrawExtendGraph(0, 0, sizex, sizey, sea, true);
+
+	//シェーダで使うテクスチャは先ほど作った描画可能画像
+	SetUseTextureToShader(0, thirdscreen);
+
+	//シェーダーに情報を渡す
+	SetPSConstSF(0, shader_time / 100.0f);
+
+	//ピクセルシェーダのセット
+	SetUsePixelShader(Game::GetInstance().GetShaderHandle()[0]);
+
+	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
+
+
+
 
 
 	//バック描画
@@ -221,17 +259,40 @@ void GameScene::Draw()
 
 	DrawGraph(0, 0, firstscreen, true);
 
-	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
 
-	DrawGraph(0 - 200, 0, secondscreen, true);
-
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
-
-	DrawGraph(0 - 200, 0, thirdscreen, true);
+	DrawGraph(-15, 15, secondscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	BubbleDraw();
+	_pl->Draw();
+
+	for (auto itr : _enemies)
+	{
+		itr->Draw();
+	}
+
+	for (auto &destroy : _destroyObj) {
+		destroy->Draw();
+	}
+	for (auto &predatory : _predatoryObj) {
+		predatory->Draw();
+	}
+	for (auto &immortal : _immortalObj) {
+		immortal->Draw();
+	}
+
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
+
+	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, sizex + shader_offset, sizey + shader_offset, thirdscreen, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
+
+	//DrawExtendGraph(0 - 30, 0, sizex + 50, sizey, _4thscreen, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	(*FadeBubble).Draw();
 
 }
 
@@ -275,7 +336,7 @@ void GameScene::Update(const Input & p)
 		{
 			if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
 			{
-				_enemies[i]->ChangeShotColor(s);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
+				_enemies[i]->ShotDelete(s);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
 			}
 		}
 	}

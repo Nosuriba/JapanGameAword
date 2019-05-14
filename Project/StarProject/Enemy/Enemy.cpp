@@ -28,7 +28,7 @@ shot_vector Enemy::GetShotInfo()
 	return shot;
 }
 
-void Enemy::ChangeShotColor(const int& num)
+void Enemy::ShotDelete(const int& num)
 {
 }
 
