@@ -224,18 +224,31 @@ void Diodon::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	auto sPos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y - (enemy._size.height / 2));
-	auto ePos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y + (enemy._size.height / 2));
-
-	DxLib::DrawBox(sPos.x - camera.x, sPos.y - camera.y,
-				   ePos.x - camera.x, ePos.y - camera.y, color, (updater != &Diodon::EscapeUpdate));
+	color = (updater == &Diodon::EscapeUpdate ? 0x7777dd : 0xaaaaff);
+	DxLib::DrawCircle(enemy._pos.x - camera.x, enemy._pos.y - camera.y, enemy._size.height / 2 - 1, 0xaaaaff);
 
 	for (auto itr : shot)
 	{
-		DxLib::DrawBox(itr._rect.Left()  - camera.x, itr._rect.Top() - camera.y,
-					   itr._rect.Right() - camera.x, itr._rect.Bottom() - camera.y, itr.debugColor, true);
+		DxLib::DrawCircle(itr._pos.x - camera.x, itr._pos.y - camera.y, 5, 0xffffaa, true);
 	}
 
+#ifdef _DEBUG
+	DebugDraw(camera);
+#endif
+
+}
+
+void Diodon::DebugDraw(const Vector2& camera)
+{
+	/// “–‚½‚è”»’è‚Ì•`‰æ
+	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
+				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, 0x00ff00, false);
+
+	for (auto itr : shot)
+	{
+		DxLib::DrawBox(itr._rect.Left() - camera.x, itr._rect.Top() - camera.y,
+					   itr._rect.Right() - camera.x, itr._rect.Bottom() - camera.y, 0x00ff00, false);
+	}
 }
 
 void Diodon::Update()
@@ -294,9 +307,9 @@ void Diodon::CalEscapeDir(const Vector2 & vec)
 	}
 }
 
-void Diodon::ChangeShotColor(const int& num)
+void Diodon::ShotDelete(const int& num)
 {
-	shot[num].debugColor = 0xeeee00;
+	shot.erase(shot.begin() + num);
 }
 
 void Diodon::CalTrackVel(const Vector2 & pos, bool col)
