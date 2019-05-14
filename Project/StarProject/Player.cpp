@@ -121,9 +121,9 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 
 	_vel = Vector2();
 
-	_particle.resize(2);
-	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000));
-	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000));
+	//_particle.resize(2);
+	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000,_camera));
+	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000, _camera));
 
 	_updater = &Player::Normal;
 }
