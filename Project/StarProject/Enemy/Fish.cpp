@@ -3,42 +3,42 @@
 #include "../Game.h"
 #include "../Camera.h"
 
-const int distance = 150;		/// 探知できる距離
-const int deg = 30;				/// ﾌﾟﾚｲﾔｰを探知する方向を求めるための角度
-const int mPoint = 10;
+const Size eSize = Size(90, 50);
+const int distance = 150;		// 探知できる距離
+const int deg	   = 30;		// ﾌﾟﾚｲﾔｰを探知する方向を求めるための角度
+const int points   = 10;		// 制御点の個数
+const float cVelMax = 2.0f;		// 制御点の最大速度
 
 Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
 	auto pos  = Vector2(200, 200);
-	auto size = Size(90, 50);
+	auto size = eSize;
 	auto rect = Rect(pos, size);
-	enemy	 = EnemyInfo(pos, size, rect);
-	_vel	 = Vector2();
+	enemy	  = EnemyInfo(pos, size, rect);
+	_vel	  = Vector2();
 
-	_turnFlag = false;
+	_turnFlag		= false;
 	enemy._dieFlag  = false;
 	
 	/// 制御点の設定
 	CtlInfo cPoint[2];
-	cPoint[0].vel = Vector2(0, 0);
-	cPoint[1].vel = Vector2(0, -0.4);
-	cPoint[0].pos = Vector2(enemy._rect.Left() + size.width / 3, enemy._pos.y + 20);
-	cPoint[1].pos = Vector2(enemy._rect.Right() - size.width / 3, enemy._pos.y - 20);
-	cPoint[0].flag = false;
-	cPoint[1].flag = true;
+	cPoint[0]._vel = Vector2(0, 0);
+	cPoint[1]._vel = Vector2(0, -0.4);
+	cPoint[0]._pos = Vector2(enemy._rect.Left()  + size.width / 3, enemy._pos.y + 20);
+	cPoint[1]._pos = Vector2(enemy._rect.Right() - size.width / 3, enemy._pos.y - 20);
+	cPoint[0]._flag = false;
+	cPoint[1]._flag = true;
 
 	for (auto& itr : cPoint)
 	{
-		ctlPoint.push_back(itr);
+		cPoints.push_back(itr);
 	}
 
-	midPoint.resize(ctlPoint.size());
-
+	/// 敵を察知する範囲の頂点を設定
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
 		enemy._searchVert[i] = enemy._pos;
 	}
-
 	color = 0x88ff88;
 
 	Swim();
@@ -58,7 +58,6 @@ void Fish::Swim()
 void Fish::Escape()
 {
 	auto camera = _camera->CameraCorrection();
-
 	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -maxSpeed : maxSpeed);
 	_vel.y = 0;
 
@@ -103,7 +102,7 @@ void Fish::DieUpdate()
 	}
 }
 
-void Fish::searchMove()
+void Fish::SearchMove()
 {
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
@@ -138,77 +137,73 @@ void Fish::searchMove()
 	}
 }
 
-void Fish::CalCurve()
+void Fish::CalBezier()
 {
-	for (int i = 0; i < ctlPoint.size(); ++i)
+	/// 制御点の移動
+	for (int i = 0; i < cPoints.size(); ++i)
 	{
-		
-		if (ctlPoint[i].flag)
+		if (cPoints[i]._flag)
 		{
-			ctlPoint[i].flag = (ctlPoint[i].vel.y >= 2.0f ? false : true);
+			cPoints[i]._flag = (cPoints[i]._vel.y >= 2.0f ? false : true);
 		}
 		else
 		{
-			ctlPoint[i].flag = (ctlPoint[i].vel.y <= -2.0f ? true : false);
+			cPoints[i]._flag = (cPoints[i]._vel.y <= -2.0f ? true : false);
 		}
-		ctlPoint[i].vel.y += (ctlPoint[i].flag ? 0.1f : -0.1f);
-		ctlPoint[i].pos += ctlPoint[i].vel;
-		
+		cPoints[i]._vel.y += (cPoints[i]._flag ? 0.1f : -0.1f);
+		cPoints[i]._pos += cPoints[i]._vel + _vel;
 	}
-	
-	midPoint.resize(mPoint);
-	midPoint[0] = enemy._pos;
-	for (int m = 0; m < mPoint; ++m)
+
+	/// 中間点の設定
+	midPoints.resize(points);
+	midPoints[0] = enemy._pos;
+	for (int m = 0; m < points; ++m)
 	{
-		float b = (float)m / mPoint;
+		float b = (float)m / points;
 		float a = 1.0f - b;
 
 		/// 3次ﾍﾞｼﾞｪの計算
-		midPoint[m].x = (a * a * a * enemy._rect.Left())    + (3 * a * a * b * ctlPoint[0].pos.x) + 
-						(3 * a * b * b * ctlPoint[1].pos.x) + (b * b * b * enemy._rect.Right());
+		midPoints[m].x = (a * a * a * (enemy._pos.x - (eSize.width / 2))) + (3 * a * a * b * cPoints[0]._pos.x) + 
+						 (3 * a * b * b * cPoints[1]._pos.x) + (b * b * b * (enemy._pos.x + (eSize.width / 2)));
 
-		midPoint[m].y = (a * a * a * enemy._pos.y)			+ (3 * a * a * b * ctlPoint[0].pos.y) +
-						(3 * a * b * b * ctlPoint[1].pos.y) + (b * b * b * enemy._pos.y);
+		midPoints[m].y = (a * a * a * enemy._pos.y)			 + (3 * a * a * b * cPoints[0]._pos.y) +
+						 (3 * a * b * b * cPoints[1]._pos.y) + (b * b * b * enemy._pos.y);
 	}
 
 }
 
 void Fish::Draw()
 {
-
 	auto camera = _camera->CameraCorrection();
 
+	/// ﾍﾞｼﾞｪ曲線を用いての描画
+	Vector2 p1, p2, p3, p4;
+	auto height = enemy._size.height / 4;			/// 描画する高さの調整
+	for (int i = 1; i < midPoints.size(); ++i)
+	{
+		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
+		p2 = Vector2(midPoints[i].x - camera.x, midPoints[i].y - height - camera.y);
+		p3 = Vector2(midPoints[i].x - camera.x, midPoints[i].y + height - camera.y);
+		p4 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y + height - camera.y);
+
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xff0000, false);
+	}
+
+#ifdef _DEBUG
+	DebugDraw(camera);
+#endif
+
+}
+
+void Fish::DebugDraw(const Vector2& camera)
+{
 	auto sPos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y - (enemy._size.height / 2));
 	auto ePos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y + (enemy._size.height / 2));
-	/// 通常の描画
+
+	/// 当たり判定の描画
 	DxLib::DrawBox(sPos.x - camera.x, sPos.y - camera.y,
-				   ePos.x - camera.x, ePos.y - camera.y, color, (updater != &Fish::EscapeUpdate));
+				   ePos.x - camera.x, ePos.y - camera.y, color, false);
 
-	/// 画像の読み込み
-	int sizeX = 0;
-	int sizeY = 0;
-	divImage.resize(mPoint);
-	DxLib::GetImageSize_File("resource/fish.png", &sizeX, &sizeY);
-	DxLib::LoadDivGraph("resource/fish.png", divImage.size(), divImage.size(), 1, 
-						 sizeX / divImage.size(), sizeY, &divImage[0]);
-
-	auto height = enemy._size.height / 2;
-	/// ﾍﾞｼﾞｪ曲線を用いての描画
-	for (int i = 1; i < midPoint.size(); ++i)
-	{
-		DrawBox(midPoint[i - 1].x, midPoint[i - 1].y - height, midPoint[i].x, midPoint[i].y - height + enemy._size.height, 0xff0000, true);
-	}
-
-	for (int i = 1; i < midPoint.size(); ++i)
-	{
-		DrawLine(midPoint[i - 1].x, midPoint[i - 1].y, midPoint[i].x, midPoint[i].y, 0xff0000, enemy._size.height);
-	}
-
-	/// 中間点の描画(debug用)
-	/*for (int i = 0; i < midPoint.size(); ++i)
-	{
-		DxLib::DrawCircle(midPoint[i].x, midPoint[i].y, 5, 0xff0000, true);
-	}*/
 
 	/// 探知できる範囲の描画
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
@@ -218,6 +213,13 @@ void Fish::Draw()
 		DxLib::DrawLineAA(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,
 						  enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 3.0);
 	}
+
+	/// 制御点の描画(debug用)
+	for (auto& itr : cPoints)
+	{
+		DxLib::DrawCircle(itr._pos.x, itr._pos.y, 10, 0x00ffff, true);
+	}
+
 }
 
 void Fish::Update()
@@ -229,27 +231,39 @@ void Fish::Update()
 	{
 		if (velX > 0)
 		{
-			(pos.x - 60 > screenX ? Position2(0, pos.y) : pos);
+			/// 右端を超えた時
+			return (pos.x - 60 > screenX ? Position2(0, pos.y) : pos);
 		}
+		/// 左端を超えた時
 		return (pos.x + 60 < 0 ? Position2(screenX, pos.y) : pos);
 	};
+
 	(this->*updater)();
 
-	//enemy._pos += _vel;
+	enemy._pos += _vel;
+	enemy._pos = DebugRoop(enemy._pos);
+
+	/// 死亡状態かの確認
 	if (updater == &Fish::EscapeUpdate || enemy._dieFlag)
 	{
 		auto size = Size(0, 0);
 		enemy._rect = Rect(enemy._pos, size);
+		cPoints[0]._pos.x = enemy._pos.x - eSize.width / 2 + enemy._size.width / 3;
+		cPoints[1]._pos.x = enemy._pos.x + eSize.width / 2 - enemy._size.width / 3;
 	}
 	else
 	{
 		enemy._rect = Rect(enemy._pos, enemy._size);
-		searchMove();
+		SearchMove();
 	}
-	enemy._pos = DebugRoop(enemy._pos);
 
-	CalCurve();
-	//CalNormalVec();
+	if (enemy._pos.x <= 0 || enemy._pos.x >= screenX)
+	{
+		cPoints[0]._pos.x = enemy._rect.Left()  + enemy._size.width / 3;
+		cPoints[1]._pos.x = enemy._rect.Right() - enemy._size.width / 3;
+	}
+
+	CalBezier();
 }
 
 EnemyInfo Fish::GetInfo()
