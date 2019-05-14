@@ -35,7 +35,7 @@ private:
 	void SearchMove();			// 探知する範囲を移動させている
 	void CalBezier();			// ﾍﾞｼﾞｪ曲線の計算用(3次ﾍﾞｼﾞｪ)
 
-	void (Fish::*updater)();
+	void (Fish::*_updater)();
 
 	std::shared_ptr<Camera>& _camera;
 	std::vector<Vector2> midPoints;			// ﾍﾞｼﾞｪ曲線の中間点

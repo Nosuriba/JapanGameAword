@@ -21,7 +21,7 @@ private:
 
 	bool CheckOutScreen();		 // ¼®¯Ä‚ª‰æ–ÊŠO‚És‚Á‚½‚©‚Ì”»’è—p
 
-	void (Diodon::*updater)();
+	void (Diodon::*_updater)();
 
 	std::shared_ptr<Camera> _camera;
 	std::array<Vector2, 8>  _dirPos;		// ¼®¯Ä‚·‚é•ûŒü

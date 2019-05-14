@@ -102,6 +102,9 @@
     <ClInclude Include="Particle\Water.h">
       <Filter>Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Enemy\SeaCucumber.h">
+      <Filter>Enemy</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -175,6 +178,9 @@
     </ClCompile>
     <ClCompile Include="Particle\Water.cpp">
       <Filter>Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy\SeaCucumber.cpp">
+      <Filter>Enemy</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
