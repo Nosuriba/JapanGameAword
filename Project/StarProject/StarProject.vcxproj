@@ -134,7 +134,7 @@
     <ClCompile Include="Object\ImmortalObject.cpp" />
     <ClCompile Include="Object\Obstacle.cpp" />
     <ClCompile Include="Object\PredatoryObject.cpp" />
-    <ClCompile Include="Bubble.cpp" />
+    <ClCompile Include="Particle\Bubble.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Processing\Collision.cpp" />
     <ClCompile Include="Processing\Geometry.cpp" />
@@ -157,13 +157,14 @@
     <ClInclude Include="Object\ImmortalObject.h" />
     <ClInclude Include="Object\Obstacle.h" />
     <ClInclude Include="Object\PredatoryObject.h" />
-    <ClInclude Include="Bubble.h" />
+    <ClInclude Include="Particle\AMP.h" />
+    <ClInclude Include="Particle\Bubble.h" />
+    <ClInclude Include="Particle\Particle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Processing\Collision.h" />
     <ClInclude Include="Processing\Geometry.h" />
     <ClInclude Include="Processing\Input.h" />
     <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="Scene\AMP.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Scene\ResultScene.h" />
     <ClInclude Include="Scene\Scene.h" />
