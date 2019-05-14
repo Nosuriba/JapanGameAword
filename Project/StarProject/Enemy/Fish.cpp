@@ -7,7 +7,7 @@ const Size eSize = Size(90, 50);
 const int distance = 150;		// 探知できる距離
 const int deg	   = 30;		// ﾌﾟﾚｲﾔｰを探知する方向を求めるための角度
 const int points   = 10;		// 制御点の個数
-const float cVelMax = 2.0f;		// 制御点の最大速度
+const float maxVel = 2.f;		// 制御点の最大速度
 
 Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 {
@@ -44,14 +44,14 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	Swim();
 }
 
-
 Fish::~Fish()
 {
 }
 
 void Fish::Swim()
 {
-	_vel.x = (_turnFlag ? 2.f : -2.f);
+	_vel.x  = (_turnFlag ? maxSpeed : -maxSpeed);
+
 	updater = &Fish::SwimUpdate;
 }
 
@@ -79,7 +79,6 @@ void Fish::Die()
 
 void Fish::SwimUpdate()
 {
-
 }
 
 void Fish::EscapeUpdate()
@@ -94,12 +93,6 @@ void Fish::EscapeUpdate()
 
 void Fish::DieUpdate()
 {
-	/// 画面外に出た時、死亡状態にする
-	if (enemy._pos.x + enemy._size.width / 2 < 0 ||
-		enemy._pos.x - enemy._size.width / 2 > Game::GetInstance().GetScreenSize().x)
-	{
-		Die();
-	}
 }
 
 void Fish::SearchMove()
@@ -169,7 +162,6 @@ void Fish::CalBezier()
 		midPoints[m].y = (a * a * a * enemy._pos.y)			 + (3 * a * a * b * cPoints[0]._pos.y) +
 						 (3 * a * b * b * cPoints[1]._pos.y) + (b * b * b * enemy._pos.y);
 	}
-
 }
 
 void Fish::Draw()
@@ -178,8 +170,8 @@ void Fish::Draw()
 
 	/// ﾍﾞｼﾞｪ曲線を用いての描画
 	Vector2 p1, p2, p3, p4;
-	auto height = enemy._size.height / 4;			/// 描画する高さの調整
-	color = (updater == &Fish::EscapeUpdate ? 0xdd4444 : 0xff8888);
+	auto height = enemy._size.height / 4 + 2;			/// 描画する高さの調整
+	color = (updater == &Fish::EscapeUpdate ? 0xaa4444 : 0xff4444);
 	for (int i = 1; i < midPoints.size(); ++i)
 	{
 		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
@@ -198,12 +190,9 @@ void Fish::Draw()
 
 void Fish::DebugDraw(const Vector2& camera)
 {
-	auto sPos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y - (enemy._size.height / 2));
-	auto ePos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y + (enemy._size.height / 2));
-
 	/// 当たり判定の描画
-	DxLib::DrawBox(sPos.x - camera.x, sPos.y - camera.y,
-				   ePos.x - camera.x, ePos.y - camera.y, color, false);
+	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
+				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, 0x00ff00, false);
 
 
 	/// 探知できる範囲の描画
@@ -212,13 +201,13 @@ void Fish::DebugDraw(const Vector2& camera)
 		DxLib::DrawCircle(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y, 5, 0xff2222);
 
 		DxLib::DrawLineAA(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,
-						  enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 3.0);
+						  enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 2.0);
 	}
 
 	/// 制御点の描画(debug用)
 	for (auto& itr : cPoints)
 	{
-		DxLib::DrawCircle(itr._pos.x - camera.x, itr._pos.y - camera.y, 10, 0x00ffff, true);
+		DxLib::DrawCircle(itr._pos.x - camera.x, itr._pos.y - camera.y, 5, 0x00ffff, true);
 	}
 
 }
@@ -285,7 +274,7 @@ void Fish::CalEscapeDir(const Vector2 & vec)
 	}
 }
 
-void Fish::ChangeShotColor(const int & num)
+void Fish::ShotDelete(const int & num)
 {
 	/// ｼｮｯﾄを打っていないので、何も書かない
 }

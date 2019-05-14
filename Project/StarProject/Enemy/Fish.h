@@ -38,8 +38,8 @@ private:
 	void (Fish::*updater)();
 
 	std::shared_ptr<Camera>& _camera;
-	std::vector<Vector2> midPoints;			// 制御点登録用(debug用)
-	std::vector<CtlInfo> cPoints;
+	std::vector<Vector2> midPoints;			// ﾍﾞｼﾞｪ曲線の中間点
+	std::vector<CtlInfo> cPoints;			// ﾍﾞｼﾞｪ曲線の制御点
 public:
 	Fish(std::shared_ptr<Camera>& camera);
 	~Fish();
@@ -49,7 +49,7 @@ public:
 	EnemyInfo GetInfo();
 	shot_vector ShotGetInfo();
 	void CalEscapeDir(const Vector2& vec);
-	void ChangeShotColor(const int& num);
+	void ShotDelete(const int& num);
 	void CalTrackVel(const Vector2& pos, bool col);
 };
 

@@ -276,7 +276,7 @@ void GameScene::Update(const Input & p)
 		{
 			if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
 			{
-				_enemies[i]->ChangeShotColor(s);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
+				_enemies[i]->ShotDelete(s);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
 			}
 		}
 	}
