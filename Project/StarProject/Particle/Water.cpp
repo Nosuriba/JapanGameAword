@@ -73,6 +73,24 @@ void Water::Move()
 	{
 		p_thread.join();
 	}
+
+#ifdef _DEBUG
+	for (auto &p: particle)
+	{
+		if (p.bright < 10) {
+			p.bright = 0;
+			continue;
+		}
+
+		p.x += p.vx;
+		p.y += p.vy;
+
+		// ‰Á‘¬•”•ª
+		p.vy += p.avx;
+		p.vx += p.avy;
+		p.bright -= VanishSpeed;
+	}
+#else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
 	auto move = [p_element = p_element](concurrency::index<1> idx)restrict(amp) {
 		if (p_element[idx].bright < 10) {
@@ -91,13 +109,12 @@ void Water::Move()
 
 	// GPU‚Å“®‚©‚µ‚Ä‚é
 	concurrency::parallel_for_each(p_element.get_extent(), move);
+#endif
 }
 
 void Water::Draw()
 {	// ‚±‚±‚Å“®‚­
 	Move();
-
-	concurrency::array_view<Element>p_element(ElementNum, particle);
 
 	for (auto p : particle)
 	{
