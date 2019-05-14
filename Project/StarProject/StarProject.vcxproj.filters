@@ -99,6 +99,9 @@
     <ClInclude Include="Particle\Particle.h">
       <Filter>Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Particle\Water.h">
+      <Filter>Particle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -165,6 +168,12 @@
       <Filter>Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Particle\Bubble.cpp">
+      <Filter>Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle\Water.cpp">
       <Filter>Particle</Filter>
     </ClCompile>
   </ItemGroup>

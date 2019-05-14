@@ -61,10 +61,11 @@ void Fish::Escape()
 	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -maxSpeed : maxSpeed);
 	_vel.y = 0;
 
-	for (int i = 0; i < enemy._searchVert.size(); ++i)
+	for (auto& pos : enemy._searchVert)
 	{
-		enemy._searchVert[i] = enemy._pos;
+		 pos = enemy._pos;
 	}
+
 	updater = &Fish::EscapeUpdate;
 
 }
@@ -137,13 +138,14 @@ void Fish::CalBezier()
 	{
 		if (cPoints[i]._flag)
 		{
-			cPoints[i]._flag = (cPoints[i]._vel.y >= 2.0f ? false : true);
+			cPoints[i]._flag = (cPoints[i]._vel.y >= maxVel ? false : true);
 		}
 		else
 		{
-			cPoints[i]._flag = (cPoints[i]._vel.y <= -2.0f ? true : false);
+			cPoints[i]._flag = (cPoints[i]._vel.y <= -maxVel ? true : false);
 		}
-		cPoints[i]._vel.y += (cPoints[i]._flag ? 0.1f : -0.1f);
+		auto escSpeed = (updater == &Fish::EscapeUpdate ? 1.f : 0);
+		cPoints[i]._vel.y += (cPoints[i]._flag ? 0.1f + (0.1 * escSpeed) : -0.1f - (0.1f * escSpeed));
 		cPoints[i]._pos += cPoints[i]._vel + _vel;
 	}
 
@@ -192,14 +194,14 @@ void Fish::DebugDraw(const Vector2& camera)
 {
 	/// “–‚½‚è”»’è‚Ì•`‰æ
 	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, 0x00ff00, false);
+				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, 0xff0000, false);
 
 
 	/// ’T’m‚Å‚«‚é”ÍˆÍ‚Ì•`‰æ
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
-		DxLib::DrawCircle(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y, 5, 0xff2222);
-
+		/*DxLib::DrawCircle(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y, 5, 0xff2222);
+*/
 		DxLib::DrawLineAA(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,
 						  enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 2.0);
 	}
@@ -207,7 +209,7 @@ void Fish::DebugDraw(const Vector2& camera)
 	/// §Œä“_‚Ì•`‰æ(debug—p)
 	for (auto& itr : cPoints)
 	{
-		DxLib::DrawCircle(itr._pos.x - camera.x, itr._pos.y - camera.y, 5, 0x00ffff, true);
+		DxLib::DrawCircle(itr._pos.x - camera.x, itr._pos.y - camera.y, 3, 0x00ffff, true);
 	}
 
 }
