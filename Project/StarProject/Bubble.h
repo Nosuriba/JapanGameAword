@@ -13,7 +13,7 @@
 #endif
 
 // パーティクルの最大要素数
-constexpr int ELEMENT_NUM = 100000;
+constexpr int ELEMENT_NUM = 1000;
 
 /// スクリーンサイズ
 constexpr int SCREEN_SIZE_X = 1280;
