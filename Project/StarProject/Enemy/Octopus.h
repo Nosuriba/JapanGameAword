@@ -28,6 +28,7 @@ class Octopus :
 	public Enemy
 {
 private:
+	int angle;
 
 	const int numMaxItr = 6;
 
