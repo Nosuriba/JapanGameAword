@@ -43,7 +43,7 @@ void Game::Init()
 	shaderhandle = LoadPixelShader("Version2.0.pso");
 
 	DxLib::SetDrawScreen(DX_SCREEN_BACK);
-	SetTextureAddressModeUV(DX_TEXADDRESS_BORDER, DX_TEXADDRESS_WRAP);
+	SetTextureAddressModeUV(DX_TEXADDRESS_BORDER, DX_TEXADDRESS_BORDER);
 
 	ChangeScene(new TitleScene());
 }
