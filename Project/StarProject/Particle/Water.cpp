@@ -1,4 +1,5 @@
 #include "Water.h"
+#include "../Camera.h"
 
 constexpr int BubbleMax = 10;
 constexpr int Magnification = 100;
@@ -6,12 +7,12 @@ constexpr int VelocitySize = 100;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
 
-Water::Water(int _x, int _y, int _Enum, float _Rota)
+Water::Water(int _x, int _y, int _Enum,const std::shared_ptr<Camera>& c)
 {
 	x = _x, y = _y;
 	ElementNum = _Enum;
-	rota = _Rota;
 	Init();
+	camera = c;
 }
 
 
@@ -115,12 +116,12 @@ void Water::Move()
 void Water::Draw()
 {	// ‚±‚±‚Å“®‚­
 	Move();
-
+	auto c = camera->CameraCorrection();
 	for (auto p : particle)
 	{
 		if (p.bright > 0)
 		{
-			DrawCircle(p.x / 100, p.y / 100, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright/2, p.bright, p.bright), true);
+			DrawCircle(p.x / 100-c.x, p.y / 100 - c.y, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright/2, p.bright, p.bright), true);
 			//DrawCircle(p.x / 100, p.y / 100, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright, p.bright, p.bright), false);
 		}
 	}
