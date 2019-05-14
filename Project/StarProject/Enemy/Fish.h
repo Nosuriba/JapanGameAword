@@ -6,16 +6,16 @@ class Camera;
 
 struct CtlInfo
 {
-	Vector2 pos;
-	Vector2 vel;
-	bool flag;
+	Vector2 _pos;
+	Vector2 _vel;
+	bool _flag;
 
-	CtlInfo() : pos(0, 0), vel(0, 0), flag(false) {};
+	CtlInfo() : _pos(0, 0), _vel(0, 0), _flag(false) {};
 	CtlInfo(const Vector2& pos, const Vector2& vel, bool flag)
 	{
-		this->pos  = pos;
-		this->vel  = vel;
-		this->flag = flag;
+		this->_pos  = pos;
+		this->_vel  = vel;
+		this->_flag = flag;
 	}
 
 };
@@ -32,23 +32,19 @@ private:
 	void EscapeUpdate();
 	void DieUpdate();
 
-	void searchMove();			// 探知する範囲を移動させている
-	void CalCurve();			// ﾍﾞｼﾞｪ曲線の計算用(3次ﾍﾞｼﾞｪ)
+	void SearchMove();			// 探知する範囲を移動させている
+	void CalBezier();			// ﾍﾞｼﾞｪ曲線の計算用(3次ﾍﾞｼﾞｪ)
 
 	void (Fish::*updater)();
 
 	std::shared_ptr<Camera>& _camera;
-	std::vector<std::vector<Vector2>> dCtlPos;
-	std::vector<Vector2> midPoint;			// 制御点登録用(debug用)
-	std::vector<CtlInfo> ctlPoint;
-	std::vector<int> divImage;
-	int image;			// 画像ID
-
-	
+	std::vector<Vector2> midPoints;			// 制御点登録用(debug用)
+	std::vector<CtlInfo> cPoints;
 public:
 	Fish(std::shared_ptr<Camera>& camera);
 	~Fish();
 	void Draw();
+	void DebugDraw(const Vector2& camera);
 	void Update();
 	EnemyInfo GetInfo();
 	shot_vector ShotGetInfo();
