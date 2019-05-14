@@ -1,6 +1,6 @@
 #include "Bubble.h"
 
-constexpr int BubbleMax = 10;
+constexpr int BubbleMax = 100;
 constexpr int Magnification = 100;
 constexpr int VelocitySize = 100;
 constexpr int VanishSpeed = 1;
@@ -36,7 +36,7 @@ void Bubble::Init()
 
 void Bubble::Create()
 {
-	p_thread = std::thread([=] {
+	p_thread = std::thread([&] {
 		std::random_device rd;
 		std::mt19937 Rand(rd());
 		for (int num = 0; num < BubbleMax; num++)
