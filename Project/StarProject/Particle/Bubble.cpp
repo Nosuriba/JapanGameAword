@@ -60,8 +60,7 @@ void Bubble::Create()
 
 			particle[i].radius = (Rand() % 3) + 2;
 		}
-	});
-	
+	});	
 }
 
 void Bubble::Move()

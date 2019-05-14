@@ -134,7 +134,9 @@
     <ClCompile Include="Object\ImmortalObject.cpp" />
     <ClCompile Include="Object\Obstacle.cpp" />
     <ClCompile Include="Object\PredatoryObject.cpp" />
+    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Particle\Bubble.cpp" />
+    <ClCompile Include="Particle\Water.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Processing\Collision.cpp" />
     <ClCompile Include="Processing\Geometry.cpp" />
@@ -145,7 +147,6 @@
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\SelectScene.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
-    <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Particle\AMP.h" />
     <ClInclude Include="Particle\Bubble.h" />
     <ClInclude Include="Particle\Particle.h" />
+    <ClInclude Include="Particle\Water.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Processing\Collision.h" />
     <ClInclude Include="Processing\Geometry.h" />
@@ -171,7 +173,6 @@
     <ClInclude Include="Scene\Scene.h" />
     <ClInclude Include="Scene\SelectScene.h" />
     <ClInclude Include="Scene\TitleScene.h" />
-    <ClInclude Include="Water.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

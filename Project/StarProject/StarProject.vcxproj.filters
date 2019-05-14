@@ -99,7 +99,7 @@
     <ClInclude Include="Particle\Particle.h">
       <Filter>Particle</Filter>
     </ClInclude>
-    <ClInclude Include="Water.h">
+    <ClInclude Include="Particle\Water.h">
       <Filter>Particle</Filter>
     </ClInclude>
   </ItemGroup>
@@ -170,7 +170,10 @@
     <ClCompile Include="Particle\Bubble.cpp">
       <Filter>Particle</Filter>
     </ClCompile>
-    <ClCompile Include="Water.cpp">
+    <ClCompile Include="Particle.cpp">
+      <Filter>Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle\Water.cpp">
       <Filter>Particle</Filter>
     </ClCompile>
   </ItemGroup>
