@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include "Processing/Geometry.h"
+#include "Particle/Water.h"
 
 class Camera;
 class Input;
@@ -33,6 +34,7 @@ class Player
 {
 private:
 	const std::shared_ptr<Camera>& _camera;
+	std::vector<std::shared_ptr<Particle>> _particle;
 
 	Star _star;
 

@@ -59,7 +59,15 @@ void Player::Normal(const Input & in)
 		{
 			LEG(idx[i]).state = LEG_STATE::SELECT;
 			if (input.PushTrigger((TRIGGER)i))
+			{
 				LEG(idx[i]).state = LEG_STATE::SHOT;
+
+				auto v = LEG(idx[i]).pos - LEG(idx[i]).halfway_point[LEG(idx[i]).T / 2];
+				_particle[i]->SetPos(LEG(idx[i]).pos.x, LEG(idx[i]).pos.y);
+				_particle[i]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
+				_particle[i]->Create();
+
+			}
 			if (input.Push((BUTTON)((int)BUTTON::LB + i)))
 				LEG(idx[i]).state = LEG_STATE::HOLD;
 		}
@@ -67,8 +75,10 @@ void Player::Normal(const Input & in)
 
 	for (auto& l : _star.legs)
 	{
-		if (l.state == LEG_STATE::SHOT)
-			_vel += (-(l.pos - l.halfway_point[l.T / 2]).Normalized() * SPEED * (float)_star.level);
+		if (l.state == LEG_STATE::SHOT) {
+			auto v = l.pos - l.halfway_point[l.T / 2];
+			_vel += (-(v).Normalized() * SPEED * (float)_star.level);
+		}
 	}
 }
 
@@ -110,6 +120,10 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 	}
 
 	_vel = Vector2();
+
+	_particle.resize(2);
+	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000));
+	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000));
 
 	_updater = &Player::Normal;
 }
@@ -209,6 +223,10 @@ void Player::Draw()
 		}
 		if (leg.state == LEG_STATE::SELECT)
 			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xffff00);
+	}
+	for (auto& p : _particle)
+	{
+		p->Draw();
 	}
 }
 
