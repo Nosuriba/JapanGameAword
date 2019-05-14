@@ -29,6 +29,8 @@ void ImmortalObject::Draw()
 
 	DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
 		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, obj._color, false);
+
+	DxLib::DrawTriangle()
 }
 
 void ImmortalObject::Update()

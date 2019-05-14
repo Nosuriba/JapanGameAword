@@ -33,10 +33,9 @@ PS_OUTPUT main(PS_INPUT input)
     const float speed = 3.0;
     
     float uvtmpx = sin(input.uv.x * shakeLength + timer * speed) * shakeWidth;
+    float uvtmpy = cos(input.uv.y * shakeLength + timer * speed) * shakeWidth;
 
-    TextureColor = tex2D(Texture, float2(input.uv.x + uvtmpx, input.uv.y));
-
-    //if (0.3 < input.pos.y && input.pos.y < 0.7)
+    TextureColor = tex2D(Texture, float2(input.uv.x + uvtmpx, input.uv.y + uvtmpy));
 
     output.color = TextureColor;
 

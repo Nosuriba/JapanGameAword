@@ -14,6 +14,8 @@
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
 
+const int shader_offset = 50;
+
 void GameScene::FadeIn(const Input & p)
 {
 	if (wait >= WAITFRAME) {
@@ -222,11 +224,11 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
-	DrawExtendGraph(0 - 30, 0, sizex + 50, sizey, secondscreen, true);
+	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, sizex + shader_offset, sizey + shader_offset, secondscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
 
-	DrawExtendGraph(0 - 30, 0, sizex + 50, sizey, thirdscreen, true);
+	//DrawExtendGraph(0 - 30, 0, sizex + 50, sizey, thirdscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
