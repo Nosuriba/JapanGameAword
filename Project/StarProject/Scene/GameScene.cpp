@@ -14,6 +14,8 @@
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
 
+const int shader_offset = 50;
+
 void GameScene::FadeIn(const Input & p)
 {
 	if (wait >= WAITFRAME) {
@@ -28,11 +30,11 @@ void GameScene::FadeOut(const Input & p)
 {
 	if (wait >= WAITFRAME) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		BubbleDraw();
+		(*FadeBubble).Draw();
 		Game::GetInstance().ChangeScene(new ResultScene());
 	}
 	else {
-		BubbleCreate();
+		(*FadeBubble).Create();
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)wait / WAITFRAME);
 		Draw();
 	}
@@ -72,9 +74,9 @@ GameScene::GameScene()
 
 	_immortal.reset(new ImmortalObject(_camera));
 
-	firstscreen = MakeScreen(size.x * 2, size.y);
-	secondscreen = MakeScreen(size.x * 2, size.y);
-	thirdscreen = MakeScreen(size.x * 2, size.y);
+	firstscreen = MakeScreen(size.x, size.y);
+	secondscreen = MakeScreen(size.x, size.y);
+	thirdscreen = MakeScreen(size.x, size.y);
 
 	for (int i = 0; i < 2; ++i)
 	{
@@ -110,7 +112,7 @@ GameScene::GameScene()
 
 	for (int i = 0; i < 4; i++)
 	{
-		vertex[i].pos = VGet((i % 2)* (size.x * 2 - 200), (i / 2)*size.y, 0);
+		vertex[i].pos = VGet((i % 2)* size.x, (i / 2)*size.y, 0);
 		vertex[i].rhw = 1.0f;
 		vertex[i].dif = GetColorU8(255, 255, 255, 255);
 		vertex[i].spc = GetColorU8(0, 0, 0, 0);
@@ -180,8 +182,7 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	//DrawExtendGraph(0, 0 , sizex * 2, sizey, sea_effect, true);
-	DrawRotaGraph(sizex / 2, sizey / 2 , 1.5, 0, sea_effect, true, true);
+	DrawExtendGraph(sizex, sizey, 0, 0, sea_effect, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
 	SetUseTextureToShader(0, secondscreen);
@@ -200,7 +201,7 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0, 0, sizex * 2, sizey, sea, true);
+	DrawExtendGraph(0, 0, sizex, sizey, sea, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
 	SetUseTextureToShader(0, thirdscreen);
@@ -223,15 +224,15 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
-	DrawGraph(0 - 200, 0, secondscreen, true);
+	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, sizex + shader_offset, sizey + shader_offset, secondscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
 
-	DrawGraph(0 - 200, 0, thirdscreen, true);
+	//DrawExtendGraph(0 - 30, 0, sizex + 50, sizey, thirdscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	BubbleDraw();
+	(*FadeBubble).Draw();
 
 }
 
@@ -275,7 +276,7 @@ void GameScene::Update(const Input & p)
 		{
 			if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
 			{
-				_enemies[i]->ChangeShotColor(s);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
+				_enemies[i]->ShotDelete(s);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
 			}
 		}
 	}

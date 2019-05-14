@@ -24,20 +24,18 @@ PS_OUTPUT main(PS_INPUT input)
     float4 TextureColor;
 
     //—h‚ê‚Ì”g‚Ì”
-    const float shakeLength = 3.0;
+    const float shakeLength = 10.0;
 
     //—h‚ê‚Ì•
-    const float shakeWidth = 0.02;
+    const float shakeWidth = 0.01;
 
     //—h‚ê‚ÌƒXƒs[ƒh
-    const float speed = 5.0;
+    const float speed = 3.0;
     
     float uvtmpx = sin(input.uv.x * shakeLength + timer * speed) * shakeWidth;
     float uvtmpy = cos(input.uv.y * shakeLength + timer * speed) * shakeWidth;
 
-    TextureColor = tex2D(Texture, float2(input.uv.x + uvtmpx, input.uv.y));
-
-    //if (0.3 < input.pos.y && input.pos.y < 0.7)
+    TextureColor = tex2D(Texture, float2(input.uv.x + uvtmpx, input.uv.y + uvtmpy));
 
     output.color = TextureColor;
 
