@@ -20,7 +20,7 @@ Octopus::Octopus(std::shared_ptr<Camera>& camera) : Enemy(camera), _camera(camer
 		for (int j = 0; j < LEG(i).T; ++j) {
 			LEG(i).joint.push_back(_oct.root + LEG(i).tip.Normalized()*((_oct.r / LEG(i).T)*j));
 		}
-		LEG(i).state = LEG_STATE::NORMAL;
+		LEG(i).state = E_LEG_STATE::NORMAL;
 	}
 }
 

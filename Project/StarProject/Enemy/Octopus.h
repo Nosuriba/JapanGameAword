@@ -3,25 +3,25 @@
 
 class Camera;
 
-enum class LEG_STATE {
+enum class E_LEG_STATE {
 	NORMAL,
 	ATTACK,
 	DAMAGE,
 	DETH,
 };
 
-struct Leg {
+struct E_Leg {
 	Vector2 tip;	//先端座標
 	std::vector<Vector2> joint;	//関節座標
 	const int T = 6;	//関節数
-	LEG_STATE state;	//状態
+	E_LEG_STATE state;	//状態
 };
 
 struct Oct {
 	float r;		//足の長さ
 	Vector2 center;	//中心座標
 	Vector2 root;	//足の根元
-	std::vector<Leg> legs;	//足
+	std::vector<E_Leg> legs;	//足
 };
 
 class Octopus :
