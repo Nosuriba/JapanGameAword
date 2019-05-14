@@ -3,6 +3,7 @@
 #include <memory>
 #include "Scene/Scene.h"
 #include "Processing/Geometry.h"
+#include <vector>
 
 class Game
 {
@@ -19,9 +20,13 @@ public:
 	void ChangeScene(Scene *scene);
 
 	const Vector2 GetScreenSize() const;
-	const int GetShaderHandle() const;
+	const std::vector<int> GetShaderHandle() const;
 
-	int shaderhandle;
+	int wavehandle;
+	int shadowhandle;
+
+	std::vector<int> _handle;
+
 private:
 	Game();
 	~Game();
