@@ -17,7 +17,7 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	enemy	  = EnemyInfo(pos, size, rect);
 	_vel	  = Vector2();
 
-	_turnFlag		= true;
+	_turnFlag		= false;
 	enemy._dieFlag  = false;
 	
 	/// êßå‰ì_ÇÃê›íË
@@ -118,7 +118,7 @@ void Fish::SearchMove()
 
 			if (_turnFlag)
 			{
-				rad = (deg/* - ((deg * 2) * (i))*/) * DX_PI / 180;
+				rad = (deg - (deg * (i / 2 * 2))) * DX_PI / 180;
 				cosD = cos(rad);
 				sinD = sin(rad);
 
@@ -126,7 +126,7 @@ void Fish::SearchMove()
 			}
 			else
 			{
-				rad = (180 - deg + ((deg * 2) * (i))) * DX_PI / 180;
+				rad = (180 - deg + (deg * (i / 2 * 2))) * DX_PI / 180;
 				cosD = cos(rad);
 				sinD = sin(rad);
 
