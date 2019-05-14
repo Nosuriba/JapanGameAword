@@ -1,6 +1,6 @@
 #pragma once
 #include "../Processing/Input.h"
-#include "../Bubble.h"
+#include "../Particle/Particle.h"
 
 // ﾃﾞﾊﾞｯｸﾞの時長いから短くする
 #ifdef _DEBUG
@@ -9,9 +9,12 @@ const int WAITFRAME = 60;
 const int WAITFRAME = 120;
 #endif // DEBUG
 
-
+class Particle;
 class Scene
 {
+protected:
+	// ﾌｪｰﾄﾞで使うバブル状のﾊﾟｰﾃｨｸﾙのポインタ
+	static std::unique_ptr<Particle> FadeBubble;
 public:
 	Scene();
 	virtual ~Scene();
