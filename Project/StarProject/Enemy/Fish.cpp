@@ -67,7 +67,6 @@ void Fish::Escape()
 	}
 
 	_updater = &Fish::EscapeUpdate;
-
 }
 
 void Fish::Die()
