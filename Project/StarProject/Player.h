@@ -23,6 +23,7 @@ struct Leg {
 };
 
 struct Star {
+	int level;				// ƒŒƒxƒ‹
 	float r;				// ‘«‚Ì’·‚³
 	Vector2 center;			// ’†S
 	std::vector<Leg> legs;	// ‘«
@@ -39,6 +40,11 @@ private:
 
 	char Buf[256];
 
+	void (Player::*_updater)(const Input& in);
+	void Normal(const Input& in);
+	void Move(const Input& in);
+	void Die(const Input& in);
+
 public:
 	Player(const std::shared_ptr<Camera>& c);
 	~Player();
@@ -47,6 +53,6 @@ public:
 	void Draw();
 	Star GetInfo();
 	const std::vector<Vector2> GetShot();
-
+	void LevelUP();
 };
 
