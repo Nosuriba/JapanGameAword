@@ -17,7 +17,7 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	enemy	  = EnemyInfo(pos, size, rect);
 	_vel	  = Vector2();
 
-	_turnFlag		= false;
+	_turnFlag		= true;
 	enemy._dieFlag  = false;
 	
 	/// 制御点の設定
@@ -118,11 +118,11 @@ void Fish::SearchMove()
 
 			if (_turnFlag)
 			{
-				rad = (deg - ((deg * 2) * (i))) * DX_PI / 180;
+				rad = (deg/* - ((deg * 2) * (i))*/) * DX_PI / 180;
 				cosD = cos(rad);
 				sinD = sin(rad);
 
-				pos = Vector2(enemy._rect.Right(), enemy._pos.y);
+				pos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y);
 			}
 			else
 			{
@@ -130,7 +130,7 @@ void Fish::SearchMove()
 				cosD = cos(rad);
 				sinD = sin(rad);
 
-				pos = Vector2(enemy._rect.Left(), enemy._pos.y);
+				pos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y);
 			}
 			enemy._searchVert[i] = Vector2(pos + Vector2(distance * cosD, -distance * sinD));
 		}
@@ -179,6 +179,7 @@ void Fish::Draw()
 	/// ﾍﾞｼﾞｪ曲線を用いての描画
 	Vector2 p1, p2, p3, p4;
 	auto height = enemy._size.height / 4;			/// 描画する高さの調整
+	color = (updater == &Fish::EscapeUpdate ? 0xdd4444 : 0xff8888);
 	for (int i = 1; i < midPoints.size(); ++i)
 	{
 		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
@@ -186,7 +187,7 @@ void Fish::Draw()
 		p3 = Vector2(midPoints[i].x - camera.x, midPoints[i].y + height - camera.y);
 		p4 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y + height - camera.y);
 
-		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xff0000, false);
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, color, true);
 	}
 
 #ifdef _DEBUG
@@ -217,14 +218,14 @@ void Fish::DebugDraw(const Vector2& camera)
 	/// 制御点の描画(debug用)
 	for (auto& itr : cPoints)
 	{
-		DxLib::DrawCircle(itr._pos.x, itr._pos.y, 10, 0x00ffff, true);
+		DxLib::DrawCircle(itr._pos.x - camera.x, itr._pos.y - camera.y, 10, 0x00ffff, true);
 	}
 
 }
 
 void Fish::Update()
 {
-	/// ﾃﾞﾊﾞｯｸﾞ用のループ
+	/// debug用のループ
 	auto velX = _vel.x;
 	auto screenX = Game::GetInstance().GetScreenSize().x;
 	auto DebugRoop = [&velX, &screenX](const Position2& pos)
