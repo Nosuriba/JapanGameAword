@@ -26,8 +26,6 @@ struct ShotInfo {
 	Vector2 _vel;
 	Size _size;
 	Rect _rect;
-	
-	int debugColor;		/// debugóp(å„Ç≈è¡Ç∑)
 
 	ShotInfo() : _pos(0, 0), _vel(0,0),_size(0, 0), _rect(_pos, _size) {};
 	ShotInfo(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
