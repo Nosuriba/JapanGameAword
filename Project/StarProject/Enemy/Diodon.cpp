@@ -245,7 +245,7 @@ void Diodon::Draw()
 #ifdef _DEBUG
 	DebugDraw(camera);
 #endif
-
+	
 }
 
 void Diodon::DebugDraw(const Vector2& camera)
@@ -253,7 +253,6 @@ void Diodon::DebugDraw(const Vector2& camera)
 	/// “–‚½‚è”»’è‚Ì•`‰æ
 	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
 				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, 0xff0000, false);
-
 	for (auto itr : shot)
 	{
 		DxLib::DrawBox(itr._rect.Left() - camera.x, itr._rect.Top() - camera.y,
