@@ -15,35 +15,24 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	enemy	 = EnemyInfo(pos, size, rect);
 	_vel	 = Vector2();
 
-	ctlPos = Vector2(enemy._rect.Left(), enemy._pos.y);
-	ctlVel = Vector2();
-	ctlFlag = false;
 	_turnFlag = false;
 	enemy._dieFlag  = false;
 	
 	/// 制御点の設定
-	CtlInfo sPoint, ePoint;
-	sPoint.vel = Vector2(0, 0);
-	ePoint.vel = Vector2(0, 0);
-	sPoint.pos = Vector2(enemy._pos.x - enemy._size.width / 2, enemy._pos.y);
-	ePoint.pos = Vector2(enemy._pos.x + enemy._size.width / 2, enemy._pos.y);
-	sPoint.flag = false;
-	ePoint.flag = true;
+	CtlInfo cPoint[2];
+	cPoint[0].vel = Vector2(0, 0);
+	cPoint[1].vel = Vector2(0, -0.4);
+	cPoint[0].pos = Vector2(enemy._rect.Left() + size.width / 3, enemy._pos.y + 20);
+	cPoint[1].pos = Vector2(enemy._rect.Right() - size.width / 3, enemy._pos.y - 20);
+	cPoint[0].flag = false;
+	cPoint[1].flag = true;
 
-	ctlPoint.push_back(sPoint);
-	ctlPoint.push_back(ePoint);
-	sPoints.push_back(Vector2(sPoint.pos.x - enemy._size.width, sPoint.pos.y));
-	sPoints.push_back(Vector2(ePoint.pos.x + enemy._size.width, ePoint.pos.y));
-
-	dCtlPos.resize(ctlPoint.size());
-	
-	/// 分割した座標の指定
-	for (int i = 0; i < divEnemy.size(); ++i)
+	for (auto& itr : cPoint)
 	{
-		divEnemy[i]._size = Size(enemy._size.width / divEnemy.size(), enemy._size.height);
-		divEnemy[i]._pos = enemy._pos + Vector2(i * (enemy._size.width / divEnemy.size()), enemy._size.height);
-		divEnemy[i]._rect = Rect(divEnemy[i]._pos, divEnemy[i]._size);
+		ctlPoint.push_back(itr);
 	}
+
+	midPoint.resize(ctlPoint.size());
 
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
 	{
@@ -153,64 +142,35 @@ void Fish::CalCurve()
 {
 	for (int i = 0; i < ctlPoint.size(); ++i)
 	{
-		ctlPoint[i].vel.y += (ctlPoint[i].flag ? 0.2f : -0.2f);
-
+		
 		if (ctlPoint[i].flag)
 		{
-			ctlPoint[i].flag = (ctlPoint[i].vel.y > 2.0f ? false : true);
+			ctlPoint[i].flag = (ctlPoint[i].vel.y >= 2.0f ? false : true);
 		}
 		else
 		{
-			ctlPoint[i].flag = (ctlPoint[i].vel.y < -2.0f ? true : false);
+			ctlPoint[i].flag = (ctlPoint[i].vel.y <= -2.0f ? true : false);
 		}
+		ctlPoint[i].vel.y += (ctlPoint[i].flag ? 0.1f : -0.1f);
 		ctlPoint[i].pos += ctlPoint[i].vel;
-		dCtlPos[i].resize(mPoint);
-		dCtlPos[i][0] = ctlPoint[i].pos;
-		for (int m = 0; m < mPoint; ++m)
-		{
-			float b = (float)m / mPoint;
-			float a = 1.0f - b;
-
-			dCtlPos[i][m].x = (a * a * sPoints[i].x) + (2 * a * b * ctlPoint[i].pos.x) + (b * b * enemy._pos.x);
-			dCtlPos[i][m].y = (a * a * sPoints[i].y) + (2 * a * b * ctlPoint[i].pos.y) + (b * b * enemy._pos.y);
-		}
-	}
-
-}
-
-void Fish::CalNormalVec()
-{
-	ctlVel.y += (ctlFlag ? 0.1f : -0.1f);
-	if (ctlFlag)
-	{
-		ctlFlag = (ctlVel.y >= 1.0f ? false : true);
-	}
-	else
-	{
-		ctlFlag = (ctlVel.y <= -1.0f ? true : false);
-	}
-
-	divEnemy[0]._pos += ctlVel;
-	for (int i = 1; i < divEnemy.size(); ++i)
-	{
-		auto sin = (float)(60 * DX_PI / 180.f);
-		auto A = Vector2(divEnemy[i - 1]._pos.x + divEnemy[i - 1]._size.width / 2,
-						 divEnemy[i - 1]._pos.y + divEnemy[i - 1]._size.height / 2);
-		auto B = Vector2(divEnemy[i]._pos.x - divEnemy[i]._size.width / 2,
-						 divEnemy[i]._pos.y - divEnemy[i]._size.height / 2);
-		auto C = Vector2(divEnemy[i]._pos.x + divEnemy[i]._size.width / 2,
-						 divEnemy[i]._pos.y - divEnemy[i]._size.height / 2);
-
-		auto AB = B - A;
-		auto BC = C - B;
-		AB.Normalize();
-		BC.Normalize();
 		
-		auto cross = Cross(AB, BC);
-		divEnemy[i]._pos = Vector2(divEnemy[i]._pos.x/* * cross*//*+ (divEnemy[i]._size.width * cross)*/,
-								   divEnemy[i]._pos.y * cross);
-
 	}
+	
+	midPoint.resize(mPoint);
+	midPoint[0] = enemy._pos;
+	for (int m = 0; m < mPoint; ++m)
+	{
+		float b = (float)m / mPoint;
+		float a = 1.0f - b;
+
+		/// 3次ﾍﾞｼﾞｪの計算
+		midPoint[m].x = (a * a * a * enemy._rect.Left())    + (3 * a * a * b * ctlPoint[0].pos.x) + 
+						(3 * a * b * b * ctlPoint[1].pos.x) + (b * b * b * enemy._rect.Right());
+
+		midPoint[m].y = (a * a * a * enemy._pos.y)			+ (3 * a * a * b * ctlPoint[0].pos.y) +
+						(3 * a * b * b * ctlPoint[1].pos.y) + (b * b * b * enemy._pos.y);
+	}
+
 }
 
 void Fish::Draw()
@@ -222,68 +182,33 @@ void Fish::Draw()
 	auto ePos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y + (enemy._size.height / 2));
 	/// 通常の描画
 	DxLib::DrawBox(sPos.x - camera.x, sPos.y - camera.y,
-					ePos.x - camera.x, ePos.y - camera.y, color, (updater != &Fish::EscapeUpdate));
+				   ePos.x - camera.x, ePos.y - camera.y, color, (updater != &Fish::EscapeUpdate));
 
 	/// 画像の読み込み
-	/*int sizeX = 0;
+	int sizeX = 0;
 	int sizeY = 0;
+	divImage.resize(mPoint);
 	DxLib::GetImageSize_File("resource/fish.png", &sizeX, &sizeY);
-	DxLib::LoadDivGraph("resource/fish.png", divEnemy.size(), divEnemy.size(), 1, 
-						 sizeX / divEnemy.size(), sizeY, &divImage[0]);*/
+	DxLib::LoadDivGraph("resource/fish.png", divImage.size(), divImage.size(), 1, 
+						 sizeX / divImage.size(), sizeY, &divImage[0]);
 
-	/*auto image = DxLib::LoadGraph("resource/abi.png", true);
-	DrawModiGraph(100, 100, 300, 100, 200, 200, 100, 200, image, true);*/
-
+	auto height = enemy._size.height / 2;
 	/// ﾍﾞｼﾞｪ曲線を用いての描画
-	/*Vector2 pre = midPos[0];		/// 前の座標
-	float t = 40.0f;
-	for (auto& m : midPos)
+	for (int i = 1; i < midPoint.size(); ++i)
 	{
-		DxLib::DrawLineAA(pre.x - camera.x, pre.y - camera.y,
-					     m.x - camera.x, m.y - camera.y, color, 20);
-		pre.x = m.x;
-		pre.y = m.y;
-		t /= 1.3;
+		DrawBox(midPoint[i - 1].x, midPoint[i - 1].y - height, midPoint[i].x, midPoint[i].y - height + enemy._size.height, 0xff0000, true);
+	}
+
+	for (int i = 1; i < midPoint.size(); ++i)
+	{
+		DrawLine(midPoint[i - 1].x, midPoint[i - 1].y, midPoint[i].x, midPoint[i].y, 0xff0000, enemy._size.height);
+	}
+
+	/// 中間点の描画(debug用)
+	/*for (int i = 0; i < midPoint.size(); ++i)
+	{
+		DxLib::DrawCircle(midPoint[i].x, midPoint[i].y, 5, 0xff0000, true);
 	}*/
-
-	Vector2 pre = dCtlPos[1][0];
-	float t = 40.f;
-	for (auto& m : dCtlPos[1])
-	{
-		DxLib::DrawLineAA(pre.x - camera.x, pre.y - camera.y,
-			m.x - camera.x, m.y - camera.y, 0xff0000, 20);
-		pre.x = m.x;
-		pre.y = m.y;
-		t /= 1.3;
-	}
-
-	for (int i = 0; i < dCtlPos.size(); ++i)
-	{
-		for (int m = 0; m < dCtlPos[i].size(); ++m)
-		{
-			DxLib::DrawCircle(dCtlPos[i][m].x, dCtlPos[i][m].y, 5, (i == 0 ? 0xff0000 : 0xffff00), true);
-		}
-	}
-
-	
-
-	//for (int i = 1; i < divEnemy.size(); ++i)
-	//{
-	//	///// 画像の描画がおかしいので、後で必ず直す
-	//	//auto p1 = Vector2(divEnemy[i]._pos.x - divEnemy[i]._size.width / 2 + (i * divEnemy[i]._size.width),
-	//	//				  divEnemy[i]._pos.y - divEnemy[i]._size.height / 2);		// 左上
-	//	//auto p2 = Vector2(divEnemy[i]._pos.x + divEnemy[i]._size.width / 2 + (i * divEnemy[i]._size.width),
-	//	//				  divEnemy[i]._pos.y - divEnemy[i]._size.height / 2);		// 右上
-	//	//auto p3 = Vector2(divEnemy[i]._pos.x + divEnemy[i]._size.width / 2 + (i * divEnemy[i]._size.width),
-	//	//				  divEnemy[i]._pos.y + divEnemy[i]._size.height / 2);		// 右下
-	//	//auto p4 = Vector2(divEnemy[i]._pos.x - divEnemy[i]._size.width / 2 + (i * divEnemy[i]._size.width),
-	//	//				  divEnemy[i]._pos.y + divEnemy[i]._size.height / 2);		// 左下
-
-
-	//	DrawLine(divEnemy[i - 1]._pos.x, divEnemy[i - 1]._pos.y, divEnemy[i]._pos.x, divEnemy[i]._pos.y, 0xff2222, 2.0f);
-	//	//DxLib::DrawModiGraph(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, divImage[i], true);
-
-	//}
 
 	/// 探知できる範囲の描画
 	for (int i = 0; i < enemy._searchVert.size(); ++i)
