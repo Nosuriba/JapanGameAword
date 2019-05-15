@@ -2,7 +2,6 @@
 #include <DxLib.h>
 #include "Game.h"
 
-
 Camera::Camera()
 {
 	_range = Vector2(2000, 1500);
@@ -32,6 +31,14 @@ void Camera::Draw()
 const Vector2 Camera::CameraCorrection() const
 {
 	return _correction;
+}
+
+const Vector2 Camera::GetShadowPos(const float & h)
+{
+	auto l = h * tan(90 - 60);
+	Vector2 s = Vector2(1, -1) * l;
+
+	return s;
 }
 
 const Vector2 Camera::GetRange() const
