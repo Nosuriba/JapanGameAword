@@ -15,6 +15,7 @@ public:
 	bool TriToTri(const std::vector<Leg>& _leg, const std::array<Vector2, 3>& _tri);
 	bool TriToSqr(const std::vector<Leg>& _leg, const Position2 &_pos, const Size &_size);
 	bool WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const Rect& _rect);
+	bool WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const float& size ,const Rect& _rect);
 
 };
 

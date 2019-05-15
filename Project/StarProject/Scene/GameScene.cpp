@@ -77,7 +77,7 @@ GameScene::GameScene()
 	_immortal.reset(new ImmortalObject(_camera));
 
 	firstscreen = MakeScreen(size.x, size.y);
-	secondscreen = MakeScreen(size.x - 1 , size.y - 1);
+	secondscreen = MakeScreen(size.x - 1, size.y - 1);
 	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
 	_4thscreen = MakeScreen(size.x, size.y);
 

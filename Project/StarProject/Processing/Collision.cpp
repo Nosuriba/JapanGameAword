@@ -129,3 +129,38 @@ bool Collision::WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const 
 	}
 	return false;
 }
+
+bool Collision::WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const float & size, const Rect & _rectB)
+{
+	const int r = 30;
+
+	auto _vecA = _vec;
+
+	auto _vecB = _rectB.center - _posA;
+
+	auto _t = Dot(_vecA.Normalized(), _vecB);
+
+	if (_t > size) {
+		return false;
+	}
+
+	auto _p = _posA + (_vecA.Normalized() * max(0, _t));
+
+
+	auto termA = ((_rectB.Left() < _p.x) && (_rectB.Right() > _p.x) && (_rectB.Top() - r < _p.y) && (_rectB.Bottom() + r > _p.y));
+
+	auto termB = ((_rectB.Top() < _p.y) && (_rectB.Bottom() > _p.y) && (_rectB.Right() - r < _p.x) && (_rectB.Left() + r > _p.x));
+
+	auto termC = ((_rectB.Left() - _p.x)*(_rectB.Left() - _p.x) + (_rectB.Top() - _p.y)*(_rectB.Top() - _p.y) < r*r);
+
+	auto termD = ((_rectB.Right() - _p.x)*(_rectB.Right() - _p.x) + (_rectB.Top() - _p.y)*(_rectB.Top() - _p.y) < r*r);
+
+	auto termE = ((_rectB.Right() - _p.x)*(_rectB.Right() - _p.x) + (_rectB.Bottom() - _p.y)*(_rectB.Bottom() - _p.y) < r*r);
+
+	auto termF = ((_rectB.Left() - _p.x)*(_rectB.Left() - _p.x) + (_rectB.Bottom() - _p.y)*(_rectB.Bottom() - _p.y) < r*r);
+
+	if (termA || termB || termC || termD || termE || termF) {
+		return true;
+	}
+	return false;
+}
