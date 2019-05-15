@@ -13,6 +13,7 @@ Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	auto rect = Rect(pos, size);
 
 	enemy = EnemyInfo(pos, size, rect);
+	enemy._prePos = enemy._pos;
 	_vel  = Vector2();
 
 	riseCnt = blastCnt = 0;
@@ -264,6 +265,7 @@ void Diodon::Update()
 {
 	(this->*_updater)();
 
+	enemy._prePos = enemy._pos;
 	enemy._pos += _vel;
 	if (_updater == &Diodon::EscapeUpdate || enemy._dieFlag)
 	{

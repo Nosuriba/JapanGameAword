@@ -13,6 +13,7 @@ SeaCucumber::SeaCucumber(std::shared_ptr<Camera>& camera) : Enemy(camera), _came
 	auto rect = Rect(pos, size);
 
 	enemy = EnemyInfo(pos, size, rect);
+	enemy._prePos = enemy._pos;
 	_vel = Vector2();
 	cPoint._flag = _turnFlag = false;
 	cPoint._pos = enemy._pos;
@@ -61,27 +62,27 @@ void SeaCucumber::CrawlUpdate()
 		if (_vel.x <= 0.f)
 		{
 			cPoint._vel.x = (moveCnt >= moveInvCnt ? maxSpeed : cPoint._vel.x);
-			moveCnt--;
-			_vel.x = (moveCnt < 0 ? maxSpeed : 0.f);
-			moveCnt = (_vel.x == maxSpeed ? moveInvCnt : moveCnt);
+			_vel.x = (moveCnt <= 0 ? maxSpeed : 0.f);
 		}
 		else
 		{
-			_vel.x -= 0.1f;
+			_vel.x -= (_vel.x <= 0.f ? 0.f :0.1f);
 		}
 	}
 	else
 	{
+		/// Ç∆ÇËÇ†Ç¶Ç∏ÅAÇ±Ç±ÇèCê≥
 		if (_vel.x >= 0.f)
 		{
-			cPoint._vel.x = (moveCnt >= moveInvCnt ? -maxSpeed : cPoint._vel.x);
+			if (moveCnt == 0)
+			{
+				cPoint._vel.x = -maxSpeed;
+			}
 			moveCnt--;
-			_vel.x = (moveCnt < 0 ? -maxSpeed : 0.f);
-			moveCnt = (_vel.x == -maxSpeed ? moveInvCnt : moveCnt);
 		}
 		else
 		{
-			_vel.x += 0.1f;
+			_vel.x += (_vel.x >= 0.f ? 0.f : 0.1f);
 		}
 	}
 }
@@ -115,13 +116,12 @@ void SeaCucumber::CalBezier()
 	}
 	else
 	{
-		if (_vel.x >= 0.f)
+		/// Ç∆ÇËÇ†Ç¶Ç∏ÅAÇ±Ç±ÇèCê≥
+		if (_vel.x >= 0.f && moveCnt == 0)
 		{
-			cPoint._vel.x = (cPoint._vel.x >= 0.f ? 0.f : cPoint._vel.x + 0.1f);
-		}
-		else
-		{
-			cPoint._vel.x = 0;
+			cPoint._vel.x += (cPoint._vel.x >= 0.f ? 0.f : 0.1f);
+			_vel.x =  (cPoint._vel.x >= 0.f ? -maxSpeed : 0);
+			moveCnt = (_vel.x == -maxSpeed ? moveInvCnt : 0);
 		}
 	}
 	cPoint._pos += cPoint._vel;
@@ -147,11 +147,15 @@ void SeaCucumber::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	for (int i = 1; i < midPoints.size(); ++i)
+	/*for (int i = 1; i < midPoints.size(); ++i)
 	{
 		DxLib::DrawBox(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - camera.y,
 					   midPoints[i].x - camera.x, midPoints[i].y - camera.y, color, true);
 	}
+*/
+	color = (_updater == &SeaCucumber::EscapeUpdate ? 0x80300b : 0xa0522d);
+	auto oWidth = abs(enemy._pos.x - midPoints[points - 1].x);
+	DrawOval(enemy._pos.x, enemy._pos.y, oWidth, enemy._size.height / 2, color, true);
 
 #ifdef _DEBUG
 	DebugDraw(camera);
@@ -164,26 +168,18 @@ void SeaCucumber::DebugDraw(const Vector2 & camera)
 	DrawBox(enemy._rect.Left()  - camera.x, enemy._rect.Top() - camera.y,
 			enemy._rect.Right() - camera.y, enemy._rect.Bottom() - camera.y, 0xff0000, false);
 
-	Vector2 p1, p2, p3, p4;
-	auto height = enemy._size.height / 2;			/// ï`âÊÇ∑ÇÈçÇÇ≥ÇÃí≤êÆ
-	color = (_updater == &SeaCucumber::EscapeUpdate ? 0x80300b : 0xa0522d);
-	for (int i = 1; i < midPoints.size(); ++i)
-	{
-		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
-		p2 = Vector2(midPoints[i].x - camera.x, midPoints[i].y - height - camera.y);
-		p3 = Vector2(midPoints[i].x - camera.x, midPoints[i].y + height - camera.y);
-		p4 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y + height - camera.y);
+	/// ìGÇÃï`âÊ
+	DrawCircle(enemy._pos.x, enemy._pos.y, 4, 0x00ffff, true);
 
-		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, color, true);
-	}
-
-	DrawCircle(cPoint._pos.x - camera.x, cPoint._pos.y - camera.y, 4, 0xffff00, false);
+	/// êßå‰ì_ÇÃï`âÊ
+	DrawCircle(cPoint._pos.x - camera.x, cPoint._pos.y - camera.y, 4, 0xffff00, true);
 }
 
 void SeaCucumber::Update()
 {
 	(this->*_updater)();
 
+	enemy._prePos = enemy._pos;
 	enemy._pos += _vel;
 
 	/// Ç∆ÇËÇ†Ç¶Ç∏âºê›íËÇ»ÇÃÇ≈ÅAå„Ç≈èCê≥ÇÇ∑ÇÈ
