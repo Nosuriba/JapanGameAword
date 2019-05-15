@@ -16,6 +16,8 @@
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
 
+#include <iostream>
+
 const int shader_offset = 50;
 
 void GameScene::FadeIn(const Input & p)
@@ -300,13 +302,14 @@ void GameScene::Update(const Input & p)
 			continue;
 		}
 
-		auto sVec = _pl->GetShot();
+		auto laser = _pl->GetLaser();
 		/// ﾌﾟﾚｲﾔｰｼｮｯﾄと敵の当たり判定
-		for (int p = 0; p < _pl->GetShot().size(); ++p)
+		//for (int p = 0; p < _pl->GetLaser().size(); ++p)
+		for (auto& l : laser)
 		{
-			if (_col->WaterToSqr(_pl->GetInfo().legs[p].tip, sVec[p],_enemies[i]->GetInfo()._rect))
+			if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
 			{
-				auto vec = _enemies[i]->GetInfo()._pos - _pl->GetInfo().legs[p].tip;
+				auto vec = _enemies[i]->GetInfo()._pos - l.pos;
 				vec.Normalize();
 
 				_enemies[i]->CalEscapeDir(vec);
@@ -327,33 +330,34 @@ void GameScene::Update(const Input & p)
 
 	//破壊可能オブジェクト
 	for (auto &destroy : _destroyObj) {
-		auto sVec = _pl->GetShot();
-		for (int i = 0; i < sVec.size(); ++i) {
-			if (_col->WaterToSqr(_pl->GetInfo().legs[i].tip, sVec[i], destroy->GetInfo()._rect))
+		auto laser = _pl->GetLaser();
+		for (auto& l : laser){
+			if (_col->WaterToSqr(l.pos, l.vel,l.size, destroy->GetInfo()._rect))
 			{
 				destroy->Break();
 			}
 		}
 	}
 
-	//破壊不可オブジェクト
+	//捕食対象
 	for (auto &predatry : _predatoryObj) {
-		auto sVec = _pl->GetShot();
-		for (int i = 0; i < sVec.size(); ++i) {
-			if (_col->WaterToSqr(_pl->GetInfo().legs[i].tip, sVec[i], predatry->GetInfo()._rect))
+		auto laser = _pl->GetLaser();
+		for (auto& l : laser) {
+			if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
 			{
 				predatry->Break();
 			}
 		}
 	}
 
-	//捕食対象
+	//破壊不可オブジェクト
 	for (auto &immortal : _immortalObj) {
-		auto sVec = _pl->GetShot();
-		for (int i = 0; i < sVec.size(); ++i) {
-			if (_col->WaterToSqr(_pl->GetInfo().legs[i].tip, sVec[i], immortal->GetInfo()._rect))
+		auto laser = _pl->GetLaser();
+		for (auto& l : laser) {
+			if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
 			{
 				immortal->Break();
+				std::cout << "HIT" << std::endl;
 			}
 		}
 	}

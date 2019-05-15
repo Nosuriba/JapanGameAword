@@ -161,7 +161,7 @@ void Player::Update(const Input& in)
 		l.pos += (l.vel * l.size);
 		++l.count;
 	}
-	_laser.remove_if([](Laser l) { return l.count > 100; });
+	_laser.remove_if([](Laser l) { return l.count > 75; });
 
 	(this->*_updater)(in);
 
@@ -314,6 +314,11 @@ const std::vector<Vector2> Player::GetShot()
 	}
 
 	return v;
+}
+
+const std::list<Laser> Player::GetLaser()
+{
+	return _laser;
 }
 
 void Player::LevelUP()
