@@ -15,6 +15,7 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	auto size = eSize;
 	auto rect = Rect(pos, size);
 	enemy	  = EnemyInfo(pos, size, rect);
+	enemy._prePos = enemy._pos;
 	_vel	  = Vector2();
 
 	_turnFlag		= false;
@@ -231,6 +232,7 @@ void Fish::Update()
 
 	(this->*_updater)();
 
+	enemy._prePos = enemy._pos;
 	enemy._pos += _vel;
 	enemy._pos = DebugRoop(enemy._pos);
 

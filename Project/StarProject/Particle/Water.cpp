@@ -57,8 +57,10 @@ void Water::Create()
 
 				auto Theta = (Rand() % 360)* DX_PI_F / 180.0;
 				auto vSize = (Rand() % (VelocitySize));
-				particle[i].vx = cos(Theta)*vSize;
-				particle[i].vy = sin(Theta)*vSize;
+
+				particle[i].vx = cos(Theta)*VelocitySize/2;
+				particle[i].vy = sin(Theta)*VelocitySize/2;
+
 				particle[i].avx = sin(rota* DX_PI_F / 180.0)*VelocitySize;
 				particle[i].avy = cos(rota* DX_PI_F / 180.0)*VelocitySize;
 
