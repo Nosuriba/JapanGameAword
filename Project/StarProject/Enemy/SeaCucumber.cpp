@@ -16,7 +16,7 @@ SeaCucumber::SeaCucumber(std::shared_ptr<Camera>& camera) : Enemy(camera), _came
 	enemy = EnemyInfo(pos, size, rect);
 	enemy._prePos = enemy._pos;
 	_vel = Vector2();
-	cPoint._flag = _turnFlag = true;
+	cPoint._flag = _turnFlag = false;
 	cPoint._pos = enemy._pos;
 	cPoint._vel = Vector2();
 	enemy._dieFlag = false;
@@ -43,11 +43,6 @@ void SeaCucumber::Escape()
 	auto camera = _camera->CameraCorrection();
 	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -crawlVel : crawlVel);
 	_vel.y = 0;
-
-	for (auto& pos : enemy._searchVert)
-	{
-		pos = enemy._pos;
-	}
 	_updater = &SeaCucumber::EscapeUpdate;
 }
 

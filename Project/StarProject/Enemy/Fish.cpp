@@ -271,10 +271,10 @@ shot_vector Fish::ShotGetInfo()
 
 void Fish::CalEscapeDir(const Vector2 & vec)
 {
-	/*if (_updater != &Fish::EscapeUpdate && !enemy._dieFlag)
+	if (_updater != &Fish::EscapeUpdate && !enemy._dieFlag)
 	{
 		Escape();
-	}*/
+	}
 }
 
 void Fish::ShotDelete(const int & num)
