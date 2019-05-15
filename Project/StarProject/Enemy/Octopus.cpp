@@ -9,7 +9,7 @@
 
 Octopus::Octopus(std::shared_ptr<Camera>& camera) : Enemy(camera), _camera(camera)
 {
-	_oct.center = Vector2(700, 300);
+	_oct.center = Vector2(800, 300);
 	_oct.root = _oct.center + Vector2(0, 30);
 	_oct.r = 100;
 	_oct.legs.resize(8);
@@ -19,13 +19,13 @@ Octopus::Octopus(std::shared_ptr<Camera>& camera) : Enemy(camera), _camera(camer
 		auto s = sin(radian * i);
 		LEG(i).tip.x = _oct.root.x + c * _oct.r;
 		LEG(i).tip.y = _oct.root.y + s * _oct.r;
-		for (int j = 0; j < LEG(i).T; ++j) {
-			auto vec = _oct.root + LEG(i).tip;
-			LEG(i).joint.push_back(_oct.root + vec.Normalized()*((_oct.r / LEG(i).T)*(j+1)));
+		for (int j = 0; j <= LEG(i).T; ++j) {
+			LEG(i).joint.push_back(_oct.root + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)));
 		}
 		LEG(i).state = E_LEG_STATE::NORMAL;
 	}
 	angle = 0;
+	_updater = &Octopus::NeturalUpdate;
 }
 
 void Octopus::Die()
@@ -36,14 +36,14 @@ void Octopus::DieUpdate()
 {
 }
 
-void Octopus::FootMove()
+void Octopus::NeturalUpdate()
 {
 	for (int i = 0; i < _oct.legs.size(); ++i) {
-		auto limAng = 180;
 
+		auto limAng = 180;
 		auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 		auto rad = radian * i;
-		auto ang = abs(angle % limAng - limAng/2);
+		auto ang = abs(angle % limAng - limAng / 2);
 		rad = rad + DX_PI_F / 180 * ang;
 		auto c = _oct.root.x + cos(rad)*_oct.r;
 		auto s = _oct.root.y + sin(rad)*_oct.r;
@@ -69,19 +69,20 @@ void Octopus::Draw()
 	auto c = _camera->CameraCorrection();
 	for (int i = 0; i < _oct.legs.size(); ++i) {
 		int j = 0;
-		DrawCircle(LEG(i).joint[j].x, LEG(i).joint[j].y, 5, 0x00ff00, true);
+		DrawCircle(LEG(i).joint[j].x-c.x, LEG(i).joint[j].y-c.y, 5, 0xff0000, true);
 		for (j = 1; j <= LEG(i).T; ++j) {
-			DrawLine(LEG(i).joint[j - 1].x, LEG(i).joint[j - 1].y, LEG(i).joint[j].x, LEG(i).joint[j].y, 0xff0000);
-			DrawCircle(LEG(i).joint[j].x, LEG(i).joint[j].y, 5, 0x00ff00, true);
+			DrawLine(LEG(i).joint[j - 1].x-c.x, LEG(i).joint[j - 1].y-c.y, LEG(i).joint[j].x-c.x, LEG(i).joint[j].y-c.y, 0xff0000);
+			DrawCircle(LEG(i).joint[j].x-c.x, LEG(i).joint[j].y-c.y, 5, 0xaa0000, true);
 		}
-		DrawLine(LEG(i).joint[j - 1].x, LEG(i).joint[j - 1].y, LEG(i).tip.x, LEG(i).tip.y, 0xff0000);
+		DrawLine(LEG(i).joint[j - 1].x-c.x, LEG(i).joint[j - 1].y-c.y, LEG(i).tip.x-c.x, LEG(i).tip.y-c.y, 0xff0000);
 	}
 	//DrawCircle(_oct.center.x , _oct.center.y, 30, 0xff0000, true);
 }
 
 void Octopus::Update()
 {
-	FootMove();
+	++angle;
+	(this->*_updater)();
 }
 
 EnemyInfo Octopus::GetInfo()

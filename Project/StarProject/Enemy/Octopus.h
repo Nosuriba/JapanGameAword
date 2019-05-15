@@ -30,14 +30,12 @@ class Octopus :
 private:
 	int angle;
 
-	const int numMaxItr = 6;
-
 	void Die();
 	void DieUpdate();
 
-	void FootMove();
+	void NeturalUpdate();
 
-	void (Octopus::*updater)();
+	void (Octopus::*_updater)();
 	std::shared_ptr<Camera>& _camera;
 	Oct _oct;
 public:
