@@ -8,6 +8,7 @@
 #include "../Enemy/Fish.h"
 #include "../Enemy/Diodon.h"
 #include "../Enemy/SeaCucumber.h"
+#include "../Enemy/Octopus.h"
 #include "../Processing/Collision.h"
 #include "../Camera.h"
 #include "../Object/Obstacle.h"
@@ -84,6 +85,7 @@ GameScene::GameScene()
 	_enemies.push_back(std::make_shared<Fish>(_camera));
 	_enemies.push_back(std::make_shared<Diodon>(_camera));
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
+	_enemies.push_back(std::make_shared<Octopus>(_camera));
 
 	//フォントのロード
 	LPCSTR font = "H2O-Shadow.ttf";
