@@ -71,6 +71,8 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				_vel += (-(v).Normalized() * SPEED * (float)_star.level);
 
+				_laser.emplace_back(LEG(i).pos, v.Normalized());
+
 				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[0]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
 				_particle[0]->Create();
@@ -87,6 +89,8 @@ void Player::Normal(const Input & in)
 
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				_vel += (-(v).Normalized() * SPEED * (float)_star.level);
+
+				_laser.emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[1]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
@@ -152,6 +156,13 @@ Player::~Player()
 
 void Player::Update(const Input& in)
 {
+	for (auto& l : _laser)
+	{
+		l.pos += (l.vel * l.size);
+		++l.count;
+	}
+	_laser.remove_if([](Laser l) { return l.count > 100; });
+
 	(this->*_updater)(in);
 
 	int hold_count = 0;
@@ -237,13 +248,19 @@ void Player::Draw()
 		if (leg.state == LEG_STATE::SHOT)
 		{
 			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f * _star.level, 32, 0xff00ff);
-			auto v = (leg.pos + (leg.pos - leg.halfway_point[leg.T / 2]) * 100);
-			DrawLineAA(leg.pos.x - c.x, leg.pos.y - c.y, v.x - c.x, v.y - c.y, 0x00ffff, 5);
+			//auto v = (leg.pos + (leg.pos - leg.halfway_point[leg.T / 2]) * 100);
+			//DrawLineAA(leg.pos.x - c.x, leg.pos.y - c.y, v.x - c.x, v.y - c.y, 0x00ffff, 5);
 		}
 		if (leg.state == LEG_STATE::HOLD)
 			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xff00ff);
 		if (leg.state == LEG_STATE::SELECT)
 			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xffff00);
+	}
+	for (auto& l : _laser)
+	{
+		auto start = l.pos - c;
+		auto end = l.pos + (l.vel * l.size) - c;
+		DrawLineAA(start.x, start.y, end.x, end.y, 0x00ffff, 5);
 	}
 	for (auto& p : _particle)
 	{

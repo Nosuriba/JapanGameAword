@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <array>
+#include <list>
 #include <memory>
 #include "Processing/Geometry.h"
 #include "Particle/Water.h"
@@ -31,6 +32,15 @@ struct Star {
 	std::vector<Leg> legs;	// ‘«
 };
 
+struct Laser {
+	int count;
+	Vector2 pos;
+	Vector2 vel;
+	float size;
+
+	Laser(Vector2 p, Vector2 v) : pos(p), vel(v) { count = 0; size = 15; }
+};
+
 class Player
 {
 private:
@@ -39,6 +49,7 @@ private:
 
 	Star _star;
 	std::array<int, 2> select_idx;
+	std::list<Laser> _laser;
 
 	Vector2 _vel;
 
