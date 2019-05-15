@@ -38,7 +38,7 @@ struct Laser {
 	Vector2 vel;
 	float size;
 
-	Laser(Vector2 p, Vector2 v) : pos(p), vel(v) { count = 0; size = 15; }
+	Laser(Vector2 p, Vector2 v) : pos(p), vel(v) { count = 0; size = 13; }
 };
 
 class Player
@@ -70,6 +70,7 @@ public:
 
 	Star GetInfo();
 	const std::vector<Vector2> GetShot();
+	const std::list<Laser> GetLaser();
 	void LevelUP();
 };
 

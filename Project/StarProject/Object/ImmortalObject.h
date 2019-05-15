@@ -22,6 +22,7 @@ public:
 	void Draw();
 	void Update();
 	void Break();
+	void ResetColor();
 
 	ObjectInfo GetInfo();
 };
