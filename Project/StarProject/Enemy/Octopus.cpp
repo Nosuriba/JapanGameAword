@@ -21,7 +21,7 @@ Octopus::Octopus(std::shared_ptr<Camera>& camera) : Enemy(camera), _camera(camer
 		LEG(i).tip.y = _oct.root.y + s * _oct.r;
 		for (int j = 0; j < LEG(i).T; ++j) {
 			auto vec = _oct.root + LEG(i).tip;
-			LEG(i).joint.push_back(_oct.root + vec.Normalized()*((_oct.r / LEG(i).T)*j));
+			LEG(i).joint.push_back(_oct.root + vec.Normalized()*((_oct.r / LEG(i).T)*(j+1)));
 		}
 		LEG(i).state = E_LEG_STATE::NORMAL;
 	}
@@ -39,10 +39,11 @@ void Octopus::DieUpdate()
 void Octopus::FootMove()
 {
 	for (int i = 0; i < _oct.legs.size(); ++i) {
+		auto limAng = 180;
 
 		auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 		auto rad = radian * i;
-		auto ang = abs(angle % 60 - 30);
+		auto ang = abs(angle % limAng - limAng/2);
 		rad = rad + DX_PI_F / 180 * ang;
 		auto c = _oct.root.x + cos(rad)*_oct.r;
 		auto s = _oct.root.y + sin(rad)*_oct.r;
@@ -74,13 +75,13 @@ void Octopus::Draw()
 			DrawCircle(LEG(i).joint[j].x, LEG(i).joint[j].y, 5, 0x00ff00, true);
 		}
 		DrawLine(LEG(i).joint[j - 1].x, LEG(i).joint[j - 1].y, LEG(i).tip.x, LEG(i).tip.y, 0xff0000);
-		//DrawCircle(LEG(i).tip.x, LEG(i).tip.y, 5, 0xffffff, true);
 	}
 	//DrawCircle(_oct.center.x , _oct.center.y, 30, 0xff0000, true);
 }
 
 void Octopus::Update()
 {
+	FootMove();
 }
 
 EnemyInfo Octopus::GetInfo()
