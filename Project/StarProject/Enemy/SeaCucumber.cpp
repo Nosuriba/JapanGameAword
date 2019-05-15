@@ -72,6 +72,7 @@ void SeaCucumber::CrawlUpdate()
 	else
 	{
 		/// ‚Æ‚è‚ ‚¦‚¸A‚±‚±‚ðC³
+		_vel.x += (_vel.x >= 0.f ? 0.f : 0.1f);
 		if (_vel.x >= 0.f)
 		{
 			if (moveCnt == 0)
@@ -82,7 +83,7 @@ void SeaCucumber::CrawlUpdate()
 		}
 		else
 		{
-			_vel.x += (_vel.x >= 0.f ? 0.f : 0.1f);
+			
 		}
 	}
 }
@@ -147,14 +148,8 @@ void SeaCucumber::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	/*for (int i = 1; i < midPoints.size(); ++i)
-	{
-		DxLib::DrawBox(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - camera.y,
-					   midPoints[i].x - camera.x, midPoints[i].y - camera.y, color, true);
-	}
-*/
 	color = (_updater == &SeaCucumber::EscapeUpdate ? 0x80300b : 0xa0522d);
-	auto oWidth = abs(enemy._pos.x - midPoints[points - 1].x);
+	auto oWidth = abs(enemy._pos.x - midPoints[points - 1].x);					/// ‘È‰~‚Ì•
 	DrawOval(enemy._pos.x, enemy._pos.y, oWidth, enemy._size.height / 2, color, true);
 
 #ifdef _DEBUG

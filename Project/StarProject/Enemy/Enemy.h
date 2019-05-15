@@ -8,7 +8,7 @@ class Camera;
 
 struct EnemyInfo {
 	Position2 _pos;		// 敵の中心点
-	Position2 _prePos;	// 敵の移動前の座標
+	Position2 _prePos;	// 敵の移動前座標
 	Size _size;
 	Rect _rect;
 	std::array<Vector2, 3> _searchVert;
