@@ -9,9 +9,13 @@
 
 Octopus::Octopus(std::shared_ptr<Camera>& camera) : Enemy(camera), _camera(camera)
 {
-	_oct.center = Vector2(800, 300);
-	_oct.root = _oct.center + Vector2(0, 30);
-	_oct.r = 100;
+	
+	_oct.center = Vector2(900, 300);
+	auto size = Size(100, 150);
+	auto rect = Rect(_oct.center, size);
+	enemy = EnemyInfo(_oct.center, size, rect);
+	_oct.root = _oct.center + Vector2(-80,0);
+	_oct.r = enemy._size.width * 5;
 	_oct.legs.resize(8);
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 	for (int i = 0; i < _oct.legs.size(); ++i) {
@@ -71,18 +75,26 @@ void Octopus::Draw()
 		int j = 0;
 		DrawCircle(LEG(i).joint[j].x-c.x, LEG(i).joint[j].y-c.y, 5, 0xff0000, true);
 		for (j = 1; j <= LEG(i).T; ++j) {
-			DrawLine(LEG(i).joint[j - 1].x-c.x, LEG(i).joint[j - 1].y-c.y, LEG(i).joint[j].x-c.x, LEG(i).joint[j].y-c.y, 0xff0000);
-			DrawCircle(LEG(i).joint[j].x-c.x, LEG(i).joint[j].y-c.y, 5, 0xaa0000, true);
+			auto p1 = Vector2(LEG(i).joint[j - 1].x - c.x, LEG(i).joint[j - 1].y - 25 - c.y);
+			auto p2 = Vector2(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - 25 - c.y);
+			auto p3 = Vector2(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y + 25 - c.y);
+			auto p4 = Vector2(LEG(i).joint[j - 1].x - c.x, LEG(i).joint[j - 1].y + 25 - c.y);
+			DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xaa0000, true);
+			DrawCircle(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, 5, 0x00ff00, true);
 		}
-		DrawLine(LEG(i).joint[j - 1].x-c.x, LEG(i).joint[j - 1].y-c.y, LEG(i).tip.x-c.x, LEG(i).tip.y-c.y, 0xff0000);
+		auto p1 = Vector2(LEG(i).joint[j - 2].x - c.x, LEG(i).joint[j - 2].y - 25 - c.y);
+		auto p2 = Vector2(LEG(i).joint[j-1].x - c.x, LEG(i).joint[j-1].y - 25 - c.y);
+		auto p3 = Vector2(LEG(i).joint[j-1].x - c.x, LEG(i).joint[j-1].y + 25 - c.y);
+		auto p4 = Vector2(LEG(i).joint[j - 2].x - c.x, LEG(i).joint[j - 2].y + 25 - c.y);
+		DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xaa0000, true);
 	}
-	//DrawCircle(_oct.center.x , _oct.center.y, 30, 0xff0000, true);
+	DrawOval(_oct.center.x , _oct.center.y, 150,100, 0xaa0000, true);
 }
 
 void Octopus::Update()
 {
-	++angle;
-	(this->*_updater)();
+	/*++angle;
+	(this->*_updater)();*/
 }
 
 EnemyInfo Octopus::GetInfo()

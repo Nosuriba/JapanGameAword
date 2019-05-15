@@ -1,6 +1,7 @@
 #pragma once
 #include "Enemy.h"
 
+
 class Camera;
 
 enum class E_LEG_STATE {
@@ -13,8 +14,9 @@ enum class E_LEG_STATE {
 struct E_Leg {
 	Vector2 tip;	//æ’[À•W
 	std::vector<Vector2> joint;	//ŠÖßÀ•W
-	const int T = 6;	//ŠÖß”
+	const int T = 12;	//ŠÖß”
 	E_LEG_STATE state;	//ó‘Ô
+	EnemyInfo cell;
 };
 
 struct Oct {
