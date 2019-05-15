@@ -76,7 +76,7 @@ GameScene::GameScene()
 	_immortal.reset(new ImmortalObject(_camera));
 
 	firstscreen = MakeScreen(size.x, size.y);
-	secondscreen = MakeScreen(size.x - 1, size.y - 1);
+	secondscreen = MakeScreen(size.x - 1 , size.y - 1);
 	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
 	_4thscreen = MakeScreen(size.x, size.y);
 
@@ -173,21 +173,9 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	_pl->Draw();
-
 	for (auto itr : _enemies)
 	{
 		itr->Draw();
-	}
-
-	for (auto &destroy : _destroyObj) {
-		destroy->Draw();
-	}
-	for (auto &predatory : _predatoryObj) {
-		predatory->Draw();
-	}
-	for (auto &immortal : _immortalObj) {
-		immortal->Draw();
 	}
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
