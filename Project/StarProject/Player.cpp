@@ -212,6 +212,8 @@ void Player::Draw()
 {
 	auto c = _camera->CameraCorrection();
 
+	ShadowDraw();
+
 	for (auto& leg : _star.legs)
 	{
 		// 足の先端
@@ -246,6 +248,30 @@ void Player::Draw()
 	for (auto& p : _particle)
 	{
 		p->Draw();
+	}
+}
+
+void Player::ShadowDraw()
+{
+	auto c = _camera->CameraCorrection();
+	auto s = _camera->GetShadowPos(0.3f);
+
+	for (auto& leg : _star.legs)
+	{
+		// 足の先端までのライン
+		Vector2 pre = leg.halfway_point[0];
+		float t = _star.r / 2.5f;
+		int color = 0x000000;
+		for (auto& l : leg.halfway_point)
+		{
+			DrawLineAA(
+				pre.x - c.x + s.x, pre.y - c.y + s.y, 
+				l.x - c.x + s.x, l.y - c.y + s.y, 
+				color, t);//軌跡描画
+			pre.x = l.x;//前の位置記憶
+			pre.y = l.y;
+			t /= 1.3f;
+		}
 	}
 }
 

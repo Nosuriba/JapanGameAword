@@ -55,6 +55,8 @@ public:
 
 	void Update(const Input& in);
 	void Draw();
+	void ShadowDraw();
+
 	Star GetInfo();
 	const std::vector<Vector2> GetShot();
 	void LevelUP();
