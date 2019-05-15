@@ -41,6 +41,11 @@ void ImmortalObject::Break()
 	obj._color = 0x000000;
 }
 
+void ImmortalObject::ResetColor()
+{
+	obj._color = 0xff00ff;
+}
+
 ObjectInfo ImmortalObject::GetInfo()
 {
 	return obj;

@@ -15,6 +15,7 @@ Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
 	auto size = eSize;
 	auto rect = Rect(pos, size);
 	enemy	  = EnemyInfo(pos, size, rect);
+	enemy._prePos = enemy._pos;
 	_vel	  = Vector2();
 
 	_turnFlag		= false;
@@ -176,8 +177,8 @@ void Fish::Draw()
 	for (int i = 1; i < midPoints.size(); ++i)
 	{
 		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
-		p2 = Vector2(midPoints[i].x - camera.x, midPoints[i].y - height - camera.y);
-		p3 = Vector2(midPoints[i].x - camera.x, midPoints[i].y + height - camera.y);
+		p2 = Vector2(midPoints[i].x - camera.x + 1 , midPoints[i].y - height - camera.y);
+		p3 = Vector2(midPoints[i].x - camera.x + 1, midPoints[i].y + height - camera.y);
 		p4 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y + height - camera.y);
 
 		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, color, true);
@@ -231,6 +232,7 @@ void Fish::Update()
 
 	(this->*_updater)();
 
+	enemy._prePos = enemy._pos;
 	enemy._pos += _vel;
 	enemy._pos = DebugRoop(enemy._pos);
 

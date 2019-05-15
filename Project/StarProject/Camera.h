@@ -18,6 +18,8 @@ public:
 
 	// ï\é¶ï‚ê≥
 	const Vector2 CameraCorrection() const;
+	// âeï\é¶à íu
+	const Vector2 GetShadowPos(const float& h);
 
 	const Vector2 GetRange() const;
 };

@@ -71,6 +71,8 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				_vel += (-(v).Normalized() * SPEED * (float)_star.level);
 
+				_laser.emplace_back(LEG(i).pos, v.Normalized());
+
 				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[0]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
 				_particle[0]->Create();
@@ -87,6 +89,8 @@ void Player::Normal(const Input & in)
 
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				_vel += (-(v).Normalized() * SPEED * (float)_star.level);
+
+				_laser.emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[1]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
@@ -152,6 +156,13 @@ Player::~Player()
 
 void Player::Update(const Input& in)
 {
+	for (auto& l : _laser)
+	{
+		l.pos += (l.vel * l.size);
+		++l.count;
+	}
+	_laser.remove_if([](Laser l) { return l.count > 75; });
+
 	(this->*_updater)(in);
 
 	int hold_count = 0;
@@ -212,6 +223,8 @@ void Player::Draw()
 {
 	auto c = _camera->CameraCorrection();
 
+	ShadowDraw();
+
 	for (auto& leg : _star.legs)
 	{
 		// 足の先端
@@ -235,17 +248,47 @@ void Player::Draw()
 		if (leg.state == LEG_STATE::SHOT)
 		{
 			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f * _star.level, 32, 0xff00ff);
-			auto v = (leg.pos + (leg.pos - leg.halfway_point[leg.T / 2]) * 100);
-			DrawLineAA(leg.pos.x - c.x, leg.pos.y - c.y, v.x - c.x, v.y - c.y, 0x00ffff, 5);
+			//auto v = (leg.pos + (leg.pos - leg.halfway_point[leg.T / 2]) * 100);
+			//DrawLineAA(leg.pos.x - c.x, leg.pos.y - c.y, v.x - c.x, v.y - c.y, 0x00ffff, 5);
 		}
 		if (leg.state == LEG_STATE::HOLD)
 			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xff00ff);
 		if (leg.state == LEG_STATE::SELECT)
 			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xffff00);
 	}
+	for (auto& l : _laser)
+	{
+		auto start = l.pos - c;
+		auto end = l.pos + (l.vel * l.size) - c;
+		DrawLineAA(start.x, start.y, end.x, end.y, 0x00ffff, 5);
+	}
 	for (auto& p : _particle)
 	{
 		p->Draw();
+	}
+}
+
+void Player::ShadowDraw()
+{
+	auto c = _camera->CameraCorrection();
+	auto s = _camera->GetShadowPos(0.3f);
+
+	for (auto& leg : _star.legs)
+	{
+		// 足の先端までのライン
+		Vector2 pre = leg.halfway_point[0];
+		float t = _star.r / 2.5f;
+		int color = 0x000000;
+		for (auto& l : leg.halfway_point)
+		{
+			DrawLineAA(
+				pre.x - c.x + s.x, pre.y - c.y + s.y, 
+				l.x - c.x + s.x, l.y - c.y + s.y, 
+				color, t);//軌跡描画
+			pre.x = l.x;//前の位置記憶
+			pre.y = l.y;
+			t /= 1.3f;
+		}
 	}
 }
 
@@ -271,6 +314,11 @@ const std::vector<Vector2> Player::GetShot()
 	}
 
 	return v;
+}
+
+const std::list<Laser> Player::GetLaser()
+{
+	return _laser;
 }
 
 void Player::LevelUP()
