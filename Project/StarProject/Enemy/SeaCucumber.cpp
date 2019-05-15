@@ -5,17 +5,18 @@
 const Size eSize = Size(120, 30);
 const int points = 10;
 const int moveInvCnt = 40;
+const int crawlVel = 1.0f;
 
 SeaCucumber::SeaCucumber(std::shared_ptr<Camera>& camera) : Enemy(camera), _camera(camera)
 {
-	auto pos = Vector2(800, 300);
+	auto pos = Vector2(800, 500);
 	auto size = eSize;
 	auto rect = Rect(pos, size);
 
 	enemy = EnemyInfo(pos, size, rect);
 	enemy._prePos = enemy._pos;
 	_vel = Vector2();
-	cPoint._flag = _turnFlag = false;
+	cPoint._flag = _turnFlag = true;
 	cPoint._pos = enemy._pos;
 	cPoint._vel = Vector2();
 	enemy._dieFlag = false;
@@ -32,7 +33,7 @@ SeaCucumber::~SeaCucumber()
 
 void SeaCucumber::Crawl()
 {
-	_vel.x = (_turnFlag ? maxSpeed : -maxSpeed);
+	_vel.x = (_turnFlag ? crawlVel : -crawlVel);
 	moveCnt = moveInvCnt;
 	_updater = &SeaCucumber::CrawlUpdate;
 }
@@ -40,7 +41,7 @@ void SeaCucumber::Crawl()
 void SeaCucumber::Escape()
 {
 	auto camera = _camera->CameraCorrection();
-	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -maxSpeed : maxSpeed);
+	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -crawlVel : crawlVel);
 	_vel.y = 0;
 
 	for (auto& pos : enemy._searchVert)
@@ -61,29 +62,35 @@ void SeaCucumber::CrawlUpdate()
 	{
 		if (_vel.x <= 0.f)
 		{
-			cPoint._vel.x = (moveCnt >= moveInvCnt ? maxSpeed : cPoint._vel.x);
-			_vel.x = (moveCnt <= 0 ? maxSpeed : 0.f);
+			_vel.x = 0;
+			moveCnt--;
+			if (moveCnt == 0)
+			{
+				cPoint._vel.x = crawlVel;
+			}
+
 		}
 		else
 		{
-			_vel.x -= (_vel.x <= 0.f ? 0.f :0.1f);
+			_vel.x -= 0.02f;
 		}
 	}
 	else
 	{
 		/// Ç∆ÇËÇ†Ç¶Ç∏ÅAÇ±Ç±ÇèCê≥
-		_vel.x += (_vel.x >= 0.f ? 0.f : 0.1f);
 		if (_vel.x >= 0.f)
 		{
+			_vel.x = 0;
+			moveCnt--;
 			if (moveCnt == 0)
 			{
-				cPoint._vel.x = -maxSpeed;
+				cPoint._vel.x = -crawlVel;
 			}
-			moveCnt--;
+			
 		}
 		else
 		{
-			
+			_vel.x += 0.02f;
 		}
 	}
 }
@@ -106,23 +113,37 @@ void SeaCucumber::CalBezier()
 	/// êßå‰ì_ÇÃà⁄ìÆ
 	if (cPoint._flag)
 	{
-		if (_vel.x <= 0.f)
+		if (cPoint._vel.x <= 0.f)
 		{
-			cPoint._vel.x = (cPoint._vel.x <= 0.f ? 0.f : cPoint._vel.x - 0.1f);
+			cPoint._vel.x = 0;
+			if (moveCnt <= 0)
+			{
+				_vel.x = (cPoint._vel.x <= 0.f ? crawlVel : 0);
+				moveCnt = (_vel.x == crawlVel ? moveInvCnt : 0);
+			}
+
 		}
 		else
 		{
-			cPoint._vel.x = 0;
+			cPoint._vel.x -= 0.02f;
 		}
 	}
 	else
 	{
 		/// Ç∆ÇËÇ†Ç¶Ç∏ÅAÇ±Ç±ÇèCê≥
-		if (_vel.x >= 0.f && moveCnt == 0)
+		if (cPoint._vel.x >= 0.f)
 		{
-			cPoint._vel.x += (cPoint._vel.x >= 0.f ? 0.f : 0.1f);
-			_vel.x =  (cPoint._vel.x >= 0.f ? -maxSpeed : 0);
-			moveCnt = (_vel.x == -maxSpeed ? moveInvCnt : 0);
+			cPoint._vel.x = 0;
+			if (moveCnt <= 0)
+			{
+				_vel.x = (cPoint._vel.x >= 0.f ? -crawlVel : 0);
+				moveCnt = (_vel.x == -crawlVel ? moveInvCnt : 0);
+			}
+			
+		}
+		else
+		{
+			cPoint._vel.x += 0.02f;
 		}
 	}
 	cPoint._pos += cPoint._vel;
@@ -148,9 +169,18 @@ void SeaCucumber::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
+	Vector2 p1, p2, p3, p4;
+	auto height = enemy._size.height / 2;					/// ï`âÊÇ∑ÇÈçÇÇ≥ÇÃí≤êÆ
 	color = (_updater == &SeaCucumber::EscapeUpdate ? 0x80300b : 0xa0522d);
-	auto oWidth = abs(enemy._pos.x - midPoints[points - 1].x);					/// ë»â~ÇÃïù
-	DrawOval(enemy._pos.x, enemy._pos.y, oWidth, enemy._size.height / 2, color, true);
+	for (int i = 1; i < midPoints.size(); ++i)
+	{
+		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
+		p2 = Vector2(midPoints[i].x - camera.x + 1, midPoints[i].y - height - camera.y);
+		p3 = Vector2(midPoints[i].x - camera.x + 1, midPoints[i].y + height - camera.y);
+		p4 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y + height - camera.y);
+
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, color, true);
+	}
 
 #ifdef _DEBUG
 	DebugDraw(camera);
@@ -160,11 +190,11 @@ void SeaCucumber::Draw()
 void SeaCucumber::DebugDraw(const Vector2 & camera)
 {
 	/// ìñÇΩÇËîªíËÇÃï`âÊ
-	DrawBox(enemy._rect.Left()  - camera.x, enemy._rect.Top() - camera.y,
+	DrawBox(enemy._rect.Left()  - camera.x, enemy._rect.Top()	 - camera.y,
 			enemy._rect.Right() - camera.y, enemy._rect.Bottom() - camera.y, 0xff0000, false);
 
-	/// ìGÇÃï`âÊ
-	DrawCircle(enemy._pos.x, enemy._pos.y, 4, 0x00ffff, true);
+	/// ìGÇÃíÜêSì_ï`âÊ
+	DrawCircle(enemy._pos.x - camera.x, enemy._pos.y - camera.y, 4, 0x00ffff, true);
 
 	/// êßå‰ì_ÇÃï`âÊ
 	DrawCircle(cPoint._pos.x - camera.x, cPoint._pos.y - camera.y, 4, 0xffff00, true);
