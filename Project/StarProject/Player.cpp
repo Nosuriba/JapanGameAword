@@ -1,7 +1,6 @@
 #include "Player.h"
 
 #include <DxLib.h>
-#include <array>
 #include <iostream>
 
 #include "Camera.h"
@@ -28,57 +27,76 @@ void Player::Normal(const Input & in)
 	if (input.Trigger(BUTTON::A))		LevelUP();
 	if (input.Trigger(BUTTON::B))		_updater = &Player::Die;
 
-	float theta_l, theta_r;
-	theta_l = theta_r = 0.0f;
-
-	std::array<int, 2> idx = { -1,-1 };
-
-	for (int i = 0; i < _star.legs.size(); i++)
+	if (input.PushTrigger(TRIGGER::LEFT) == 0 && !input.Push(BUTTON::LB))
 	{
-		LEG(i).state = LEG_STATE::NORMAL;
-
-		auto v = LEG(i).tip - CENTER;
-		auto lt = Dot(v, input.Stick(STICK::LEFT)) / (v.Magnitude() * input.Stick(STICK::LEFT).Magnitude());
-		auto rt = Dot(v, input.Stick(STICK::RIGHT)) / (v.Magnitude() * input.Stick(STICK::RIGHT).Magnitude());
-
-		if (lt > theta_l)
+		select_idx[0] = -1;
+		float theta = 0;
+		for (int i = 0; i < _star.legs.size(); i++)
 		{
-			idx[0] = i;
-			theta_l = lt;
+			auto v = LEG(i).tip - CENTER;
+			auto lt = Dot(v, input.Stick(STICK::LEFT)) / (v.Magnitude() * input.Stick(STICK::LEFT).Magnitude());
+
+			if (lt > theta)
+			{
+				select_idx[0] = i;
+				theta = lt;
+			}
 		}
-		if (rt > theta_r)
+	}
+	if (input.PushTrigger(TRIGGER::RIGHT) == 0 && !input.Push(BUTTON::RB))
+	{
+		select_idx[1] = -1;
+		float theta = 0;
+		for (int i = 0; i < _star.legs.size(); i++)
 		{
-			idx[1] = i;
-			theta_r = rt;
+			auto v = LEG(i).tip - CENTER;
+			auto rt = Dot(v, input.Stick(STICK::RIGHT)) / (v.Magnitude() * input.Stick(STICK::RIGHT).Magnitude());
+
+			if (rt > theta)
+			{
+				select_idx[1] = i;
+				theta = rt;
+			}
 		}
 	}
 
-	for (int i = 0; i < idx.size(); ++i)
+	for (int i = 0; i < _star.legs.size(); ++i)
 	{
-		if (idx[i] >= 0)
+		if (i == select_idx[0])
 		{
-			LEG(idx[i]).state = LEG_STATE::SELECT;
-			if (input.PushTrigger((TRIGGER)i))
+			if (input.PushTrigger(TRIGGER::LEFT))
 			{
-				LEG(idx[i]).state = LEG_STATE::SHOT;
+				LEG(i).state = LEG_STATE::SHOT;
 
-				auto v = LEG(idx[i]).pos - LEG(idx[i]).halfway_point[LEG(idx[i]).T / 2];
-				_particle[i]->SetPos(LEG(idx[i]).pos.x, LEG(idx[i]).pos.y);
-				_particle[i]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
-				_particle[i]->Create();
+				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
+				_vel += (-(v).Normalized() * SPEED * (float)_star.level);
+
+				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
+				_particle[0]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
+				_particle[0]->Create();
 
 			}
-			if (input.Push((BUTTON)((int)BUTTON::LB + i)))
-				LEG(idx[i]).state = LEG_STATE::HOLD;
+			else if (input.Push(BUTTON::LB)) LEG(i).state = LEG_STATE::HOLD;
+			else LEG(i).state = LEG_STATE::SELECT;
 		}
-	}
+		else if (i == select_idx[1])
+		{
+			if (input.PushTrigger(TRIGGER::RIGHT))
+			{
+				LEG(i).state = LEG_STATE::SHOT;
 
-	for (auto& l : _star.legs)
-	{
-		if (l.state == LEG_STATE::SHOT) {
-			auto v = l.pos - l.halfway_point[l.T / 2];
-			_vel += (-(v).Normalized() * SPEED * (float)_star.level);
+				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
+				_vel += (-(v).Normalized() * SPEED * (float)_star.level);
+
+				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
+				_particle[1]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
+				_particle[1]->Create();
+
+			}
+			else if (input.Push(BUTTON::RB)) LEG(i).state = LEG_STATE::HOLD;
+			else LEG(i).state = LEG_STATE::SELECT;
 		}
+		else LEG(i).state = LEG_STATE::NORMAL;
 	}
 }
 
@@ -118,10 +136,9 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 		LEG(i).pos = LEG(i).tip;
 		LEG(i).state = LEG_STATE::NORMAL;
 	}
-
+	select_idx = { -1,-1 };
 	_vel = Vector2();
 
-	//_particle.resize(2);
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000,_camera));
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000, _camera));
 
@@ -221,6 +238,8 @@ void Player::Draw()
 			auto v = (leg.pos + (leg.pos - leg.halfway_point[leg.T / 2]) * 100);
 			DrawLineAA(leg.pos.x - c.x, leg.pos.y - c.y, v.x - c.x, v.y - c.y, 0x00ffff, 5);
 		}
+		if (leg.state == LEG_STATE::HOLD)
+			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xff00ff);
 		if (leg.state == LEG_STATE::SELECT)
 			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xffff00);
 	}
