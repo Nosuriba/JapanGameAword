@@ -224,10 +224,7 @@ void GameScene::Draw()
 	DrawExtendGraph(0, 0, sizex, sizey, sea, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
-	SetUseTextureToShader(0, thirdscreen);
-
-	//シェーダーに情報を渡す
-	SetPSConstSF(0, shader_time / 100.0f);
+	SetUseTextureToShader(0, _4thscreen);
 
 	//ピクセルシェーダのセット
 	SetUsePixelShader(Game::GetInstance().GetShaderHandle()[0]);
@@ -247,7 +244,7 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
 
-	DrawGraph(-15, 15, secondscreen, true);
+	DrawGraph(0, 0, secondscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
@@ -274,7 +271,7 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
 
-	//DrawExtendGraph(0 - 30, 0, sizex + 50, sizey, _4thscreen, true);
+	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, sizex + shader_offset, sizey + shader_offset, _4thscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
