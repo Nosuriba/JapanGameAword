@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <array>
 #include <memory>
 #include "Processing/Geometry.h"
 #include "Particle/Water.h"
@@ -37,6 +38,7 @@ private:
 	std::vector<std::shared_ptr<Particle>> _particle;
 
 	Star _star;
+	std::array<int, 2> select_idx;
 
 	Vector2 _vel;
 
