@@ -37,6 +37,23 @@ struct ShotInfo {
 	}
 };
 
+// §Œä“_—p
+struct CtlInfo
+{
+	Vector2 _pos;
+	Vector2 _vel;
+	bool _flag;
+
+	CtlInfo() : _pos(0, 0), _vel(0, 0), _flag(false) {};
+	CtlInfo(const Vector2& pos, const Vector2& vel, bool flag)
+	{
+		this->_pos = pos;
+		this->_vel = vel;
+		this->_flag = flag;
+	}
+};
+
+
 using shot_vector = std::vector<ShotInfo>;
 class Enemy
 {

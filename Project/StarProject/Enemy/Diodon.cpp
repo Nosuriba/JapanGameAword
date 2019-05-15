@@ -45,7 +45,7 @@ Diodon::~Diodon()
 
 void Diodon::Swim()
 {
-	updater = &Diodon::SwimUpdate;
+	_updater = &Diodon::SwimUpdate;
 }
 
 void Diodon::Swell()
@@ -53,7 +53,7 @@ void Diodon::Swell()
 	_vel.x = 0;
 	_turnFlag = true;
 	blastCnt = bCntMax;
-	updater = &Diodon::SwellUpdate;
+	_updater = &Diodon::SwellUpdate;
 }
 
 void Diodon::Shot()
@@ -80,12 +80,12 @@ void Diodon::Shot()
 	_vel = Vector2(0, 0);
 	enemy._size = Size(0, 0);
 	
-	updater = &Diodon::ShotUpdate;
+	_updater = &Diodon::ShotUpdate;
 }
 
 void Diodon::Escape()
 {
-	updater = &Diodon::EscapeUpdate;
+	_updater = &Diodon::EscapeUpdate;
 }
 
 void Diodon::Die()
@@ -94,7 +94,7 @@ void Diodon::Die()
 	_vel		= Vector2(0, 0);
 	enemy._size = Size(0, 0);
 
-	updater  = &Diodon::DieUpdate;
+	_updater  = &Diodon::DieUpdate;
 }
 
 void Diodon::SwimUpdate()
@@ -226,13 +226,13 @@ void Diodon::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	if (updater == &Diodon::SwellUpdate && riseCnt > 180)
+	if (_updater == &Diodon::SwellUpdate && riseCnt > 180)
 	{
 		color = (((blastCnt - 1) / (bCntMax / 4)) % 2 ? 0x666666 : 0x999999);
 	}
 	else
 	{
-		color = (updater == &Diodon::EscapeUpdate ? 0x444444 : 0x666666);
+		color = (_updater == &Diodon::EscapeUpdate ? 0x444444 : 0x666666);
 	}
 	
 	DxLib::DrawCircle(enemy._pos.x - camera.x, enemy._pos.y - camera.y, enemy._size.height / 2 - 1,color);
@@ -262,10 +262,10 @@ void Diodon::DebugDraw(const Vector2& camera)
 
 void Diodon::Update()
 {
-	(this->*updater)();
+	(this->*_updater)();
 
 	enemy._pos += _vel;
-	if (updater == &Diodon::EscapeUpdate || enemy._dieFlag)
+	if (_updater == &Diodon::EscapeUpdate || enemy._dieFlag)
 	{
 		auto size = Size(0, 0);
 		enemy._rect = Rect(enemy._pos, size);
@@ -297,14 +297,14 @@ void Diodon::CalEscapeDir(const Vector2 & vec)
 	if (!enemy._dieFlag)
 	{
 		/// ‰j‚¢‚Å‚¢‚é
-		if (updater == &Diodon::SwimUpdate)
+		if (_updater == &Diodon::SwimUpdate)
 		{
 			Swell();
 			return;
 		}
 
 		/// “G‚ª–c‚ç‚İ‚«‚Á‚½ó‘Ô‚Ì
-		if (updater == &Diodon::SwellUpdate &&
+		if (_updater == &Diodon::SwellUpdate &&
 			enemy._size.width  == swellSize &&
 			enemy._size.height == swellSize)
 		{

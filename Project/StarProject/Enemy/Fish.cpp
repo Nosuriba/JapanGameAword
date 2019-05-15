@@ -52,7 +52,7 @@ void Fish::Swim()
 {
 	_vel.x  = (_turnFlag ? maxSpeed : -maxSpeed);
 
-	updater = &Fish::SwimUpdate;
+	_updater = &Fish::SwimUpdate;
 }
 
 void Fish::Escape()
@@ -66,8 +66,7 @@ void Fish::Escape()
 		 pos = enemy._pos;
 	}
 
-	updater = &Fish::EscapeUpdate;
-
+	_updater = &Fish::EscapeUpdate;
 }
 
 void Fish::Die()
@@ -75,7 +74,7 @@ void Fish::Die()
 	_vel = Vector2(0, 0);
 	enemy._dieFlag = true;
 	
-	updater = &Fish::DieUpdate;
+	_updater = &Fish::DieUpdate;
 }
 
 void Fish::SwimUpdate()
@@ -144,7 +143,7 @@ void Fish::CalBezier()
 		{
 			cPoints[i]._flag = (cPoints[i]._vel.y <= -maxVel ? true : false);
 		}
-		auto escSpeed = (updater == &Fish::EscapeUpdate ? 1.f : 0);
+		auto escSpeed = (_updater == &Fish::EscapeUpdate ? 1.f : 0);
 		cPoints[i]._vel.y += (cPoints[i]._flag ? 0.1f + (0.1 * escSpeed) : -0.1f - (0.1f * escSpeed));
 		cPoints[i]._pos += cPoints[i]._vel + _vel;
 	}
@@ -173,7 +172,7 @@ void Fish::Draw()
 	/// Õﬁºﬁ™ã»ê¸ÇópÇ¢ÇƒÇÃï`âÊ
 	Vector2 p1, p2, p3, p4;
 	auto height = enemy._size.height / 4 + 2;			/// ï`âÊÇ∑ÇÈçÇÇ≥ÇÃí≤êÆ
-	color = (updater == &Fish::EscapeUpdate ? 0xaa4444 : 0xff4444);
+	color = (_updater == &Fish::EscapeUpdate ? 0xaa4444 : 0xff4444);
 	for (int i = 1; i < midPoints.size(); ++i)
 	{
 		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
@@ -230,13 +229,13 @@ void Fish::Update()
 		return (pos.x + 60 < 0 ? Position2(screenX, pos.y) : pos);
 	};
 
-	(this->*updater)();
+	(this->*_updater)();
 
 	enemy._pos += _vel;
 	enemy._pos = DebugRoop(enemy._pos);
 
 	/// éÄñSèÛë‘Ç©ÇÃämîF
-	if (updater == &Fish::EscapeUpdate || enemy._dieFlag)
+	if (_updater == &Fish::EscapeUpdate || enemy._dieFlag)
 	{
 		auto size = Size(0, 0);
 		enemy._rect = Rect(enemy._pos, size);
@@ -270,7 +269,7 @@ shot_vector Fish::ShotGetInfo()
 
 void Fish::CalEscapeDir(const Vector2 & vec)
 {
-	if (updater != &Fish::EscapeUpdate && !enemy._dieFlag)
+	if (_updater != &Fish::EscapeUpdate && !enemy._dieFlag)
 	{
 		Escape();
 	}
@@ -283,7 +282,7 @@ void Fish::ShotDelete(const int & num)
 
 void Fish::CalTrackVel(const Vector2 & pos, bool col)
 {
-	if (updater != &Fish::EscapeUpdate && !enemy._dieFlag)
+	if (_updater != &Fish::EscapeUpdate && !enemy._dieFlag)
 	{
 		if (col)
 		{

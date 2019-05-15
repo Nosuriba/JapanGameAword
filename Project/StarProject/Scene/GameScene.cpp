@@ -7,6 +7,7 @@
 #include "../Enemy/Enemy.h"
 #include "../Enemy/Fish.h"
 #include "../Enemy/Diodon.h"
+#include "../Enemy/SeaCucumber.h"
 #include "../Processing/Collision.h"
 #include "../Camera.h"
 #include "../Object/Obstacle.h"
@@ -79,17 +80,10 @@ GameScene::GameScene()
 	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
 	_4thscreen = MakeScreen(size.x, size.y);
 
-	for (int i = 0; i < 2; ++i)
-	{
-		if (i <= 0)
-		{
-			_enemies.push_back(std::make_shared<Fish>(_camera));
-		}
-		else
-		{
-			_enemies.push_back(std::make_shared<Diodon>(_camera));
-		}
-	}
+	/// 敵の生成(debug用)
+	_enemies.push_back(std::make_shared<Fish>(_camera));
+	_enemies.push_back(std::make_shared<Diodon>(_camera));
+	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
 
 	//フォントのロード
 	LPCSTR font = "H2O-Shadow.ttf";
