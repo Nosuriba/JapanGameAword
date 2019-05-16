@@ -27,6 +27,7 @@ Crab::~Crab()
 void Crab::Neutral()
 {
 	moveCnt = 60;
+	_vel.y = 2.0;
 	_updater = &Crab::NeutralUpdate;
 }
 
