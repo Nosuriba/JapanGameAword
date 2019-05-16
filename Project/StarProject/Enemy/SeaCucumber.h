@@ -13,14 +13,13 @@ private:
 	void EscapeUpdate();
 	void DieUpdate();
 	
-	void CalBezier();
+	void MovePoint();			// §Œä“_‚ÌˆÚ“®—p
 
 	void (SeaCucumber::*_updater)();
 
 	std::shared_ptr<Camera> _camera;
 
 	CtlInfo cPoint;
-	std::vector<Vector2> midPoints;
 
 	int moveCnt;			// ˆÚ“®§Œä—p‚Ì¶³İÄ
 public:

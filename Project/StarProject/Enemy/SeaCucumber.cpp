@@ -5,7 +5,7 @@
 const Size eSize = Size(120, 30);
 const int points = 10;
 const int moveInvCnt = 40;
-const int crawlVel = 1.0f;
+const int crawlVel = 1.5f;
 
 SeaCucumber::SeaCucumber(std::shared_ptr<Camera>& camera) : Enemy(camera), _camera(camera)
 {
@@ -16,7 +16,7 @@ SeaCucumber::SeaCucumber(std::shared_ptr<Camera>& camera) : Enemy(camera), _came
 	enemy = EnemyInfo(pos, size, rect);
 	enemy._prePos = enemy._pos;
 	_vel = Vector2();
-	cPoint._flag = _turnFlag = true;
+	_turnFlag = true;
 	cPoint._pos = enemy._pos;
 	cPoint._vel = Vector2();
 	enemy._dieFlag = false;
@@ -41,18 +41,20 @@ void SeaCucumber::Crawl()
 void SeaCucumber::Escape()
 {
 	auto camera = _camera->CameraCorrection();
-	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -crawlVel : crawlVel);
-	_vel.y = 0;
-
-	for (auto& pos : enemy._searchVert)
+	if (cPoint._vel.x == 0.f)
 	{
-		pos = enemy._pos;
+		moveCnt = moveInvCnt / 4;
 	}
+	_vel.y = 0;
 	_updater = &SeaCucumber::EscapeUpdate;
 }
 
 void SeaCucumber::Die()
 {
+	enemy._dieFlag = true;
+	enemy._size = Size(0, 0);
+	_vel = Vector2(0, 0);
+
 	_updater = &SeaCucumber::DieUpdate;
 }
 
@@ -97,6 +99,39 @@ void SeaCucumber::CrawlUpdate()
 
 void SeaCucumber::EscapeUpdate()
 {
+	if (_turnFlag)
+	{
+		if (_vel.x <= 0.f)
+		{
+			_vel.x = 0;
+			moveCnt--;
+			if (moveCnt == 0)
+			{
+				cPoint._vel.x = crawlVel;
+			}
+		}
+		else
+		{
+			_vel.x -= 0.04f;
+		}
+	}
+	else
+	{
+		if (_vel.x >= 0.f)
+		{
+			_vel.x = 0;
+			moveCnt--;
+			if (moveCnt == 0)
+			{
+				cPoint._vel.x = -crawlVel;
+			}
+		}
+		else
+		{
+			_vel.x += 0.04f;
+		}
+	}
+
 	if (enemy._pos.x + enemy._size.width / 2 < 0 ||
 		enemy._pos.x - enemy._size.width / 2 > Game::GetInstance().GetScreenSize().x)
 	{
@@ -108,10 +143,9 @@ void SeaCucumber::DieUpdate()
 {
 }
 
-void SeaCucumber::CalBezier()
+void SeaCucumber::MovePoint()
 {
-	/// êßå‰ì_ÇÃà⁄ìÆ
-	if (cPoint._flag)
+	if (_turnFlag)
 	{
 		if (cPoint._vel.x <= 0.f)
 		{
@@ -119,68 +153,53 @@ void SeaCucumber::CalBezier()
 			if (moveCnt <= 0)
 			{
 				_vel.x = (cPoint._vel.x <= 0.f ? crawlVel : 0);
-				moveCnt = (_vel.x == crawlVel ? moveInvCnt : 0);
+				if (_updater == &SeaCucumber::EscapeUpdate)
+				{
+					moveCnt = (_vel.x == crawlVel ? moveInvCnt / 4 : 0);
+				}
+				else
+				{
+					moveCnt = (_vel.x == crawlVel ? moveInvCnt : 0);
+				}
 			}
-
 		}
 		else
 		{
-			cPoint._vel.x -= 0.02f;
+			cPoint._vel.x -= (_updater == &SeaCucumber::EscapeUpdate ? 0.04f : 0.02f);
 		}
 	}
 	else
 	{
-		/// Ç∆ÇËÇ†Ç¶Ç∏ÅAÇ±Ç±ÇèCê≥
 		if (cPoint._vel.x >= 0.f)
 		{
 			cPoint._vel.x = 0;
 			if (moveCnt <= 0)
 			{
 				_vel.x = (cPoint._vel.x >= 0.f ? -crawlVel : 0);
-				moveCnt = (_vel.x == -crawlVel ? moveInvCnt : 0);
+				if (_updater == &SeaCucumber::EscapeUpdate)
+				{
+					moveCnt = (_vel.x == -crawlVel ? moveInvCnt / 4 : 0);
+				}
+				else
+				{
+					moveCnt = (_vel.x == -crawlVel ? moveInvCnt : 0);
+				}
 			}
-			
 		}
 		else
 		{
-			cPoint._vel.x += 0.02f;
+			cPoint._vel.x += (_updater == &SeaCucumber::EscapeUpdate ? 0.04f : 0.02f);
 		}
 	}
 	cPoint._pos += cPoint._vel;
-
-	/// íÜä‘ì_ÇÃê›íË
-	midPoints.resize(points);
-	midPoints[0] = enemy._pos;
-	for (int m = 0; m < points; ++m)
-	{
-		float b = (float)m / points;
-		float a = 1.0f - b;
-
-		/// 2éüÕﬁºﬁ™ÇÃåvéZ
-		midPoints[m].x = (a * a * (enemy._pos.x - (eSize.width / 2))) + (2 * a * b * cPoint._pos.x) + 
-						 (b * b * (enemy._pos.x + (eSize.width / 2)));
-
-		midPoints[m].y = (a * a * enemy._pos.y) + (2 * a * b * cPoint._pos.y) +
-						 (b * b * enemy._pos.y);
-	}
 }
 
 void SeaCucumber::Draw()
 {
 	auto camera = _camera->CameraCorrection();
-
-	Vector2 p1, p2, p3, p4;
-	auto height = enemy._size.height / 2;					/// ï`âÊÇ∑ÇÈçÇÇ≥ÇÃí≤êÆ
 	color = (_updater == &SeaCucumber::EscapeUpdate ? 0x80300b : 0xa0522d);
-	for (int i = 1; i < midPoints.size(); ++i)
-	{
-		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
-		p2 = Vector2(midPoints[i].x - camera.x + 1, midPoints[i].y - height - camera.y);
-		p3 = Vector2(midPoints[i].x - camera.x + 1, midPoints[i].y + height - camera.y);
-		p4 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y + height - camera.y);
 
-		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, color, true);
-	}
+	DxLib::DrawOval(enemy._pos.x - camera.x, enemy._pos.y - camera.y, enemy._size.width / 2, enemy._size.height / 2, color, true);
 
 #ifdef _DEBUG
 	DebugDraw(camera);
@@ -188,16 +207,17 @@ void SeaCucumber::Draw()
 }
 
 void SeaCucumber::DebugDraw(const Vector2 & camera)
-{
+{ 
 	/// ìñÇΩÇËîªíËÇÃï`âÊ
 	DrawBox(enemy._rect.Left()  - camera.x, enemy._rect.Top()	 - camera.y,
-			enemy._rect.Right() - camera.y, enemy._rect.Bottom() - camera.y, 0xff0000, false);
+			enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, 0xff0000, false);
 
 	/// ìGÇÃíÜêSì_ï`âÊ
 	DrawCircle(enemy._pos.x - camera.x, enemy._pos.y - camera.y, 4, 0x00ffff, true);
 
 	/// êßå‰ì_ÇÃï`âÊ
 	DrawCircle(cPoint._pos.x - camera.x, cPoint._pos.y - camera.y, 4, 0xffff00, true);
+	DrawFormatString(0, 0, 0x000000, "width : %d", enemy._size.width);
 }
 
 void SeaCucumber::Update()
@@ -211,14 +231,16 @@ void SeaCucumber::Update()
 	if (_updater == &SeaCucumber::EscapeUpdate || enemy._dieFlag)
 	{
 		auto size = Size(0, 0);
+		enemy._size.width = enemy._size.width / 2 + abs(enemy._pos.x - cPoint._pos.x);
 		enemy._rect = Rect(enemy._pos, size);
 	}
 	else
 	{
+		enemy._size.width = enemy._size.width / 2 + abs(enemy._pos.x - cPoint._pos.x);
 		enemy._rect = Rect(enemy._pos, enemy._size);
 	}
 
-	CalBezier();
+	MovePoint();
 }
 
 EnemyInfo SeaCucumber::GetInfo()
