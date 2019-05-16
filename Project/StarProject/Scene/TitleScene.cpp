@@ -45,7 +45,8 @@ void TitleScene::Run(const Input & p)
 
 TitleScene::TitleScene()
 {
-	titleimg = ResourceManager::GetInstance().LoadImg("../img/title.png");
+	title = ResourceManager::GetInstance().LoadImg("../img/海星語.png");
+	titleback = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	flame = 0;
 
 	//フォントのロード
@@ -79,7 +80,8 @@ void TitleScene::Draw()
 {
 	auto size = Game::GetInstance().GetScreenSize();
 
-	DxLib::DrawExtendGraph(0, 0, size.x, size.y, titleimg, true);
+	DxLib::DrawExtendGraph(0, 0, size.x, size.y, titleback, true);	
+	DxLib::DrawRotaGraph(size.x / 2, size.y / 2, 1, 0, title, true);
 
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 4.0f / 2.0f, size.y / 2 + GetFontSize() * 3, "START",0xa000f0);
 	(*FadeBubble).Draw();
