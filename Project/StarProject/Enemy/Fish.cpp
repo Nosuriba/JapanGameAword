@@ -177,8 +177,8 @@ void Fish::Draw()
 	for (int i = 1; i < midPoints.size(); ++i)
 	{
 		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
-		p2 = Vector2(midPoints[i].x - camera.x, midPoints[i].y - height - camera.y);
-		p3 = Vector2(midPoints[i].x - camera.x, midPoints[i].y + height - camera.y);
+		p2 = Vector2(midPoints[i].x - camera.x + 1 , midPoints[i].y - height - camera.y);
+		p3 = Vector2(midPoints[i].x - camera.x + 1, midPoints[i].y + height - camera.y);
 		p4 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y + height - camera.y);
 
 		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, color, true);
