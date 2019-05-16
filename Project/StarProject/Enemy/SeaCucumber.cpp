@@ -34,6 +34,7 @@ SeaCucumber::~SeaCucumber()
 
 void SeaCucumber::Crawl()
 {
+	_vel.y = 0;
 	cPoint._vel.x = (_turnFlag ? crawlVel : -crawlVel);
 	moveCnt = moveInvCnt;
 	_updater = &SeaCucumber::CrawlUpdate;
