@@ -9,6 +9,8 @@
 #include "../Enemy/Diodon.h"
 #include "../Enemy/SeaCucumber.h"
 #include "../Enemy/Octopus.h"
+#include "../Boss/Boss.h"
+#include "../Boss/Crab.h"
 #include "../Processing/Collision.h"
 #include "../Camera.h"
 #include "../Object/Obstacle.h"
@@ -88,6 +90,8 @@ GameScene::GameScene()
 	_enemies.push_back(std::make_shared<Diodon>(_camera));
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
 	_enemies.push_back(std::make_shared<Octopus>(_camera));
+
+	_bosses.push_back(std::make_shared<Crab>(_camera));
 
 	//フォントのロード
 	LPCSTR font = "H2O-Shadow.ttf";
@@ -198,10 +202,6 @@ void GameScene::Draw()
 	SetUsePixelShader(Game::GetInstance().GetShaderHandle()[1]);
 
 	DrawPrimitive2DToShader(shadow_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
-	
-
-
-
 
 	//thirdスクリーン(波シェーダー)
 	SetDrawScreen(thirdscreen);
@@ -221,10 +221,6 @@ void GameScene::Draw()
 
 	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
-	
-
-
-
 	//_4thスクリーン(波)
 	SetDrawScreen(_4thscreen);
 
@@ -239,10 +235,6 @@ void GameScene::Draw()
 	SetUsePixelShader(Game::GetInstance().GetShaderHandle()[0]);
 
 	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
-
-
-
-
 
 	//バック描画
 	SetDrawScreen(DX_SCREEN_BACK);
@@ -259,9 +251,14 @@ void GameScene::Draw()
 
 	_pl->Draw();
 
-	for (auto itr : _enemies)
+	for (auto &enemy : _enemies)
 	{
-		itr->Draw();
+		enemy->Draw();
+	}
+
+	for (auto &boss : _bosses)
+	{
+		boss->Draw();
 	}
 
 	for (auto &destroy : _destroyObj) {
@@ -294,9 +291,14 @@ void GameScene::Update(const Input & p)
 
 	_pl->Update(p);
 
-	for (auto itr : _enemies)
+	for (auto &enemy : _enemies)
 	{
-		itr->Update();
+		enemy->Update();
+	}
+
+	for (auto &boss : _bosses)
+	{
+		boss->Update();
 	}
 
 	for (int i = 0; i < _enemies.size(); ++i)
