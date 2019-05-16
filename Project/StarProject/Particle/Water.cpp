@@ -1,5 +1,6 @@
 #include "Water.h"
 #include "../Camera.h"
+#include "../ResourceManager.h"
 
 constexpr int BubbleMax = 10;
 constexpr int Magnification = 100;
@@ -19,9 +20,7 @@ Water::Water(int _x, int _y, int _Enum,const std::shared_ptr<Camera>& c)
 Water::~Water()
 {
 	if (p_thread.joinable())
-	{
 		p_thread.join();
-	}
 }
 
 void Water::Init()
@@ -56,15 +55,15 @@ void Water::Create()
 				particle[i].bright = 255;
 
 				auto Theta = (Rand() % 360)* DX_PI_F / 180.0;
-				auto vSize = (Rand() % (VelocitySize));
+				auto vSize = (Rand() % (VelocitySize/10))+90;
 
 				particle[i].vx = cos(Theta)*VelocitySize/2;
 				particle[i].vy = sin(Theta)*VelocitySize/2;
 
-				particle[i].avx = sin(rota* DX_PI_F / 180.0)*VelocitySize;
-				particle[i].avy = cos(rota* DX_PI_F / 180.0)*VelocitySize;
+				particle[i].avx = cos(rota* DX_PI_F / 180.0)*vSize;
+				particle[i].avy = sin(rota* DX_PI_F / 180.0)*vSize;
 
-				particle[i].radius = (Rand() % 3) + 2;
+				particle[i].radius = (Rand() % 3) + 7;
 			}
 		});
 	}
@@ -105,8 +104,8 @@ void Water::Move()
 		p_element[idx].y += p_element[idx].vy;
 
 		// ‰Á‘¬•”•ª
-		p_element[idx].vy += p_element[idx].avx;
-		p_element[idx].vx += p_element[idx].avy;
+		p_element[idx].vx += p_element[idx].avx;
+		p_element[idx].vy += p_element[idx].avy;
 		p_element[idx].bright -= VanishSpeed;
 	};
 
@@ -118,13 +117,14 @@ void Water::Move()
 void Water::Draw()
 {	// ‚±‚±‚Å“®‚­
 	Move();
+	int imgBff = ResourceManager::GetInstance().LoadImg("../img/Bubble.png");
 	auto c = camera->CameraCorrection();
 	for (auto p : particle)
 	{
 		if (p.bright > 0)
 		{
-			DrawCircle(p.x / 100-c.x, p.y / 100 - c.y, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright/2, p.bright, p.bright), true);
-			//DrawCircle(p.x / 100, p.y / 100, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright, p.bright, p.bright), false);
+			DrawCircle(p.x / 100-c.x, p.y / 100 - c.y, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright*2/3, p.bright, p.bright), true);
+			;// DrawRotaGraph(p.x / Magnification - c.x, p.y / Magnification - c.y, (0xff / p.radius - p.bright / p.radius) / Magnification, 0, imgBff, true);
 		}
 	}
 }
