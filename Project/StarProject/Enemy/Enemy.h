@@ -54,8 +54,8 @@ struct CtlInfo
 	}
 };
 
-
 using shot_vector = std::vector<ShotInfo>;
+
 class Enemy
 {
 private:
