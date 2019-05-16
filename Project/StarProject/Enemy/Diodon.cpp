@@ -246,7 +246,6 @@ void Diodon::Draw()
 #ifdef _DEBUG
 	DebugDraw(camera);
 #endif
-	
 }
 
 void Diodon::DebugDraw(const Vector2& camera)
@@ -307,7 +306,6 @@ void Diodon::CalEscapeDir(const Vector2 & vec)
 
 		/// “G‚ª–c‚ç‚İ‚«‚Á‚½ó‘Ô‚Ì
 		if (_updater == &Diodon::SwellUpdate &&
-			_updater != &Diodon::EscapeUpdate &&
 			enemy._size.width  == swellSize &&
 			enemy._size.height == swellSize)
 		{
