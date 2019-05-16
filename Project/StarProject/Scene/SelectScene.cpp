@@ -82,7 +82,6 @@ SelectScene::SelectScene()
 	secondscreen = MakeScreen(size.x, size.y);
 
 	_updater = &SelectScene::FadeIn;
-
 	shader_time = 0;
 	flame = 0;
 }
@@ -103,7 +102,6 @@ void SelectScene::Draw()
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0, 0, size.x, size.y, background, true);
 
 
 	//second(–A)
@@ -117,14 +115,17 @@ void SelectScene::Draw()
 
 
 	SetDrawScreen(DX_SCREEN_BACK);
-
 	ClearDrawScreen();
+	//DrawGraph(0,0,firstscreen,true);
 
-	DrawGraph(0,0,firstscreen,true);
+	DrawExtendGraph(0, 0, size.x, size.y, background, true);
 
-	//DrawRotaGraph(size.x / 4 - 100, size.y / 2, 1.2, 0, bubble, true);
-	DrawRotaGraph(size.x / 4 * 2, size.y / 2, 1, 0, bubble, true);
-	//DrawRotaGraph(size.x / 4 * 3 + 100, size.y / 2, 1.2, 0, bubble, true);
+	auto addx = cos((flame % 360)*DX_PI / 180) * 25;
+	auto addy = sin((flame)*DX_PI / 720) * 100;
+	auto addr = sin((flame)*DX_PI / 180) * 0.1;
+	DrawRotaGraph(size.x / 4 - 100+ addx, size.y / 2 + addy, 1+ addr, 0, bubble, true);
+	DrawRotaGraph(size.x / 4 * 2 + addx, size.y / 2 - addy, 1 - addr, 0, bubble, true);
+	DrawRotaGraph(size.x / 4 * 3 + 100 + addx, size.y / 2 + addy, 1 + addr, 0, bubble, true);
 
 	
 
