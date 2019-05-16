@@ -6,7 +6,9 @@ class Camera;
 
 enum class E_LEG_STATE {
 	NORMAL,
-	ATTACK,
+	PUNCH,
+	OCT_INK,
+	SWEEP,
 	DAMAGE,
 	DETH,
 };
@@ -16,7 +18,7 @@ struct E_Leg {
 	std::vector<Vector2> joint;	//ä÷êﬂç¿ïW
 	const int T = 12;	//ä÷êﬂêî
 	E_LEG_STATE state;	//èÛë‘
-	EnemyInfo cell;
+	int angle;		//ñ⁄ïWç¿ïW
 };
 
 struct Oct {
@@ -34,6 +36,9 @@ private:
 
 	void Die();
 	void DieUpdate();
+	void Normal(E_Leg& leg,Vector2 pos);
+	void Attack();
+	void Damage();
 
 	void NeturalUpdate();
 
