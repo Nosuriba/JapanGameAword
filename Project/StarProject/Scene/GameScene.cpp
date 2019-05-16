@@ -161,7 +161,16 @@ void GameScene::Draw()
 	ClearDrawScreen();
 
 	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
-		_camera->GetRange().x - _camera->CameraCorrection().x, _camera->GetRange().y - _camera->CameraCorrection().y, beach, true);
+		sizex - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(sizex - _camera->CameraCorrection().x + sizex, 0 - _camera->CameraCorrection().y,
+		0 - _camera->CameraCorrection().x + sizex, sizey - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(0 - _camera->CameraCorrection().x + sizex * 2, 0 - _camera->CameraCorrection().y,
+		sizex - _camera->CameraCorrection().x + sizex * 2, sizey - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(sizex - _camera->CameraCorrection().x + sizex * 3, 0 - _camera->CameraCorrection().y,
+		0 - _camera->CameraCorrection().x + sizex * 3, sizey - _camera->CameraCorrection().y, beach, true);
 
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
