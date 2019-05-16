@@ -257,15 +257,15 @@ void Player::Draw()
 		if (leg.state == LEG_STATE::SELECT)
 			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xffff00);
 	}
-	for (auto& p : _particle)
-	{
-		p->Draw();
-	}
 	for (auto& l : _laser)
 	{
 		auto start = l.pos - c;
 		auto end = l.pos + l.vel - c;
-		DrawLineAA(start.x, start.y, end.x, end.y, 0xff0000, l.size);
+		DrawLineAA(start.x, start.y, end.x, end.y, 0x00ffff, l.size);
+	}
+	for (auto& p : _particle)
+	{
+		p->Draw();
 	}
 }
 

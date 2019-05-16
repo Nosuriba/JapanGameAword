@@ -39,18 +39,23 @@ protected:
 	// 要素数
 	int ElementNum;
 
+	// すくりーんサイズ
+	static const int screen_x;
+	static const int screen_y;
+
+
 	// 座標
 	float x, y;
+	int rota;
 
 	// ﾊﾟｰﾃｨｸﾙ本体の配列
 	std::vector<Element> particle;
 
 	// ｽﾚｯﾄﾞ用変数
 	std::thread p_thread;
-	int rota;
+
 	// 移動用関数
 	virtual void Move() = 0;
-
 public:
 	// 描画用関数
 	virtual void Draw() = 0;

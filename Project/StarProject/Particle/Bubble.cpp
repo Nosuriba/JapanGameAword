@@ -54,7 +54,7 @@ void Bubble::Create()
 			particle[i].y = (y)* Magnification;
 			particle[i].bright = 255;
 
-			auto Theta = (Rand() % 360)* DX_PI_F / 180.0;
+			auto Theta = (Rand() % 360)*DX_PI_F/180.0;
 			auto vSize = (Rand() % (VelocitySize));
 			particle[i].vx = cos(Theta)*vSize * 20;
 			particle[i].vy = sin(Theta)*vSize * 10;
@@ -90,6 +90,10 @@ void Bubble::Move()
 	auto move = [p_element = p_element](concurrency::index<1> idx)restrict(amp) {
 		// ó·äOèàóù
 		if (p_element[idx].bright < VanishBright) {
+			p_element[idx].bright = 0;
+			return;
+		}
+		if ((p_element[idx].x/100) < 0) {
 			p_element[idx].bright = 0;
 			return;
 		}

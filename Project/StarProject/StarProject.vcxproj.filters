@@ -28,9 +28,6 @@
     <Filter Include="Particle">
       <UniqueIdentifier>{e8087145-63bc-4314-b186-17dbda84586b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Boss">
-      <UniqueIdentifier>{178110c2-c797-4e2c-81ac-b46b941c8469}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -108,11 +105,8 @@
     <ClInclude Include="Enemy\SeaCucumber.h">
       <Filter>Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Boss\Crab.h">
-      <Filter>Boss</Filter>
-    </ClInclude>
-    <ClInclude Include="Boss\Boss.h">
-      <Filter>Boss</Filter>
+    <ClInclude Include="Stage.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -191,11 +185,8 @@
     <ClCompile Include="Enemy\SeaCucumber.cpp">
       <Filter>Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Boss\Crab.cpp">
-      <Filter>Boss</Filter>
-    </ClCompile>
-    <ClCompile Include="Boss\Boss.cpp">
-      <Filter>Boss</Filter>
+    <ClCompile Include="Stage.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
