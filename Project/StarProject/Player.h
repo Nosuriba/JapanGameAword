@@ -38,7 +38,7 @@ struct Laser {
 	Vector2 vel;
 	float size;
 
-	Laser(Vector2 p, Vector2 v) : pos(p), vel(v){ count = 0; size = 1; }
+	Laser(Vector2 p, Vector2 v) : pos(p), vel(v){ count = 0; size = 5;}
 };
 
 class Player

@@ -265,7 +265,7 @@ void Player::Draw()
 	{
 		auto start = l.pos - c;
 		auto end = l.pos + l.vel - c;
-		DrawLineAA(start.x, start.y, end.x, end.y, 0xff0000, 5);
+		DrawLineAA(start.x, start.y, end.x, end.y, 0xff0000, l.size);
 	}
 }
 
