@@ -42,11 +42,13 @@ void SeaCucumber::Crawl()
 void SeaCucumber::Escape()
 {
 	auto camera = _camera->CameraCorrection();
-	if (cPoint._vel.x == 0.f)
+	if (_vel.x == 0.f)
 	{
 		moveCnt = moveInvCnt / 4;
 	}
-	_vel.y = 0;
+
+	_turnFlag = (enemy._pos.x > Game::GetInstance().GetScreenSize().x / 2 ? true : false);
+	cPoint._pos.x = enemy._pos.x + (_turnFlag ? -enemy._size.width / 2 : enemy._size.width / 2);
 	_updater = &SeaCucumber::EscapeUpdate;
 }
 
@@ -102,15 +104,15 @@ void SeaCucumber::EscapeUpdate()
 		if (_vel.x <= 0.f)
 		{
 			_vel.x = 0;
-			moveCnt--;
-			if (moveCnt == 0)
+			if (moveCnt <= 0)
 			{
-				cPoint._vel.x = crawlVel;
+				cPoint._vel.x = (_vel.x <= 0.f ? crawlVel : 0);
+				moveCnt = (cPoint._vel.x == crawlVel ? moveInvCnt : 0);
 			}
 		}
 		else
 		{
-			_vel.x -= 0.04f;
+			_vel.x -= 0.04;
 		}
 	}
 	else
@@ -118,10 +120,10 @@ void SeaCucumber::EscapeUpdate()
 		if (_vel.x >= 0.f)
 		{
 			_vel.x = 0;
-			moveCnt--;
-			if (moveCnt == 0)
+			if (moveCnt <= 0)
 			{
-				cPoint._vel.x = -crawlVel;
+				cPoint._vel.x = (_vel.x >= 0.f ? -crawlVel : 0);
+				moveCnt = (cPoint._vel.x == -crawlVel ? moveInvCnt : 0);
 			}
 		}
 		else
@@ -156,7 +158,7 @@ void SeaCucumber::MovePoint()
 		}
 		else
 		{
-			cPoint._vel.x -= 0.02f;
+			cPoint._vel.x -= (_updater == &SeaCucumber::EscapeUpdate ? 0.04f : 0.02f);
 		}
 	}
 	else
@@ -172,7 +174,7 @@ void SeaCucumber::MovePoint()
 		}
 		else
 		{
-			cPoint._vel.x += 0.02f;
+			cPoint._vel.x += (_updater == &SeaCucumber::EscapeUpdate ? 0.04f : 0.02f);
 		}
 	}
 	cPoint._pos += cPoint._vel;
@@ -182,7 +184,6 @@ void SeaCucumber::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 	color = (_updater == &SeaCucumber::EscapeUpdate ? 0x80300b : 0xa0522d);
-
 
 	/// ìGÇÃï`âÊ
 	DxLib::DrawOval(enemy._pos.x - camera.x, enemy._pos.y - camera.y, enemy._size.width / 2, enemy._size.height / 2, color, true);
@@ -203,7 +204,6 @@ void SeaCucumber::DebugDraw(const Vector2 & camera)
 
 	/// êßå‰ì_ÇÃï`âÊ
 	DrawCircle(cPoint._pos.x - camera.x, cPoint._pos.y - camera.y, 4, 0xffff00, true);
-	DrawFormatString(0, 0, 0x000000, "width : %d", enemy._size.width);
 }
 
 void SeaCucumber::Update()

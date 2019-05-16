@@ -1,4 +1,3 @@
-#include <DxLib.h>
 #include "Enemy.h"
 #include "../Camera.h"
 

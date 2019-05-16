@@ -123,6 +123,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Boss\Boss.cpp" />
+    <ClCompile Include="Boss\Crab.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Enemy\Diodon.cpp" />
     <ClCompile Include="Enemy\Enemy.cpp" />
@@ -151,6 +153,8 @@
     <ClCompile Include="Stage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Boss\Boss.h" />
+    <ClInclude Include="Boss\Crab.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Enemy\Diodon.h" />
     <ClInclude Include="Enemy\Enemy.h" />
