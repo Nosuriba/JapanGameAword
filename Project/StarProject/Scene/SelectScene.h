@@ -11,7 +11,15 @@ private:
 	void Wait(const Input& p);
 	void Run(const Input& p);
 
-	int flame;
+	int flame,Cnt;
+	int bubble;
+	int background;
+
+	VERTEX2DSHADER bubble_vertex[4];
+	int firstscreen;
+	int secondscreen;
+
+	int shader_time;
 public:
 	SelectScene();
 	~SelectScene();

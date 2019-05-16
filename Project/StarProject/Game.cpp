@@ -3,8 +3,8 @@
 #include "Processing/Input.h"
 #include "Scene/TitleScene.h"
 
-constexpr int screen_x = 1280;
-constexpr int screen_y = 740;
+constexpr int screen_x = 1200;
+constexpr int screen_y = 800;
 
 std::unique_ptr<Game, Game::GameDeleter> Game::s_Instance(new Game());
 
@@ -40,11 +40,13 @@ void Game::Init()
 	}
 
 	//ピクセルシェーダ読み込み
-	wavehandle = LoadPixelShader("Wave.pso");
-	shadowhandle = LoadPixelShader("Shadow.pso");
+	wavehandle = LoadPixelShader("Shader/Wave.pso");
+	shadowhandle = LoadPixelShader("Shader/Shadow.pso");
+	bubblehandle = LoadPixelShader("Shader/bubble.pso");
 
 	_handle.push_back(wavehandle);
 	_handle.push_back(shadowhandle);
+	_handle.push_back(bubblehandle);
 
 	DxLib::SetDrawScreen(DX_SCREEN_BACK);
 	SetTextureAddressModeUV(DX_TEXADDRESS_BORDER, DX_TEXADDRESS_BORDER);

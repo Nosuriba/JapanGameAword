@@ -8,6 +8,7 @@
 class Input;
 class Player;
 class Enemy;
+class Boss;
 class Collision;
 class Camera;
 
@@ -26,11 +27,11 @@ private:
 	void Run(const Input& p);
 
 	std::shared_ptr<Player> _pl;
-	std::shared_ptr<Enemy> _ene;
 	std::shared_ptr<Collision> _col;
 	std::shared_ptr<Camera> _camera;
 
 	std::vector<std::shared_ptr<Enemy>> _enemies;		/// ‰¼‚Ì•`‰æ
+	std::vector<std::shared_ptr<Boss>> _bosses;
 
 	std::shared_ptr<DestroyableObject> _destroy;
 	std::shared_ptr<PredatoryObject> _predatory;

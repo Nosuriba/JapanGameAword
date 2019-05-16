@@ -70,11 +70,11 @@ void Player::Normal(const Input & in)
 
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				_vel += (-(v).Normalized() * SPEED * (float)_star.level);
-
+				
 				_laser.emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
-				_particle[0]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
+				_particle[0]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
 				_particle[0]->Create();
 
 			}
@@ -93,7 +93,7 @@ void Player::Normal(const Input & in)
 				_laser.emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
-				_particle[1]->SetRota(atan2(v.y, v.x) * 180.0f / DX_PI_F);
+				_particle[1]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
 				_particle[1]->Create();
 
 			}
@@ -158,7 +158,8 @@ void Player::Update(const Input& in)
 {
 	for (auto& l : _laser)
 	{
-		l.pos += (l.vel * l.size);
+		l.pos += l.vel;
+		l.vel += l.vel.Normalized();
 		++l.count;
 	}
 	_laser.remove_if([](Laser l) { return l.count > 75; });
@@ -259,8 +260,8 @@ void Player::Draw()
 	for (auto& l : _laser)
 	{
 		auto start = l.pos - c;
-		auto end = l.pos + (l.vel * l.size) - c;
-		DrawLineAA(start.x, start.y, end.x, end.y, 0x00ffff, 5);
+		auto end = l.pos + l.vel - c;
+		DrawLineAA(start.x, start.y, end.x, end.y, 0x00ffff, l.size);
 	}
 	for (auto& p : _particle)
 	{

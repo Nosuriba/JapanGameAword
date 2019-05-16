@@ -24,6 +24,7 @@ public:
 
 	int wavehandle;
 	int shadowhandle;
+	int bubblehandle;
 
 	std::vector<int> _handle;
 

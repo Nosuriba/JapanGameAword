@@ -79,7 +79,7 @@ void TitleScene::Draw()
 {
 	auto size = Game::GetInstance().GetScreenSize();
 
-	DxLib::DrawExtendGraph(0, 0, 1280, 740, titleimg, true);
+	DxLib::DrawExtendGraph(0, 0, size.x, size.y, titleimg, true);
 
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 4.0f / 2.0f, size.y / 2 + GetFontSize() * 3, "START",0xa000f0);
 	(*FadeBubble).Draw();

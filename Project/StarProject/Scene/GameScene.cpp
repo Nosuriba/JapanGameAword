@@ -9,6 +9,8 @@
 #include "../Enemy/Diodon.h"
 #include "../Enemy/SeaCucumber.h"
 #include "../Enemy/Octopus.h"
+#include "../Boss/Boss.h"
+#include "../Boss/Crab.h"
 #include "../Processing/Collision.h"
 #include "../Camera.h"
 #include "../Object/Obstacle.h"
@@ -89,6 +91,8 @@ GameScene::GameScene()
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
 	_enemies.push_back(std::make_shared<Octopus>(_camera));
 
+	_bosses.push_back(std::make_shared<Crab>(_camera));
+
 	//フォントのロード
 	LPCSTR font = "H2O-Shadow.ttf";
 	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
@@ -161,7 +165,16 @@ void GameScene::Draw()
 	ClearDrawScreen();
 
 	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
-		_camera->GetRange().x - _camera->CameraCorrection().x, _camera->GetRange().y - _camera->CameraCorrection().y, beach, true);
+		sizex - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(sizex - _camera->CameraCorrection().x + sizex, 0 - _camera->CameraCorrection().y,
+		0 - _camera->CameraCorrection().x + sizex, sizey - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(0 - _camera->CameraCorrection().x + sizex * 2, 0 - _camera->CameraCorrection().y,
+		sizex - _camera->CameraCorrection().x + sizex * 2, sizey - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(sizex - _camera->CameraCorrection().x + sizex * 3, 0 - _camera->CameraCorrection().y,
+		0 - _camera->CameraCorrection().x + sizex * 3, sizey - _camera->CameraCorrection().y, beach, true);
 
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
@@ -189,10 +202,6 @@ void GameScene::Draw()
 	SetUsePixelShader(Game::GetInstance().GetShaderHandle()[1]);
 
 	DrawPrimitive2DToShader(shadow_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
-	
-
-
-
 
 	//thirdスクリーン(波シェーダー)
 	SetDrawScreen(thirdscreen);
@@ -212,10 +221,6 @@ void GameScene::Draw()
 
 	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
-	
-
-
-
 	//_4thスクリーン(波)
 	SetDrawScreen(_4thscreen);
 
@@ -224,19 +229,12 @@ void GameScene::Draw()
 	DrawExtendGraph(0, 0, sizex, sizey, sea, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
-	SetUseTextureToShader(0, thirdscreen);
-
-	//シェーダーに情報を渡す
-	SetPSConstSF(0, shader_time / 100.0f);
+	SetUseTextureToShader(0, _4thscreen);
 
 	//ピクセルシェーダのセット
 	SetUsePixelShader(Game::GetInstance().GetShaderHandle()[0]);
 
 	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
-
-
-
-
 
 	//バック描画
 	SetDrawScreen(DX_SCREEN_BACK);
@@ -247,15 +245,20 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
 
-	DrawGraph(-15, 15, secondscreen, true);
+	DrawGraph(0, 0, secondscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	_pl->Draw();
 
-	for (auto itr : _enemies)
+	for (auto &enemy : _enemies)
 	{
-		itr->Draw();
+		enemy->Draw();
+	}
+
+	for (auto &boss : _bosses)
+	{
+		boss->Draw();
 	}
 
 	for (auto &destroy : _destroyObj) {
@@ -274,7 +277,7 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
 
-	//DrawExtendGraph(0 - 30, 0, sizex + 50, sizey, _4thscreen, true);
+	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, sizex + shader_offset, sizey + shader_offset, _4thscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
@@ -288,9 +291,14 @@ void GameScene::Update(const Input & p)
 
 	_pl->Update(p);
 
-	for (auto itr : _enemies)
+	for (auto &enemy : _enemies)
 	{
-		itr->Update();
+		enemy->Update();
+	}
+
+	for (auto &boss : _bosses)
+	{
+		boss->Update();
 	}
 
 	for (int i = 0; i < _enemies.size(); ++i)

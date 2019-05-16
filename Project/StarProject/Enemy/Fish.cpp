@@ -109,7 +109,6 @@ void Fish::SearchMove()
 		{
 			float  rad, cosD, sinD;
 			Vector2 pos;
-
 			if (_turnFlag)
 			{
 				rad = (deg - (deg * (i / 2 * 2))) * DX_PI / 180;
