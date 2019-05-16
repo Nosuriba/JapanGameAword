@@ -74,11 +74,11 @@ GameScene::GameScene()
 
 	_col.reset(new Collision());
 
-	_destroy.reset(new DestroyableObject(_camera));
+	/*_destroy.reset(new DestroyableObject(_camera));
 
 	_predatory.reset(new PredatoryObject(_camera));
 
-	_immortal.reset(new ImmortalObject(_camera));
+	_immortal.reset(new ImmortalObject(_camera));*/
 
 	firstscreen = MakeScreen(size.x, size.y);
 	secondscreen = MakeScreen(size.x - 1, size.y - 1);
@@ -86,11 +86,11 @@ GameScene::GameScene()
 	_4thscreen = MakeScreen(size.x, size.y);
 
 	/// 敵の生成(debug用)
-	_enemies.push_back(std::make_shared<Fish>(_camera));
+	/*_enemies.push_back(std::make_shared<Fish>(_camera));
 	_enemies.push_back(std::make_shared<Diodon>(_camera));
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
 	_enemies.push_back(std::make_shared<Octopus>(_camera));
-
+*/
 	_bosses.push_back(std::make_shared<Crab>(_camera));
 
 	//フォントのロード
@@ -251,17 +251,17 @@ void GameScene::Draw()
 
 	_pl->Draw();
 
-	for (auto &enemy : _enemies)
+	/*for (auto &enemy : _enemies)
 	{
 		enemy->Draw();
-	}
+	}*/
 
 	for (auto &boss : _bosses)
 	{
 		boss->Draw();
 	}
 
-	for (auto &destroy : _destroyObj) {
+	/*for (auto &destroy : _destroyObj) {
 		destroy->Draw();
 	}
 	for (auto &predatory : _predatoryObj) {
@@ -269,7 +269,7 @@ void GameScene::Draw()
 	}
 	for (auto &immortal : _immortalObj) {
 		immortal->Draw();
-	}
+	}*/
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
@@ -291,11 +291,11 @@ void GameScene::Update(const Input & p)
 
 	_pl->Update(p);
 
-	for (auto &enemy : _enemies)
+	/*for (auto &enemy : _enemies)
 	{
 		enemy->Update();
 	}
-
+*/
 	for (auto &boss : _bosses)
 	{
 		boss->Update();
@@ -336,19 +336,19 @@ void GameScene::Update(const Input & p)
 		}
 	}
 
-	//破壊可能オブジェクト
-	for (auto &destroy : _destroyObj) {
-		auto laser = _pl->GetLaser();
-		for (auto& l : laser){
-			if (_col->WaterToSqr(l.pos, l.vel,l.size, destroy->GetInfo()._rect))
-			{
-				destroy->Break();
-			}
-		}
-	}
+	////破壊可能オブジェクト
+	//for (auto &destroy : _destroyObj) {
+	//	auto laser = _pl->GetLaser();
+	//	for (auto& l : laser){
+	//		if (_col->WaterToSqr(l.pos, l.vel,l.size, destroy->GetInfo()._rect))
+	//		{
+	//			destroy->Break();
+	//		}
+	//	}
+	//}
 
 	//捕食対象
-	for (auto &predatry : _predatoryObj) {
+	/*for (auto &predatry : _predatoryObj) {
 		auto laser = _pl->GetLaser();
 		for (auto& l : laser) {
 			if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
@@ -356,10 +356,10 @@ void GameScene::Update(const Input & p)
 				predatry->Break();
 			}
 		}
-	}
+	}*/
 
 	//破壊不可オブジェクト
-	for (auto &immortal : _immortalObj) {
+	/*for (auto &immortal : _immortalObj) {
 		auto laser = _pl->GetLaser();
 		for (auto& l : laser) {
 			if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
@@ -369,11 +369,11 @@ void GameScene::Update(const Input & p)
 			}
 		}
 	}
-
-	if (_enemies.size() <= 0)
+*/
+	/*if (_enemies.size() <= 0)
 	{
 		DrawString(0, 0, "Not Enemy", 0xffffff);
-	}
+	}*/
 
 	totaltime = time - (flame / 60);
 
