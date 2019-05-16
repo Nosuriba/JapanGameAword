@@ -37,31 +37,34 @@ void Bubble::Init()
 
 void Bubble::Create()
 {
-	p_thread = std::thread([&] {
-		std::random_device rd;
-		std::mt19937 Rand(rd());
-		for (int num = 0; num < BubbleMax; num++)
-		{
-			int i = 0;
-			for (i = 0; i < ElementNum; i++)
+	if (!p_thread.joinable())
+	{
+		p_thread = std::thread([&] {
+			std::random_device rd;
+			std::mt19937 Rand(rd());
+			for (int num = 0; num < BubbleMax; num++)
 			{
-				if (particle[i].bright <= VanishBright)break;
+				int i = 0;
+				for (i = 0; i < ElementNum; i++)
+				{
+					if (particle[i].bright <= VanishBright)break;
+				}
+
+				if (i == ElementNum)return;
+
+				particle[i].x = (x)* Magnification;
+				particle[i].y = (y)* Magnification;
+				particle[i].bright = 255;
+
+				auto Theta = (Rand() % 360)*DX_PI_F/180.0;
+				auto vSize = (Rand() % (VelocitySize));
+				particle[i].vx = cos(Theta)*vSize * 20;
+				particle[i].vy = sin(Theta)*vSize * 10;
+
+				particle[i].radius = (Rand() % 3) + 2;
 			}
-
-			if (i == ElementNum)return;
-
-			particle[i].x = (x)* Magnification;
-			particle[i].y = (y)* Magnification;
-			particle[i].bright = 255;
-
-			auto Theta = (Rand() % 360)*DX_PI_F/180.0;
-			auto vSize = (Rand() % (VelocitySize));
-			particle[i].vx = cos(Theta)*vSize * 20;
-			particle[i].vy = sin(Theta)*vSize * 10;
-
-			particle[i].radius = (Rand() % 3) + 2;
-		}
-	});	
+		});
+	}
 }
 
 void Bubble::Move()

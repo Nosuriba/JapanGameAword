@@ -5,4 +5,8 @@ const int Particle::screen_y = 800;
 
 Particle::~Particle()
 {
+	if (p_thread.joinable())
+	{
+		p_thread.join();
+	}
 }

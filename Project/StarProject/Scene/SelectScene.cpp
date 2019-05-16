@@ -80,10 +80,10 @@ SelectScene::SelectScene()
 
 	firstscreen = MakeScreen(size.x, size.y);
 	secondscreen = MakeScreen(size.x, size.y);
-
 	_updater = &SelectScene::FadeIn;
 	shader_time = 0;
 	flame = 0;
+	Cnt = 0;
 }
 
 SelectScene::~SelectScene()
@@ -120,9 +120,10 @@ void SelectScene::Draw()
 
 	DrawExtendGraph(0, 0, size.x, size.y, background, true);
 
-	auto addx = cos((flame % 360)*DX_PI / 180) * 25;
-	auto addy = sin((flame)*DX_PI / 720) * 100;
-	auto addr = sin((flame)*DX_PI / 180) * 0.1;
+	(*BuckBubble).Draw();
+	auto addx = cos((Cnt % 360)*DX_PI / 180) * 25;
+	auto addy = sin((Cnt)*DX_PI / 720) * 100;
+	auto addr = sin((Cnt)*DX_PI / 180) * 0.1;
 	DrawRotaGraph(size.x / 4 - 100+ addx, size.y / 2 + addy, 1+ addr, 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 2 + addx, size.y / 2 - addy, 1 - addr, 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 3 + 100 + addx, size.y / 2 + addy, 1 + addr, 0, bubble, true);
@@ -136,7 +137,9 @@ void SelectScene::Draw()
 
 void SelectScene::Update(const Input & p)
 {
+	(*BuckBubble).Create();
 	flame++;
+	Cnt++;
 	shader_time++;
 	(this->*_updater)(p);
 }
