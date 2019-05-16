@@ -3,8 +3,8 @@
 #include "Processing/Input.h"
 #include "Scene/TitleScene.h"
 
-constexpr int screen_x = 1280;
-constexpr int screen_y = 740;
+constexpr int screen_x = 1200;
+constexpr int screen_y = 800;
 
 std::unique_ptr<Game, Game::GameDeleter> Game::s_Instance(new Game());
 

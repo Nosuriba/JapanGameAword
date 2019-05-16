@@ -4,7 +4,7 @@
 
 Camera::Camera()
 {
-	_range = Vector2(2000, 1500);
+	_range = Vector2(4800, 800);
 }
 
 
