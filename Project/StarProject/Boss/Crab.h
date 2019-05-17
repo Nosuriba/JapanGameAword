@@ -27,7 +27,7 @@ struct Vector3
 
 using sqr_vert = std::array<Vector2, 4>;
 
-struct Joint
+struct Leg
 {
 	// 3つの関節
 	Vector2 sPoint, mPoint, ePoint;
@@ -51,8 +51,8 @@ private:
 	void ShotUpdate();
 	void DieUpdate();
 
-	void CalVert();			// 頂点の計算
-	void LegMove(const Vector2& pos, const int& i);
+	void CalVert(const int& i);							// 頂点の計算
+	void LegMove(const Vector2& pos, const int& i);		// 足の移動
 
 	// 外積の計算
 	Vector3 Cross(const Vector3& va, const Vector3& vb)
@@ -65,12 +65,10 @@ private:
 	void (Crab::*_updater)();
 
 	std::shared_ptr<Camera>& _camera;
-	std::vector<Joint> joints;		// 関節
+	std::vector<Leg> legs;		// 関節
 	std::vector<Vector2> ctlPoints;
 	Vector2 _vel;
 	int moveCnt;
-
-	Vector2 dCenter;			/// ﾃﾞﾊﾞｯｸﾞ用の中心点
 public:
 	Crab(std::shared_ptr<Camera>& camera);
 	~Crab();

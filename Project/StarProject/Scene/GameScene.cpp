@@ -140,7 +140,7 @@ GameScene::GameScene()
 
 	flame = 0;
 	wait = 0;
-	time = 60;
+	time = 6000;
 	totaltime = 60;
 
 	shader_time = 0;
