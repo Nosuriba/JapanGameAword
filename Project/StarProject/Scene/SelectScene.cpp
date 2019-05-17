@@ -77,7 +77,7 @@ SelectScene::SelectScene()
 		bubble_vertex[i].v = bubble_vertex[i].sv = (float)(i / 2);
 	}
 
-	firstscreen = MakeScreen(size.x, size.y);
+  	firstscreen = MakeScreen(size.x, size.y);
 	secondscreen = MakeScreen(size.x, size.y);
 	_updater = &SelectScene::FadeIn;
 	shader_time = 0;
