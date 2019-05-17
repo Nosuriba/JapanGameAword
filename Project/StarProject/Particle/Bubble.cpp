@@ -1,18 +1,17 @@
 #include "Bubble.h"
 #include "../ResourceManager.h"
 
-constexpr int BubbleMax = 100;
 constexpr int Magnification = 100;
 constexpr int VelocitySize = 100;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
 
-Bubble::Bubble(int _x,int _y,int _Enum)
+Bubble::Bubble(int _x, int _y, int _Enum, bool flag, int _BubbleMax):BubbleMax(_BubbleMax)
 {
 	// ˆø”‚Ì‘ã“ü
 	x = _x, y = _y;
 	ElementNum = _Enum;
-
+	isSmall = flag;
 	// ‰Šú‰»
 	Init();
 }
@@ -58,13 +57,21 @@ void Bubble::Create()
 
 				auto Theta = (Rand() % 360)*DX_PI_F/180.0;
 				auto vSize = (Rand() % (VelocitySize));
-				particle[i].vx = cos(Theta)*vSize * 20;
+				particle[i].vx = cos(Theta)*vSize * (isSmall?2:20);
 				particle[i].vy = sin(Theta)*vSize * 10;
+
+				particle[i].avy = -10;
 
 				particle[i].radius = (Rand() % 3) + 2;
 			}
 		});
 	}
+}
+
+void Bubble::Create(int _x, int _y)
+{
+	x = _x,y=_y;
+	Create();
 }
 
 void Bubble::Move()
@@ -83,7 +90,7 @@ void Bubble::Move()
 		p.y += p.vy;
 
 		// ‰Á‘¬•”•ª
-		p.vy += -10;
+		p.vy += p.avy;
 		p.vx += (int)(p.x / Magnification) % 2 ? 101 : -101; // ¶‰E‚É—h‚ê‚é
 
 		p.bright -= VanishSpeed;
@@ -106,7 +113,7 @@ void Bubble::Move()
 		p_element[idx].y += p_element[idx].vy;
 
 		// ‰Á‘¬•”•ª
-		p_element[idx].vy += -10;
+		p_element[idx].vy += p_element[idx].avy;
 		p_element[idx].vx += (int)(p_element[idx].x / Magnification) % 2 ? 101 : -101; // ¶‰E‚É—h‚ê‚é
 
 		p_element[idx].bright -= VanishSpeed;
@@ -137,19 +144,7 @@ void Bubble::Draw()
 		if (p.bright> VanishBright)
 		{
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright);
-			DrawRotaGraph(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ Magnification, 0, imgBff, true);
-		/*{
-				DrawCircle(p.x / Magnification, p.y / Magnification, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright / 3, p.bright * 2 / 3, p.bright), 3);
-				DrawCircle(p.x / Magnification, p.y / Magnification, 0xff / p.radius - p.bright / p.radius, 0x9999ff, 0);
-				DrawCircle(
-					p.x / Magnification + p.x / (Magnification * 10),
-					p.y / Magnification + p.y / (Magnification * 10),
-					0xff / (p.radius * 2) - p.bright / (p.radius * 2),
-					0xffffff,
-					false
-				);
-			}*/
-			// DrawPixel(p.x/100,p.y/100,GetColor(p.bright, p.bright, p.bright));/*—±Žq*/
+			DrawRotaGraph(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ? 5 : 1)), 0, imgBff, true);
 			continue;
 		}
 	}

@@ -3,6 +3,7 @@
 #include "../Game.h"
 #include "GameScene.h"
 #include "../ResourceManager.h"
+#include "../Particle/Bubble.h"
 
 #include "../Stage.h"
 
@@ -48,7 +49,11 @@ void SelectScene::Run(const Input & p)
 		_updater = &SelectScene::FadeOut;
 	}
 	if (p.TriggerTrigger(TRIGGER::RIGHT)) {
-		Select = ++Select % 3;
+		Select = Select<2?++Select:Select;
+	}
+
+	if (p.TriggerTrigger(TRIGGER::LEFT)) {
+		Select = Select>0?--Select:Select;
 	}
 }
 
@@ -78,7 +83,10 @@ SelectScene::SelectScene()
 	shader_time = 0;
 	flame = 0;
 	Cnt = 0;
-	Select = 0;
+	Select = 0; 
+
+	BuckBubble = std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,1000,true,1);
+	subBuckBubble = std::make_unique<Bubble>(50, size.y / 5 * 4,1000,true,1);
 }
 
 SelectScene::~SelectScene()
@@ -107,11 +115,13 @@ void SelectScene::Draw()
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 3.0f / 2.0f, size.y / 2 + size.y / 4, "Select", 0xa000f0);
 
 	(*FadeBubble).Draw();
+	(*subBuckBubble).Draw();
 }
 
 void SelectScene::Update(const Input & p)
 {
 	(*BuckBubble).Create();
+	(*subBuckBubble).Create();
 	flame++;
 	Cnt++;
 	shader_time++;

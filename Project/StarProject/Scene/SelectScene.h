@@ -10,7 +10,8 @@ private:
 	void FadeOut(const Input& p);
 	void Wait(const Input& p);
 	void Run(const Input& p);
-
+	std::unique_ptr<Particle> BuckBubble;
+	std::unique_ptr<Particle> subBuckBubble;
 	int flame,Cnt,Select;
 	int bubble;
 	int background;
