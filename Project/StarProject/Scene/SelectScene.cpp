@@ -45,7 +45,7 @@ void SelectScene::Run(const Input & p)
 
 	if (p.IsTrigger(PAD_INPUT_10)) {
 		flame = 0;
-		Stage::GetInstance().LoadStage("../Stage/test.fmf");
+		Stage::GetInstance().LoadStage("../Stage/test2.fmf");
 		_updater = &SelectScene::FadeOut;
 	}
 	if (p.TriggerTrigger(TRIGGER::RIGHT)) {

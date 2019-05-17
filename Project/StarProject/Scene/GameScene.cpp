@@ -415,7 +415,6 @@ void GameScene::Update(const Input & p)
 			if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
 			{
 				immortal->Break();
-				std::cout << "HIT" << std::endl;
 			}
 		}
 	}
