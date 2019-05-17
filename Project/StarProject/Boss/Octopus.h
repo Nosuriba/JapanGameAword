@@ -1,11 +1,14 @@
 #pragma once
-#include "Enemy.h"
+#include "Boss.h"
+#include <vector>
 
 class Camera;
 
 enum class E_LEG_STATE {
 	NORMAL,
-	ATTACK,
+	PUNCH,
+	OCT_INK,
+	SWEEP,
 	DAMAGE,
 	DETH,
 };
@@ -13,8 +16,9 @@ enum class E_LEG_STATE {
 struct E_Leg {
 	Vector2 tip;	//先端座標
 	std::vector<Vector2> joint;	//関節座標
-	const int T = 6;	//関節数
+	const int T = 12;	//関節数
 	E_LEG_STATE state;	//状態
+	int angle;		//目標までの角度
 };
 
 struct Oct {
@@ -25,13 +29,16 @@ struct Oct {
 };
 
 class Octopus :
-	public Enemy
+	public Boss
 {
 private:
 	int angle;
 
 	void Die();
 	void DieUpdate();
+	void Normal(E_Leg& leg,Vector2 pos);
+	void Attack();
+	void Damage();
 
 	void NeturalUpdate();
 
@@ -43,10 +50,6 @@ public:
 	~Octopus();
 	void Draw();
 	void Update();
-	EnemyInfo GetInfo();
-	shot_vector GetShotInfo();
-	void CalEscapeDir(const Vector2& vec);
-	void ChangeShotColor(const int& num);
-	void CalTrackVel(const Vector2& pos, bool col);
+	BossInfo GetInfo();
 };
 
