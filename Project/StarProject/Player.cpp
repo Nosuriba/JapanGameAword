@@ -114,13 +114,11 @@ void Player::Die(const Input & in)
 	_star.r *= 0.99f;
 	_star.r = max(_star.r, 10.0f);
 
-	auto radian = 2.0f * DX_PI_F / (float)_star.legs.size();
-	for (int i = 0; i < _star.legs.size(); i++)
+	for (auto& l : _star.legs)
 	{
-		LEG(i).tip.x = CENTER.x + cos(radian * i + DX_PI_F / 180.0f * -90.0f) * _star.r;
-		LEG(i).tip.y = CENTER.y + sin(radian * i + DX_PI_F / 180.0f * -90.0f) * _star.r;
-		LEG(i).pos = LEG(i).tip;
-		LEG(i).state = LEG_STATE::NORMAL;
+		auto v = l.tip - _star.center;
+		v.Normalize();
+		l.tip = _star.center + v * _star.r;
 	}
 }
 
@@ -327,11 +325,10 @@ void Player::LevelUP()
 
 	_star.r = 25.0f * (float)_star.level + 25.0f;
 
-	auto radian = 2.0f * DX_PI_F / (float)_star.legs.size();
-	for (int i = 0; i < _star.legs.size(); i++)
+	for (auto& l : _star.legs)
 	{
-		LEG(i).tip.x = CENTER.x + cos(radian * i + DX_PI_F / 180.0f * -90.0f) * _star.r;
-		LEG(i).tip.y = CENTER.y + sin(radian * i + DX_PI_F / 180.0f * -90.0f) * _star.r;
-		LEG(i).pos = LEG(i).tip;
+		auto v = l.tip - _star.center;
+		v.Normalize();
+		l.tip = _star.center + v * _star.r;
 	}
 }
