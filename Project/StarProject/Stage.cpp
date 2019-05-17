@@ -24,33 +24,35 @@ void Stage::LoadStage(std::string str)
 
 const bool Stage::LoadCheck()
 {
-	if (_stages.find(name) != _stages.end()) return true;
 	if (CheckHandleASyncLoad(fmf_h)) return false;
 	if (fmf_h == -1) return false;
 
-	DxLib::FileRead_read(&_stages[name].fmf, sizeof(_stages[name].fmf), fmf_h);
+	if (count == 0)
+	{
+		if (_stages.find(name) != _stages.end()) return true;
 
+		DxLib::FileRead_read(&_stages[name].fmf, sizeof(_stages[name].fmf), fmf_h);
+		_stages[name].data.resize(_stages[name].fmf.mapWidth * _stages[name].fmf.mapHeight);
+	}
 	auto fmf = _stages[name].fmf;
 	std::vector<char> tmp;
-	tmp.resize(fmf.mapWidth * fmf.mapHeight);
+	tmp.resize(fmf.mapWidth);
 	DxLib::FileRead_read(&tmp[0], tmp.size(), fmf_h);
 
-	DxLib::FileRead_close(fmf_h);
-
-	_stages[name].data.resize(tmp.size());
-	//for (int i = 0; i < fmf.mapHeight; i++)
-	//{
-	//}
 	for (int j = 0; j < fmf.mapWidth; j++)
 	{
-		_stages[name].data[j * fmf.mapHeight + count].no = tmp[count * fmf.mapWidth + j];
+		_stages[name].data[j * fmf.mapHeight + count].no = tmp[j];
 		_stages[name].data[j * fmf.mapHeight + count].x = j * _stages[name].fmf.chipW + _stages[name].fmf.chipW / 2;
 		_stages[name].data[j * fmf.mapHeight + count].y = count * _stages[name].fmf.chipH + _stages[name].fmf.chipH / 2;
 	}
 
-	_stages[name].readX = 0;
-
-	if(count == fmf.mapHeight) return true;
+	++count;
+	if (count == fmf.mapHeight)
+	{
+		_stages[name].readX = 0;
+		DxLib::FileRead_close(fmf_h);
+		return true;
+	}
 	return false;
 }
 
