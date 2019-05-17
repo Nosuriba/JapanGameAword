@@ -1,6 +1,7 @@
 #include "PredatoryObject.h"
 #include "../Camera.h"
 #include <DxLib.h>
+#include "../ResourceManager.h"
 
 
 PredatoryObject::PredatoryObject(std::shared_ptr<Camera>& camera):Obstacle(camera),_camera(camera)
@@ -12,7 +13,7 @@ PredatoryObject::PredatoryObject(std::shared_ptr<Camera>& camera):Obstacle(camer
 
 	obj = ObjectInfo(pos, size, rect, color);
 
-	predatoryimg = DxLib::LoadGraph("../img/predatory.png");
+	predatoryimg = ResourceManager::GetInstance().LoadImg("../img/predatory.png");
 }
 
 PredatoryObject::~PredatoryObject()

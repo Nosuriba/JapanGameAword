@@ -39,6 +39,8 @@ void Game::Init()
 		return;
 	}
 
+	SetUseASyncLoadFlag(true);
+
 	//ピクセルシェーダ読み込み
 	wavehandle = LoadPixelShader("Shader/Wave.pso");
 	shadowhandle = LoadPixelShader("Shader/Shadow.pso");
