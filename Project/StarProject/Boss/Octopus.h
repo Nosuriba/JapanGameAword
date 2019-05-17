@@ -33,7 +33,7 @@ class Octopus :
 {
 private:
 	int angle;
-
+	Vector2 targetPos;
 	void Die();
 	void DieUpdate();
 	void Normal(E_Leg& leg,Vector2 pos);
@@ -53,5 +53,6 @@ public:
 	void Draw();
 	void Update();
 	BossInfo GetInfo();
+	void CalTrackVel(const Vector2& pos);
 };
 

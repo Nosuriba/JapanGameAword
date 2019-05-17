@@ -336,6 +336,8 @@ void GameScene::Update(const Input & p)
 		}
 	}
 
+	_bosses[0]->CalTrackVel(_pl->GetInfo().center);
+
 	//破壊可能オブジェクト
 	for (auto &destroy : _destroyObj) {
 		auto laser = _pl->GetLaser();

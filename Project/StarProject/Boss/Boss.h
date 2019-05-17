@@ -40,5 +40,6 @@ public:
 	virtual void Draw();
 	virtual void Update();
 	virtual BossInfo GetInfo();
+	virtual void CalTrackVel(const Vector2& pos);
 
 };

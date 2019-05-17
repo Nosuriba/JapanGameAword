@@ -20,3 +20,7 @@ BossInfo Boss::GetInfo()
 {
 	return boss;
 }
+
+void Boss::CalTrackVel(const Vector2 & pos)
+{
+}
