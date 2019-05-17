@@ -65,6 +65,9 @@ private:
 
 	int wait;
 
+	int waitNum;
+	int waitCnt;
+
 	void LoadResource();
 
 public:
