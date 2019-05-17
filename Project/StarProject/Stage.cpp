@@ -10,6 +10,9 @@ Stage::~Stage()
 
 void Stage::LoadStage(std::string str)
 {
+	name = str;
+	count = 0;
+
 	if (_stages.find(str) != _stages.end()) return;
 
 	SetUseASyncLoadFlag(true);
@@ -17,19 +20,15 @@ void Stage::LoadStage(std::string str)
 	fmf_h = DxLib::FileRead_open(str.c_str(), false);
 
 	SetUseASyncLoadFlag(false);
-
-	name = str;
-	count = 0;
 }
 
 const bool Stage::LoadCheck()
 {
-	if (CheckHandleASyncLoad(fmf_h)) return false;
-	if (fmf_h == -1) return false;
-
 	if (count == 0)
 	{
 		if (_stages.find(name) != _stages.end()) return true;
+		if (CheckHandleASyncLoad(fmf_h)) return false;
+		if (fmf_h == -1) return false;
 
 		DxLib::FileRead_read(&_stages[name].fmf, sizeof(_stages[name].fmf), fmf_h);
 		_stages[name].data.resize(_stages[name].fmf.mapWidth * _stages[name].fmf.mapHeight);
@@ -49,6 +48,7 @@ const bool Stage::LoadCheck()
 	++count;
 	if (count == fmf.mapHeight)
 	{
+		count = 0;
 		_stages[name].readX = 0;
 		DxLib::FileRead_close(fmf_h);
 		return true;

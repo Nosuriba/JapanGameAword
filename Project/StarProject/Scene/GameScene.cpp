@@ -212,23 +212,26 @@ void GameScene::Draw()
 	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y,
 		0 - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y, beach, true);
 
-	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y + size.y,
-		size.x - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y + size.y, beach, true);
+	DrawExtendGraph(0 - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y + size.y,
+		size.x - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y + size.y, beach, true);
 
-	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x, 0 - _camera->CameraCorrection().y + size.y,
-		0 - _camera->CameraCorrection().x + size.x, size.y - _camera->CameraCorrection().y + size.y, beach, true);
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x, size.y - _camera->CameraCorrection().y + size.y,
+		0 - _camera->CameraCorrection().x + size.x, 0 - _camera->CameraCorrection().y + size.y, beach, true);
 
-	DrawExtendGraph(0 - _camera->CameraCorrection().x + size.x * 2, 0 - _camera->CameraCorrection().y + size.y,
-		size.x - _camera->CameraCorrection().x + size.x * 2, size.y - _camera->CameraCorrection().y + size.y, beach, true);
+	DrawExtendGraph(0 - _camera->CameraCorrection().x + size.x * 2, size.y - _camera->CameraCorrection().y + size.y,
+		size.x - _camera->CameraCorrection().x + size.x * 2, 0 - _camera->CameraCorrection().y + size.y, beach, true);
 
-	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y,
-		0 - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y, beach, true);
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y,
+		0 - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y, beach, true);
 
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
 
 	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
 	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
+
+
+
 
 	//secondスクリーン(影)
 	SetDrawScreen(secondscreen);
@@ -248,6 +251,9 @@ void GameScene::Draw()
 
 	DrawPrimitive2DToShader(shadow_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
+
+
+
 	//thirdスクリーン(波シェーダー)
 	SetDrawScreen(thirdscreen);
 
@@ -265,6 +271,9 @@ void GameScene::Draw()
 	SetUsePixelShader(Game::GetInstance().GetShaderHandle()[0]);
 
 	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
+
+
+
 
 	//_4thスクリーン(波)
 	SetDrawScreen(_4thscreen);
