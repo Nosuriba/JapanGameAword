@@ -4,10 +4,10 @@
 #include "../ResourceManager.h"
 
 
-PredatoryObject::PredatoryObject(std::shared_ptr<Camera>& camera):Obstacle(camera),_camera(camera)
+PredatoryObject::PredatoryObject(std::shared_ptr<Camera>& camera, float& x, float& y):Obstacle(camera),_camera(camera)
 {
-	auto pos = Position2(400,300);
-	auto size = Size(40,40);
+	auto pos = Position2(x,y);
+	auto size = Size(16,16);
 	auto rect = Rect(pos, size);
 	auto color = 0xff00ff;
 

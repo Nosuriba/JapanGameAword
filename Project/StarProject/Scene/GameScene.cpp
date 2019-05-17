@@ -17,10 +17,19 @@
 #include "../Object/DestroyableObject.h"
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
+#include "../Stage.h"
 
 #include <iostream>
 
 const int shader_offset = 50;
+
+void GameScene::LoadUpdate(const Input & p)
+{
+	auto &_stage = Stage::GetInstance();
+	if(CheckHandleASyncLoad(0)) {
+		_updater = &GameScene::FadeIn;
+	}
+}
 
 void GameScene::FadeIn(const Input & p)
 {
@@ -68,17 +77,13 @@ void GameScene::Run(const Input & p)
 GameScene::GameScene()
 {
 	auto& size = Game::GetInstance().GetScreenSize();
+	auto& _stage = Stage::GetInstance();
+
 	_camera.reset(new Camera());
 
 	_pl.reset(new Player(_camera));
 
 	_col.reset(new Collision());
-
-	_destroy.reset(new DestroyableObject(_camera));
-
-	_predatory.reset(new PredatoryObject(_camera));
-
-	_immortal.reset(new ImmortalObject(_camera));
 
 	firstscreen = MakeScreen(size.x, size.y);
 	secondscreen = MakeScreen(size.x - 1, size.y - 1);
@@ -107,14 +112,14 @@ GameScene::GameScene()
 
 	//画像の読み込み
 	auto& manager = ResourceManager::GetInstance();
-	sea			= manager.LoadImg("../img/sea.png");
-	sea_effect	= manager.LoadImg("../img/sea2.png");
-	beach		= manager.LoadImg("../img/砂浜.png");
+	sea = manager.LoadImg("../img/sea.png");
+	sea_effect = manager.LoadImg("../img/sea2.png");
+	beach = manager.LoadImg("../img/砂浜.png");
 
 	//波のシェーダー頂点
 	for (int i = 0; i < 4; i++)
 	{
-		wave_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y -1, 0);
+		wave_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y - 1, 0);
 		wave_vertex[i].rhw = 1.0f;
 		wave_vertex[i].dif = GetColorU8(255, 255, 255, 255);
 		wave_vertex[i].spc = GetColorU8(0, 0, 0, 0);
@@ -125,7 +130,7 @@ GameScene::GameScene()
 	//影のシェーダー
 	for (int i = 0; i < 4; i++)
 	{
-		shadow_vertex[i].pos = VGet((i % 2)* size.x -1, (i / 2)*size.y -1, 0);
+		shadow_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y - 1, 0);
 		shadow_vertex[i].rhw = 1.0f;
 		shadow_vertex[i].dif = GetColorU8(255, 255, 255, 255);
 		shadow_vertex[i].spc = GetColorU8(0, 0, 0, 0);
@@ -134,9 +139,15 @@ GameScene::GameScene()
 	}
 
 	//オブジェクトの生成
+	/*auto _stagedata = _stage.GetStageData("test.fmf", 0, size.x);
+	for (auto& s : _stagedata) {
+		if (s == 1) {
+			_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera));
+		}
+	}
+
 	_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera));
-	_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera));
-	_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera));
+	_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera));*/
 
 	flame = 0;
 	wait = 0;
@@ -145,7 +156,7 @@ GameScene::GameScene()
 
 	shader_time = 0;
 
-	_updater = &GameScene::FadeIn;
+	_updater = &GameScene::LoadUpdate;
 }
 
 GameScene::~GameScene()
