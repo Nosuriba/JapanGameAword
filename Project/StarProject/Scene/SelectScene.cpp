@@ -44,11 +44,8 @@ void SelectScene::Run(const Input & p)
 		flame = 0;
 		_updater = &SelectScene::FadeOut;
 	}
-	if (p.IsTrigger(PAD_INPUT_8)) {
+	if (p.TriggerTrigger(TRIGGER::RIGHT)) {
 		Select = ++Select % 3;
-	}
-	if (p.IsTrigger(PAD_INPUT_7)) {
-		Select = --Select % 3;
 	}
 }
 
@@ -110,9 +107,9 @@ void SelectScene::Draw()
 	auto addy = sin((Cnt)*DX_PI / 720) * 100;
 	auto addr = sin((Cnt)*DX_PI / 180) * 0.1;
 
-	DrawRotaGraph(size.x / 4 - 100+ ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0), 1 + ((Select!=0)?addr:0), 0, bubble, true);
-	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select !=1)?addr:0), 0, bubble, true);
-	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 + ((Select !=2)?addr:0), 0, bubble, true);
+	DrawRotaGraph(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0), 1 + ((Select != 0) ? addr : addr +0.5), 0, bubble, true);
+	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select != 1) ? addr: addr -0.5), 0, bubble, true);
+	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 +((Select != 2) ? addr : addr +0.5), 0, bubble, true);
 
 	
 
