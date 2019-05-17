@@ -41,8 +41,8 @@ const bool Stage::LoadCheck()
 		for (int j = 0; j < fmf.mapWidth; j++)
 		{
 			_stages[name].data[j*fmf.mapHeight + i].no = tmp[i*fmf.mapWidth + j];
-			_stages[name].data[j*fmf.mapHeight + i].x = j * _stages[name].fmf.chipW;
-			_stages[name].data[j*fmf.mapHeight + i].y = i * _stages[name].fmf.chipH;
+			_stages[name].data[j*fmf.mapHeight + i].x = j * _stages[name].fmf.chipW + _stages[name].fmf.chipW / 2;
+			_stages[name].data[j*fmf.mapHeight + i].y = i * _stages[name].fmf.chipH + _stages[name].fmf.chipH / 2;
 		}
 	}
 	_stages[name].readX = 0;
