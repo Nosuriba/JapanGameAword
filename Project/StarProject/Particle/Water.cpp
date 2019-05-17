@@ -88,8 +88,8 @@ void Water::Move()
 		p.y += p.vy;
 
 		// ‰Á‘¬•”•ª
-		p.vy += p.avx;
-		p.vx += p.avy;
+		p.vy += p.avy;
+		p.vx += p.avx;
 		p.bright -= VanishSpeed;
 	}
 #else

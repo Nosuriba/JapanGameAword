@@ -11,7 +11,7 @@ private:
 	void Wait(const Input& p);
 	void Run(const Input& p);
 
-	int flame,Cnt;
+	int flame,Cnt,Select;
 	int bubble;
 	int background;
 
