@@ -1,9 +1,8 @@
 #include "Crab.h"
 #include "../Camera.h"
 
-const int distance = 60;
 const int length   = 80;
-const Size eSize = Size(40, 40);
+const Size eSize = Size(length, 30);
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
@@ -12,10 +11,10 @@ Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 		joints.push_back(Joint());
 		ctlPoints.push_back(Vector2());
 		joints[i].sPoint = Vector2(200, 200 + (i * 30));
-		joints[i].mPoint = joints[i].sPoint + Vector2(distance, 0);
-		joints[i].ePoint = joints[i].mPoint + Vector2(distance, 0);
+		joints[i].mPoint = joints[i].sPoint + Vector2(length, 0);
+		joints[i].ePoint = joints[i].mPoint + Vector2(length, 0);
 
-		ctlPoints[i] = joints[i].ePoint + Vector2(50, 50);
+		ctlPoints[i] = joints[i].ePoint + Vector2(length, 0);
 	}
 	
 	Neutral();
@@ -63,10 +62,36 @@ void Crab::DieUpdate()
 {
 }
 
-void Crab::CalRect()
+void Crab::CalVert()
 {
-	float right, left, top, bottom;
+	Vector2 pos;
+	Size size;
+	float right, left, top, bottom, lengthX, lengthY;
 
+	auto vec = joints[0].mPoint - joints[0].sPoint;
+	vec.Normalize();
+	/// Ç∆ÇËÇ†Ç¶Ç∏ÅAâºÇ≈ì_ÇÃê›íËÇÇµÇƒÇ¢ÇÈ
+	for (int i = 0; i < 4; ++i)
+	{
+		if (i == 0 || i == 3)
+		{
+			lengthX = (i / 4 ? (eSize.height / 2) * vec.x :
+							  -(eSize.height / 2) * vec.x);
+			lengthY = (!(i / 4) ? (eSize.height / 2) * vec.y :
+								 -(eSize.height / 2) * vec.y);
+
+			joints[0].sqrVert[0][i] = joints[0].sPoint + Vector2(lengthX, lengthY);
+		}
+		else
+		{
+			lengthX = (i % 2 ? (eSize.height / 2) * vec.x :
+							  -(eSize.height / 2) * vec.x);
+			lengthY = (!(i % 2) ? (eSize.height / 2) * vec.y :
+								 -(eSize.height / 2) * vec.y);
+
+			joints[0].sqrVert[0][i] = joints[0].mPoint + Vector2(lengthX, lengthY);
+		}
+	}
 }
 
 void Crab::LegMove(const Vector2& pos, const int& i)
@@ -136,6 +161,21 @@ void Crab::DebugDraw()
 	{
 		DrawCircle(ctlPoints[i].x, ctlPoints[i].y, 4, 0xffff00, true);
 	}
+
+	Vector2 p1, p2, p3, p4;
+	p1 = joints[0].sqrVert[0][0];
+	p2 = joints[0].sqrVert[0][1];
+	p3 = joints[0].sqrVert[0][2];
+	p4 = joints[0].sqrVert[0][3];
+
+	DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xff0000, true);
+
+	for (int i = 0; i < joints[0].sqrVert[0].size(); ++i)
+	{
+		DxLib::DrawCircle(joints[0].sqrVert[0][i].x, joints[0].sqrVert[0][i].y, 5, 0xff00ff, true);
+	}
+
+	DxLib::DrawCircle(dCenter.x, dCenter.y, 5, 0x0000ff, true);
 }
 
 void Crab::Update()
@@ -143,6 +183,7 @@ void Crab::Update()
 	(this->*_updater)();
 	for (int i = 0; i < joints.size(); ++i)
 	{
+		CalVert();
 		LegMove(ctlPoints[i], i);
 		ctlPoints[i] += _vel;
 	}

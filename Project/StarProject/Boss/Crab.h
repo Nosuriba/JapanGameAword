@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <vector>
 #include "Boss.h"
 
@@ -24,6 +25,8 @@ struct Vector3
 	}
 };
 
+using sqr_vert = std::array<Vector2, 4>;
+
 struct Joint
 {
 	// 3つの関節
@@ -32,7 +35,7 @@ struct Joint
 	float cos, sin;
 
 	Size _size;
-	Rect _rect;
+	std::array<sqr_vert, 2> sqrVert;
 
 };
 
@@ -48,7 +51,7 @@ private:
 	void ShotUpdate();
 	void DieUpdate();
 
-	void CalRect();
+	void CalVert();			// 頂点の計算
 	void LegMove(const Vector2& pos, const int& i);
 
 	// 外積の計算
@@ -66,6 +69,8 @@ private:
 	std::vector<Vector2> ctlPoints;
 	Vector2 _vel;
 	int moveCnt;
+
+	Vector2 dCenter;			/// ﾃﾞﾊﾞｯｸﾞ用の中心点
 public:
 	Crab(std::shared_ptr<Camera>& camera);
 	~Crab();
