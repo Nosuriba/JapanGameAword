@@ -17,7 +17,7 @@ private:
 	int immortalimg;
 
 public:
-	ImmortalObject(std::shared_ptr<Camera>& camera,float& x,float& y);
+	ImmortalObject(std::shared_ptr<Camera>& camera, int x, int y);
 	~ImmortalObject();
 	void Draw();
 	void Update();

@@ -3,10 +3,10 @@
 #include "../ResourceManager.h"
 
 
-DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera, float& x, float& y):Obstacle(camera),_camera(camera)
+DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera, int x, int y):Obstacle(camera),_camera(camera)
 {
 	auto pos = Position2(x,y);
-	auto size = Size(16,16);
+	auto size = Size(32,32);
 	auto rect = Rect(pos, size);
 	auto color = 0xff00ff;
 

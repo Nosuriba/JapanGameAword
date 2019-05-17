@@ -15,7 +15,7 @@ private:
 	int destroyimg;
 
 public:
-	DestroyableObject(std::shared_ptr<Camera>& camera, float& x, float& y);
+	DestroyableObject(std::shared_ptr<Camera>& camera, int x, int y);
 	~DestroyableObject();
 
 	void Draw();
