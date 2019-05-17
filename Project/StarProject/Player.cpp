@@ -142,8 +142,8 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 	select_idx = { -1,-1 };
 	_vel = Vector2();
 
-	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 10000,_camera));
-	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 10000, _camera));
+	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
+	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
 
 	_updater = &Player::Normal;
 }
