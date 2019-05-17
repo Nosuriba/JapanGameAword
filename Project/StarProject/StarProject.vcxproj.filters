@@ -90,9 +90,6 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy\Octopus.h">
-      <Filter>Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="Particle\AMP.h">
       <Filter>Particle</Filter>
     </ClInclude>
@@ -115,6 +112,9 @@
       <Filter>Boss</Filter>
     </ClInclude>
     <ClInclude Include="Boss\Boss.h">
+      <Filter>Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Boss\Octopus.h">
       <Filter>Boss</Filter>
     </ClInclude>
   </ItemGroup>
@@ -179,9 +179,6 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy\Octopus.cpp">
-      <Filter>Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="Particle\Bubble.cpp">
       <Filter>Particle</Filter>
     </ClCompile>
@@ -201,6 +198,9 @@
       <Filter>Boss</Filter>
     </ClCompile>
     <ClCompile Include="Boss\Crab.cpp">
+      <Filter>Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Boss\Octopus.cpp">
       <Filter>Boss</Filter>
     </ClCompile>
   </ItemGroup>

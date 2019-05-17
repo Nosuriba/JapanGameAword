@@ -125,11 +125,11 @@
   <ItemGroup>
     <ClCompile Include="Boss\Boss.cpp" />
     <ClCompile Include="Boss\Crab.cpp" />
+    <ClCompile Include="Boss\Octopus.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Enemy\Diodon.cpp" />
     <ClCompile Include="Enemy\Enemy.cpp" />
     <ClCompile Include="Enemy\Fish.cpp" />
-    <ClCompile Include="Enemy\Octopus.cpp" />
     <ClCompile Include="Enemy\SeaCucumber.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
@@ -155,11 +155,11 @@
   <ItemGroup>
     <ClInclude Include="Boss\Boss.h" />
     <ClInclude Include="Boss\Crab.h" />
+    <ClInclude Include="Boss\Octopus.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Enemy\Diodon.h" />
     <ClInclude Include="Enemy\Enemy.h" />
     <ClInclude Include="Enemy\Fish.h" />
-    <ClInclude Include="Enemy\Octopus.h" />
     <ClInclude Include="Enemy\SeaCucumber.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Object\DestroyableObject.h" />
