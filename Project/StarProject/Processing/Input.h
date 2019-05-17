@@ -52,12 +52,12 @@ public:
 
 	void Update();
 
-	const bool Push(const BUTTON&);
-	const bool Trigger(const BUTTON&);
+	const bool Push(BUTTON) const;
+	const bool Trigger(BUTTON) const;
 
-	const int PushTrigger(const TRIGGER& t);
-	const int TriggerTrigger(const TRIGGER& t);
+	const int PushTrigger(TRIGGER t) const;
+	const int TriggerTrigger(TRIGGER t) const;
 
-	const Vector2 Stick(const STICK& s);
+	const Vector2 Stick(STICK s) const;
 };
 
