@@ -39,14 +39,14 @@ void Game::Init()
 		return;
 	}
 
+	SetUseASyncLoadFlag(true);
+
 	//ピクセルシェーダ読み込み
 	wavehandle = LoadPixelShader("Shader/Wave.pso");
 	shadowhandle = LoadPixelShader("Shader/Shadow.pso");
-	bubblehandle = LoadPixelShader("Shader/bubble.pso");
 
 	_handle.push_back(wavehandle);
 	_handle.push_back(shadowhandle);
-	_handle.push_back(bubblehandle);
 
 	DxLib::SetDrawScreen(DX_SCREEN_BACK);
 	SetTextureAddressModeUV(DX_TEXADDRESS_BORDER, DX_TEXADDRESS_BORDER);

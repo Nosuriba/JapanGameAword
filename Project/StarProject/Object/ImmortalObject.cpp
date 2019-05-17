@@ -1,6 +1,7 @@
 #include "ImmortalObject.h"
 #include "../Camera.h"
 #include <DxLib.h>
+#include "../ResourceManager.h"
 
 
 ImmortalObject::ImmortalObject(std::shared_ptr<Camera>& camera):Obstacle(camera),_camera(camera)
@@ -12,7 +13,7 @@ ImmortalObject::ImmortalObject(std::shared_ptr<Camera>& camera):Obstacle(camera)
 
 	obj = ObjectInfo(pos, size, rect, color);
 
-	immortalimg = DxLib::LoadGraph("../img/immortal.png");
+	immortalimg = ResourceManager::GetInstance().LoadImg("../img/immortal.png");
 }
 
 

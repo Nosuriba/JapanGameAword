@@ -96,28 +96,6 @@ void SelectScene::Draw()
 	auto& game = Game::GetInstance();
 	auto size = game.GetScreenSize();
 
-
-	//first(”wŒi)
-	SetDrawScreen(firstscreen);
-
-	ClearDrawScreen();
-
-
-
-	//second(–A)
-	SetUseTextureToShader(0, bubble);
-
-	SetPSConstSF(0, shader_time / 10);
-
-	SetUsePixelShader(game.GetShaderHandle()[2]);
-
-	DrawPrimitive2DToShader(bubble_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
-
-
-	SetDrawScreen(DX_SCREEN_BACK);
-	ClearDrawScreen();
-	//DrawGraph(0,0,firstscreen,true);
-
 	DrawExtendGraph(0, 0, size.x, size.y, background, true);
 
 	(*BuckBubble).Draw();

@@ -7,7 +7,8 @@ class Input;
 class TitleScene : public Scene
 {
 private:
-	int titleimg;
+	int title;
+	int titleback;
 
 	void (TitleScene::*_updater)(const Input& p);
 	void FadeIn(const Input& p);

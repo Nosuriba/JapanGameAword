@@ -1,5 +1,6 @@
 #include "DestroyableObject.h"
 #include "../Camera.h"
+#include "../ResourceManager.h"
 
 
 DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera):Obstacle(camera),_camera(camera)
@@ -11,7 +12,7 @@ DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera):Obstacle(c
 
 	obj = ObjectInfo(pos, size, rect, color);
 
-	destroyimg = DxLib::LoadGraph("../img/destroy.png");
+	destroyimg = ResourceManager::GetInstance().LoadImg("../img/destroy.png");
 }
 
 DestroyableObject::~DestroyableObject()
