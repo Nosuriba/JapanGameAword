@@ -49,11 +49,11 @@ void SelectScene::Run(const Input & p)
 		_updater = &SelectScene::FadeOut;
 	}
 	if (p.TriggerTrigger(TRIGGER::RIGHT)) {
-		Select = Select<2?++Select:Select;
+		Select = (Select<2)?++Select:Select;
 	}
 
 	if (p.TriggerTrigger(TRIGGER::LEFT)) {
-		Select = Select>0?--Select:Select;
+		Select = (Select>0)?--Select:Select;
 	}
 }
 
@@ -86,7 +86,7 @@ SelectScene::SelectScene()
 	Select = 0; 
 
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
-	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 5 * 4, 100, true, 1));
+	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 10 * 7, 100, true, 1));
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x / 5 * 4, size.y / 5 * 4, 125, true, 1));
 }
 

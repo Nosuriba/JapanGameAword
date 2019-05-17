@@ -52,8 +52,8 @@ void Bubble::Create()
 
 				if (i == ElementNum)return;
 
-				particle[i].x = (x)* Magnification;
-				particle[i].y = (y)* Magnification;
+				particle[i].x = (isSmall?x:(Rand() % screen_x))* Magnification;
+				particle[i].y = y * Magnification;
 				particle[i].bright = 255;
 
 				auto Theta = (Rand() % 360)*DX_PI_F/180.0;
@@ -85,6 +85,11 @@ void Bubble::Move()
 			p.bright = 0;
 			continue;
 		}
+		if ((p.x/100 < -p.bright)||(p.x/100 > screen_x+p.bright)||(p.y / 100 > screen_y + p.bright)|| (p.y / 100 < - p.bright)) {
+			p.bright = 0;
+			continue;
+		}
+
 
 		// à⁄ìÆïîï™
 		p.x += p.vx;
@@ -98,13 +103,13 @@ void Bubble::Move()
 	}
 #else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
-	auto move = [p_element = p_element](concurrency::index<1> idx)restrict(amp) {
+	auto move = [p_element = p_element,sx= screen_x,sy= screen_y](concurrency::index<1> idx)restrict(amp) {
 		// ó·äOèàóù
 		if (p_element[idx].bright < VanishBright) {
 			p_element[idx].bright = 0;
 			return;
 		}
-		if ((p_element[idx].x/100) < 0) {
+		if ((p_element[idx].x / 100 < -p_element[idx].bright) || (p_element[idx].x / 100 > sx + p_element[idx].bright) || (p_element[idx].y / 100 > sy + p_element[idx].bright) || (p_element[idx].y / 100 < -p_element[idx].bright)) {
 			p_element[idx].bright = 0;
 			return;
 		}
