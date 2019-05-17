@@ -38,6 +38,7 @@ void GameScene::LoadResourceUpdate(const Input & p)
 	int i = GetASyncLoadNum();
 	if (GetASyncLoadNum() == 0)
 	{
+		wait = 0;
 		_updater = &GameScene::FadeIn;
 	}
 }
@@ -77,7 +78,7 @@ void GameScene::Wait(const Input & p)
 		_updater = &GameScene::Run;
 	}
 	else {
-		if ((waitCnt % 120) == 0) {
+		if ((waitCnt % 60) == 0) {
 			waitNum--;
 		}
 	}
@@ -175,6 +176,7 @@ GameScene::GameScene()
 	wait = 0;
 	time = 60;
 	totaltime = 60;
+
 	waitNum = 3;
 	waitCnt = 0;
 
@@ -209,6 +211,18 @@ void GameScene::Draw()
 
 	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y,
 		0 - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y + size.y,
+		size.x - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y + size.y, beach, true);
+
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x, 0 - _camera->CameraCorrection().y + size.y,
+		0 - _camera->CameraCorrection().x + size.x, size.y - _camera->CameraCorrection().y + size.y, beach, true);
+
+	DrawExtendGraph(0 - _camera->CameraCorrection().x + size.x * 2, 0 - _camera->CameraCorrection().y + size.y,
+		size.x - _camera->CameraCorrection().x + size.x * 2, size.y - _camera->CameraCorrection().y + size.y, beach, true);
+
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y,
+		0 - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y, beach, true);
 
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
@@ -314,7 +328,7 @@ void GameScene::Draw()
 
 	SetFontSize(128);
 
-	if (waitCnt >= 1) {
+	if (_updater == &GameScene::Wait && waitNum >= 1) {
 		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
 	}
 
