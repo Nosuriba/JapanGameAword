@@ -94,8 +94,9 @@ SelectScene::SelectScene()
 	Cnt = 0;
 	Select = 0; 
 
-	BuckBubble = std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,1000,true,1);
-	subBuckBubble = std::make_unique<Bubble>(50, size.y / 5 * 4,1000,true,1);
+	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
+	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 5 * 4, 100, true, 1));
+	CoralBubble.push_back(std::make_unique<Bubble>(size.x / 5 * 4, size.y / 5 * 4, 125, true, 1));
 }
 
 SelectScene::~SelectScene()
@@ -110,7 +111,11 @@ void SelectScene::Draw()
 
 	DrawExtendGraph(0, 0, size.x, size.y, background, true);
 
-	(*BuckBubble).Draw();
+	for (auto &b:CoralBubble)
+	{
+		(*b).Draw();
+	}
+
 	auto addx = cos((Cnt % 360)*DX_PI / 180) * 25;
 	auto addy = sin((Cnt)*DX_PI / 720) * 100;
 	auto addr = sin((Cnt)*DX_PI / 180) * 0.1;
@@ -124,13 +129,14 @@ void SelectScene::Draw()
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 3.0f / 2.0f, size.y / 2 + size.y / 4, "Select", 0xa000f0);
 
 	(*FadeBubble).Draw();
-	(*subBuckBubble).Draw();
 }
 
 void SelectScene::Update(const Input & p)
 {
-	(*BuckBubble).Create();
-	(*subBuckBubble).Create();
+	for (auto &b : CoralBubble)
+	{
+		(*b).Create();
+	}
 	flame++;
 	Cnt++;
 	shader_time++;

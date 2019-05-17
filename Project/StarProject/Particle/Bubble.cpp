@@ -3,6 +3,7 @@
 
 constexpr int Magnification = 100;
 constexpr int VelocitySize = 100;
+constexpr int ShakeSize = 31;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
 
@@ -57,7 +58,7 @@ void Bubble::Create()
 
 				auto Theta = (Rand() % 360)*DX_PI_F/180.0;
 				auto vSize = (Rand() % (VelocitySize));
-				particle[i].vx = cos(Theta)*vSize * (isSmall?2:20);
+				particle[i].vx = cos(Theta)* (isSmall? vSize/2: vSize * 20);
 				particle[i].vy = sin(Theta)*vSize * 10;
 
 				particle[i].avy = -10;
@@ -91,7 +92,7 @@ void Bubble::Move()
 
 		// ‰Á‘¬•”•ª
 		p.vy += p.avy;
-		p.vx += (int)(p.x / Magnification) % 2 ? 101 : -101; // ¶‰E‚É—h‚ê‚é
+		p.vx += (int)(p.x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ¶‰E‚É—h‚ê‚é
 
 		p.bright -= VanishSpeed;
 	}
@@ -114,7 +115,7 @@ void Bubble::Move()
 
 		// ‰Á‘¬•”•ª
 		p_element[idx].vy += p_element[idx].avy;
-		p_element[idx].vx += (int)(p_element[idx].x / Magnification) % 2 ? 101 : -101; // ¶‰E‚É—h‚ê‚é
+		p_element[idx].vx += (int)(p_element[idx].x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ¶‰E‚É—h‚ê‚é
 
 		p_element[idx].bright -= VanishSpeed;
 	};
@@ -143,8 +144,8 @@ void Bubble::Draw()
 	{
 		if (p.bright> VanishBright)
 		{
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright);
-			DrawRotaGraph(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ? 5 : 1)), 0, imgBff, true);
+			isSmall ? SetDrawBlendMode(mode, param): SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
+			DrawRotaGraph(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ? 8 : 1)), 0, imgBff, true);
 			continue;
 		}
 	}
