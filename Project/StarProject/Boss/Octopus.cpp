@@ -58,7 +58,16 @@ void Octopus::Normal(E_Leg& leg,Vector2 pos)
 	}
 }
 
-void Octopus::Attack()
+void Octopus::Punch(E_Leg& leg, Vector2 pos)
+{
+
+}
+
+void Octopus::OctInk(E_Leg& leg, Vector2 pos)
+{
+}
+
+void Octopus::Sweep(E_Leg& leg, Vector2 pos)
 {
 }
 

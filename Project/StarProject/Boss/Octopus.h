@@ -37,7 +37,9 @@ private:
 	void Die();
 	void DieUpdate();
 	void Normal(E_Leg& leg,Vector2 pos);
-	void Attack();
+	void Punch(E_Leg& leg, Vector2 pos);
+	void OctInk(E_Leg& leg, Vector2 pos);
+	void Sweep(E_Leg& leg, Vector2 pos);
 	void Damage();
 
 	void NeturalUpdate();
