@@ -14,7 +14,7 @@ private:
 	int predatoryimg;
 
 public:
-	PredatoryObject(std::shared_ptr<Camera>& camera);
+	PredatoryObject(std::shared_ptr<Camera>& camera, int x, int y);
 	~PredatoryObject();
 
 	void Draw();

@@ -19,10 +19,12 @@ void Stage::LoadStage(std::string str)
 	SetUseASyncLoadFlag(false);
 
 	name = str;
+	count = 0;
 }
 
 const bool Stage::LoadCheck()
 {
+	if (_stages.find(name) != _stages.end()) return true;
 	if (CheckHandleASyncLoad(fmf_h)) return false;
 	if (fmf_h == -1) return false;
 
@@ -36,18 +38,20 @@ const bool Stage::LoadCheck()
 	DxLib::FileRead_close(fmf_h);
 
 	_stages[name].data.resize(tmp.size());
-	for (int i = 0; i < fmf.mapHeight; i++)
+	//for (int i = 0; i < fmf.mapHeight; i++)
+	//{
+	//}
+	for (int j = 0; j < fmf.mapWidth; j++)
 	{
-		for (int j = 0; j < fmf.mapWidth; j++)
-		{
-			_stages[name].data[j*fmf.mapHeight + i].no = tmp[i*fmf.mapWidth + j];
-			_stages[name].data[j*fmf.mapHeight + i].x = j * _stages[name].fmf.chipW + _stages[name].fmf.chipW / 2;
-			_stages[name].data[j*fmf.mapHeight + i].y = i * _stages[name].fmf.chipH + _stages[name].fmf.chipH / 2;
-		}
+		_stages[name].data[j * fmf.mapHeight + count].no = tmp[count * fmf.mapWidth + j];
+		_stages[name].data[j * fmf.mapHeight + count].x = j * _stages[name].fmf.chipW + _stages[name].fmf.chipW / 2;
+		_stages[name].data[j * fmf.mapHeight + count].y = count * _stages[name].fmf.chipH + _stages[name].fmf.chipH / 2;
 	}
+
 	_stages[name].readX = 0;
 
-	return true;
+	if(count == fmf.mapHeight) return true;
+	return false;
 }
 
 std::vector<ChipInfo> Stage::GetStageData()

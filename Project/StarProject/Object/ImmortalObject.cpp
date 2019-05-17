@@ -4,10 +4,10 @@
 #include "../ResourceManager.h"
 
 
-ImmortalObject::ImmortalObject(std::shared_ptr<Camera>& camera):Obstacle(camera),_camera(camera)
+ImmortalObject::ImmortalObject(std::shared_ptr<Camera>& camera, int x, int y):Obstacle(camera),_camera(camera)
 {
-	auto pos = Position2(400,200);
-	auto size = Size(40,40);
+	auto pos = Position2(x,y);
+	auto size = Size(16,16);
 	auto rect = Rect(pos, size);
 	auto color = 0xff00ff;
 
