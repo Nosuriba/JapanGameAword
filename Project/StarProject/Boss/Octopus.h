@@ -1,6 +1,6 @@
 #pragma once
-#include "Enemy.h"
-
+#include "Boss.h"
+#include <vector>
 
 class Camera;
 
@@ -18,7 +18,7 @@ struct E_Leg {
 	std::vector<Vector2> joint;	//関節座標
 	const int T = 12;	//関節数
 	E_LEG_STATE state;	//状態
-	int angle;		//目標座標
+	int angle;		//目標までの角度
 };
 
 struct Oct {
@@ -29,7 +29,7 @@ struct Oct {
 };
 
 class Octopus :
-	public Enemy
+	public Boss
 {
 private:
 	int angle;
@@ -50,10 +50,6 @@ public:
 	~Octopus();
 	void Draw();
 	void Update();
-	EnemyInfo GetInfo();
-	shot_vector GetShotInfo();
-	void CalEscapeDir(const Vector2& vec);
-	void ChangeShotColor(const int& num);
-	void CalTrackVel(const Vector2& pos, bool col);
+	BossInfo GetInfo();
 };
 

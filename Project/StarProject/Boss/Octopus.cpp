@@ -7,16 +7,14 @@
 
 #define LEG(x) _oct.legs[x]
 
-Octopus::Octopus(std::shared_ptr<Camera>& camera) : Enemy(camera), _camera(camera)
+Octopus::Octopus(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
 	
 	_oct.center = Vector2(900, 300);
 	auto size = Size(100, 150);
 	auto rect = Rect(_oct.center, size);
-	enemy = EnemyInfo(_oct.center, size, rect);
-	enemy._dieFlag = false;
 	_oct.root = _oct.center + Vector2(-80,0);
-	_oct.r = enemy._size.width * 5;
+	_oct.r = 500;
 	_oct.legs.resize(8);
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 	for (int i = 0; i < _oct.legs.size(); ++i) {
@@ -138,26 +136,9 @@ void Octopus::Update()
 	(this->*_updater)();
 }
 
-EnemyInfo Octopus::GetInfo()
+BossInfo Octopus::GetInfo()
 {
-	return EnemyInfo();
-}
-
-shot_vector Octopus::GetShotInfo()
-{
-	return shot_vector();
-}
-
-void Octopus::CalEscapeDir(const Vector2 & vec)
-{
-}
-
-void Octopus::ChangeShotColor(const int & num)
-{
-}
-
-void Octopus::CalTrackVel(const Vector2 & pos, bool col)
-{
+	return BossInfo();
 }
 
 Octopus::~Octopus()
