@@ -26,8 +26,32 @@ const int shader_offset = 50;
 void GameScene::LoadUpdate(const Input & p)
 {
 	auto &_stage = Stage::GetInstance();
-	if(CheckHandleASyncLoad(0)) {
-		_updater = &GameScene::FadeIn;
+	auto& size = Game::GetInstance().GetScreenSize();
+	if(_stage.LoadCheck()) {
+
+		//スクリーン作成
+		firstscreen = MakeScreen(size.x, size.y);
+		secondscreen = MakeScreen(size.x - 1, size.y - 1);
+		thirdscreen = MakeScreen(size.x - 1, size.y - 1);
+		_4thscreen = MakeScreen(size.x, size.y);
+
+		//オブジェクトの生成
+		auto _stagedata = _stage.GetStageData(0, size.x);
+		for (auto& s : _stagedata) {
+			if (s.no == 1) {
+				_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
+			}
+			if (s.no == 2) {
+				_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera,s.x,s.y));
+			}
+			if (s.no == 3) {
+				_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera,s.x,s.y));
+			}
+		}
+		
+		if (GetASyncLoadNum() == 0) {
+			_updater = &GameScene::FadeIn;
+		}
 	}
 }
 
@@ -85,11 +109,6 @@ GameScene::GameScene()
 
 	_col.reset(new Collision());
 
-	firstscreen = MakeScreen(size.x, size.y);
-	secondscreen = MakeScreen(size.x - 1, size.y - 1);
-	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
-	_4thscreen = MakeScreen(size.x, size.y);
-
 	/// 敵の生成(debug用)
 	_enemies.push_back(std::make_shared<Fish>(_camera));
 	_enemies.push_back(std::make_shared<Diodon>(_camera));
@@ -137,17 +156,6 @@ GameScene::GameScene()
 		shadow_vertex[i].u = shadow_vertex[i].su = (float)(i % 2);
 		shadow_vertex[i].v = shadow_vertex[i].sv = (float)(i / 2);
 	}
-
-	//オブジェクトの生成
-	/*auto _stagedata = _stage.GetStageData("test.fmf", 0, size.x);
-	for (auto& s : _stagedata) {
-		if (s == 1) {
-			_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera));
-		}
-	}
-
-	_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera));
-	_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera));*/
 
 	flame = 0;
 	wait = 0;

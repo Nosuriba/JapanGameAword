@@ -4,6 +4,8 @@
 #include "GameScene.h"
 #include "../ResourceManager.h"
 
+#include "../Stage.h"
+
 
 void SelectScene::FadeIn(const Input & p)
 {
@@ -42,6 +44,7 @@ void SelectScene::Run(const Input & p)
 
 	if (p.IsTrigger(PAD_INPUT_10)) {
 		flame = 0;
+		Stage::GetInstance().LoadStage("../Stage/test.fmf");
 		_updater = &SelectScene::FadeOut;
 	}
 	if (p.TriggerTrigger(TRIGGER::RIGHT)) {
