@@ -31,6 +31,9 @@ struct Joint
 	// 三角比用変数
 	float cos, sin;
 
+	Size _size;
+	Rect _rect;
+
 };
 
 class Crab :
@@ -45,6 +48,7 @@ private:
 	void ShotUpdate();
 	void DieUpdate();
 
+	void CalRect();
 	void LegMove(const Vector2& pos, const int& i);
 
 	// 外積の計算

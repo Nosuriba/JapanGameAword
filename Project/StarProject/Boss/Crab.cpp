@@ -3,10 +3,11 @@
 
 const int distance = 60;
 const int length   = 80;
+const Size eSize = Size(40, 40);
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		joints.push_back(Joint());
 		ctlPoints.push_back(Vector2());
@@ -27,7 +28,7 @@ Crab::~Crab()
 void Crab::Neutral()
 {
 	moveCnt = 60;
-	_vel.y = 2.0;
+	_vel.x = 2.0f;
 	_updater = &Crab::NeutralUpdate;
 }
 
@@ -43,7 +44,15 @@ void Crab::Die()
 
 void Crab::NeutralUpdate()
 {
-
+	_vel = Vector2(0, 0);
+	if (CheckHitKey(KEY_INPUT_A))
+		_vel.x = -2.0f;
+	if (CheckHitKey(KEY_INPUT_D))
+		_vel.x = 2.0f;
+	if (CheckHitKey(KEY_INPUT_W))
+		_vel.y = -2.0f;
+	if (CheckHitKey(KEY_INPUT_S))
+		_vel.y = 2.0f;
 }
 
 void Crab::ShotUpdate()
@@ -52,6 +61,12 @@ void Crab::ShotUpdate()
 
 void Crab::DieUpdate()
 {
+}
+
+void Crab::CalRect()
+{
+	float right, left, top, bottom;
+
 }
 
 void Crab::LegMove(const Vector2& pos, const int& i)
@@ -100,12 +115,12 @@ void Crab::Draw()
 	// 余弦定理を使っての関節移動
 	for (int i = 0; i < joints.size(); ++i)
 	{
-		DrawLine(joints[i].mPoint.x, joints[i].mPoint.y, joints[i].ePoint.x, joints[i].ePoint.y, 0x00ccff);		/// 終点から中間点
+		DrawLine(joints[i].mPoint.x, joints[i].mPoint.y, joints[i].ePoint.x, joints[i].ePoint.y, 0x00ff00);		/// 終点から中間点
 		DrawLine(joints[i].sPoint.x, joints[i].sPoint.y, joints[i].mPoint.x, joints[i].mPoint.y, 0x00ff00);			/// 中間点から始点
 
 		DrawCircle(joints[i].sPoint.x, joints[i].sPoint.y, 5, 0xff0000, true);
-		DrawCircle(joints[i].mPoint.x, joints[i].mPoint.y, 5, 0xff8800, true);
-		DrawCircle(joints[i].ePoint.x, joints[i].ePoint.y, 5, 0xffff00, true);
+		DrawCircle(joints[i].mPoint.x, joints[i].mPoint.y, 5, 0xff0000, true);
+		DrawCircle(joints[i].ePoint.x, joints[i].ePoint.y, 5, 0xff0000, true);
 	}
 	
 
@@ -116,6 +131,11 @@ void Crab::Draw()
 
 void Crab::DebugDraw()
 {
+	/// 足の制御点描画
+	for (int i = 0; i < joints.size(); ++i)
+	{
+		DrawCircle(ctlPoints[i].x, ctlPoints[i].y, 4, 0xffff00, true);
+	}
 }
 
 void Crab::Update()
