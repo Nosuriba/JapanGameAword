@@ -23,83 +23,22 @@
 
 const int shader_offset = 50;
 
-void GameScene::LoadUpdate(const Input & p)
+void GameScene::LoadStageUpdate(const Input & p)
 {
 	auto &_stage = Stage::GetInstance();
-	auto& size = Game::GetInstance().GetScreenSize();
+
 	if(_stage.LoadCheck()) {
+		LoadResource();
+		_updater = &GameScene::LoadResourceUpdate;
+	}
+}
 
-		/// 敵の生成(debug用)
-		_enemies.push_back(std::make_shared<Fish>(_camera));
-		_enemies.push_back(std::make_shared<Diodon>(_camera));
-		_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
-		_bosses.push_back(std::make_shared<Octopus>(_camera));
-
-		_bosses.push_back(std::make_shared<Crab>(_camera));
-
-		//スクリーン作成
-		firstscreen = MakeScreen(size.x, size.y);
-		secondscreen = MakeScreen(size.x - 1, size.y - 1);
-		thirdscreen = MakeScreen(size.x - 1, size.y - 1);
-		_4thscreen = MakeScreen(size.x, size.y);
-
-		//フォントのロード
-		LPCSTR font = "H2O-Shadow.ttf";
-		if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
-		}
-		else {
-			MessageBox(nullptr, "失敗", "", MB_OK);
-		}
-
-		SetFontSize(64);
-
-		ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
-
-		//画像の読み込み
-		auto& manager = ResourceManager::GetInstance();
-		sea = manager.LoadImg("../img/sea.png");
-		sea_effect = manager.LoadImg("../img/sea2.png");
-		beach = manager.LoadImg("../img/砂浜.png");
-
-		//波のシェーダー頂点
-		for (int i = 0; i < 4; i++)
-		{
-			wave_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y - 1, 0);
-			wave_vertex[i].rhw = 1.0f;
-			wave_vertex[i].dif = GetColorU8(255, 255, 255, 255);
-			wave_vertex[i].spc = GetColorU8(0, 0, 0, 0);
-			wave_vertex[i].u = wave_vertex[i].su = (float)(i % 2);
-			wave_vertex[i].v = wave_vertex[i].sv = (float)(i / 2);
-		}
-
-		//影のシェーダー
-		for (int i = 0; i < 4; i++)
-		{
-			shadow_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y - 1, 0);
-			shadow_vertex[i].rhw = 1.0f;
-			shadow_vertex[i].dif = GetColorU8(255, 255, 255, 255);
-			shadow_vertex[i].spc = GetColorU8(0, 0, 0, 0);
-			shadow_vertex[i].u = shadow_vertex[i].su = (float)(i % 2);
-			shadow_vertex[i].v = shadow_vertex[i].sv = (float)(i / 2);
-		}
-
-		//オブジェクトの生成
-		auto _stagedata = _stage.GetStageData();
-		for (auto& s : _stagedata) {
-			if (s.no == 1) {
-				_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
-			}
-			if (s.no == 2) {
-				_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera,s.x,s.y));
-			}
-			if (s.no == 3) {
-				_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera,s.x,s.y));
-			}
-		}
-		
-		if (GetASyncLoadNum() == 0) {
-			_updater = &GameScene::FadeIn;
-		}
+void GameScene::LoadResourceUpdate(const Input & p)
+{
+	int i = GetASyncLoadNum();
+	if (GetASyncLoadNum() == 0)
+	{
+		_updater = &GameScene::FadeIn;
 	}
 }
 
@@ -146,6 +85,85 @@ void GameScene::Run(const Input & p)
 	}
 }
 
+void GameScene::LoadResource()
+{
+	auto &_stage = Stage::GetInstance();
+	auto& size = Game::GetInstance().GetScreenSize();
+
+	SetUseASyncLoadFlag(true);
+
+	/// 敵の生成(debug用)
+	_enemies.push_back(std::make_shared<Fish>(_camera));
+	_enemies.push_back(std::make_shared<Diodon>(_camera));
+	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
+	_bosses.push_back(std::make_shared<Octopus>(_camera));
+
+	_bosses.push_back(std::make_shared<Crab>(_camera));
+
+	//スクリーン作成
+	firstscreen = MakeScreen(size.x, size.y);
+	secondscreen = MakeScreen(size.x - 1, size.y - 1);
+	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
+	_4thscreen = MakeScreen(size.x, size.y);
+
+
+	//フォントのロード
+	LPCSTR font = "H2O-Shadow.ttf";
+	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
+	}
+	else {
+		MessageBox(nullptr, "失敗", "", MB_OK);
+	}
+
+	SetFontSize(64);
+
+	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
+
+	//画像の読み込み
+	auto& manager = ResourceManager::GetInstance();
+	sea = manager.LoadImg("../img/sea.png");
+	sea_effect = manager.LoadImg("../img/sea2.png");
+	beach = manager.LoadImg("../img/砂浜.png");
+
+	//波のシェーダー頂点
+	for (int i = 0; i < 4; i++)
+	{
+		wave_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y - 1, 0);
+		wave_vertex[i].rhw = 1.0f;
+		wave_vertex[i].dif = GetColorU8(255, 255, 255, 255);
+		wave_vertex[i].spc = GetColorU8(0, 0, 0, 0);
+		wave_vertex[i].u = wave_vertex[i].su = (float)(i % 2);
+		wave_vertex[i].v = wave_vertex[i].sv = (float)(i / 2);
+	}
+
+	//影のシェーダー
+	for (int i = 0; i < 4; i++)
+	{
+		shadow_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y - 1, 0);
+		shadow_vertex[i].rhw = 1.0f;
+		shadow_vertex[i].dif = GetColorU8(255, 255, 255, 255);
+		shadow_vertex[i].spc = GetColorU8(0, 0, 0, 0);
+		shadow_vertex[i].u = shadow_vertex[i].su = (float)(i % 2);
+		shadow_vertex[i].v = shadow_vertex[i].sv = (float)(i / 2);
+	}
+
+	//オブジェクトの生成
+	auto _stagedata = _stage.GetStageData();
+	for (auto& s : _stagedata) {
+		if (s.no == 1) {
+			_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
+		}
+		if (s.no == 2) {
+			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y));
+		}
+		if (s.no == 3) {
+			_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
+		}
+	}
+	SetUseASyncLoadFlag(false);
+
+}
+
 GameScene::GameScene()
 {
 	_camera.reset(new Camera());
@@ -161,7 +179,7 @@ GameScene::GameScene()
 
 	shader_time = 0;
 
-	_updater = &GameScene::LoadUpdate;
+	_updater = &GameScene::LoadStageUpdate;
 }
 
 GameScene::~GameScene()
@@ -297,7 +315,6 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	(*FadeBubble).Draw();
 
 }
 
@@ -386,14 +403,11 @@ void GameScene::Update(const Input & p)
 		}
 	}
 
-	if (_enemies.size() <= 0)
-	{
-		DrawString(0, 0, "Not Enemy", 0xffffff);
-	}
-
 	totaltime = time - (flame / 60);
 
 	_camera->Update(_pl->GetInfo().center);
 
 	(this->*_updater)(p);
+
+	(*FadeBubble).Draw();
 }

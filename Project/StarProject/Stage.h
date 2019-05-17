@@ -33,6 +33,7 @@ private:
 	Stage();
 	~Stage();
 
+	int count;
 	int fmf_h;
 	std::map<std::string, StageData> _stages;
 	std::string name;

@@ -56,18 +56,6 @@ SelectScene::SelectScene()
 {
 	auto size = Game::GetInstance().GetScreenSize();
 
-	//フォントのロード
-	LPCSTR font = "H2O-Shadow.ttf";
-	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
-	}
-	else {
-		MessageBox(nullptr, "失敗", "", MB_OK);
-	}
-
-	SetFontSize(64);
-
-	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
-
 	bubble = ResourceManager::GetInstance().LoadImg("../img/Bubble.png");
 	background = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 
