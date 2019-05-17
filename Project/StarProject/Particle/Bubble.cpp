@@ -138,7 +138,7 @@ void Bubble::Draw()
 		{
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright);
 			DrawRotaGraph(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ Magnification, 0, imgBff, true);
-			/*{
+		/*{
 				DrawCircle(p.x / Magnification, p.y / Magnification, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright / 3, p.bright * 2 / 3, p.bright), 3);
 				DrawCircle(p.x / Magnification, p.y / Magnification, 0xff / p.radius - p.bright / p.radius, 0x9999ff, 0);
 				DrawCircle(
@@ -150,6 +150,7 @@ void Bubble::Draw()
 				);
 			}*/
 			// DrawPixel(p.x/100,p.y/100,GetColor(p.bright, p.bright, p.bright));/*—±Žq*/
+			continue;
 		}
 	}
 	SetDrawBlendMode(mode, param);

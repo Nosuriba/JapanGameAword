@@ -58,35 +58,35 @@ void Input::Update()
 	GetJoypadXInputState(DX_INPUT_PAD1, &_input);
 }
 
-const bool Input::Push(const BUTTON & b)
+const bool Input::Push(BUTTON b) const
 {
 	if (_input.Buttons[(int)b])
 		return true;
 	return false;
 }
 
-const bool Input::Trigger(const BUTTON & b)
+const bool Input::Trigger(BUTTON b) const
 {
 	if (_input.Buttons[(int)b] && _old.Buttons[(int)b] == 0)
 		return true;
 	return false;
 }
 
-const int Input::PushTrigger(const TRIGGER & t)
+const int Input::PushTrigger(TRIGGER t) const
 {
 	if (t == TRIGGER::LEFT) return _input.LeftTrigger;
 	if (t == TRIGGER::RIGHT) return _input.RightTrigger;
 	return 0;
 }
 
-const int Input::TriggerTrigger(const TRIGGER & t)
+const int Input::TriggerTrigger(TRIGGER t) const
 {
 	if (t == TRIGGER::LEFT && _old.LeftTrigger == 0) return _input.LeftTrigger;
 	if (t == TRIGGER::RIGHT && _old.RightTrigger == 0) return _input.RightTrigger;
 	return 0;
 }
 
-const Vector2 Input::Stick(const STICK & s)
+const Vector2 Input::Stick(STICK s) const
 {
 	if (s == STICK::LEFT)return Vector2(_input.ThumbLX / 10000, -_input.ThumbLY / 10000);
 	if (s == STICK::RIGHT)return Vector2(_input.ThumbRX / 10000, -_input.ThumbRY / 10000);
