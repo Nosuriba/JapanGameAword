@@ -3,6 +3,9 @@
 #include "../Game.h"
 #include "GameScene.h"
 #include "../ResourceManager.h"
+#include "../Particle/Bubble.h"
+
+#include "../Stage.h"
 
 
 void SelectScene::FadeIn(const Input & p)
@@ -42,25 +45,21 @@ void SelectScene::Run(const Input & p)
 
 	if (p.IsTrigger(PAD_INPUT_10)) {
 		flame = 0;
+		Stage::GetInstance().LoadStage("../Stage/test2.fmf");
 		_updater = &SelectScene::FadeOut;
+	}
+	if (p.TriggerTrigger(TRIGGER::RIGHT)) {
+		Select = (Select<2)?++Select:Select;
+	}
+
+	if (p.TriggerTrigger(TRIGGER::LEFT)) {
+		Select = (Select>0)?--Select:Select;
 	}
 }
 
 SelectScene::SelectScene()
 {
 	auto size = Game::GetInstance().GetScreenSize();
-
-	//フォントのロード
-	LPCSTR font = "H2O-Shadow.ttf";
-	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
-	}
-	else {
-		MessageBox(nullptr, "失敗", "", MB_OK);
-	}
-
-	SetFontSize(64);
-
-	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
 
 	bubble = ResourceManager::GetInstance().LoadImg("../img/Bubble.png");
 	background = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
@@ -78,12 +77,17 @@ SelectScene::SelectScene()
 		bubble_vertex[i].v = bubble_vertex[i].sv = (float)(i / 2);
 	}
 
-	firstscreen = MakeScreen(size.x, size.y);
+  	firstscreen = MakeScreen(size.x, size.y);
 	secondscreen = MakeScreen(size.x, size.y);
 	_updater = &SelectScene::FadeIn;
 	shader_time = 0;
 	flame = 0;
 	Cnt = 0;
+	Select = 0; 
+
+	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
+	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 10 * 7, 100, true, 1));
+	CoralBubble.push_back(std::make_unique<Bubble>(size.x / 5 * 4, size.y / 5 * 4, 125, true, 1));
 }
 
 SelectScene::~SelectScene()
@@ -98,13 +102,18 @@ void SelectScene::Draw()
 
 	DrawExtendGraph(0, 0, size.x, size.y, background, true);
 
-	(*BuckBubble).Draw();
+	for (auto &b:CoralBubble)
+	{
+		(*b).Draw();
+	}
+
 	auto addx = cos((Cnt % 360)*DX_PI / 180) * 25;
 	auto addy = sin((Cnt)*DX_PI / 720) * 100;
 	auto addr = sin((Cnt)*DX_PI / 180) * 0.1;
-	DrawRotaGraph(size.x / 4 - 100+ addx, size.y / 2 + addy, 1+ addr, 0, bubble, true);
-	DrawRotaGraph(size.x / 4 * 2 + addx, size.y / 2 - addy, 1 - addr, 0, bubble, true);
-	DrawRotaGraph(size.x / 4 * 3 + 100 + addx, size.y / 2 + addy, 1 + addr, 0, bubble, true);
+
+	DrawRotaGraph(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0), 1 + ((Select != 0) ? addr : addr +0.5), 0, bubble, true);
+	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select != 1) ? addr: addr -0.5), 0, bubble, true);
+	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 +((Select != 2) ? addr : addr +0.5), 0, bubble, true);
 
 	
 
@@ -115,7 +124,10 @@ void SelectScene::Draw()
 
 void SelectScene::Update(const Input & p)
 {
-	(*BuckBubble).Create();
+	for (auto &b : CoralBubble)
+	{
+		(*b).Create();
+	}
 	flame++;
 	Cnt++;
 	shader_time++;

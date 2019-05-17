@@ -75,11 +75,16 @@ void Water::Move()
 	{
 		p_thread.join();
 	}
-
+	auto c = camera->CameraCorrection();
 #ifdef _DEBUG
 	for (auto &p: particle)
 	{
 		if (p.bright < 10) {
+			p.bright = 0;
+			continue;
+		}
+		if ((p.x / 100 -c.x< -p.bright) || (p.x / 100 - c.x > screen_x + p.bright) ||
+			(p.y / 100 - c.y > screen_y + p.bright) || (p.y / 100 - c.y < -p.bright)) {
 			p.bright = 0;
 			continue;
 		}
@@ -88,18 +93,23 @@ void Water::Move()
 		p.y += p.vy;
 
 		// ‰Á‘¬•”•ª
-		p.vy += p.avx;
-		p.vx += p.avy;
+		p.vy += p.avy;
+		p.vx += p.avx;
 		p.bright -= VanishSpeed;
 	}
 #else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
-	auto move = [p_element = p_element](concurrency::index<1> idx)restrict(amp) {
+	auto move = [p_element = p_element, sx = screen_x, sy = screen_y,c=c](concurrency::index<1> idx)restrict(amp) {
 		if (p_element[idx].bright < 10) {
 			p_element[idx].bright = 0;
 			return;
 		}
 
+		if ((p_element[idx].x / 100 - c.x < -p_element[idx].bright / p_element[idx].radius) || (p_element[idx].x / 100 - c.x > sx + p_element[idx].bright / p_element[idx].radius) ||
+			(p_element[idx].y / 100 - c.y > sy + p_element[idx].bright / p_element[idx].radius) || (p_element[idx].y / 100 - c.y < -p_element[idx].bright / p_element[idx].radius)) {
+			p_element[idx].bright = 0;
+			return;
+		}
 		p_element[idx].x += p_element[idx].vx;
 		p_element[idx].y += p_element[idx].vy;
 

@@ -15,7 +15,7 @@ class Scene
 protected:
 	// ﾌｪｰﾄﾞで使うバブル状のﾊﾟｰﾃｨｸﾙのポインタ
 	static std::unique_ptr<Particle> FadeBubble;
-	static std::unique_ptr<Particle> BuckBubble;
+
 public:
 	Scene();
 	virtual ~Scene();

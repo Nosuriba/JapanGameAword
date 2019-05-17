@@ -14,10 +14,16 @@ struct FMF
 	char bitCount;
 };
 
+struct ChipInfo
+{
+	char no;
+	int x, y;
+};
+
 struct StageData
 {
 	FMF fmf;
-	std::vector<char> data;
+	std::vector<ChipInfo> data;
 	int readX;
 };
 
@@ -27,7 +33,10 @@ private:
 	Stage();
 	~Stage();
 
+	int count;
+	int fmf_h;
 	std::map<std::string, StageData> _stages;
+	std::string name;
 
 public:
 	Stage(const Stage&) = delete;
@@ -43,7 +52,8 @@ public:
 	}
 
 	void LoadStage(std::string str);
-	std::vector<char> GetStageData(std::string str);
-	std::vector<char> GetStageData(std::string str, int min, int max);
+	const bool LoadCheck();
+	std::vector<ChipInfo> GetStageData();
+	std::vector<ChipInfo> GetStageData(int min, int max);
 };
 

@@ -11,7 +11,9 @@ private:
 	void Wait(const Input& p);
 	void Run(const Input& p);
 
-	int flame,Cnt;
+	std::vector<std::unique_ptr<Particle>> CoralBubble;
+
+	int flame,Cnt,Select;
 	int bubble;
 	int background;
 

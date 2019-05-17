@@ -1,18 +1,18 @@
 #include "Bubble.h"
 #include "../ResourceManager.h"
 
-constexpr int BubbleMax = 100;
 constexpr int Magnification = 100;
 constexpr int VelocitySize = 100;
+constexpr int ShakeSize = 31;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
 
-Bubble::Bubble(int _x,int _y,int _Enum)
+Bubble::Bubble(int _x, int _y, int _Enum, bool flag, int _BubbleMax):BubbleMax(_BubbleMax)
 {
 	// à¯êîÇÃë„ì¸
 	x = _x, y = _y;
 	ElementNum = _Enum;
-
+	isSmall = flag;
 	// èâä˙âª
 	Init();
 }
@@ -52,19 +52,27 @@ void Bubble::Create()
 
 				if (i == ElementNum)return;
 
-				particle[i].x = (x)* Magnification;
-				particle[i].y = (y)* Magnification;
+				particle[i].x = (isSmall?x:(Rand() % screen_x))* Magnification;
+				particle[i].y = y * Magnification;
 				particle[i].bright = 255;
 
 				auto Theta = (Rand() % 360)*DX_PI_F/180.0;
 				auto vSize = (Rand() % (VelocitySize));
-				particle[i].vx = cos(Theta)*vSize * 20;
+				particle[i].vx = cos(Theta)* (isSmall? vSize/2: vSize * 20);
 				particle[i].vy = sin(Theta)*vSize * 10;
+
+				particle[i].avy = -10;
 
 				particle[i].radius = (Rand() % 3) + 2;
 			}
 		});
 	}
+}
+
+void Bubble::Create(int _x, int _y)
+{
+	x = _x,y=_y;
+	Create();
 }
 
 void Bubble::Move()
@@ -77,26 +85,31 @@ void Bubble::Move()
 			p.bright = 0;
 			continue;
 		}
+		if ((p.x/100 < -p.bright)||(p.x/100 > screen_x+p.bright)||(p.y / 100 > screen_y + p.bright)|| (p.y / 100 < - p.bright)) {
+			p.bright = 0;
+			continue;
+		}
+
 
 		// à⁄ìÆïîï™
 		p.x += p.vx;
 		p.y += p.vy;
 
 		// â¡ë¨ïîï™
-		p.vy += -10;
-		p.vx += (int)(p.x / Magnification) % 2 ? 101 : -101; // ç∂âEÇ…óhÇÍÇÈ
+		p.vy += p.avy;
+		p.vx += (int)(p.x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ç∂âEÇ…óhÇÍÇÈ
 
 		p.bright -= VanishSpeed;
 	}
 #else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
-	auto move = [p_element = p_element](concurrency::index<1> idx)restrict(amp) {
+	auto move = [p_element = p_element,sx= screen_x,sy= screen_y](concurrency::index<1> idx)restrict(amp) {
 		// ó·äOèàóù
 		if (p_element[idx].bright < VanishBright) {
 			p_element[idx].bright = 0;
 			return;
 		}
-		if ((p_element[idx].x/100) < 0) {
+		if ((p_element[idx].x / 100 < -p_element[idx].bright) || (p_element[idx].x / 100 > sx + p_element[idx].bright) || (p_element[idx].y / 100 > sy + p_element[idx].bright) || (p_element[idx].y / 100 < -p_element[idx].bright)) {
 			p_element[idx].bright = 0;
 			return;
 		}
@@ -106,8 +119,8 @@ void Bubble::Move()
 		p_element[idx].y += p_element[idx].vy;
 
 		// â¡ë¨ïîï™
-		p_element[idx].vy += -10;
-		p_element[idx].vx += (int)(p_element[idx].x / Magnification) % 2 ? 101 : -101; // ç∂âEÇ…óhÇÍÇÈ
+		p_element[idx].vy += p_element[idx].avy;
+		p_element[idx].vx += (int)(p_element[idx].x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ç∂âEÇ…óhÇÍÇÈ
 
 		p_element[idx].bright -= VanishSpeed;
 	};
@@ -136,20 +149,9 @@ void Bubble::Draw()
 	{
 		if (p.bright> VanishBright)
 		{
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright);
-			DrawRotaGraph(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ Magnification, 0, imgBff, true);
-			/*{
-				DrawCircle(p.x / Magnification, p.y / Magnification, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright / 3, p.bright * 2 / 3, p.bright), 3);
-				DrawCircle(p.x / Magnification, p.y / Magnification, 0xff / p.radius - p.bright / p.radius, 0x9999ff, 0);
-				DrawCircle(
-					p.x / Magnification + p.x / (Magnification * 10),
-					p.y / Magnification + p.y / (Magnification * 10),
-					0xff / (p.radius * 2) - p.bright / (p.radius * 2),
-					0xffffff,
-					false
-				);
-			}*/
-			// DrawPixel(p.x/100,p.y/100,GetColor(p.bright, p.bright, p.bright));/*ó±éq*/
+			isSmall ? SetDrawBlendMode(mode, param): SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
+			DrawRotaGraph(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ? 8 : 1)), 0, imgBff, true);
+			continue;
 		}
 	}
 	SetDrawBlendMode(mode, param);

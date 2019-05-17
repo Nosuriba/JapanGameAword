@@ -14,7 +14,6 @@ constexpr float SPEED = 0.5f;
 
 void Player::Normal(const Input & in)
 {
-	auto input = in;
 	GetHitKeyStateAll(Buf);
 
 	_vel *= deceleration;
@@ -24,17 +23,17 @@ void Player::Normal(const Input & in)
 	if (Buf[KEY_INPUT_LEFT])	_vel.x -= SPEED;
 	if (Buf[KEY_INPUT_RIGHT])	_vel.x += SPEED;
 	if (Buf[KEY_INPUT_LSHIFT])	_vel = Vector2();
-	if (input.Trigger(BUTTON::A))		LevelUP();
-	if (input.Trigger(BUTTON::B))		_updater = &Player::Die;
+	if (in.Trigger(BUTTON::A))		LevelUP();
+	if (in.Trigger(BUTTON::B))		_updater = &Player::Die;
 
-	if (input.PushTrigger(TRIGGER::LEFT) == 0 && !input.Push(BUTTON::LB))
+	if (in.PushTrigger(TRIGGER::LEFT) == 0 && !in.Push(BUTTON::LB))
 	{
 		select_idx[0] = -1;
 		float theta = 0;
 		for (int i = 0; i < _star.legs.size(); i++)
 		{
 			auto v = LEG(i).tip - CENTER;
-			auto lt = Dot(v, input.Stick(STICK::LEFT)) / (v.Magnitude() * input.Stick(STICK::LEFT).Magnitude());
+			auto lt = Dot(v, in.Stick(STICK::LEFT)) / (v.Magnitude() * in.Stick(STICK::LEFT).Magnitude());
 
 			if (lt > theta)
 			{
@@ -43,14 +42,14 @@ void Player::Normal(const Input & in)
 			}
 		}
 	}
-	if (input.PushTrigger(TRIGGER::RIGHT) == 0 && !input.Push(BUTTON::RB))
+	if (in.PushTrigger(TRIGGER::RIGHT) == 0 && !in.Push(BUTTON::RB))
 	{
 		select_idx[1] = -1;
 		float theta = 0;
 		for (int i = 0; i < _star.legs.size(); i++)
 		{
 			auto v = LEG(i).tip - CENTER;
-			auto rt = Dot(v, input.Stick(STICK::RIGHT)) / (v.Magnitude() * input.Stick(STICK::RIGHT).Magnitude());
+			auto rt = Dot(v, in.Stick(STICK::RIGHT)) / (v.Magnitude() * in.Stick(STICK::RIGHT).Magnitude());
 
 			if (rt > theta)
 			{
@@ -64,7 +63,7 @@ void Player::Normal(const Input & in)
 	{
 		if (i == select_idx[0])
 		{
-			if (input.PushTrigger(TRIGGER::LEFT))
+			if (in.PushTrigger(TRIGGER::LEFT))
 			{
 				LEG(i).state = LEG_STATE::SHOT;
 
@@ -78,12 +77,12 @@ void Player::Normal(const Input & in)
 				_particle[0]->Create();
 
 			}
-			else if (input.Push(BUTTON::LB)) LEG(i).state = LEG_STATE::HOLD;
+			else if (in.Push(BUTTON::LB)) LEG(i).state = LEG_STATE::HOLD;
 			else LEG(i).state = LEG_STATE::SELECT;
 		}
 		else if (i == select_idx[1])
 		{
-			if (input.PushTrigger(TRIGGER::RIGHT))
+			if (in.PushTrigger(TRIGGER::RIGHT))
 			{
 				LEG(i).state = LEG_STATE::SHOT;
 
@@ -97,7 +96,7 @@ void Player::Normal(const Input & in)
 				_particle[1]->Create();
 
 			}
-			else if (input.Push(BUTTON::RB)) LEG(i).state = LEG_STATE::HOLD;
+			else if (in.Push(BUTTON::RB)) LEG(i).state = LEG_STATE::HOLD;
 			else LEG(i).state = LEG_STATE::SELECT;
 		}
 		else LEG(i).state = LEG_STATE::NORMAL;
@@ -115,13 +114,11 @@ void Player::Die(const Input & in)
 	_star.r *= 0.99f;
 	_star.r = max(_star.r, 10.0f);
 
-	auto radian = 2.0f * DX_PI_F / (float)_star.legs.size();
-	for (int i = 0; i < _star.legs.size(); i++)
+	for (auto& l : _star.legs)
 	{
-		LEG(i).tip.x = CENTER.x + cos(radian * i + DX_PI_F / 180.0f * -90.0f) * _star.r;
-		LEG(i).tip.y = CENTER.y + sin(radian * i + DX_PI_F / 180.0f * -90.0f) * _star.r;
-		LEG(i).pos = LEG(i).tip;
-		LEG(i).state = LEG_STATE::NORMAL;
+		auto v = l.tip - _star.center;
+		v.Normalize();
+		l.tip = _star.center + v * _star.r;
 	}
 }
 
@@ -143,8 +140,8 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 	select_idx = { -1,-1 };
 	_vel = Vector2();
 
-	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000,_camera));
-	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 100000, _camera));
+	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
+	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
 
 	_updater = &Player::Normal;
 }
@@ -328,11 +325,10 @@ void Player::LevelUP()
 
 	_star.r = 25.0f * (float)_star.level + 25.0f;
 
-	auto radian = 2.0f * DX_PI_F / (float)_star.legs.size();
-	for (int i = 0; i < _star.legs.size(); i++)
+	for (auto& l : _star.legs)
 	{
-		LEG(i).tip.x = CENTER.x + cos(radian * i + DX_PI_F / 180.0f * -90.0f) * _star.r;
-		LEG(i).tip.y = CENTER.y + sin(radian * i + DX_PI_F / 180.0f * -90.0f) * _star.r;
-		LEG(i).pos = LEG(i).tip;
+		auto v = l.tip - _star.center;
+		v.Normalize();
+		l.tip = _star.center + v * _star.r;
 	}
 }

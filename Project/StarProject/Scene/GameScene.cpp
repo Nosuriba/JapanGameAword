@@ -17,15 +17,37 @@
 #include "../Object/DestroyableObject.h"
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
+#include "../Stage.h"
 
 #include <iostream>
 
 const int shader_offset = 50;
 
+void GameScene::LoadStageUpdate(const Input & p)
+{
+	auto &_stage = Stage::GetInstance();
+
+	if(_stage.LoadCheck()) {
+		LoadResource();
+		_updater = &GameScene::LoadResourceUpdate;
+	}
+}
+
+void GameScene::LoadResourceUpdate(const Input & p)
+{
+	int i = GetASyncLoadNum();
+	if (GetASyncLoadNum() == 0)
+	{
+		wait = 0;
+		_updater = &GameScene::FadeIn;
+	}
+}
+
 void GameScene::FadeIn(const Input & p)
 {
 	if (wait >= WAITFRAME) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		waitCnt = 0;
 		_updater = &GameScene::Wait;
 	}
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / WAITFRAME);
@@ -48,13 +70,24 @@ void GameScene::FadeOut(const Input & p)
 
 void GameScene::Wait(const Input & p)
 {
+	auto& size = Game::GetInstance().GetScreenSize();
+
 	Draw();
-	_updater = &GameScene::Run;
+	
+	if (waitNum == 0) {
+		_updater = &GameScene::Run;
+	}
+	else {
+		if ((waitCnt % 60) == 0) {
+			waitNum--;
+		}
+	}
 }
 
 void GameScene::Run(const Input & p)
 {
 	Draw();
+
 	if (p.IsTrigger(PAD_INPUT_10)) {
 		wait = 0;
 		_updater = &GameScene::FadeOut;
@@ -65,25 +98,12 @@ void GameScene::Run(const Input & p)
 	}
 }
 
-GameScene::GameScene()
+void GameScene::LoadResource()
 {
+	auto &_stage = Stage::GetInstance();
 	auto& size = Game::GetInstance().GetScreenSize();
-	_camera.reset(new Camera());
 
-	_pl.reset(new Player(_camera));
-
-	_col.reset(new Collision());
-
-	_destroy.reset(new DestroyableObject(_camera));
-
-	_predatory.reset(new PredatoryObject(_camera));
-
-	_immortal.reset(new ImmortalObject(_camera));
-
-	firstscreen = MakeScreen(size.x, size.y);
-	secondscreen = MakeScreen(size.x - 1, size.y - 1);
-	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
-	_4thscreen = MakeScreen(size.x, size.y);
+	SetUseASyncLoadFlag(true);
 
 	/// 敵の生成(debug用)
 	_enemies.push_back(std::make_shared<Fish>(_camera));
@@ -93,28 +113,22 @@ GameScene::GameScene()
 
 	_bosses.push_back(std::make_shared<Crab>(_camera));
 
-	//フォントのロード
-	LPCSTR font = "H2O-Shadow.ttf";
-	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
-	}
-	else {
-		MessageBox(nullptr, "失敗", "", MB_OK);
-	}
-
-	SetFontSize(64);
-
-	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
+	//スクリーン作成
+	firstscreen = MakeScreen(size.x, size.y);
+	secondscreen = MakeScreen(size.x - 1, size.y - 1);
+	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
+	_4thscreen = MakeScreen(size.x, size.y);
 
 	//画像の読み込み
 	auto& manager = ResourceManager::GetInstance();
-	sea			= manager.LoadImg("../img/sea.png");
-	sea_effect	= manager.LoadImg("../img/sea2.png");
-	beach		= manager.LoadImg("../img/砂浜.png");
+	sea = manager.LoadImg("../img/sea.png");
+	sea_effect = manager.LoadImg("../img/sea2.png");
+	beach = manager.LoadImg("../img/砂浜.png");
 
 	//波のシェーダー頂点
 	for (int i = 0; i < 4; i++)
 	{
-		wave_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y -1, 0);
+		wave_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y - 1, 0);
 		wave_vertex[i].rhw = 1.0f;
 		wave_vertex[i].dif = GetColorU8(255, 255, 255, 255);
 		wave_vertex[i].spc = GetColorU8(0, 0, 0, 0);
@@ -125,7 +139,7 @@ GameScene::GameScene()
 	//影のシェーダー
 	for (int i = 0; i < 4; i++)
 	{
-		shadow_vertex[i].pos = VGet((i % 2)* size.x -1, (i / 2)*size.y -1, 0);
+		shadow_vertex[i].pos = VGet((i % 2)* size.x - 1, (i / 2)*size.y - 1, 0);
 		shadow_vertex[i].rhw = 1.0f;
 		shadow_vertex[i].dif = GetColorU8(255, 255, 255, 255);
 		shadow_vertex[i].spc = GetColorU8(0, 0, 0, 0);
@@ -134,18 +148,41 @@ GameScene::GameScene()
 	}
 
 	//オブジェクトの生成
-	_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera));
-	_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera));
-	_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera));
+	auto _stagedata = _stage.GetStageData();
+	for (auto& s : _stagedata) {
+		if (s.no == 1) {
+			_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
+		}
+		if (s.no == 2) {
+			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y));
+		}
+		if (s.no == 3) {
+			_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
+		}
+	}
+	SetUseASyncLoadFlag(false);
+
+}
+
+GameScene::GameScene()
+{
+	_camera.reset(new Camera());
+
+	_pl.reset(new Player(_camera));
+
+	_col.reset(new Collision());
 
 	flame = 0;
 	wait = 0;
 	time = 60;
 	totaltime = 60;
 
+	waitNum = 3;
+	waitCnt = 0;
+
 	shader_time = 0;
 
-	_updater = &GameScene::FadeIn;
+	_updater = &GameScene::LoadStageUpdate;
 }
 
 GameScene::~GameScene()
@@ -155,8 +192,7 @@ GameScene::~GameScene()
 
 void GameScene::Draw()
 {
-	int sizex, sizey;
-	DxLib::GetWindowSize(&sizex, &sizey);
+	auto size = Game::GetInstance().GetScreenSize();
 
 
 	//firstスクリーン(砂浜)
@@ -165,22 +201,34 @@ void GameScene::Draw()
 	ClearDrawScreen();
 
 	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
-		sizex - _camera->CameraCorrection().x, sizey - _camera->CameraCorrection().y, beach, true);
+		size.x - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y, beach, true);
 
-	DrawExtendGraph(sizex - _camera->CameraCorrection().x + sizex, 0 - _camera->CameraCorrection().y,
-		0 - _camera->CameraCorrection().x + sizex, sizey - _camera->CameraCorrection().y, beach, true);
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x, 0 - _camera->CameraCorrection().y,
+		0 - _camera->CameraCorrection().x + size.x, size.y - _camera->CameraCorrection().y, beach, true);
 
-	DrawExtendGraph(0 - _camera->CameraCorrection().x + sizex * 2, 0 - _camera->CameraCorrection().y,
-		sizex - _camera->CameraCorrection().x + sizex * 2, sizey - _camera->CameraCorrection().y, beach, true);
+	DrawExtendGraph(0 - _camera->CameraCorrection().x + size.x * 2, 0 - _camera->CameraCorrection().y,
+		size.x - _camera->CameraCorrection().x + size.x * 2, size.y - _camera->CameraCorrection().y, beach, true);
 
-	DrawExtendGraph(sizex - _camera->CameraCorrection().x + sizex * 3, 0 - _camera->CameraCorrection().y,
-		0 - _camera->CameraCorrection().x + sizex * 3, sizey - _camera->CameraCorrection().y, beach, true);
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y,
+		0 - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(0 - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y + size.y,
+		size.x - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y + size.y, beach, true);
+
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x, size.y - _camera->CameraCorrection().y + size.y,
+		0 - _camera->CameraCorrection().x + size.x, 0 - _camera->CameraCorrection().y + size.y, beach, true);
+
+	DrawExtendGraph(0 - _camera->CameraCorrection().x + size.x * 2, size.y - _camera->CameraCorrection().y + size.y,
+		size.x - _camera->CameraCorrection().x + size.x * 2, 0 - _camera->CameraCorrection().y + size.y, beach, true);
+
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y,
+		0 - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y, beach, true);
 
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
 
-	DrawFormatString(sizex / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
-	DrawFormatString(sizex / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
+	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
+	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
 
 
 
@@ -203,12 +251,15 @@ void GameScene::Draw()
 
 	DrawPrimitive2DToShader(shadow_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
+
+
+
 	//thirdスクリーン(波シェーダー)
 	SetDrawScreen(thirdscreen);
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(sizex, sizey, 0, 0, sea_effect, true);
+	DrawExtendGraph(size.x, size.y, 0, 0, sea_effect, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
 	SetUseTextureToShader(0, thirdscreen);
@@ -221,12 +272,15 @@ void GameScene::Draw()
 
 	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
+
+
+
 	//_4thスクリーン(波)
 	SetDrawScreen(_4thscreen);
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0, 0, sizex, sizey, sea, true);
+	DrawExtendGraph(0, 0, size.x, size.y, sea, true);
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
 	SetUseTextureToShader(0, _4thscreen);
@@ -273,21 +327,26 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
-	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, sizex + shader_offset, sizey + shader_offset, thirdscreen, true);
+	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, size.x + shader_offset, size.y + shader_offset, thirdscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
 
-	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, sizex + shader_offset, sizey + shader_offset, _4thscreen, true);
+	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, size.x + shader_offset, size.y + shader_offset, _4thscreen, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	(*FadeBubble).Draw();
+	SetFontSize(128);
 
+	if (_updater == &GameScene::Wait && waitNum >= 1) {
+		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
+	}
+
+	SetFontSize(64);
 }
 
 void GameScene::Update(const Input & p)
 {
-	flame++; wait++; shader_time++;
+	flame++; wait++; shader_time++; waitCnt++;
 
 	_pl->Update(p);
 
@@ -325,7 +384,7 @@ void GameScene::Update(const Input & p)
 			}
 			_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));
 		}
-		
+
 		/// ﾌﾟﾚｲﾔｰと敵ｼｮｯﾄの当たり判定
 		for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
 		{
@@ -341,8 +400,8 @@ void GameScene::Update(const Input & p)
 	//破壊可能オブジェクト
 	for (auto &destroy : _destroyObj) {
 		auto laser = _pl->GetLaser();
-		for (auto& l : laser){
-			if (_col->WaterToSqr(l.pos, l.vel,l.size, destroy->GetInfo()._rect))
+		for (auto& l : laser) {
+			if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
 			{
 				destroy->Break();
 			}
@@ -367,14 +426,8 @@ void GameScene::Update(const Input & p)
 			if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
 			{
 				immortal->Break();
-				std::cout << "HIT" << std::endl;
 			}
 		}
-	}
-
-	if (_enemies.size() <= 0)
-	{
-		DrawString(0, 0, "Not Enemy", 0xffffff);
 	}
 
 	totaltime = time - (flame / 60);
@@ -382,4 +435,6 @@ void GameScene::Update(const Input & p)
 	_camera->Update(_pl->GetInfo().center);
 
 	(this->*_updater)(p);
+
+	(*FadeBubble).Draw();
 }
