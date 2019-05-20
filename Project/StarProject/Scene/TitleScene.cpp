@@ -3,6 +3,7 @@
 #include "../Game.h"
 #include "../ResourceManager.h"
 #include "SelectScene.h"
+#include <iostream>
 
 void TitleScene::FadeIn(const Input & p)
 {
@@ -38,8 +39,12 @@ void TitleScene::Run(const Input & p)
 {
 	Draw();
 	if (p.IsTrigger(PAD_INPUT_10)) {
-		flame = 0;
-		_updater = &TitleScene::FadeOut;
+		if (!CheckHandleASyncLoad(se))
+		{
+			flame = 0;
+			PlaySoundMem(se, DX_PLAYTYPE_BACK);
+			_updater = &TitleScene::FadeOut;
+		}
 	}
 }
 
@@ -60,6 +65,8 @@ TitleScene::TitleScene()
 	SetFontSize(64);
 
 	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
+
+	se = ResourceManager::GetInstance().LoadSound("se_maoudamashii_effect15.mp3");
 
 	_updater = &TitleScene::FadeIn;
 }
