@@ -20,6 +20,7 @@ public:
 	void Draw();
 	void Update();
 	void Break();
+	void Predatory();
 	ObjectInfo GetInfo();
 };
 

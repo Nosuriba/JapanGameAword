@@ -11,7 +11,7 @@ ImmortalObject::ImmortalObject(std::shared_ptr<Camera>& camera, int x, int y):Ob
 	auto rect = Rect(pos, size);
 	auto color = 0xff00ff;
 
-	obj = ObjectInfo(pos, size, rect, color);
+	obj = ObjectInfo(pos, size, rect, color,false);
 
 	immortalimg = ResourceManager::GetInstance().LoadImg("../img/immortal.png");
 }

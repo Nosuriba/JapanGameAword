@@ -11,7 +11,7 @@ PredatoryObject::PredatoryObject(std::shared_ptr<Camera>& camera, int x, int y):
 	auto rect = Rect(pos, size);
 	auto color = 0xff00ff;
 
-	obj = ObjectInfo(pos, size, rect, color);
+	obj = ObjectInfo(pos, size, rect, color,false,false);
 
 	predatoryimg = ResourceManager::GetInstance().LoadImg("../img/predatory.png");
 }
@@ -37,7 +37,12 @@ void PredatoryObject::Update()
 
 void PredatoryObject::Break()
 {
-	obj._color = 0x000000;
+	obj._breakflag = true;
+}
+
+void PredatoryObject::Predatory()
+{
+	obj._predatoryflag = true;
 }
 
 ObjectInfo PredatoryObject::GetInfo()

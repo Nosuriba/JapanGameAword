@@ -20,6 +20,7 @@
 #include "../Stage.h"
 
 #include <iostream>
+#include <algorithm>
 
 const int shader_offset = 50;
 
@@ -87,6 +88,8 @@ void GameScene::Wait(const Input & p)
 void GameScene::Run(const Input & p)
 {
 	Draw();
+
+	_pl->Update(p);
 
 	if (p.IsTrigger(PAD_INPUT_10)) {
 		wait = 0;
@@ -348,8 +351,6 @@ void GameScene::Update(const Input & p)
 {
 	flame++; wait++; shader_time++; waitCnt++;
 
-	_pl->Update(p);
-
 	for (auto &enemy : _enemies)
 	{
 		enemy->Update();
@@ -395,11 +396,20 @@ void GameScene::Update(const Input & p)
 		}
 	}
 
+
 	if (_bosses.size() != 0) {
 		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
 	}
 
+
 	//破壊可能オブジェクト
+	for (int i = 0; i < _destroyObj.size(); i++) {
+		if (_destroyObj[i]->GetInfo()._breakflag)
+		{
+			_destroyObj.erase(_destroyObj.begin() + i);
+			continue;
+		}
+	}
 	for (auto &destroy : _destroyObj) {
 		auto laser = _pl->GetLaser();
 		for (auto& l : laser) {
@@ -407,16 +417,37 @@ void GameScene::Update(const Input & p)
 			{
 				destroy->Break();
 			}
+			if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
+
+			}
 		}
 	}
 
+
 	//捕食対象
+	for (int i = 0; i < _predatoryObj.size(); i++) {
+		if (_predatoryObj[i]->GetInfo()._breakflag)
+		{
+			_predatoryObj.erase(_predatoryObj.begin() + i);
+			continue;
+		}
+
+		if (_predatoryObj[i]->GetInfo()._predatoryflag)
+		{
+			_predatoryObj.erase(_predatoryObj.begin() + i);
+			continue;
+		}
+	}
 	for (auto &predatry : _predatoryObj) {
 		auto laser = _pl->GetLaser();
 		for (auto& l : laser) {
 			if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
 			{
 				predatry->Break();
+			}
+			if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
+			{
+				predatry->Predatory();
 			}
 		}
 	}
@@ -428,6 +459,9 @@ void GameScene::Update(const Input & p)
 			if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
 			{
 				immortal->Break();
+			}
+			if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
+
 			}
 		}
 	}
