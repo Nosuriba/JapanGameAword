@@ -10,9 +10,14 @@
 
 void SelectScene::FadeIn(const Input & p)
 {
-	if (flame >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		_updater = &SelectScene::Wait;
+	if (flame >= WAITFRAME) 
+	{
+		if (!CheckHandleASyncLoad(BGM)) 
+		{
+			PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
+			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+			_updater = &SelectScene::Wait;
+		}
 	}
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / WAITFRAME);
 	Draw();
@@ -44,9 +49,14 @@ void SelectScene::Run(const Input & p)
 	Draw();
 
 	if (p.IsTrigger(PAD_INPUT_10)) {
-		flame = 0;
-		Stage::GetInstance().LoadStage("../Stage/test2.fmf");
-		_updater = &SelectScene::FadeOut;
+		if (!CheckHandleASyncLoad(SE))
+		{
+			flame = 0;
+			PlaySoundMem(SE, DX_PLAYTYPE_BACK);
+			StopSoundMem(BGM);
+			Stage::GetInstance().LoadStage("../Stage/test2.fmf");
+			_updater = &SelectScene::FadeOut;
+		}
 	}
 	if (p.TriggerTrigger(TRIGGER::RIGHT)) {
 		Select = (Select<2)?++Select:Select;
@@ -88,6 +98,9 @@ SelectScene::SelectScene()
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
 	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 10 * 7, 100, true, 1));
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x / 5 * 4, size.y / 5 * 4, 125, true, 1));
+
+	BGM = ResourceManager::GetInstance().LoadSound("under-the-sea-1.mp3");
+	SE = ResourceManager::GetInstance().LoadSound("se_maoudamashii_effect15.mp3");
 }
 
 SelectScene::~SelectScene()

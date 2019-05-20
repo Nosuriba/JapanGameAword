@@ -29,7 +29,10 @@ int ResourceManager::LoadSound(std::string name)
 {
 	if (_soundMap.find(name) == _soundMap.end())
 	{
-		_soundMap[name] = LoadGraph(name.c_str());
+		SetUseASyncLoadFlag(true);
+		auto str = "../Sound/" + name;
+		_soundMap[name] = LoadSoundMem(str.c_str());
+		SetUseASyncLoadFlag(false);
 	}
 	return _soundMap[name];
 }

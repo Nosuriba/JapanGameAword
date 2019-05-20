@@ -22,6 +22,9 @@ private:
 	int secondscreen;
 
 	int shader_time;
+
+	int BGM;
+	int SE;
 public:
 	SelectScene();
 	~SelectScene();
