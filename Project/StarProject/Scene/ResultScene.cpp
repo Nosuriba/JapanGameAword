@@ -58,6 +58,11 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 	_updater = &ResultScene::FadeIn;
 
 	flame = 0;
+
+	info.enemy = enemy;
+	info.bite = bite;
+	info.breakobj = breakobj;
+	info.time = time;
 }
 
 ResultScene::~ResultScene()
