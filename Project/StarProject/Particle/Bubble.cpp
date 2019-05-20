@@ -77,30 +77,35 @@ void Bubble::Create(int _x, int _y)
 
 void Bubble::Move()
 {
+	// ｽﾚｯﾄﾞが走っていたら合流させる
+	if (p_thread.joinable())p_thread.join();
 #ifdef _DEBUG
-	for (auto &p : particle)
-	{
-		// 例外処理
-		if (p.bright < VanishBright) {
-			p.bright = 0;
-			continue;
+	p_thread = std::thread([&] {
+		for (auto &p : particle)
+		{
+			// 例外処理
+			if (p.bright < VanishBright) {
+				p.bright = 0;
+				continue;
+			}
+			if ((p.x / 100 < -p.bright) || (p.x / 100 > screen_x + p.bright) || (p.y / 100 > screen_y + p.bright) || (p.y / 100 < -p.bright)) {
+				p.bright = 0;
+				continue;
+			}
+
+
+			// 移動部分
+			p.x += p.vx;
+			p.y += p.vy;
+
+			// 加速部分
+			p.vy += p.avy;
+			p.vx += (int)(p.x / Magnification) % 2 ? ShakeSize : -ShakeSize; // 左右に揺れる
+
+			p.bright -= VanishSpeed;
 		}
-		if ((p.x/100 < -p.bright)||(p.x/100 > screen_x+p.bright)||(p.y / 100 > screen_y + p.bright)|| (p.y / 100 < - p.bright)) {
-			p.bright = 0;
-			continue;
-		}
-
-
-		// 移動部分
-		p.x += p.vx;
-		p.y += p.vy;
-
-		// 加速部分
-		p.vy += p.avy;
-		p.vx += (int)(p.x / Magnification) % 2 ? ShakeSize : -ShakeSize; // 左右に揺れる
-
-		p.bright -= VanishSpeed;
-	}
+	});
+	
 #else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
 	auto move = [p_element = p_element,sx= screen_x,sy= screen_y](concurrency::index<1> idx)restrict(amp) {
@@ -134,7 +139,6 @@ void Bubble::Draw()
 {
 	// ｽﾚｯﾄﾞが走っていたら合流させる
 	if (p_thread.joinable())p_thread.join();
-
 	// ここで動かす
 	Move();
 
@@ -150,7 +154,7 @@ void Bubble::Draw()
 		if (p.bright> VanishBright)
 		{
 			isSmall ? SetDrawBlendMode(mode, param): SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
-			DrawRotaGraph(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ? 8 : 1)), 0, imgBff, true);
+			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ? 8 : 1)), 0, imgBff, true);
 			continue;
 		}
 	}
