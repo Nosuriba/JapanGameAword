@@ -17,6 +17,8 @@ private:
 	void Run(const Input& p);
 
 	int flame;
+
+	int se;
 public:
 	TitleScene();
 	~TitleScene();
