@@ -406,7 +406,6 @@ void GameScene::Update(const Input & p)
 	}
 
 
-	//破壊可能オブジェクト
 	for (int i = 0; i < _destroyObj.size(); i++) {
 		if (_destroyObj[i]->GetInfo()._breakflag)
 		{
@@ -414,21 +413,7 @@ void GameScene::Update(const Input & p)
 			continue;
 		}
 	}
-	for (auto &destroy : _destroyObj) {
-		auto laser = _pl->GetLaser();
-		for (auto& l : laser) {
-			if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
-			{
-				destroy->Break();
-			}
-			if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
-
-			}
-		}
-	}
-
-
-	//捕食対象
+	
 	for (int i = 0; i < _predatoryObj.size(); i++) {
 		if (_predatoryObj[i]->GetInfo()._breakflag)
 		{
@@ -442,24 +427,36 @@ void GameScene::Update(const Input & p)
 			continue;
 		}
 	}
-	for (auto &predatry : _predatoryObj) {
-		auto laser = _pl->GetLaser();
-		for (auto& l : laser) {
+	
+	auto laser = _pl->GetLaser();
+	for (auto& l : laser) {
+
+		//破壊可能オブジェクト
+		for (auto &destroy : _destroyObj) {
+			if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
+			{
+				destroy->Break();
+			}
+			if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
+
+			}
+		}
+
+		//捕食対象
+		for (auto &predatry : _predatoryObj) {
 			if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
 			{
 				predatry->Break();
 			}
+
 			if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
 			{
 				predatry->Predatory();
 			}
 		}
-	}
 
-	//破壊不可オブジェクト
-	for (auto &immortal : _immortalObj) {
-		auto laser = _pl->GetLaser();
-		for (auto& l : laser) {
+		//破壊不可オブジェクト
+		for (auto &immortal : _immortalObj) {
 			if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
 			{
 				immortal->Break();
