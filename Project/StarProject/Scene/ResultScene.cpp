@@ -59,10 +59,10 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 
 	flame = 0;
 
-	info.enemy = enemy;
-	info.bite = bite;
-	info.breakobj = breakobj;
-	info.time = time;
+	this->enemy = enemy;
+	this->bite = bite;
+	this->breakobj = breakobj;
+	this->time = time;
 }
 
 ResultScene::~ResultScene()

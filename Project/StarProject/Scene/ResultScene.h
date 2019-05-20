@@ -1,22 +1,8 @@
 #pragma once
 #include "Scene.h"
+#include "Scene.h"
 
 class Input;
-
-
-struct ScoreInfo {
-	int enemy;
-	int bite;
-	int breakobj;
-	float time;
-	ScoreInfo() :enemy(0), bite(0), breakobj(0), time(0) {};
-	ScoreInfo(const int& enemy, const int& bite, const int & breakobj, const float& time) {
-		this->enemy = enemy;
-		this->bite = bite;
-		this->breakobj = breakobj;
-		this->time = time;
-	}
-};
 
 class ResultScene : public Scene
 {
@@ -29,7 +15,10 @@ private:
 
 	int flame;
 
-	ScoreInfo info;
+	int enemy;
+	int bite;
+	int breakobj;
+	float time;
 
 public:
 	ResultScene(const int& enemy, const int& bite, const int & breakobj, const float& time);
