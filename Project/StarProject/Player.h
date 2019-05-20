@@ -52,12 +52,15 @@ private:
 	std::list<Laser> _laser;
 
 	Vector2 _vel;
+	int _anim_frame;
+	Vector2 _target;
 
 	char Buf[256];
 
 	void (Player::*_updater)(const Input& in);
 	void Normal(const Input& in);
 	void Move(const Input& in);
+	void Predation(const Input& in);
 	void Die(const Input& in);
 
 public:

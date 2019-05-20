@@ -23,6 +23,12 @@ void Player::Normal(const Input & in)
 	if (Buf[KEY_INPUT_LEFT])	_vel.x -= SPEED;
 	if (Buf[KEY_INPUT_RIGHT])	_vel.x += SPEED;
 	if (Buf[KEY_INPUT_LSHIFT])	_vel = Vector2();
+	if (Buf[KEY_INPUT_P]) 
+	{
+		_updater = &Player::Predation;
+		_target = LEG(0).pos;
+		_anim_frame = 0;
+	}
 	if (in.Trigger(BUTTON::A))		LevelUP();
 	if (in.Trigger(BUTTON::B))		_updater = &Player::Die;
 
@@ -107,6 +113,24 @@ void Player::Move(const Input & in)
 {
 }
 
+void Player::Predation(const Input & in)
+{
+	auto r = std::abs((_anim_frame / 5) % 20 - 10);
+
+	r = _star.r - r;
+	for (auto& l : _star.legs)
+	{
+		auto v = l.tip - _star.center;
+		v.Normalize();
+		l.tip = _star.center + v * r;
+
+		v = _target - l.pos;
+		l.pos += v.Normalized();
+	}
+
+	++_anim_frame;
+}
+
 void Player::Die(const Input & in)
 {
 	_vel = Vector2();
@@ -181,17 +205,13 @@ void Player::Update(const Input& in)
 		mat = MMult(mat, MGetTranslate(asix.V_Cast()));
 	}
 	else
-	{
 		mat = MGetTranslate(_vel.V_Cast());
-	}
 
 	// ヒトデの中心の移動
 	_star.center = VTransform(_star.center.V_Cast(), mat);
 	// ヒトデの足の先端の移動
 	for (auto& l : _star.legs)
-	{
 		l.tip = VTransform(l.tip.V_Cast(), mat);
-	}
 
 	// 足の先端へ足の位置が移動
 	for (int i = 0; i < _star.legs.size(); ++i)
@@ -231,34 +251,31 @@ void Player::Draw()
 		// 足の先端までのライン
 		Vector2 pre = leg.halfway_point[0];
 		float t = _star.r / 2.5f;
-		int color = 0x110000 * _star.level + 0x00ff00 / _star.level;
+		int color = leg.state == LEG_STATE::NORMAL ? 0xff0000 : 0xffff00;
 		for (auto& l : leg.halfway_point)
 		{
 			DrawLineAA(pre.x - c.x, pre.y - c.y, l.x - c.x, l.y - c.y, color, t);//軌跡描画
-			DrawCircleAA(l.x - c.x, l.y - c.y, 1.0f, 32, 0x00ffff);
+			//DrawCircleAA(l.x - c.x, l.y - c.y, 1.0f, 32, 0x00ffff);
 			pre.x = l.x;//前の位置記憶
 			pre.y = l.y;
 			t /= 1.3f;
-			color += 0x101010;
-			color = min(color, 0xffffff);
+			color -= 0x110000;
 		}
+		DrawLineAA(pre.x - c.x, pre.y - c.y, leg.pos.x - c.x, leg.pos.y - c.y, color, t);//軌跡描画
 
 		if (leg.state == LEG_STATE::SHOT)
-		{
-			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f * _star.level, 32, 0xff00ff);
-			//auto v = (leg.pos + (leg.pos - leg.halfway_point[leg.T / 2]) * 100);
-			//DrawLineAA(leg.pos.x - c.x, leg.pos.y - c.y, v.x - c.x, v.y - c.y, 0x00ffff, 5);
-		}
+			DrawCircle(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f * _star.level, 0xff00ff);
 		if (leg.state == LEG_STATE::HOLD)
-			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xff00ff);
+			DrawCircle(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 0xff00ff);
 		if (leg.state == LEG_STATE::SELECT)
-			DrawCircleAA(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 32, 0xffff00);
+			DrawCircle(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 0xffff00);
 	}
+	DrawCircle(CENTER.x - c.x, CENTER.y - c.y, (LEG(0).halfway_point[1] - CENTER).Magnitude(), 0xee0000, true);
 	for (auto& l : _laser)
 	{
 		auto start = l.pos - c;
 		auto end = l.pos + l.vel - c;
-		DrawLineAA(start.x, start.y, end.x, end.y, 0x00ffff, l.size);
+		//DrawLine(start.x, start.y, end.x, end.y, 0x00ffff, l.size);
 	}
 	for (auto& p : _particle)
 	{
