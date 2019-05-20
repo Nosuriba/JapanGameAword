@@ -441,9 +441,9 @@ void GameScene::Update(const Input & p)
 				{
 					destroy->Break();
 				}
-				if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
+				/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
 
-				}
+				}*/
 			}
 		}
 
@@ -455,10 +455,11 @@ void GameScene::Update(const Input & p)
 				{
 					predatry->Break();
 				}
-
-				if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
-				{
-					predatry->Predatory();
+				if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
+					if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
+					{
+						predatry->Predatory();
+					}
 				}
 			}
 		}
@@ -471,9 +472,9 @@ void GameScene::Update(const Input & p)
 				{
 					immortal->Break();
 				}
-				if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
+				/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
 
-				}
+				}*/
 			}
 		}
 	}

@@ -164,3 +164,23 @@ bool Collision::WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const 
 	}
 	return false;
 }
+
+bool Collision::CircleToSqr(const Position2 & _posA, const float& _r, const Rect & _rectB)
+{
+	auto termA = ((_rectB.Left() < _posA.x) && (_rectB.Right() > _posA.x) && (_rectB.Top() - _r < _posA.y) && (_rectB.Bottom() + _r > _posA.y));
+
+	auto termB = ((_rectB.Top() < _posA.y) && (_rectB.Bottom() > _posA.y) && (_rectB.Right() - _r < _posA.x) && (_rectB.Left() + _r > _posA.x));
+
+	auto termC = ((_rectB.Left() - _posA.x)*(_rectB.Left() - _posA.x) + (_rectB.Top() - _posA.y)*(_rectB.Top() - _posA.y) < _r*_r);
+
+	auto termD = ((_rectB.Right() - _posA.x)*(_rectB.Right() - _posA.x) + (_rectB.Top() - _posA.y)*(_rectB.Top() - _posA.y) < _r*_r);
+
+	auto termE = ((_rectB.Right() - _posA.x)*(_rectB.Right() - _posA.x) + (_rectB.Bottom() - _posA.y)*(_rectB.Bottom() - _posA.y) < _r*_r);
+
+	auto termF = ((_rectB.Left() - _posA.x)*(_rectB.Left() - _posA.x) + (_rectB.Bottom() - _posA.y)*(_rectB.Bottom() - _posA.y) < _r*_r);
+
+	if (termA || termB || termC || termD || termE || termF) {
+		return true;
+	}
+	return false;
+}
