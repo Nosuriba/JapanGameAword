@@ -37,7 +37,7 @@ void TitleScene::Wait(const Input & p)
 void TitleScene::Run(const Input & p)
 {
 	Draw();
-	if (p.IsTrigger(PAD_INPUT_10)) {
+	if (p.Trigger(BUTTON::A)) {
 		flame = 0;
 		_updater = &TitleScene::FadeOut;
 	}
