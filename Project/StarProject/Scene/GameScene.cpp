@@ -395,7 +395,9 @@ void GameScene::Update(const Input & p)
 		}
 	}
 
-	_bosses[0]->CalTrackVel(_pl->GetInfo().center);
+	if (_bosses.size() != 0) {
+		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
+	}
 
 	//破壊可能オブジェクト
 	for (auto &destroy : _destroyObj) {
