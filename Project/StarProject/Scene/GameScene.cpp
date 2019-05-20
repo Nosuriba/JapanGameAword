@@ -437,10 +437,13 @@ void GameScene::Update(const Input & p)
 		for (auto &destroy : _destroyObj) {
 			if (destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x && 
 				destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-				if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
-				{
-					destroy->Break();
+				if ((l.pos.x >= 0 && l.pos.x <= size.x / 2) && (destroy->GetInfo()._pos.x >= 0 && destroy->GetInfo()._pos.x <= size.x / 2)) {
+					if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
+					{
+						destroy->Break();
+					}
 				}
+				
 				/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
 
 				}*/
