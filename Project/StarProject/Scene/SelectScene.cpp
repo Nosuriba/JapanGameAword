@@ -54,7 +54,7 @@ void SelectScene::Run(const Input & p)
 			flame = 0;
 			PlaySoundMem(SE, DX_PLAYTYPE_BACK);
 			StopSoundMem(BGM);
-			Stage::GetInstance().LoadStage("../Stage/test2.fmf");
+			Stage::GetInstance().LoadStage("../Stage/test3.fmf");
 			_updater = &SelectScene::FadeOut;
 		}
 	}
@@ -130,7 +130,7 @@ void SelectScene::Draw()
 
 	
 
-	DrawString(size.x / 2 - (float)(GetFontSize()) * 3.0f / 2.0f, size.y / 2 + size.y / 4, "Select", 0xa000f0);
+	DrawString(size.x / 2 - (float)(GetFontSize()) * 4.0f / 2.0f, size.y / 2 + size.y / 4, "Select", 0xa000f0);
 
 	(*FadeBubble).Draw();
 }
