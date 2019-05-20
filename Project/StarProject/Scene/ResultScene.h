@@ -15,6 +15,7 @@ private:
 
 	int flame;
 	int imgbuff;
+	int ResultCnt;
 
 	int enemy;
 	int bite;
