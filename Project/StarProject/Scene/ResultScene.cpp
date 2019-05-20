@@ -41,7 +41,7 @@ void ResultScene::Run(const Input & p)
 {
 }
 
-ResultScene::ResultScene()
+ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj, const float& time)
 {
 	//フォントのロード
 	LPCSTR font = "H2O-Shadow.ttf";

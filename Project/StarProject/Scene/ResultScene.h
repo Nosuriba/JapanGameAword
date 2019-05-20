@@ -15,7 +15,7 @@ private:
 	int flame;
 
 public:
-	ResultScene();
+	ResultScene(const int& enemy, const int& bite, const int & breakobj, const float& time);
 	~ResultScene();
 
 	void Update(const Input &p);

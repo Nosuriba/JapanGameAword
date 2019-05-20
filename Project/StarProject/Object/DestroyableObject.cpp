@@ -10,7 +10,7 @@ DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera, int x, int
 	auto rect = Rect(pos, size);
 	auto color = 0xff00ff;
 
-	obj = ObjectInfo(pos, size, rect, color);
+	obj = ObjectInfo(pos, size, rect, color, false);
 
 	destroyimg = ResourceManager::GetInstance().LoadImg("../img/destroy.png");
 }
@@ -32,11 +32,12 @@ void DestroyableObject::Draw()
 
 void DestroyableObject::Update()
 {
+	
 }
 
 void DestroyableObject::Break()
 {
-	obj._color = 0x000000;
+	obj._breakflag = true;
 }
 
 ObjectInfo DestroyableObject::GetInfo()

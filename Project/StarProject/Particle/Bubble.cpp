@@ -77,6 +77,8 @@ void Bubble::Create(int _x, int _y)
 
 void Bubble::Move()
 {
+	// Ω⁄ØƒﬁÇ™ëñÇ¡ÇƒÇ¢ÇΩÇÁçáó¨Ç≥ÇπÇÈ
+	if (p_thread.joinable())p_thread.join();
 #ifdef _DEBUG
 	for (auto &p : particle)
 	{
@@ -85,7 +87,7 @@ void Bubble::Move()
 			p.bright = 0;
 			continue;
 		}
-		if ((p.x/100 < -p.bright)||(p.x/100 > screen_x+p.bright)||(p.y / 100 > screen_y + p.bright)|| (p.y / 100 < - p.bright)) {
+		if ((p.x / 100 < -p.bright) || (p.x / 100 > screen_x + p.bright) || (p.y / 100 > screen_y + p.bright) || (p.y / 100 < -p.bright)) {
 			p.bright = 0;
 			continue;
 		}
@@ -101,6 +103,7 @@ void Bubble::Move()
 
 		p.bright -= VanishSpeed;
 	}
+	
 #else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
 	auto move = [p_element = p_element,sx= screen_x,sy= screen_y](concurrency::index<1> idx)restrict(amp) {
@@ -134,7 +137,6 @@ void Bubble::Draw()
 {
 	// Ω⁄ØƒﬁÇ™ëñÇ¡ÇƒÇ¢ÇΩÇÁçáó¨Ç≥ÇπÇÈ
 	if (p_thread.joinable())p_thread.join();
-
 	// Ç±Ç±Ç≈ìÆÇ©Ç∑
 	Move();
 
@@ -150,7 +152,7 @@ void Bubble::Draw()
 		if (p.bright> VanishBright)
 		{
 			isSmall ? SetDrawBlendMode(mode, param): SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
-			DrawRotaGraph(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ? 8 : 1)), 0, imgBff, true);
+			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ? 8 : 1)), 0, imgBff, true);
 			continue;
 		}
 	}
