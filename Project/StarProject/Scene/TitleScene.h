@@ -17,6 +17,8 @@ private:
 	void Run(const Input& p);
 
 	int flame;
+	int colorflame;
+	int blendcolor;
 
 	int se;
 public:

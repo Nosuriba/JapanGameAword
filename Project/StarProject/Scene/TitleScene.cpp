@@ -38,7 +38,7 @@ void TitleScene::Wait(const Input & p)
 void TitleScene::Run(const Input & p)
 {
 	Draw();
-	if (p.IsTrigger(PAD_INPUT_10)) {
+	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		if (!CheckHandleASyncLoad(se))
 		{
 			flame = 0;
@@ -53,6 +53,8 @@ TitleScene::TitleScene()
 	title = ResourceManager::GetInstance().LoadImg("../img/海星語.png");
 	titleback = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	flame = 0;
+	colorflame = 0;
+	blendcolor = 0;
 
 	//フォントのロード
 	LPCSTR font = "H2O-Shadow.ttf";
@@ -80,6 +82,7 @@ TitleScene::~TitleScene()
 void TitleScene::Update(const Input & p)
 {
 	flame++;
+	colorflame += blendcolor * 3;
 	(this->*_updater)(p);
 }
 
@@ -88,8 +91,17 @@ void TitleScene::Draw()
 	auto size = Game::GetInstance().GetScreenSize();
 
 	DxLib::DrawExtendGraph(0, 0, size.x, size.y, titleback, true);	
-	DxLib::DrawRotaGraph(size.x / 2, size.y / 2, 1, 0, title, true);
+	DxLib::DrawRotaGraph(size.x / 2, size.y / 2 - GetFontSize(), 1, 0, title, true);
+	if (colorflame >= 252) {
+		blendcolor = -1;
+	}
+	else if (colorflame <= 0) {
+		blendcolor = 1;
+	}
+	SetFontSize(84);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, colorflame % 255);
+	DrawString(size.x / 2 - (float)(GetFontSize()) * 8.5f / 2.0f, size.y / 2 + GetFontSize() * 2, "PRESS A BUTTON",0xff0000);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	DrawString(size.x / 2 - (float)(GetFontSize()) * 4.0f / 2.0f, size.y / 2 + GetFontSize() * 3, "START",0xa000f0);
 	(*FadeBubble).Draw();
 }

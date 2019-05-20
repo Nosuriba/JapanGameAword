@@ -60,7 +60,7 @@ void GameScene::FadeOut(const Input & p)
 	if (wait >= WAITFRAME) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		(*FadeBubble).Draw();
-		Game::GetInstance().ChangeScene(new ResultScene());
+		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,score.time));
 	}
 	else {
 		(*FadeBubble).Create();
@@ -88,9 +88,7 @@ void GameScene::Wait(const Input & p)
 void GameScene::Run(const Input & p)
 {
 	Draw();
-
-	_pl->Update(p);
-
+	flame++;
 	if (p.IsTrigger(PAD_INPUT_10)) {
 		wait = 0;
 		_updater = &GameScene::FadeOut;
@@ -163,6 +161,10 @@ void GameScene::LoadResource()
 			_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
 		}
 	}
+
+	//score‰Šú‰»
+	score = ScoreInfo(0, 0, 0, 0);
+
 	SetUseASyncLoadFlag(false);
 
 }
@@ -349,7 +351,9 @@ void GameScene::Draw()
 
 void GameScene::Update(const Input & p)
 {
-	flame++; wait++; shader_time++; waitCnt++;
+	wait++; shader_time++; waitCnt++;
+
+	_pl->Update(p);
 
 	for (auto &enemy : _enemies)
 	{
