@@ -2,8 +2,22 @@
 #include "../Processing/Geometry.h"
 #include <memory>
 #include <array>
+#include <vector>
 
 class Camera;
+
+using sqr_vert = std::array<Vector2, 4>;
+
+struct LegInfo
+{
+	// 3つの関節
+	Vector2 sPoint, mPoint, ePoint;
+	Size _size;
+	float cos, sin;						// 三角比用変数
+
+	std::array<sqr_vert, 2> legVert;	// 足の関節の頂点を設定するもの
+
+};
 
 struct CrabInfo
 {
@@ -11,7 +25,8 @@ struct CrabInfo
 	Position2 _prePos;
 	Size _size;
 
-	std::array<Vector2, 4> _vert;
+	sqr_vert _vert;					// 蟹本体の頂点
+	std::vector<LegInfo> legs;		// 足の関節
 
 	CrabInfo() : _pos(0, 0), _size(0, 0){};
 	CrabInfo(const Position2& _pos, const Size& _size)

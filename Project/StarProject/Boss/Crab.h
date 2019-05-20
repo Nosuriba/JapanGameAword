@@ -1,6 +1,4 @@
 #pragma once
-#include <array>
-#include <vector>
 #include "Boss.h"
 
 // UŒ‚‚Ìí—Ş
@@ -25,19 +23,7 @@ struct Vector3
 	}
 };
 
-using sqr_vert = std::array<Vector2, 4>;
 
-struct LegInfo
-{
-	// 3‚Â‚ÌŠÖß
-	Vector2 sPoint, mPoint, ePoint;
-	// OŠp”ä—p•Ï”
-	float cos, sin;
-
-	Size _size;
-	std::array<sqr_vert, 2> sqrVert;
-
-};
 
 class Crab :
 	public Boss
@@ -67,7 +53,6 @@ private:
 	void (Crab::*_updater)();
 
 	std::shared_ptr<Camera>& _camera;
-	std::vector<LegInfo> legs;		// ŠÖß
 	std::vector<Vector2> ctlPoints;
 
 	Vector2 _vel;
