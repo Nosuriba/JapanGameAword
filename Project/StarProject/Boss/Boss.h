@@ -1,6 +1,7 @@
 #pragma once
 #include "../Processing/Geometry.h"
 #include <memory>
+#include <array>
 
 class Camera;
 
@@ -9,14 +10,14 @@ struct CrabInfo
 	Position2 _pos;
 	Position2 _prePos;
 	Size _size;
-	Rect _rect;
 
-	CrabInfo() : _pos(0, 0), _size(0, 0), _rect(_pos, _size) {};
-	CrabInfo(const Position2& _pos, const Size& _size, const Rect& _rect)
+	std::array<Vector2, 4> _vert;
+
+	CrabInfo() : _pos(0, 0), _size(0, 0){};
+	CrabInfo(const Position2& _pos, const Size& _size)
 	{
 		this->_pos = _pos;
 		this->_size = _size;
-		this->_rect = _rect;
 	}
 };
 

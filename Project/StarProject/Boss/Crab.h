@@ -6,9 +6,9 @@
 // UŒ‚‚Ìí—Ş
 enum class atkType
 {
-	BUBBLE_LASER,
-	PITCH,
-	FIST,
+	BUBBLE,		// –AUŒ‚
+	PITCH,		// ‹²‚ŞUŒ‚
+	FIST,		// ‰£‚éUŒ‚
 	MAX
 };
 
@@ -52,7 +52,8 @@ private:
 	void DieUpdate();
 
 	void CalVert(const int& i);							// ’¸“_‚ÌŒvZ
-	void Rotation(const int& i);						// ‰ñ“]—p
+	void Rotation();									// ‰ñ“]—p(ŠI–{‘Ì)
+	void Rotation(const int& i);						// ‰ñ“]—p(‘«‚È‚Ç)
 	void LegMove(const Vector2& pos, const int& i);		// ‘«‚ÌˆÚ“®
 
 	// ŠOÏ‚ÌŒvZ
@@ -69,15 +70,12 @@ private:
 	std::vector<LegInfo> legs;		// ŠÖß
 	std::vector<Vector2> ctlPoints;
 
-	std::array<Vector2, 4> debugPos;		// ‰ñ“]‚Åg‚¤À•W(debug—p)
 	Vector2 _vel;
-	Vector2 rotCenter;						// ‰ñ“]‚·‚é‚½‚ß‚Ì’†SÀ•W
-	int moveCnt;
 public:
 	Crab(std::shared_ptr<Camera>& camera);
 	~Crab();
 	void Draw();
-	void DebugDraw();
+	void DebugDraw(const Vector2& camera);
 	void Update();
 	BossInfo GetInfo();
 };
