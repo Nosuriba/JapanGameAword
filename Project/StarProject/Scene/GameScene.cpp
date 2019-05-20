@@ -88,9 +88,9 @@ GameScene::GameScene()
 	/// 敵の生成(debug用)
 	/*_enemies.push_back(std::make_shared<Fish>(_camera));
 	_enemies.push_back(std::make_shared<Diodon>(_camera));
-	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
+	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));*/
 	_enemies.push_back(std::make_shared<Octopus>(_camera));
-*/
+
 	_bosses.push_back(std::make_shared<Crab>(_camera));
 
 	//フォントのロード
@@ -291,11 +291,11 @@ void GameScene::Update(const Input & p)
 
 	_pl->Update(p);
 
-	/*for (auto &enemy : _enemies)
+	for (auto &enemy : _enemies)
 	{
 		enemy->Update();
 	}
-*/
+
 	for (auto &boss : _bosses)
 	{
 		boss->Update();

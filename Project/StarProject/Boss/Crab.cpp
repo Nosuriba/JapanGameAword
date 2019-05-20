@@ -1,4 +1,5 @@
 #include "Crab.h"
+#include "../Game.h"
 #include "../Camera.h"
 
 const int length   = 80;
@@ -6,16 +7,22 @@ const Size eSize = Size(length, 20);
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
-		legs.push_back(Leg());
+		legs.push_back(LegInfo());
 		ctlPoints.push_back(Vector2());
-		legs[i].sPoint = Vector2(200, 200 + (i * 60));
+		legs[i].sPoint = Vector2(600, 200 + (i * 60));
 		legs[i].mPoint = legs[i].sPoint + Vector2(length, 0);
 		legs[i].ePoint = legs[i].mPoint + Vector2(length, 0);
 
 		ctlPoints[i] = legs[i].ePoint + Vector2(length, 0);
+
+		/// debug用
+		debugPos[i] = Vector2(300 + (length * (i % 2)), 300 + (length * (i / 2)));
 	}
+
+	rotCenter = Vector2(Game::GetInstance().GetScreenSize().x / 2,
+						Game::GetInstance().GetScreenSize().y / 2);
 	
 	Neutral();
 }
@@ -72,7 +79,7 @@ void Crab::CalVert(const int& i)
 	auto cosD = cos(theta + DX_PI / 2);
 	auto sinD = sin(theta + DX_PI / 2);
 
-  	size.x = cosD * (eSize.height / 2);
+   	size.x = cosD * (eSize.height / 2);
 	size.y = sinD * (eSize.height / 2);
 	for (int p = 0; p < legs[i].sqrVert[0].size(); ++p)
 	{
@@ -95,6 +102,20 @@ void Crab::CalVert(const int& i)
 		auto sizePos = (p < 2 ? -size : size);
 		legs[i].sqrVert[1][p] = (p == 0 || p == 3 ? legs[i].mPoint : legs[i].ePoint) + sizePos;
 	}
+}
+
+void Crab::Rotation(const int & i)
+{
+	VECTOR vec = { 0.0f, 0.0f, 1.0f };		/// Z軸回転を行う
+	auto rad = DX_PI_F / 540.0f;			/// 回転する速度を調整している		
+
+
+	auto mat = MGetRotAxis(vec, rad);		 // 回転行列の設定
+	legs[i].sPoint = VTransform(legs[i].sPoint.V_Cast(), mat);
+	legs[i].mPoint = VTransform(legs[i].mPoint.V_Cast(), mat);
+	legs[i].ePoint = VTransform(legs[i].ePoint.V_Cast(), mat);
+	ctlPoints[i]   = VTransform(ctlPoints[i].V_Cast(), mat);
+
 }
 
 void Crab::LegMove(const Vector2& pos, const int& i)
@@ -140,18 +161,6 @@ void Crab::LegMove(const Vector2& pos, const int& i)
 
 void Crab::Draw()
 {
-	// 余弦定理を使っての関節移動
-	for (int i = 0; i < legs.size(); ++i)
-	{
-		DrawLine(legs[i].mPoint.x, legs[i].mPoint.y, legs[i].ePoint.x, legs[i].ePoint.y, 0x00ff00);		/// 終点から中間点
-		DrawLine(legs[i].sPoint.x, legs[i].sPoint.y, legs[i].mPoint.x, legs[i].mPoint.y, 0x00ff00);			/// 中間点から始点
-
-		/*DrawCircle(joints[i].sPoint.x, joints[i].sPoint.y, 5, 0xff0000, true);
-		DrawCircle(joints[i].mPoint.x, joints[i].mPoint.y, 5, 0xff0000, true);
-		DrawCircle(joints[i].ePoint.x, joints[i].ePoint.y, 5, 0xff0000, true);*/
-	}
-	
-
 #ifdef _DEBUG
 	DebugDraw();
 #endif
@@ -176,17 +185,30 @@ void Crab::DebugDraw()
 		p3 = legs[i].sqrVert[1][2];
 		p4 = legs[i].sqrVert[1][3];
 		DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xff0000, true);
+
+		DxLib::DrawCircle(ctlPoints[i].x, ctlPoints[i].y, 4, 0xffff00, true);
+
+
+		// 回転できてるかのdebug用
+		auto sPos = debugPos[i];
+		auto ePos = debugPos[(i + 1) % legs.size()];
+		DxLib::DrawCircle(debugPos[i].x, debugPos[i].y, 5, 0x0000ff, true);
+		DxLib::DrawLine(sPos.x, sPos.y, ePos.x, ePos.y, 0xdddd00, 3);
 	}
+
+	DxLib::DrawCircle(rotCenter.x, rotCenter.y, 8, 0xffff55, true);
 }
 
 void Crab::Update()
 {
+	
 	(this->*_updater)();
 	for (int i = 0; i < legs.size(); ++i)
 	{
 		CalVert(i);
 		LegMove(ctlPoints[i], i);
 		ctlPoints[i] += _vel;
+		Rotation(i);
 	}
 	
 	boss._crab._prePos = boss._crab._pos;
