@@ -1,5 +1,6 @@
 #include "ResultScene.h"
 #include "../Processing/Input.h"
+#include "../ResourceManager.h"
 #include "../Game.h"
 #include "TitleScene.h"
 
@@ -31,14 +32,18 @@ void ResultScene::FadeOut(const Input & p)
 void ResultScene::Wait(const Input & p)
 {
 	Draw();
-	if (p.IsTrigger(PAD_INPUT_10)) {
-		flame = 0;
-		_updater = &ResultScene::FadeOut;
-	}
+	_updater = &ResultScene::Run;
 }
 
 void ResultScene::Run(const Input & p)
 {
+	auto size = Game::GetInstance().GetScreenSize();
+
+	Draw();
+	if (p.IsTrigger(PAD_INPUT_10)) {
+		flame = 0;
+		_updater = &ResultScene::FadeOut;
+	}
 }
 
 ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj, const float& time)
@@ -59,6 +64,8 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 
 	flame = 0;
 
+	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
+
 	this->enemy = enemy;
 	this->bite = bite;
 	this->breakobj = breakobj;
@@ -78,6 +85,9 @@ void ResultScene::Update(const Input & p)
 void ResultScene::Draw()
 {
 	auto size = Game::GetInstance().GetScreenSize();
+	DrawExtendGraph(0, 0, size.x, size.y, imgbuff, true);
+	DrawString(0, 0, "^p^", 0xff00ff);
+
 	DrawString(size.x / 2 - GetFontSize() * 2, size.y / 2, "Result", 0xff00ff);
 	(*FadeBubble).Draw();
 }

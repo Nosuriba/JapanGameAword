@@ -14,6 +14,7 @@ private:
 	void Run(const Input &p);
 
 	int flame;
+	int imgbuff;
 
 	int enemy;
 	int bite;
