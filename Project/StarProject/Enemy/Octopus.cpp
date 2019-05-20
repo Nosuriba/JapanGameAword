@@ -53,7 +53,7 @@ void Octopus::NeturalUpdate()
 				auto p_vec = p_pos - LEG(i).joint[j - 1];		//目標→関節
 				auto t_vec = LEG(i).tip - LEG(i).joint[j - 1];		//先端→関節
 				auto mat = MGetTranslate((-LEG(i).joint[j - 1]).V_Cast());			//原点まで移動
-				mat = MMult(mat, MGetRotVec2(t_vec.V_Cast(), p_vec.V_Cast()));	//回転
+				mat = MMult(mat, MGetRotVec2(t_vec.V_Cast(), p_vec.V_Cast()));		//回転
 				mat = MMult(mat, MGetTranslate(LEG(i).joint[j - 1].V_Cast()));		//元の位置に移動
 				for (int itr = j; itr <= LEG(i).T; ++itr) {
 					LEG(i).joint[itr] = VTransform(LEG(i).joint[itr].V_Cast(), mat);

@@ -1,6 +1,9 @@
 #include "Crab.h"
+#include "../Game.h"
 #include "../Camera.h"
 
+const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
+							   Game::GetInstance().GetScreenSize().y / 2);
 const VECTOR rotVec = { 0,0,1.f };
 const float rotVel = DX_PI_F / 540.f;
 const int length = 150;
@@ -133,8 +136,10 @@ void Crab::CalVert(const int& i)
 
 void Crab::Rotation()
 {
-	auto mat = MGetRotAxis(rotVec, rotVel); 	 // Z²‚Ì‰ñ“]s—ñ‚ğì‚Á‚Ä‚¢‚é
-
+	auto cPos = center;
+	auto mat = MGetTranslate((-cPos).V_Cast());
+	mat = MMult(mat, MGetRotAxis(rotVec, rotVel)); 	 // Z²‚Ì‰ñ“]s—ñ‚ğì‚Á‚Ä‚¢‚é
+	mat = MMult(mat, MGetTranslate(cPos.V_Cast()));
 	/// ŠI–{‘Ì‚Ì‰ñ“]
 	boss._crab._pos = VTransform(boss._crab._pos.V_Cast(), mat);
 
@@ -147,7 +152,10 @@ void Crab::Rotation()
 
 void Crab::Rotation(const int & i)
 {
-	auto mat = MGetRotAxis(rotVec, rotVel);		 // Z²‚Ì‰ñ“]s—ñ‚ğì‚Á‚Ä‚¢‚é
+	auto cPos = center;
+	auto mat = MGetTranslate((-cPos).V_Cast());
+	mat = MMult(mat, MGetRotAxis(rotVec, rotVel)); 	 // Z²‚Ì‰ñ“]s—ñ‚ğì‚Á‚Ä‚¢‚é
+	mat = MMult(mat, MGetTranslate(cPos.V_Cast()));
 
 	/// ‰ñ“]‚·‚é‚à‚Ì‚ğw’è‚µ‚Ä‚¢‚é
 	boss._crab.legs[i].sPoint = VTransform(boss._crab.legs[i].sPoint.V_Cast(), mat);
