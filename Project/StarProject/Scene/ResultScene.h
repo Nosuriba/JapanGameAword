@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+#include "Scene.h"
 
 class Input;
 
@@ -13,6 +14,13 @@ private:
 	void Run(const Input &p);
 
 	int flame;
+	int imgbuff;
+	int ResultCnt;
+
+	int enemy;
+	int bite;
+	int breakobj;
+	float time;
 
 public:
 	ResultScene(const int& enemy, const int& bite, const int & breakobj, const float& time);

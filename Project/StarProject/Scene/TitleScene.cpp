@@ -57,7 +57,7 @@ TitleScene::TitleScene()
 	blendcolor = 0;
 
 	//フォントのロード
-	LPCSTR font = "H2O-Shadow.ttf";
+	LPCSTR font = "RAINYDAYS.ttf";
 	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
 	}
 	else {
@@ -66,7 +66,7 @@ TitleScene::TitleScene()
 
 	SetFontSize(64);
 
-	ChangeFont("H2O Shadow", DX_CHARSET_DEFAULT);
+	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
 
 	se = ResourceManager::GetInstance().LoadSound("se_maoudamashii_effect15.mp3");
 
@@ -100,7 +100,7 @@ void TitleScene::Draw()
 	}
 	SetFontSize(84);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, colorflame % 255);
-	DrawString(size.x / 2 - (float)(GetFontSize()) * 8.5f / 2.0f, size.y / 2 + GetFontSize() * 2, "PRESS A BUTTON",0xff0000);
+	DrawString(size.x / 2 - (float)(GetFontSize()) * 8.5f / 2.0f, size.y / 2 + GetFontSize() * 2, "PRESS A BUTTON",0x000000);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	(*FadeBubble).Draw();
