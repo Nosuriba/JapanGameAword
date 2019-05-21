@@ -40,7 +40,8 @@ private:
 	void CalVert(const int& i);							// 頂点の計算
 	void Rotation();									// 回転用(蟹本体)
 	void Rotation(const int& i);						// 回転用(足など)
-	void LegMove(const Vector2& pos, const int& i);		// 足の移動
+	void MovePoint(const int& p);						// 制御点の移動
+	void MoveLeg(const Vector2& pos, const int& l);		// 足の移動
 
 	// 外積の計算
 	Vector3 Cross(const Vector3& va, const Vector3& vb)
@@ -54,8 +55,10 @@ private:
 
 	std::shared_ptr<Camera>& _camera;
 	std::vector<Vector2> ctlPoints;
+	std::vector<Vector2> _legVel;
 
 	Vector2 _vel;
+
 public:
 	Crab(std::shared_ptr<Camera>& camera);
 	~Crab();

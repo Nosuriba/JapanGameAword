@@ -4,16 +4,17 @@
 
 const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
 							   Game::GetInstance().GetScreenSize().y / 2);
+const Vector2 lVel = Vector2(5.f, 5.f);
 const VECTOR rotVec = { 0,0,1.f };
 const float rotVel = DX_PI_F / 540.f;
 const int length = 150;
-const Size eSize = Size(500, 400);
+const Size eSize = Size(450, 350);
 const Size lSize = Size(length, 50);
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
 	/// 蟹本体の設定
-	boss._crab._pos = Vector2(800, 500);
+	boss._crab._pos = Vector2(center.x, center.y);
 	boss._crab._size = eSize;
 
 	/// 足の設定
@@ -27,23 +28,25 @@ Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 		{
 			/// 右足の設定
 			auto pos = Vector2(boss._crab._pos.x + eSize.width / 2,
-							   boss._crab._pos.y - (lSize.height / 2));
+							   boss._crab._pos.y - lSize.height);
 			boss._crab.legs[i].sPoint = pos + Vector2(0,(i * (lSize.height * 2)));
 			boss._crab.legs[i].mPoint = boss._crab.legs[i].sPoint + Vector2(length, 0);
 			boss._crab.legs[i].ePoint = boss._crab.legs[i].mPoint + Vector2(length, 0);
 
 			ctlPoints[i] = boss._crab.legs[i].ePoint - Vector2(length / 2, 0);
+			_legVel.push_back(Vector2(-lVel.x, lVel.y));
 		}
 		else
 		{
 			/// 左足の設定
 			auto pos = Vector2(boss._crab._pos.x - eSize.width / 2,
-							   boss._crab._pos.y - (lSize.height / 2));
+							   boss._crab._pos.y - lSize.height);
 			boss._crab.legs[i].sPoint = pos + Vector2(0,((i % 3) * (lSize.height * 2)));
 			boss._crab.legs[i].mPoint = boss._crab.legs[i].sPoint - Vector2(length, 0);
 			boss._crab.legs[i].ePoint = boss._crab.legs[i].mPoint - Vector2(length, 0);
 
 			ctlPoints[i] = boss._crab.legs[i].ePoint + Vector2(length / 2, 0);
+			_legVel.push_back(Vector2(lVel.x, -lVel.y));
 		}
 	}
 
@@ -64,7 +67,6 @@ Crab::~Crab()
 
 void Crab::Neutral()
 {
-	_vel.x = 2.0f;
 	_updater = &Crab::NeutralUpdate;
 }
 
@@ -80,15 +82,6 @@ void Crab::Die()
 
 void Crab::NeutralUpdate()
 {
-	_vel = Vector2(0, 0);
-	if (CheckHitKey(KEY_INPUT_A))
-		_vel.x = -2.0f;
-	if (CheckHitKey(KEY_INPUT_D))
-		_vel.x = 2.0f;
-	if (CheckHitKey(KEY_INPUT_W))
-		_vel.y = -2.0f;
-	if (CheckHitKey(KEY_INPUT_S))
-		_vel.y = 2.0f;
 }
 
 void Crab::ShotUpdate()
@@ -99,27 +92,27 @@ void Crab::DieUpdate()
 {
 }
 
-void Crab::CalVert(const int& i)
+void Crab::CalVert(const int& l)
 {
 	Vector2 size;
 
 	/// 始点から中間点までの矩形の設定
-	auto theta = atan2f(boss._crab.legs[i].mPoint.y - boss._crab.legs[i].sPoint.y,
-						boss._crab.legs[i].mPoint.x - boss._crab.legs[i].sPoint.x);
+	auto theta = atan2f(boss._crab.legs[l].mPoint.y - boss._crab.legs[l].sPoint.y,
+						boss._crab.legs[l].mPoint.x - boss._crab.legs[l].sPoint.x);
 	auto cosD = cos(theta + DX_PI / 2);
 	auto sinD = sin(theta + DX_PI / 2);
 
    	size.x = cosD * (lSize.height / 2);
 	size.y = sinD * (lSize.height / 2);
-	for (int p = 0; p < boss._crab.legs[i].legVert[0].size(); ++p)
+	for (int p = 0; p < boss._crab.legs[l].legVert[0].size(); ++p)
 	{
 		auto sizePos = (p < 2 ? -size : size);
-		boss._crab.legs[i].legVert[0][p] = (p == 0 || p == 3 ? boss._crab.legs[i].sPoint : boss._crab.legs[i].mPoint) + sizePos;
+		boss._crab.legs[l].legVert[0][p] = (p == 0 || p == 3 ? boss._crab.legs[l].sPoint : boss._crab.legs[l].mPoint) + sizePos;
 	}
 
 	/// 中間点から終点までの矩形の設定
-	theta = atan2f(boss._crab.legs[i].ePoint.y - boss._crab.legs[i].mPoint.y,
-				   boss._crab.legs[i].ePoint.x - boss._crab.legs[i].mPoint.x);
+	theta = atan2f(boss._crab.legs[l].ePoint.y - boss._crab.legs[l].mPoint.y,
+				   boss._crab.legs[l].ePoint.x - boss._crab.legs[l].mPoint.x);
 
 	cosD = cos(theta + DX_PI / 2);
 	sinD = sin(theta + DX_PI / 2);
@@ -127,10 +120,11 @@ void Crab::CalVert(const int& i)
 	size.x = cosD * (lSize.height / 2);
 	size.y = sinD * (lSize.height / 2);
 
-	for (int p = 0; p < boss._crab.legs[i].legVert[1].size(); ++p)
+	for (int p = 0; p < boss._crab.legs[l].legVert[1].size(); ++p)
 	{
 		auto sizePos = (p < 2 ? -size : size);
-		boss._crab.legs[i].legVert[1][p] = (p == 0 || p == 3 ? boss._crab.legs[i].mPoint : boss._crab.legs[i].ePoint) + sizePos;
+		boss._crab.legs[l].legVert[1][p] = (p == 0 || p == 3 ? boss._crab.legs[l].mPoint 
+															 : boss._crab.legs[l].ePoint) + sizePos;
 	}
 }
 
@@ -150,7 +144,7 @@ void Crab::Rotation()
 	}
 }
 
-void Crab::Rotation(const int & i)
+void Crab::Rotation(const int & l)
 {
 	auto cPos = center;
 	auto mat = MGetTranslate((-cPos).V_Cast());		 // 平行移動をしている
@@ -158,23 +152,84 @@ void Crab::Rotation(const int & i)
 	mat = MMult(mat, MGetTranslate(cPos.V_Cast()));	 // 原点に戻している
 
 	/// 回転するものを指定している
-	boss._crab.legs[i].sPoint = VTransform(boss._crab.legs[i].sPoint.V_Cast(), mat);
-	boss._crab.legs[i].mPoint = VTransform(boss._crab.legs[i].mPoint.V_Cast(), mat);
-	boss._crab.legs[i].ePoint = VTransform(boss._crab.legs[i].ePoint.V_Cast(), mat);
-	ctlPoints[i]   = VTransform(ctlPoints[i].V_Cast(), mat);
+	boss._crab.legs[l].sPoint = VTransform(boss._crab.legs[l].sPoint.V_Cast(), mat);
+	boss._crab.legs[l].mPoint = VTransform(boss._crab.legs[l].mPoint.V_Cast(), mat);
+	boss._crab.legs[l].ePoint = VTransform(boss._crab.legs[l].ePoint.V_Cast(), mat);
+	ctlPoints[l]   = VTransform(ctlPoints[l].V_Cast(), mat);
 }
 
-void Crab::LegMove(const Vector2& pos, const int& i)
+void Crab::MovePoint(const int & p)
 {
-	///余弦定理
-	auto pLength = pos - boss._crab.legs[i].sPoint;
+	auto d = Vector2(abs(boss._crab.legs[p].ePoint.x - boss._crab.legs[p].sPoint.x),
+					 abs(boss._crab.legs[p].ePoint.y - boss._crab.legs[p].sPoint.y));
 
-	boss._crab.legs[i].cos = (pow(length, 2.0) + pow(pLength.Magnitude(), 2.0) - pow(length, 2.0)) / (2 * length * pLength.Magnitude());
-	auto rad = acos(boss._crab.legs[i].cos);			/// cosの角度
-	boss._crab.legs[i].sin = sin(rad);				/// sinの値
+	Vector2 vec;
+	
+	if (!(p / (boss._crab.legs.size() / 2)))
+	{
+		/// 右足の動き
+		vec = boss._crab._vert[1] - boss._crab._vert[0];
+		vec.Normalize();
+		
+		/// 
+		if (_legVel[p].x > 0)
+		{
+			_legVel[p].x = (d.x > length + (length / 2) ? -_legVel[p].x : _legVel[p].x);
+		}
+		else
+		{
+			_legVel[p].x = (d.x < length - (length / 2) ? -_legVel[p].x : _legVel[p].x);
+		}
+
+		if (_legVel[p].y > 0)
+		{
+			_legVel[p].y = (d.y > length + (length / 2) ? -lVel.y : lVel.y);
+		}
+		else
+		{
+			_legVel[p].y = (d.y < length - (length / 2) ? -lVel.y : lVel.y);
+		}
+	}
+	else
+	{
+		/// ﾍﾞｸﾄﾙの方向は同じでいいのか？
+		vec = boss._crab._vert[1] - boss._crab._vert[0];
+		vec.Normalize();
+		/// 左足の動き
+		if (_legVel[p].x > 0)
+		{
+			_legVel[p].x = (d.x < length - (length / 2) ? -_legVel[p].x : _legVel[p].x);
+		}
+		else
+		{
+			_legVel[p].x = (d.x > length + (length / 2) ? -_legVel[p].x : _legVel[p].x);
+		}
+
+		if (_legVel[p].y > 0)
+		{
+			_legVel[p].y = (d.y < length - (length / 2) ? -_legVel[p].y : _legVel[p].y);
+		}
+		else
+		{
+			_legVel[p].y = (d.y > length + (length / 2) ? -_legVel[p].y : _legVel[p].y);
+		}
+	}
+	/// 制御点の移動
+	ctlPoints[p] += Vector2(_legVel[p].x * vec.x ,_legVel[p].y * vec.y);	/// 回転あり
+	//ctlPoints[p] += Vector2(_legVel[p].x , /*_legVel[p].y*/0);		/// 回転なし
+}
+
+void Crab::MoveLeg(const Vector2& pos, const int& l)
+{
+	/// 余弦定理
+	auto pLength = pos - boss._crab.legs[l].sPoint;
+	boss._crab.legs[l].cos = (pow(length, 2.0) + pow(pLength.Magnitude(), 2.0) - pow(length, 2.0)) / (2 * length * pLength.Magnitude());
+
+	auto rad = acos(boss._crab.legs[l].cos);		/// cosの角度
+	boss._crab.legs[l].sin = sin(rad);				/// sinの値
 
 	/// 値が異常値になった時の初期化
-	if (!(std::isnan(boss._crab.legs[i].cos) && std::isnan(boss._crab.legs[i].sin)))
+	if (!(std::isnan(boss._crab.legs[l].cos) && std::isnan(boss._crab.legs[l].sin)))
 	{
 		if (pLength.Magnitude() < length * 2)
 		{
@@ -185,26 +240,26 @@ void Crab::LegMove(const Vector2& pos, const int& i)
 			auto cross2f = Vector2(cross.x, cross.y);
 			cross2f.Normalize();
 
-			auto cosD = pLength.Normalized() * (length * boss._crab.legs[i].cos);		/// X方向の成分
-			auto sinD = cross2f * (length * boss._crab.legs[i].sin);					/// Y方向の成分
+			auto cosD = pLength.Normalized() * (length * boss._crab.legs[l].cos);		/// X方向の成分
+			auto sinD = cross2f * (length * boss._crab.legs[l].sin);					/// Y方向の成分
 
 			/// 左関節が逆に向かないための処理
-			sinD = (!(i / 3) ? sinD : -sinD);
+			sinD = (!(l / (boss._crab.legs.size() / 2)) ? sinD : -sinD);
 
-			boss._crab.legs[i].mPoint = boss._crab.legs[i].sPoint + cosD + sinD;
-			boss._crab.legs[i].ePoint = pos;
+			boss._crab.legs[l].mPoint = boss._crab.legs[l].sPoint + cosD + sinD;
+			boss._crab.legs[l].ePoint = pos;
 		}
 		else
 		{
 			/// 長さが一定距離よりながくなった場合
-			boss._crab.legs[i].mPoint = boss._crab.legs[i].sPoint + (pLength.Normalized() * length);
-			boss._crab.legs[i].ePoint = boss._crab.legs[i].mPoint + (pLength.Normalized() * length);
+			boss._crab.legs[l].mPoint = boss._crab.legs[l].sPoint + (pLength.Normalized() * length);
+			boss._crab.legs[l].ePoint = boss._crab.legs[l].mPoint + (pLength.Normalized() * length);
 		}
 	}
 	else
 	{
-		boss._crab.legs[i].cos = 0.f;
-		boss._crab.legs[i].sin = 0.f;
+		boss._crab.legs[l].cos = 0.f;
+		boss._crab.legs[l].sin = 0.f;
 	}
 }
 
@@ -230,6 +285,7 @@ void Crab::Draw()
 		p4 = boss._crab.legs[i].legVert[1][3] - camera;
 		DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 
+		/// 制御点の描画
 		DxLib::DrawCircle(ctlPoints[i].x, ctlPoints[i].y, 4, 0xffff00, true);
 	}
 
@@ -247,24 +303,24 @@ void Crab::Draw()
 
 void Crab::DebugDraw(const Vector2& camera)
 {
-	
+	/// 回転するときの中心点の描画
+	DrawCircle(center.x - camera.x, center.y - camera.y, 10, 0xff0000, true);
 }
 
 void Crab::Update()
 {
-	
 	(this->*_updater)();
 	for (int i = 0; i < boss._crab.legs.size(); ++i)
 	{
 		CalVert(i);
-		LegMove(ctlPoints[i], i);
-		ctlPoints[i] += _vel;
 		Rotation(i);
+		MovePoint(i);
+		MoveLeg(ctlPoints[i], i);
 	}
 	
 	Rotation();
 	boss._crab._prePos = boss._crab._pos;
-	boss._crab._pos += _vel;
+	// boss._crab._pos += _vel;
 }
 
 BossInfo Crab::GetInfo()
