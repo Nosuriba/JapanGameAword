@@ -21,7 +21,7 @@ struct ScoreInfo {
 	int enemy;
 	int bite;
 	int breakobj;
-	float time;
+	int time;
 	ScoreInfo() :enemy(0), bite(0), breakobj(0), time(0) {};
 	ScoreInfo(const int& enemy, const int& bite, const int & breakobj, const float& time) {
 		this->enemy = enemy;

@@ -60,7 +60,7 @@ void GameScene::FadeOut(const Input & p)
 	if (wait >= WAITFRAME) {
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		(*FadeBubble).Draw();
-		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,score.time));
+		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,totaltime));
 	}
 	else {
 		(*FadeBubble).Create();
