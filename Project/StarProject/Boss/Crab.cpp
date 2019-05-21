@@ -8,27 +8,28 @@ const Vector2 lVel = Vector2(5.f, 5.f);
 const VECTOR rotVec = { 0,0,1.f };
 const float rotVel = DX_PI_F / 540.f;
 const int length = 150;
-const Size eSize = Size(450, 350);
-const Size lSize = Size(length, 50);
+const Size eSize = Size(450, 300);
+const Size lSize = Size(length, 30);
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
 	/// äIñ{ëÃÇÃê›íË
-	boss._crab._pos = Vector2(center.x, center.y);
+	boss._crab._pos = Vector2(center.x, 800);
 	boss._crab._size = eSize;
-
+	/// ë´ÇÃêî
+	boss._crab.legs.resize(8);
+	ctlPoints.resize(8);
 	/// ë´ÇÃê›íË
-	for (int i = 0; i < 6; ++i)
+	for (int i = 0; i < 8; ++i)
 	{
 		/// ª≤ΩﬁÇÃämï€
-		boss._crab.legs.push_back(LegInfo());
-		ctlPoints.push_back(Vector2());
+		
 
-		if (!(i / 3))
+		if (!(i / (boss._crab.legs.size() / 2)))
 		{
 			/// âEë´ÇÃê›íË
 			auto pos = Vector2(boss._crab._pos.x + eSize.width / 2,
-							   boss._crab._pos.y - lSize.height);
+							   boss._crab._pos.y - eSize.height / 4);
 			boss._crab.legs[i].sPoint = pos + Vector2(0,(i * (lSize.height * 2)));
 			boss._crab.legs[i].mPoint = boss._crab.legs[i].sPoint + Vector2(length, 0);
 			boss._crab.legs[i].ePoint = boss._crab.legs[i].mPoint + Vector2(length, 0);
@@ -40,8 +41,8 @@ Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 		{
 			/// ç∂ë´ÇÃê›íË
 			auto pos = Vector2(boss._crab._pos.x - eSize.width / 2,
-							   boss._crab._pos.y - lSize.height);
-			boss._crab.legs[i].sPoint = pos + Vector2(0,((i % 3) * (lSize.height * 2)));
+							   boss._crab._pos.y - eSize.height / 4);
+			boss._crab.legs[i].sPoint = pos + Vector2(0,((i % (boss._crab.legs.size() / 2)) * (lSize.height * 2)));
 			boss._crab.legs[i].mPoint = boss._crab.legs[i].sPoint - Vector2(length, 0);
 			boss._crab.legs[i].ePoint = boss._crab.legs[i].mPoint - Vector2(length, 0);
 
@@ -163,15 +164,15 @@ void Crab::MovePoint(const int & p)
 	auto d = Vector2(abs(boss._crab.legs[p].ePoint.x - boss._crab.legs[p].sPoint.x),
 					 abs(boss._crab.legs[p].ePoint.y - boss._crab.legs[p].sPoint.y));
 
-	Vector2 vec;
+	auto vec = boss._crab._vert[1] - boss._crab._vert[0];
+	vec.Normalize();
+
 	
 	if (!(p / (boss._crab.legs.size() / 2)))
 	{
 		/// âEë´ÇÃìÆÇ´
-		vec = boss._crab._vert[1] - boss._crab._vert[0];
-		vec.Normalize();
-		
-		/// 
+
+		/// â°ï˚å¸ÇÃâùïú
 		if (_legVel[p].x > 0)
 		{
 			_legVel[p].x = (d.x > length + (length / 2) ? -_legVel[p].x : _legVel[p].x);
@@ -181,21 +182,21 @@ void Crab::MovePoint(const int & p)
 			_legVel[p].x = (d.x < length - (length / 2) ? -_legVel[p].x : _legVel[p].x);
 		}
 
+		/// ècï˚å¸ÇÃâùïú
 		if (_legVel[p].y > 0)
 		{
-			_legVel[p].y = (d.y > length + (length / 2) ? -lVel.y : lVel.y);
+			_legVel[p].y = (d.y > length + (length / 2) ? -_legVel[p].y : _legVel[p].y);
 		}
 		else
 		{
-			_legVel[p].y = (d.y < length - (length / 2) ? -lVel.y : lVel.y);
+			_legVel[p].y = (d.y < length - (length / 2) ? -_legVel[p].y : _legVel[p].y);
 		}
 	}
 	else
 	{
-		/// Õﬁ∏ƒŸÇÃï˚å¸ÇÕìØÇ∂Ç≈Ç¢Ç¢ÇÃÇ©ÅH
-		vec = boss._crab._vert[1] - boss._crab._vert[0];
-		vec.Normalize();
 		/// ç∂ë´ÇÃìÆÇ´
+		
+		/// â°ï˚å¸ÇÃâùïú
 		if (_legVel[p].x > 0)
 		{
 			_legVel[p].x = (d.x < length - (length / 2) ? -_legVel[p].x : _legVel[p].x);
@@ -204,7 +205,7 @@ void Crab::MovePoint(const int & p)
 		{
 			_legVel[p].x = (d.x > length + (length / 2) ? -_legVel[p].x : _legVel[p].x);
 		}
-
+		/// ècï˚å¸ÇÃâùïú
 		if (_legVel[p].y > 0)
 		{
 			_legVel[p].y = (d.y < length - (length / 2) ? -_legVel[p].y : _legVel[p].y);
@@ -216,7 +217,6 @@ void Crab::MovePoint(const int & p)
 	}
 	/// êßå‰ì_ÇÃà⁄ìÆ
 	ctlPoints[p] += Vector2(_legVel[p].x * vec.x ,_legVel[p].y * vec.y);	/// âÒì]Ç†ÇË
-	//ctlPoints[p] += Vector2(_legVel[p].x , /*_legVel[p].y*/0);		/// âÒì]Ç»Çµ
 }
 
 void Crab::MoveLeg(const Vector2& pos, const int& l)
