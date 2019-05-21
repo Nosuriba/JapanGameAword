@@ -153,9 +153,9 @@ void Crab::Rotation()
 void Crab::Rotation(const int & i)
 {
 	auto cPos = center;
-	auto mat = MGetTranslate((-cPos).V_Cast());
+	auto mat = MGetTranslate((-cPos).V_Cast());		 // •½sˆÚ“®‚ð‚µ‚Ä‚¢‚é
 	mat = MMult(mat, MGetRotAxis(rotVec, rotVel)); 	 // ZŽ²‚Ì‰ñ“]s—ñ‚ðì‚Á‚Ä‚¢‚é
-	mat = MMult(mat, MGetTranslate(cPos.V_Cast()));
+	mat = MMult(mat, MGetTranslate(cPos.V_Cast()));	 // Œ´“_‚É–ß‚µ‚Ä‚¢‚é
 
 	/// ‰ñ“]‚·‚é‚à‚Ì‚ðŽw’è‚µ‚Ä‚¢‚é
 	boss._crab.legs[i].sPoint = VTransform(boss._crab.legs[i].sPoint.V_Cast(), mat);
@@ -188,8 +188,8 @@ void Crab::LegMove(const Vector2& pos, const int& i)
 			auto cosD = pLength.Normalized() * (length * boss._crab.legs[i].cos);		/// X•ûŒü‚Ì¬•ª
 			auto sinD = cross2f * (length * boss._crab.legs[i].sin);					/// Y•ûŒü‚Ì¬•ª
 
-			/// ‘«‚ÌŠÖß‚ª‹t‚ÉŒü‚©‚È‚¢‚½‚ß‚Ìˆ—
-			sinD = (boss._crab.legs[i].sPoint.x > pos.x ? -sinD : sinD);
+			/// ¶ŠÖß‚ª‹t‚ÉŒü‚©‚È‚¢‚½‚ß‚Ìˆ—
+			sinD = (!(i / 3) ? sinD : -sinD);
 
 			boss._crab.legs[i].mPoint = boss._crab.legs[i].sPoint + cosD + sinD;
 			boss._crab.legs[i].ePoint = pos;
@@ -211,13 +211,7 @@ void Crab::LegMove(const Vector2& pos, const int& i)
 void Crab::Draw()
 {
 	auto camera = _camera->CameraCorrection();
-#ifdef _DEBUG
-	DebugDraw(camera);
-#endif
-}
 
-void Crab::DebugDraw(const Vector2& camera)
-{
 	/// ‘«‚Ì•`‰æ
 	Vector2 p1, p2, p3, p4;
 	for (int i = 0; i < boss._crab.legs.size(); ++i)
@@ -229,7 +223,7 @@ void Crab::DebugDraw(const Vector2& camera)
 		p4 = boss._crab.legs[i].legVert[0][3] - camera;
 		DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 
-		/// ’†ŠÔ‚©‚çI“_‚Ü‚Å‚Ì‹éŒ`
+		/// ’†ŠÔ‚©‚çæ’[‚Ü‚Å‚Ì‹éŒ`
 		p1 = boss._crab.legs[i].legVert[1][0] - camera;
 		p2 = boss._crab.legs[i].legVert[1][1] - camera;
 		p3 = boss._crab.legs[i].legVert[1][2] - camera;
@@ -239,11 +233,21 @@ void Crab::DebugDraw(const Vector2& camera)
 		DxLib::DrawCircle(ctlPoints[i].x, ctlPoints[i].y, 4, 0xffff00, true);
 	}
 
+	/// ŠI–{‘Ì‚Ì•`‰æ
 	DxLib::DrawQuadrangle(boss._crab._vert[0].x - camera.x, boss._crab._vert[0].y - camera.y,
 						  boss._crab._vert[1].x - camera.x, boss._crab._vert[1].y - camera.y,
 						  boss._crab._vert[2].x - camera.x, boss._crab._vert[2].y - camera.y,
 						  boss._crab._vert[3].x - camera.x, boss._crab._vert[3].y - camera.y,
 						  0xcc3300, true);
+
+#ifdef _DEBUG
+	DebugDraw(camera);
+#endif
+}
+
+void Crab::DebugDraw(const Vector2& camera)
+{
+	
 }
 
 void Crab::Update()
