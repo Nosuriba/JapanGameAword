@@ -5,6 +5,7 @@
 
 #include "Camera.h"
 #include "Processing/Input.h"
+#include "ResourceManager.h"
 
 #define CENTER _star.center
 #define LEG(x) _star.legs[x]
@@ -14,14 +15,6 @@ constexpr float SPEED = 0.5f;
 
 void Player::Normal(const Input & in)
 {
-
-	_vel *= deceleration;
-
-	if (Buf[KEY_INPUT_UP])		_vel.y -= SPEED;
-	if (Buf[KEY_INPUT_DOWN])	_vel.y += SPEED;
-	if (Buf[KEY_INPUT_LEFT])	_vel.x -= SPEED;
-	if (Buf[KEY_INPUT_RIGHT])	_vel.x += SPEED;
-	if (Buf[KEY_INPUT_LSHIFT])	_vel = Vector2();
 	if (Buf[KEY_INPUT_P]) 
 	{
 		_updater = &Player::Predation;
@@ -29,8 +22,6 @@ void Player::Normal(const Input & in)
 		_anim_frame = 0;
 		_vel = Vector2();
 	}
-	if (in.Trigger(BUTTON::A))		LevelUP();
-	if (in.Trigger(BUTTON::B))		_updater = &Player::Die;
 
 	// 左STICKの入力
 	if (in.PushTrigger(TRIGGER::LEFT) == 0 && !in.Push(BUTTON::LB))
@@ -70,7 +61,7 @@ void Player::Normal(const Input & in)
 	for (int i = 0; i < _star.legs.size(); ++i)
 	{
 		auto v = LEG(i).tip - _star.center;
-		LEG(i).vel *= 0.9f;
+		LEG(i).vel *= deceleration;
 
 		if (i == select_idx[0])
 		{
@@ -95,14 +86,14 @@ void Player::Normal(const Input & in)
 				LEG(i).vel = Vector2();
 
 				if (v.Magnitude() > (_star.r * 0.9f))
-					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f);
+					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f * _star.level);
 			}
 			else
 			{
 				LEG(i).state = LEG_STATE::SELECT;
 
 				if (v.Magnitude() < (_star.r * 1.1f))
-					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f);
+					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f * _star.level);
 			}
 		}
 		else if (i == select_idx[1])
@@ -128,14 +119,14 @@ void Player::Normal(const Input & in)
 				LEG(i).vel = Vector2();
 
 				if (v.Magnitude() > (_star.r * 0.9f))
-					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f);
+					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f * _star.level);
 			}
 			else
 			{
 				LEG(i).state = LEG_STATE::SELECT;
 
 				if (v.Magnitude() < (_star.r * 1.1f))
-					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f);
+					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f * _star.level);
 			}
 		}
 		else
@@ -184,32 +175,32 @@ void Player::Move(const Input & in)
 
 void Player::Predation(const Input & in)
 {
+	MATRIX mat = MGetIdent();
+
+	auto move = _target - CENTER;
+	if (move.Magnitude() > 5.0f)
+		mat = MGetTranslate((move.Normalized() * 6.0f).V_Cast());
+
+	// ヒトデの中心の移動
+	CENTER = VTransform(CENTER.V_Cast(), mat);
+	// ヒトデの足の先端の移動
 	for (auto& l : _star.legs)
 	{
-		if ((_target - l.pos).Magnitude() > 10)
-		{
-			if ((l.pos - l.tip).Magnitude() < 30)
-			{
-				auto v = _target - l.pos;
-				l.pos += v.Normalized();
-			}
-		}
-	}
-	if (_anim_frame > 30)
-	{
-		auto v = _target - CENTER;
-		if (v.Magnitude() > 10)
-		{
-			CENTER += v.Normalized();
-			for (auto& l : _star.legs)
-				l.tip += v.Normalized();
-		}
-		else _updater = &Player::Normal;
-	}
- 
+		l.tip = VTransform(l.tip.V_Cast(), mat);
 
+		auto v = l.tip - CENTER;
+
+		if (_anim_frame < 30)
+			l.tip = CENTER + v.Normalized() * min((_star.r * 1.5f), v.Magnitude() + 2.0f * _star.level);
+		else if(_anim_frame < 60)
+			l.tip = CENTER + v.Normalized() * max(_star.r, v.Magnitude() - 1.5f * _star.level);
+		else if (_anim_frame < 75)
+			l.tip = CENTER + v.Normalized() * min((_star.r * 1.5f), v.Magnitude() + 1.5f * _star.level);
+		else 
+			l.tip = CENTER + v.Normalized() * max(_star.r, v.Magnitude() - 1.5f * _star.level);
+	}
 	++_anim_frame;
-	if (Buf[KEY_INPUT_L])
+	if(_anim_frame > 90)
 		_updater = &Player::Normal;
 }
 
@@ -232,7 +223,7 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 {
 	_star.center = Vector2(500, 300);
 	_star.level = 1;
-	_star.r = 25.0f * (float)_star.level + 25.0f;
+	_star.r = 50.0f * (float)_star.level + 25.0f;
 
 	_star.legs.resize(5);
 	auto radian = 2.0f * DX_PI_F / (float)_star.legs.size();
@@ -248,6 +239,9 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
+
+	_img_STICK = ResourceManager::GetInstance().LoadImg("../img/STICK.png");
+	_img_TRIGGER = ResourceManager::GetInstance().LoadImg("../img/TRIGGER.png");
 
 	_updater = &Player::Normal;
 }
@@ -270,7 +264,6 @@ void Player::Update(const Input& in)
 	_laser.remove_if([](Laser l) { return l.count > 75; });
 
 	(this->*_updater)(in);
-
 
 	// 足の先端へ足の位置が移動
 	for (int i = 0; i < _star.legs.size(); ++i)
@@ -299,46 +292,34 @@ void Player::Draw()
 {
 	auto c = _camera->CameraCorrection();
 
-	ShadowDraw();
-
+	int count = 0;
 	for (auto& leg : _star.legs)
 	{
-		// 足の先端
-		//DrawCircleAA(leg.pos.x, leg.pos.y, 5.0f, 32, 0x00ffff);
-
+		if (leg.state != LEG_STATE::NORMAL) ++count;
 		// 足の先端までのライン
 		Vector2 pre = leg.halfway_point[0];
-		float t = _star.r / 2.5f;
+		float t = _star.r / 2.0f;
 		int color = leg.state == LEG_STATE::NORMAL ? 0xff0000 : 0xffff00;
 		for (auto& l : leg.halfway_point)
 		{
 			DrawLineAA(pre.x - c.x, pre.y - c.y, l.x - c.x, l.y - c.y, color, t);//軌跡描画
-			//DrawCircleAA(l.x - c.x, l.y - c.y, 1.0f, 32, 0x00ffff);
+			DrawCircleAA(l.x - c.x, l.y - c.y, 1.0f, 32, 0x00ffff);
 			pre.x = l.x;//前の位置記憶
 			pre.y = l.y;
 			t /= 1.3f;
 			color -= 0x110000;
 		}
 		DrawLineAA(pre.x - c.x, pre.y - c.y, leg.pos.x - c.x, leg.pos.y - c.y, color, t);//軌跡描画
-
-		if (leg.state == LEG_STATE::SHOT)
-			DrawCircle(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f * _star.level, 0xff00ff);
-		if (leg.state == LEG_STATE::HOLD)
-			DrawCircle(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 0xff00ff);
-		if (leg.state == LEG_STATE::SELECT)
-			DrawCircle(leg.pos.x - c.x, leg.pos.y - c.y, 2.0f, 0xffff00);
 	}
-	DrawCircle(CENTER.x - c.x, CENTER.y - c.y, (LEG(0).halfway_point[1] - CENTER).Magnitude(), 0xee0000, true);
-	for (auto& l : _laser)
-	{
-		auto start = l.pos - c;
-		auto end = l.pos + l.vel - c;
-		//DrawLine(start.x, start.y, end.x, end.y, 0x00ffff, l.size);
-	}
+	DxLib::DrawCircle(CENTER.x - c.x, CENTER.y - c.y, _star.r / 4.0f, 0xee0000, true);
+	//if (count == 0)
+	//	DrawRotaGraph(CENTER.x - c.x, CENTER.y - c.y, 0.5f, 0, _img_STICK, true);
+	for (int i = 0; i < select_idx.size(); ++i)
+		if (select_idx[i] != -1)
+			DrawRectRotaGraph
+			(LEG(select_idx[i]).tip.x - c.x, LEG(select_idx[i]).tip.y - c.y, 22 * i, 0, 22, 55, 0.5f, 0, _img_TRIGGER, true);
 	for (auto& p : _particle)
-	{
 		p->Draw();
-	}
 }
 
 void Player::ShadowDraw()
@@ -398,7 +379,7 @@ void Player::LevelUP()
 {
 	_star.level++;
 
-	_star.r = 25.0f * (float)_star.level + 25.0f;
+	_star.r = 50.0f * (float)_star.level + 25.0f;
 
 	for (auto& l : _star.legs)
 	{
@@ -406,4 +387,15 @@ void Player::LevelUP()
 		v.Normalize();
 		l.tip = _star.center + v * _star.r;
 	}
+}
+
+void Player::ToCatch(const Vector2 & t)
+{
+	_target = t;
+	_updater = &Player::Predation;
+}
+
+void Player::OnDamage()
+{
+	_updater = &Player::Die;
 }
