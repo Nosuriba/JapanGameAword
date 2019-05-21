@@ -54,10 +54,6 @@ private:
 	void (Crab::*_updater)();
 
 	std::shared_ptr<Camera>& _camera;
-	std::vector<Vector2> ctlPoints;
-	std::vector<Vector2> _legVel;
-
-	Vector2 _vel;
 
 public:
 	Crab(std::shared_ptr<Camera>& camera);

@@ -10,11 +10,12 @@ using sqr_vert = std::array<Vector2, 4>;
 
 struct LegInfo
 {
-	// 3つの関節
-	Vector2 sPoint, mPoint, ePoint;
+	// 3つの関節と制御点
+	Vector2 _sPoint, _mPoint, _ePoint, _ctlPoint;
+	Vector2 _vel;
 	Size _size;
 	float cos, sin;						// 三角比用変数
-
+	float _liftVel;
 	std::array<sqr_vert, 2> legVert;	// 足の関節の頂点を設定するもの
 
 };
