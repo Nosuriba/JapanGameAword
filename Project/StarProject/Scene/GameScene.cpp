@@ -89,7 +89,7 @@ void GameScene::Run(const Input & p)
 {
 	Draw();
 	flame++;
-	if (p.IsTrigger(PAD_INPUT_10)) {
+	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		wait = 0;
 		_updater = &GameScene::FadeOut;
 	}
@@ -199,6 +199,8 @@ void GameScene::Draw()
 {
 	auto size = Game::GetInstance().GetScreenSize();
 
+	int mode, palam;
+	GetDrawBlendMode(&mode, &palam);
 
 	//firstƒXƒNƒŠ[ƒ“(»•l)
 	SetDrawScreen(firstscreen);
@@ -229,11 +231,6 @@ void GameScene::Draw()
 	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y,
 		0 - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y, beach, true);
 
-	auto one = totaltime % 10;
-	auto ten = totaltime / 10;
-
-	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
-	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
 
 
 
@@ -306,7 +303,7 @@ void GameScene::Draw()
 
 	DrawGraph(0, 0, secondscreen, true);
 
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	SetDrawBlendMode(mode, palam);
 
 	_pl->Draw();
 
@@ -329,6 +326,12 @@ void GameScene::Draw()
 	for (auto &immortal : _immortalObj) {
 		immortal->Draw();
 	}
+
+	auto one = totaltime % 10;
+	auto ten = totaltime / 10;
+
+	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
+	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 

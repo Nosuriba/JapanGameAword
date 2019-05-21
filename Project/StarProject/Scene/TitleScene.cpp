@@ -8,7 +8,7 @@
 void TitleScene::FadeIn(const Input & p)
 {
 	if (flame >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &TitleScene::Wait;
 	}
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / WAITFRAME);
@@ -18,7 +18,7 @@ void TitleScene::FadeIn(const Input & p)
 void TitleScene::FadeOut(const Input & p)
 {
 	if (flame >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		(*FadeBubble).Draw();
 		Game::GetInstance().ChangeScene(new SelectScene());
 	}
@@ -90,6 +90,9 @@ void TitleScene::Draw()
 {
 	auto size = Game::GetInstance().GetScreenSize();
 
+	int mode, palam;
+	GetDrawBlendMode(&mode, &palam);
+
 	DxLib::DrawExtendGraph(0, 0, size.x, size.y, titleback, true);	
 	DxLib::DrawRotaGraph(size.x / 2, size.y / 2 - GetFontSize(), 1, 0, title, true);
 	if (colorflame >= 252) {
@@ -99,11 +102,12 @@ void TitleScene::Draw()
 		blendcolor = 1;
 	}
 	SetFontSize(84);
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 172);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, palam < 172 ? palam : 172);
 	DrawBox(0, size.y / 6*4,size.x, size.y / 6*5, 0x000000, true);
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, colorflame % 255);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, palam < (colorflame % 255) ? palam:(colorflame % 255));
 	DrawString((size.x - (float)(GetFontSize()) * 9) / 2.0f, size.y / 2 + GetFontSize() * 2, "PRESS A BUTTON",0xffffff);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	DrawString((size.x - (float)(GetFontSize()) ) / 2.0f, size.y / 2 + GetFontSize() * 2, "A", 0x30ff30);
+	SetDrawBlendMode(mode, palam);
 
 	(*FadeBubble).Draw();
 }

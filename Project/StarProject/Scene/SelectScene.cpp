@@ -4,7 +4,7 @@
 #include "GameScene.h"
 #include "../ResourceManager.h"
 #include "../Particle/Bubble.h"
-
+#include <string>
 #include "../Stage.h"
 
 
@@ -48,13 +48,13 @@ void SelectScene::Run(const Input & p)
 {
 	Draw();
 
-	if (p.IsTrigger(PAD_INPUT_10)) {
+	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		if (!CheckHandleASyncLoad(SE))
 		{
 			flame = 0;
 			PlaySoundMem(SE, DX_PLAYTYPE_BACK);
 			StopSoundMem(BGM);
-			Stage::GetInstance().LoadStage("../Stage/test3.fmf");
+			Stage::GetInstance().LoadStage("../Stage/test"+ std::to_string(Select+1) +".fmf");
 			_updater = &SelectScene::FadeOut;
 		}
 	}
@@ -93,7 +93,7 @@ SelectScene::SelectScene()
 	shader_time = 0;
 	flame = 0;
 	Cnt = 0;
-	Select = 0; 
+	Select = 1; 
 
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
 	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 10 * 7, 100, true, 1));

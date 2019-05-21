@@ -40,7 +40,8 @@ void ResultScene::Run(const Input & p)
 	auto size = Game::GetInstance().GetScreenSize();
 	ResultCnt++;
 	Draw();
-	if (p.IsTrigger(PAD_INPUT_10)) {
+	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
+		ResultData[1][(ResultCnt/40)% (int)R_Data::max] = ResultData[0][(ResultCnt/40) % (int)R_Data::max];
 		ResultCnt = (ResultCnt+40);
 		if (isEnd)
 		{
@@ -68,7 +69,7 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	
-	ResultStr = { "たおしたてき　:%3d ×100" ,"たべたかず　　:%3d ×100" , "こわしたかず　　:%3d ×10","のこりタイム　:%3d ×1000","","　　総合点　　:%6d", };
+	ResultStr = { "たおしたてき　:%3d ×100" ,"たべたかず　　:%3d ×100" , "こわしたかず　:%3d ×10","のこりタイム　:%3d ×1000","","　　総合点　　:%6d", };
 
 	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	ResultCnt = 0;
@@ -98,15 +99,15 @@ void ResultScene::Draw()
 	GetDrawBlendMode(&mode,&palam);
 
 	DrawExtendGraph(0, 0, size.x, size.y, imgbuff, true);
-	DrawString(0, 0, "^p^", 0xff00ff);
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
+	DrawString(0, 0, "^p^", 0xff00ff);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA,128);
 	DrawBox(size.x / 2 - GetFontSize()*8, size.y / 10,
 		size.x / 2 + GetFontSize() * 8, size.y /5*4, 0x000000,true);
 	SetDrawBlendMode(mode, palam);
 
-	DrawString(size.x / 2 - GetFontSize() * 2, 5, "リザルト", 0xff8c00);
 	DrawString(size.x / 2 - GetFontSize() * 2.05, 5.05, "リザルト", 0);
+	DrawString(size.x / 2 - GetFontSize() * 2, 5, "リザルト", 0xff8c00);
 
 	int Cnt = 0;
 	for (auto str: ResultStr)
@@ -115,7 +116,7 @@ void ResultScene::Draw()
 		{
 			if (ResultData[1][Cnt]< ResultData[0][Cnt])
 			{
-				Cnt!=5?ResultData[1][Cnt]++: ResultData[1][Cnt]+=1000;
+				(Cnt!=(int)R_Data::total)?ResultData[1][Cnt]++: ResultData[1][Cnt]+=200;
 			}
 			else
 			{
@@ -139,11 +140,13 @@ void ResultScene::Draw()
 	{
 		DrawBox(0, size.y / 10*8.5f, size.x, size.y, 0x000000, true);
 		ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, palam<(abs(ResultCnt % 512-255))?palam : (abs(ResultCnt % 512 - 255)));
 		SetFontSize(96);
-		DrawString((size.x - (float)(GetFontSize()) *1.5f) / 2.0f, size.y / 10 * 8.7f, "A", 0x33ff33);
+		DrawString((size.x - (float)(GetFontSize()) *3.f) / 2.0f, size.y / 10 * 8.7f, "A", 0x33ff33);
 		SetFontSize(64);
 		ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 		DrawString((size.x - (float)(GetFontSize()) * 2) / 2.0f, size.y / 10 * 9, "button to Title", 0xffffff);
+		SetDrawBlendMode(mode, palam);
 	}
 
 	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
