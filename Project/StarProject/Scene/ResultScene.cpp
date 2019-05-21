@@ -69,14 +69,14 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	ResultCnt = 0;
 
-	ResultData[(int)R_Data::enemy]		= enemy		*100;
-	ResultData[(int)R_Data::bite]		= bite		*100;
-	ResultData[(int)R_Data::breakobj]	= breakobj	*10;
-	ResultData[(int)R_Data::time]		= time		*1000;
-	ResultData[(int)R_Data::blank]		= 0;
+	ResultData[0][(int)R_Data::enemy]		= 6		*100;
+	ResultData[0][(int)R_Data::bite]		= 3		*100;
+	ResultData[0][(int)R_Data::breakobj]	= 20	*10;
+	ResultData[0][(int)R_Data::time]		= time		*1000;
+	ResultData[0][(int)R_Data::blank]		= 0;
 	for (int i = 0;i< (int)R_Data::total;i++)
 	{
-		ResultData[(int)R_Data::total] += ResultData[i];
+		ResultData[0][(int)R_Data::total] += ResultData[0][i];
 	}
 
 }
@@ -98,20 +98,28 @@ void ResultScene::Draw()
 	DrawString(0, 0, "^p^", 0xff00ff);
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA,128);
-	DrawBox(size.x / 2 - GetFontSize()*9, size.y / 10,
-		size.x / 2 + GetFontSize() * 9, size.y /5*4, 0x000000,true);
+	DrawBox(size.x / 2 - GetFontSize()*8, size.y / 10,
+		size.x / 2 + GetFontSize() * 8, size.y /5*4, 0x000000,true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND,0);
 
 	DrawString(size.x / 2 - GetFontSize() * 2, 5, "リザルト", 0xff8c00);
 
 	int Cnt = 0;
-	auto ScoreData = 0;
 	for (auto str: ResultStr)
 	{
 		if (ResultCnt > Cnt * 40)
 		{
-			DrawFormatString(size.x / 2 - GetFontSize() * 6, size.y / 10 * (2 + Cnt), 0xff8c00, str.c_str(), ResultData[Cnt]);
-			Cnt++;
+			if (ResultData[1][Cnt]< ResultData[0][Cnt])
+			{
+				ResultData[1][Cnt]+=200;
+			}
+			else
+			{
+				ResultData[1][Cnt] = ResultData[0][Cnt];
+			}
+			DrawFormatString(size.x / 2 - GetFontSize() * 6, size.y / 10 * (2 + Cnt), 0xff8c00, str.c_str(), ResultData[1][Cnt]);
+			if (ResultData[1][Cnt] == ResultData[0][Cnt])Cnt++;
+			else break;
 		}
 	}
 

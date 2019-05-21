@@ -99,8 +99,10 @@ void TitleScene::Draw()
 		blendcolor = 1;
 	}
 	SetFontSize(84);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 172);
+	DrawBox(0, size.y / 6*4,size.x, size.y / 6*5, 0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, colorflame % 255);
-	DrawString(size.x / 2 - (float)(GetFontSize()) * 8.5f / 2.0f, size.y / 2 + GetFontSize() * 2, "PRESS A BUTTON",0x000000);
+	DrawString((size.x - (float)(GetFontSize()) * 9) / 2.0f, size.y / 2 + GetFontSize() * 2, "PRESS A BUTTON",0xffffff);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	(*FadeBubble).Draw();
