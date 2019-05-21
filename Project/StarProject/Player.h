@@ -55,6 +55,9 @@ private:
 	int _anim_frame;
 	Vector2 _target;
 
+	int _img_STICK;
+	int _img_TRIGGER;
+
 	char Buf[256];
 
 	void (Player::*_updater)(const Input& in);
@@ -75,5 +78,7 @@ public:
 	const std::vector<Vector2> GetShot();
 	const std::list<Laser> GetLaser();
 	void LevelUP();
+	void ToCatch(const Vector2& t);
+	void OnDamage();
 };
 
