@@ -23,6 +23,8 @@ private:
 	void Wait(const Input &p);
 	void Run(const Input &p);
 
+	bool isEnd = false;
+
 	int flame;
 	int imgbuff;
 	int ResultCnt;

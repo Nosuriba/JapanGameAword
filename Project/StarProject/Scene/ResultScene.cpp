@@ -41,8 +41,12 @@ void ResultScene::Run(const Input & p)
 	ResultCnt++;
 	Draw();
 	if (p.IsTrigger(PAD_INPUT_10)) {
-		flame = 0;
-		_updater = &ResultScene::FadeOut;
+		ResultCnt = (ResultCnt+40);
+		if (isEnd)
+		{
+			flame = 0;
+			_updater = &ResultScene::FadeOut;
+		}
 	}
 }
 
@@ -64,20 +68,16 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	
-	ResultStr = { "倒した敵の数　:%6d" ,"捕食した数　　:%6d" , "壊したブロック:%6d","残りタイム　　:%6d","","　　総合点　　:%6d", };
+	ResultStr = { "たおしたてき　:%3d ×100" ,"たべたかず　　:%3d ×100" , "こわしたかず　　:%3d ×10","のこりタイム　:%3d ×1000","","　　総合点　　:%6d", };
 
 	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	ResultCnt = 0;
 
-	ResultData[0][(int)R_Data::enemy]		= 6		*100;
-	ResultData[0][(int)R_Data::bite]		= 3		*100;
-	ResultData[0][(int)R_Data::breakobj]	= 20	*10;
-	ResultData[0][(int)R_Data::time]		= time		*1000;
-	ResultData[0][(int)R_Data::blank]		= 0;
-	for (int i = 0;i< (int)R_Data::total;i++)
-	{
-		ResultData[0][(int)R_Data::total] += ResultData[0][i];
-	}
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::enemy]		= 6)*100;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::bite]		= 3)*100;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::breakobj]	= 20)*10;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::time]		= time)*1000;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::blank]		= 0);
 
 }
 
@@ -94,15 +94,19 @@ void ResultScene::Update(const Input & p)
 void ResultScene::Draw()
 {
 	auto size = Game::GetInstance().GetScreenSize();
+	int mode, palam;
+	GetDrawBlendMode(&mode,&palam);
+
 	DrawExtendGraph(0, 0, size.x, size.y, imgbuff, true);
 	DrawString(0, 0, "^p^", 0xff00ff);
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA,128);
 	DrawBox(size.x / 2 - GetFontSize()*8, size.y / 10,
 		size.x / 2 + GetFontSize() * 8, size.y /5*4, 0x000000,true);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND,0);
+	SetDrawBlendMode(mode, palam);
 
 	DrawString(size.x / 2 - GetFontSize() * 2, 5, "リザルト", 0xff8c00);
+	DrawString(size.x / 2 - GetFontSize() * 2.05, 5.05, "リザルト", 0);
 
 	int Cnt = 0;
 	for (auto str: ResultStr)
@@ -111,19 +115,36 @@ void ResultScene::Draw()
 		{
 			if (ResultData[1][Cnt]< ResultData[0][Cnt])
 			{
-				ResultData[1][Cnt]+=200;
+				Cnt!=5?ResultData[1][Cnt]++: ResultData[1][Cnt]+=1000;
 			}
 			else
 			{
 				ResultData[1][Cnt] = ResultData[0][Cnt];
+
+				if (str == ResultStr[ResultStr.size() - 1])
+				{
+					isEnd = true;
+				}
 			}
-			DrawFormatString(size.x / 2 - GetFontSize() * 6, size.y / 10 * (2 + Cnt), 0xff8c00, str.c_str(), ResultData[1][Cnt]);
+			DrawFormatString(size.x / 2 - GetFontSize() * 7.55f, size.y / 10 * (2 + Cnt) + 0.05f, 0, str.c_str(), ResultData[1][Cnt]);
+			DrawFormatString(size.x / 2 - GetFontSize() * 7.5f, size.y / 10 * (2 + Cnt), 0xff8c00, str.c_str(), ResultData[1][Cnt]);
 			if (ResultData[1][Cnt] == ResultData[0][Cnt])Cnt++;
 			else break;
 		}
 	}
 
 	(*FadeBubble).Draw();
+
+	if (isEnd)
+	{
+		DrawBox(0, size.y / 10*8.5f, size.x, size.y, 0x000000, true);
+		ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
+		SetFontSize(96);
+		DrawString((size.x - (float)(GetFontSize()) *1.5f) / 2.0f, size.y / 10 * 8.7f, "A", 0x33ff33);
+		SetFontSize(64);
+		ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
+		DrawString((size.x - (float)(GetFontSize()) * 2) / 2.0f, size.y / 10 * 9, "button to Title", 0xffffff);
+	}
 
 	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
 }
