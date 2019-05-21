@@ -437,13 +437,16 @@ void GameScene::Update(const Input & p)
 		for (auto &destroy : _destroyObj) {
 			if (destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x && 
 				destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-				if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
-				{
-					destroy->Break();
+				if ((l.pos.x >= 0 && l.pos.x <= size.x / 2) && (destroy->GetInfo()._pos.x >= 0 && destroy->GetInfo()._pos.x <= size.x / 2)) {
+					if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
+					{
+						destroy->Break();
+					}
 				}
-				if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
+				
+				/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
 
-				}
+				}*/
 			}
 		}
 
@@ -455,10 +458,11 @@ void GameScene::Update(const Input & p)
 				{
 					predatry->Break();
 				}
-
-				if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
-				{
-					predatry->Predatory();
+				if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
+					if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
+					{
+						predatry->Predatory();
+					}
 				}
 			}
 		}
@@ -471,9 +475,9 @@ void GameScene::Update(const Input & p)
 				{
 					immortal->Break();
 				}
-				if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
+				/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
 
-				}
+				}*/
 			}
 		}
 	}

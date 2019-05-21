@@ -14,7 +14,6 @@ constexpr float SPEED = 0.5f;
 
 void Player::Normal(const Input & in)
 {
-	GetHitKeyStateAll(Buf);
 
 	_vel *= deceleration;
 
@@ -26,12 +25,14 @@ void Player::Normal(const Input & in)
 	if (Buf[KEY_INPUT_P]) 
 	{
 		_updater = &Player::Predation;
-		_target = LEG(0).pos;
+		_target = LEG(3).pos;
 		_anim_frame = 0;
+		_vel = Vector2();
 	}
 	if (in.Trigger(BUTTON::A))		LevelUP();
 	if (in.Trigger(BUTTON::B))		_updater = &Player::Die;
 
+	// 左STICKの入力
 	if (in.PushTrigger(TRIGGER::LEFT) == 0 && !in.Push(BUTTON::LB))
 	{
 		select_idx[0] = -1;
@@ -48,6 +49,7 @@ void Player::Normal(const Input & in)
 			}
 		}
 	}
+	// 右STICKの入力
 	if (in.PushTrigger(TRIGGER::RIGHT) == 0 && !in.Push(BUTTON::RB))
 	{
 		select_idx[1] = -1;
@@ -67,6 +69,9 @@ void Player::Normal(const Input & in)
 
 	for (int i = 0; i < _star.legs.size(); ++i)
 	{
+		auto v = LEG(i).tip - _star.center;
+		LEG(i).vel *= 0.9f;
+
 		if (i == select_idx[0])
 		{
 			if (in.PushTrigger(TRIGGER::LEFT))
@@ -74,17 +79,31 @@ void Player::Normal(const Input & in)
 				LEG(i).state = LEG_STATE::SHOT;
 
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
-				_vel += (-(v).Normalized() * SPEED * (float)_star.level);
+				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 				
-				_laser.emplace_back(LEG(i).pos, v.Normalized());
+				//_laser.emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[0]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
 				_particle[0]->Create();
 
 			}
-			else if (in.Push(BUTTON::LB)) LEG(i).state = LEG_STATE::HOLD;
-			else LEG(i).state = LEG_STATE::SELECT;
+			else if (in.Push(BUTTON::LB))
+			{
+				LEG(i).state = LEG_STATE::HOLD;
+
+				LEG(i).vel = Vector2();
+
+				if (v.Magnitude() > (_star.r * 0.9f))
+					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f);
+			}
+			else
+			{
+				LEG(i).state = LEG_STATE::SELECT;
+
+				if (v.Magnitude() < (_star.r * 1.1f))
+					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f);
+			}
 		}
 		else if (i == select_idx[1])
 		{
@@ -93,19 +112,69 @@ void Player::Normal(const Input & in)
 				LEG(i).state = LEG_STATE::SHOT;
 
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
-				_vel += (-(v).Normalized() * SPEED * (float)_star.level);
+				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 
-				_laser.emplace_back(LEG(i).pos, v.Normalized());
+				//_laser.emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[1]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
 				_particle[1]->Create();
 
 			}
-			else if (in.Push(BUTTON::RB)) LEG(i).state = LEG_STATE::HOLD;
-			else LEG(i).state = LEG_STATE::SELECT;
+			else if (in.Push(BUTTON::RB))
+			{
+				LEG(i).state = LEG_STATE::HOLD;
+
+				LEG(i).vel = Vector2();
+
+				if (v.Magnitude() > (_star.r * 0.9f))
+					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f);
+			}
+			else
+			{
+				LEG(i).state = LEG_STATE::SELECT;
+
+				if (v.Magnitude() < (_star.r * 1.1f))
+					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f);
+			}
 		}
-		else LEG(i).state = LEG_STATE::NORMAL;
+		else
+		{
+			LEG(i).state = LEG_STATE::NORMAL;
+
+			if (v.Magnitude() > _star.r)
+				LEG(i).tip = _star.center + v.Normalized() * max(_star.r, v.Magnitude() - 0.1f);
+			if (v.Magnitude() < _star.r)
+				LEG(i).tip = _star.center + v.Normalized() * max(_star.r, v.Magnitude() + 0.1f);
+		}
+	}
+
+	for (auto& l : _star.legs)
+	{
+		if (l.vel.Magnitude() != 0)
+		{
+			auto v = CENTER - l.tip;
+			auto lt = Dot(v, l.vel) / (v.Magnitude() * l.vel.Magnitude());
+
+			auto move = v.Normalized() * (l.vel.Magnitude() * lt);
+
+			auto v1 = l.tip - (CENTER + move);
+			auto v2 = (l.tip + l.vel) - CENTER;
+
+			MATRIX mat = MGetIdent();
+			mat = MGetTranslate(move.V_Cast());
+
+			// ヒトデの中心の移動
+			CENTER = VTransform(CENTER.V_Cast(), mat);
+
+			mat = MMult(mat, MGetTranslate(VScale(CENTER.V_Cast(), -1)));
+			mat = MMult(mat, MGetRotVec2(v1.V_Cast(), v2.V_Cast()));
+			mat = MMult(mat, MGetTranslate(CENTER.V_Cast()));
+
+			// ヒトデの足の先端の移動
+			for (auto& l : _star.legs)
+				l.tip = VTransform(l.tip.V_Cast(), mat);
+		}
 	}
 }
 
@@ -115,20 +184,33 @@ void Player::Move(const Input & in)
 
 void Player::Predation(const Input & in)
 {
-	auto r = std::abs((_anim_frame / 5) % 20 - 10);
-
-	r = _star.r - r;
 	for (auto& l : _star.legs)
 	{
-		auto v = l.tip - _star.center;
-		v.Normalize();
-		l.tip = _star.center + v * r;
-
-		v = _target - l.pos;
-		l.pos += v.Normalized();
+		if ((_target - l.pos).Magnitude() > 10)
+		{
+			if ((l.pos - l.tip).Magnitude() < 30)
+			{
+				auto v = _target - l.pos;
+				l.pos += v.Normalized();
+			}
+		}
 	}
+	if (_anim_frame > 30)
+	{
+		auto v = _target - CENTER;
+		if (v.Magnitude() > 10)
+		{
+			CENTER += v.Normalized();
+			for (auto& l : _star.legs)
+				l.tip += v.Normalized();
+		}
+		else _updater = &Player::Normal;
+	}
+ 
 
 	++_anim_frame;
+	if (Buf[KEY_INPUT_L])
+		_updater = &Player::Normal;
 }
 
 void Player::Die(const Input & in)
@@ -177,6 +259,8 @@ Player::~Player()
 
 void Player::Update(const Input& in)
 {
+	GetHitKeyStateAll(Buf);
+
 	for (auto& l : _laser)
 	{
 		l.pos += l.vel;
@@ -187,38 +271,12 @@ void Player::Update(const Input& in)
 
 	(this->*_updater)(in);
 
-	int hold_count = 0;
-	Vector2 asix;
-	for (auto& l : _star.legs)
-		if (l.state == LEG_STATE::HOLD) 
-		{
-			++hold_count;
-			asix = l.pos;
-		}
-	MATRIX mat;
-	if (hold_count == 1)
-	{
-		auto v1 = CENTER - asix;
-		auto v2 = (CENTER + _vel) - asix;
-		mat = MGetTranslate(VScale(asix.V_Cast(), -1));
-		mat = MMult(mat, MGetRotVec2(v1.V_Cast(), v2.V_Cast()));
-		mat = MMult(mat, MGetTranslate(asix.V_Cast()));
-	}
-	else
-		mat = MGetTranslate(_vel.V_Cast());
-
-	// ヒトデの中心の移動
-	_star.center = VTransform(_star.center.V_Cast(), mat);
-	// ヒトデの足の先端の移動
-	for (auto& l : _star.legs)
-		l.tip = VTransform(l.tip.V_Cast(), mat);
 
 	// 足の先端へ足の位置が移動
 	for (int i = 0; i < _star.legs.size(); ++i)
 	{
 		auto v = LEG(i).pos - LEG(i).tip;
-		LEG(i).vel = (LEG(i).tip - LEG(i).pos) / 3.0f;
-		LEG(i).pos += LEG(i).vel;
+		LEG(i).pos += (LEG(i).tip - LEG(i).pos) / 3.0f;
 	}
 
 	// ヒトデの中心から足の位置までのベジェ曲線
