@@ -336,6 +336,13 @@ void GameScene::Update(const Input & p)
 		}
 	}
 
+	/// 仮のボス挙動
+	for (auto& boss : _bosses)
+	{
+		/// 仮の追従
+		boss->CalTrackVel(_pl->GetInfo().center);
+	}
+
 	////破壊可能オブジェクト
 	//for (auto &destroy : _destroyObj) {
 	//	auto laser = _pl->GetLaser();

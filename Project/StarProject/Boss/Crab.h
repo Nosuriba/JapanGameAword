@@ -2,11 +2,12 @@
 #include "Boss.h"
 
 // UŒ‚‚Ìí—Ş
-enum class atkType
+enum class AtkType
 {
-	BUBBLE,		// –AUŒ‚
-	PITCH,		// ‹²‚ŞUŒ‚
-	FIST,		// ‰£‚éUŒ‚
+	NORMAL,	// ’Êí
+	BUBBLE,	// –AUŒ‚
+	PITCH,	// ‹²‚ŞUŒ‚
+	FIST,	// ‰£‚éUŒ‚
 	MAX
 };
 
@@ -23,25 +24,23 @@ struct Vector3
 	}
 };
 
-
-
 class Crab :
 	public Boss
 {
 private:
 	void Neutral();
-	void Fist();
+	void Attack();
 	void Shot();
 	void Die();
 
 	void NeutralUpdate();
-	void FistUpdate();
+	void AttackUpdate();
 	void ShotUpdate();
 	void DieUpdate();
 
-	void CalVert();					// ’¸“_‚ÌŒvZ
-	void Rotation();				// ‰ñ“]—p(ŠI–{‘Ì)
-	void MoveLeg();					// §Œä“_‚ÌˆÚ“®
+	void CalVert();		// ’¸“_‚ÌŒvZ
+	void Rotation();	// ‰ñ“]—p(ŠI–{‘Ì)
+	void MoveLeg();		// §Œä“_‚ÌˆÚ“®
 
 	void MoveJoint();					
 
@@ -56,6 +55,11 @@ private:
 	void (Crab::*_updater)();
 
 	std::shared_ptr<Camera>& _camera;
+	AtkType _type;
+	Vector2 _plPos;			// ÌßÚ²Ô°‚ÌÀ•W•Û‘¶—p
+	Vector2 _preCtl;		// ˆÚ“®‘O‚Ì§Œä“_
+
+	int atkInvCnt;			// UŒ‚‚·‚é‚Ü‚Å‚ÌŠÔŠu
 
 public:
 	Crab(std::shared_ptr<Camera>& camera);
@@ -64,4 +68,5 @@ public:
 	void DebugDraw(const Vector2& camera);
 	void Update();
 	BossInfo GetInfo();
+	void CalTrackVel(const Vector2& pos);
 };
