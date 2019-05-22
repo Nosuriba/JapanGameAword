@@ -4,6 +4,8 @@
 
 #include <vector>
 #include <DxLib.h>
+#include <thread>
+#include <mutex>
 
 class Input;
 class Player;
@@ -89,6 +91,8 @@ private:
 	int waitNum;
 	int waitCnt;
 
+	int num;
+
 	void LoadResource();
 
 	//UI等
@@ -97,6 +101,15 @@ private:
 	//当たり用スクリーンのサイズの保管
 	std::vector<CutScreenInfo> _cutAreaScreen;
 	CutScreenInfo cutscr;
+
+	//スレッド
+	std::thread _cutCol1;
+	std::thread _cutCol2;
+	std::thread _cutCol3;
+	std::thread _cutCol4;
+
+	std::mutex _mutex;
+
 public:
 	GameScene();
 	~GameScene();

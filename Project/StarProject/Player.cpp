@@ -199,25 +199,36 @@ void Player::Predation(const Input & in)
 
 void Player::Die(const Input & in)
 {
-
-	MATRIX mat = MGetIdent();
-
-	mat = MGetTranslate(VScale(CENTER.V_Cast(), -1));
-	mat = MMult(mat, MGetRotZ(DX_PI_F / 180.0f * 5.0f));
-	mat = MMult(mat, MGetTranslate(CENTER.V_Cast()));
-
-	// ヒトデの中心の移動
-	CENTER = VTransform(CENTER.V_Cast(), mat);
-
-	_star.r *= 0.94f;
-	// ヒトデの足の先端の移動
-	for (auto& l : _star.legs)
+	if (_anim_frame < 10)
 	{
-		l.tip = VTransform(l.tip.V_Cast(), mat);
-		auto v = l.tip - CENTER;
-		l.tip = CENTER + v.Normalized() * _star.r;
+		_star.r *= 1.05f;
+		// ヒトデの足の先端の移動
+		for (auto& l : _star.legs)
+		{
+			auto v = l.tip - CENTER;
+			l.tip = CENTER + v.Normalized() * _star.r;
+		}
 	}
+	else
+	{
+		MATRIX mat = MGetIdent();
 
+		mat = MGetTranslate(VScale(CENTER.V_Cast(), -1));
+		mat = MMult(mat, MGetRotZ(DX_PI_F / 180.0f * 5.0f));
+		mat = MMult(mat, MGetTranslate(CENTER.V_Cast()));
+
+		// ヒトデの中心の移動
+		CENTER = VTransform(CENTER.V_Cast(), mat);
+
+		_star.r *= 0.94f;
+		// ヒトデの足の先端の移動
+		for (auto& l : _star.legs)
+		{
+			l.tip = VTransform(l.tip.V_Cast(), mat);
+			auto v = l.tip - CENTER;
+			l.tip = CENTER + v.Normalized() * _star.r;
+		}
+	}
 	++_anim_frame;
 }
 
@@ -283,7 +294,7 @@ void Player::Update(const Input& in)
 		l.vel += l.vel.Normalized();
 		++l.count;
 	}
-	_laser.remove_if([](Laser l) { return l.count > 75; });
+	_laser.remove_if([](Laser l) { return l.count > 75 || l.isHit; });
 
 	(this->*_updater)(in);
 
@@ -336,6 +347,12 @@ void Player::Draw()
 		if (select_idx[i] != -1)
 			DrawRectRotaGraph
 			(LEG(select_idx[i]).tip.x - c.x, LEG(select_idx[i]).tip.y - c.y, 22 * i, 0, 22, 55, 0.5f, 0, _img_TRIGGER, true);
+	for (auto& l : _laser)
+	{
+		auto start = l.pos - c;
+		auto end = l.pos + (l.vel.Normalized() * l.size) - c;
+		DrawLine(start.x, start.y, end.x, end.y, 0x000000, 10);
+	}
 	for (auto& p : _particle)
 		p->Draw();
 }

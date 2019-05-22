@@ -31,30 +31,30 @@ bool Collision::TriToTri(const std::vector<Leg>& _leg, const std::array<Vector2,
  	Vector2 triB = _tri[1];
 	Vector2 triC = _tri[2];
 
-	for (int i = 0; i < _leg.size(); ++i)
-	{
-		auto AB1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triA.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triA.x);
-		auto AB2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triB.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triB.x);
-		auto AB3 = (triA.x - triB.x) * (_leg[i].tip.y - triA.y) + (triA.y - triB.y) * (triA.x - _leg[i].tip.x);
-		auto AB4 = (triA.x - triB.x) * (_leg[(i + 2) % 5].tip.y - triA.y) + (triA.y - triB.y) * (triA.x - _leg[(i + 2) % 5].tip.x);
+	//for (int i = 0; i < _leg.size(); ++i)
+	//{
+	//	auto AB1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triA.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triA.x);
+	//	auto AB2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triB.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triB.x);
+	//	auto AB3 = (triA.x - triB.x) * (_leg[i].tip.y - triA.y) + (triA.y - triB.y) * (triA.x - _leg[i].tip.x);
+	//	auto AB4 = (triA.x - triB.x) * (_leg[(i + 2) % 5].tip.y - triA.y) + (triA.y - triB.y) * (triA.x - _leg[(i + 2) % 5].tip.x);
 
-		auto BC1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triB.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triB.x);
-		auto BC2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triC.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triC.x);
-		auto BC3 = (triB.x - triC.x) * (_leg[i].tip.y - triB.y) + (triB.y - triC.y) * (triB.x - _leg[i].tip.x);
-		auto BC4 = (triB.x - triC.x) * (_leg[(i + 2) % 5].tip.y - triB.y) + (triB.y - triC.y) * (triB.x - _leg[(i + 2) % 5].tip.x);
+	//	auto BC1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triB.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triB.x);
+	//	auto BC2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triC.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triC.x);
+	//	auto BC3 = (triB.x - triC.x) * (_leg[i].tip.y - triB.y) + (triB.y - triC.y) * (triB.x - _leg[i].tip.x);
+	//	auto BC4 = (triB.x - triC.x) * (_leg[(i + 2) % 5].tip.y - triB.y) + (triB.y - triC.y) * (triB.x - _leg[(i + 2) % 5].tip.x);
 
-		auto CA1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triC.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triC.x);
-		auto CA2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triA.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triA.x);
-		auto CA3 = (triC.x - triA.x) * (_leg[i].tip.y - triC.y) + (triC.y - triA.y) * (triC.x - _leg[i].tip.x);
-		auto CA4 = (triC.x - triA.x) * (_leg[(i + 2) % 5].tip.y - triC.y) + (triC.y - triA.y) * (triC.x - _leg[(i + 2) % 5].tip.x);
+	//	auto CA1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triC.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triC.x);
+	//	auto CA2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triA.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triA.x);
+	//	auto CA3 = (triC.x - triA.x) * (_leg[i].tip.y - triC.y) + (triC.y - triA.y) * (triC.x - _leg[i].tip.x);
+	//	auto CA4 = (triC.x - triA.x) * (_leg[(i + 2) % 5].tip.y - triC.y) + (triC.y - triA.y) * (triC.x - _leg[(i + 2) % 5].tip.x);
 
-		if ((AB1 * AB2 < 0) && (AB3 * AB4 < 0) ||
-			(BC1 * BC2 < 0) && (BC3 * BC4 < 0) ||
-			(CA1 * CA2 < 0) && (CA3 * CA4 < 0))
-		{
-			return true;
-		}
-	}
+	//	if ((AB1 * AB2 < 0) && (AB3 * AB4 < 0) ||
+	//		(BC1 * BC2 < 0) && (BC3 * BC4 < 0) ||
+	//		(CA1 * CA2 < 0) && (CA3 * CA4 < 0))
+	//	{
+	//		return true;
+	//	}
+	//}
 	return false;
 }
 
