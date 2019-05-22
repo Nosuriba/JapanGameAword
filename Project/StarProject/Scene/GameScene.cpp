@@ -120,6 +120,18 @@ void GameScene::LoadResource()
 	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
 	_4thscreen = MakeScreen(size.x, size.y);
 
+
+	//当たり範囲の指定のための領域
+	for (int i = 0; i < 4; i++) {
+
+		cutscr.top = 0 + size.y / 2 * (i / 2);
+		cutscr.bottom = size.y / 2 + size.y / 2 * (i / 2);
+		cutscr.right = size.x / 2 + size.x / 2 * (i % 2);
+		cutscr.left = 0 + size.x / 2 * (i % 2);
+
+		_cutAreaScreen.push_back(cutscr);
+	}
+
 	//画像の読み込み
 	auto& manager = ResourceManager::GetInstance();
 	sea = manager.LoadImg("../img/sea.png");
@@ -179,6 +191,7 @@ GameScene::GameScene()
 
 	flame = 0;
 	wait = 0;
+
 	time = 60;
 	totaltime = 60;
 
@@ -230,7 +243,6 @@ void GameScene::Draw()
 
 	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y,
 		0 - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y, beach, true);
-
 
 
 
@@ -357,6 +369,7 @@ void GameScene::Update(const Input & p)
 	wait++; shader_time++; waitCnt++;
 
 	auto size = Game::GetInstance().GetScreenSize();
+	auto camera = _camera->CameraCorrection();
 
 	_pl->Update(p);
 
@@ -438,33 +451,61 @@ void GameScene::Update(const Input & p)
 
 		//破壊可能オブジェクト
 		for (auto &destroy : _destroyObj) {
-			if (destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x && 
-				destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-				if ((l.pos.x >= 0 && l.pos.x <= size.x / 2) && (destroy->GetInfo()._pos.x >= 0 && destroy->GetInfo()._pos.x <= size.x / 2)) {
-					if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
-					{
-						destroy->Break();
+
+			if (destroy->GetInfo()._pos.x - camera.x <= size.x &&
+				destroy->GetInfo()._pos.y - camera.y <= size.y) {
+
+				if (_cutAreaScreen[flame % 4].left <= destroy->GetInfo()._pos.x - camera.x && 
+
+					destroy->GetInfo()._pos.x - camera.x <= _cutAreaScreen[flame % 4].right &&
+
+					_cutAreaScreen[flame % 4].top<= destroy->GetInfo()._pos.y - camera.y && 
+
+					destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[flame % 4].bottom) {
+
+					if ((l.pos.x >= 0 && l.pos.x <= size.x / 2) && (destroy->GetInfo()._pos.x >= 0 && destroy->GetInfo()._pos.x <= size.x / 2)) {
+
+						if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
+						{
+							destroy->Break();
+						}
+
 					}
+
 				}
-				
 				/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
 
 				}*/
 			}
+
 		}
 
 		//捕食対象
 		for (auto &predatry : _predatoryObj) {
+
 			if (predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x && 
 				predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-				if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
-				{
-					predatry->Break();
-				}
-				if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
-					if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
+
+				if (_cutAreaScreen[flame % 4].left <= predatry->GetInfo()._pos.x - camera.x &&
+
+					predatry->GetInfo()._pos.x - camera.x <= _cutAreaScreen[flame % 4].right &&
+
+					_cutAreaScreen[flame % 4].top <= predatry->GetInfo()._pos.y - camera.y &&
+
+					predatry->GetInfo()._pos.y - camera.y <= _cutAreaScreen[flame % 4].bottom) {
+
+					if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
 					{
-						predatry->Predatory();
+						predatry->Break();
+					}
+
+					if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
+
+						if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
+						{
+							predatry->Predatory();
+						}
+
 					}
 				}
 			}
@@ -472,16 +513,29 @@ void GameScene::Update(const Input & p)
 
 		//破壊不可オブジェクト
 		for (auto &immortal : _immortalObj) {
+
 			if (immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x && 
 				immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-				if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
-				{
-					immortal->Break();
-				}
-				/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
 
-				}*/
+				if (_cutAreaScreen[flame % 4].left <= immortal->GetInfo()._pos.x - camera.x &&
+
+					immortal->GetInfo()._pos.x - camera.x <= _cutAreaScreen[flame % 4].right&&
+
+					_cutAreaScreen[flame % 4].top<= immortal->GetInfo()._pos.y - camera.y &&
+
+					immortal->GetInfo()._pos.y - camera.y <= _cutAreaScreen[flame % 4].bottom) {
+
+					if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
+					{
+						immortal->Break();
+					}
+					/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
+
+					}*/
+				}
+
 			}
+
 		}
 	}
 

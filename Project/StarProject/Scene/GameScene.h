@@ -31,6 +31,13 @@ struct ScoreInfo {
 	}
 };
 
+struct CutScreenInfo {
+	int top;
+	int bottom;
+	int left;
+	int right;
+};
+
 class GameScene : public Scene
 {
 private:
@@ -84,7 +91,12 @@ private:
 
 	void LoadResource();
 
+	//UI等
 	ScoreInfo score;
+
+	//当たり用スクリーンのサイズの保管
+	std::vector<CutScreenInfo> _cutAreaScreen;
+	CutScreenInfo cutscr;
 public:
 	GameScene();
 	~GameScene();

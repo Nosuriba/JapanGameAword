@@ -72,7 +72,7 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 				
-				//_laser.emplace_back(LEG(i).pos, v.Normalized());
+				_laser.emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[0]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
@@ -105,7 +105,7 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 
-				//_laser.emplace_back(LEG(i).pos, v.Normalized());
+				_laser.emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[1]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
