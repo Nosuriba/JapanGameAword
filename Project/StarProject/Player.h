@@ -65,6 +65,7 @@ private:
 	void Predation(const Input& in);
 	void Die(const Input& in);
 
+	void SetStar(const Vector2& p, const float& s);
 public:
 	Player(const std::shared_ptr<Camera>& c);
 	~Player();
@@ -72,6 +73,7 @@ public:
 	void Update(const Input& in);
 	void Draw();
 	void ShadowDraw();
+	void SelectDraw(const Vector2 p, const float s);
 
 	Star GetInfo();
 	const std::vector<Vector2> GetShot();

@@ -221,6 +221,25 @@ void Player::Die(const Input & in)
 	++_anim_frame;
 }
 
+void Player::SetStar(const Vector2 & p, const float & s)
+{
+	auto move	= p - CENTER;
+	_star.r		= s;
+	MATRIX mat	= MGetTranslate(move.V_Cast());
+
+	CENTER = VTransform(CENTER.V_Cast(), mat);
+	for (auto& l : _star.legs)
+	{
+		l.tip = VTransform(l.tip.V_Cast(), mat);
+		l.pos = VTransform(l.pos.V_Cast(), mat);
+
+		auto v = l.tip - CENTER;
+		v.Normalize();
+		l.tip = CENTER + v * _star.r;
+		l.pos = CENTER + v * _star.r;
+	}
+}
+
 Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 {
 	_star.center = Vector2(500, 300);
@@ -302,7 +321,7 @@ void Player::Draw()
 		for (auto& l : leg.halfway_point)
 		{
 			DrawLineAA(pre.x - c.x, pre.y - c.y, l.x - c.x, l.y - c.y, color, t);//軌跡描画
-			DrawCircleAA(l.x - c.x, l.y - c.y, 1.0f, 32, 0x00ffff);
+			DrawCircleAA(l.x - c.x, l.y - c.y, t / 10.0f, 32, 0x00ffff);
 			pre.x = l.x;//前の位置記憶
 			pre.y = l.y;
 			t /= 1.3f;
@@ -343,6 +362,40 @@ void Player::ShadowDraw()
 			t /= 1.3f;
 		}
 	}
+}
+
+void Player::SelectDraw(const Vector2 p, const float s)
+{
+	SetStar(p, s);
+	for (auto& leg : _star.legs)
+	{
+		// ヒトデの中心から足の位置までのベジェ曲線
+		int idx = 0;
+		leg.halfway_point[idx] = _star.center;
+		for (; idx < leg.T; ++idx)
+		{
+			float b = (float)idx / leg.T;
+			float a = 1.0f - b;
+			leg.halfway_point[idx].x = a * a * _star.center.x + 2 * a * b * leg.tip.x + b * b * leg.pos.x;
+			leg.halfway_point[idx].y = a * a * _star.center.y + 2 * a * b * leg.tip.y + b * b * leg.pos.y;
+		}
+
+		// 足の先端までのライン
+		Vector2 pre = leg.halfway_point[0];
+		float t = _star.r / 2.0f;
+		int color = leg.state == LEG_STATE::NORMAL ? 0xff0000 : 0xffff00;
+		for (auto& l : leg.halfway_point)
+		{
+			DrawLineAA(pre.x, pre.y, l.x, l.y, color, t);//軌跡描画
+			DrawCircleAA(l.x, l.y, 1.0f, 32, 0x00ffff);
+			pre.x = l.x;//前の位置記憶
+			pre.y = l.y;
+			t /= 1.3f;
+			color -= 0x110000;
+		}
+		DrawLineAA(pre.x, pre.y, leg.pos.x, leg.pos.y, color, t);//軌跡描画
+	}
+	DxLib::DrawCircle(CENTER.x, CENTER.y, _star.r / 4.0f, 0xee0000, true);
 }
 
 Star Player::GetInfo()
