@@ -62,7 +62,6 @@ private:
 
 	void (Player::*_updater)(const Input& in);
 	void Normal(const Input& in);
-	void Move(const Input& in);
 	void Predation(const Input& in);
 	void Die(const Input& in);
 

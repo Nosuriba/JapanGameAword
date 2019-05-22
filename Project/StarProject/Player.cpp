@@ -16,12 +16,9 @@ constexpr float SPEED = 0.5f;
 void Player::Normal(const Input & in)
 {
 	if (Buf[KEY_INPUT_P]) 
-	{
-		_updater = &Player::Predation;
-		_target = LEG(3).pos;
-		_anim_frame = 0;
-		_vel = Vector2();
-	}
+		ToCatch(LEG(3).pos);
+	if (Buf[KEY_INPUT_O]) 
+		OnDamage();
 
 	// 左STICKの入力
 	if (in.PushTrigger(TRIGGER::LEFT) == 0 && !in.Push(BUTTON::LB))
@@ -169,10 +166,6 @@ void Player::Normal(const Input & in)
 	}
 }
 
-void Player::Move(const Input & in)
-{
-}
-
 void Player::Predation(const Input & in)
 {
 	MATRIX mat = MGetIdent();
@@ -206,17 +199,26 @@ void Player::Predation(const Input & in)
 
 void Player::Die(const Input & in)
 {
-	_vel = Vector2();
 
-	_star.r *= 0.99f;
-	_star.r = max(_star.r, 10.0f);
+	MATRIX mat = MGetIdent();
 
+	mat = MGetTranslate(VScale(CENTER.V_Cast(), -1));
+	mat = MMult(mat, MGetRotZ(DX_PI_F / 180.0f * 5.0f));
+	mat = MMult(mat, MGetTranslate(CENTER.V_Cast()));
+
+	// ヒトデの中心の移動
+	CENTER = VTransform(CENTER.V_Cast(), mat);
+
+	_star.r *= 0.94f;
+	// ヒトデの足の先端の移動
 	for (auto& l : _star.legs)
 	{
-		auto v = l.tip - _star.center;
-		v.Normalize();
-		l.tip = _star.center + v * _star.r;
+		l.tip = VTransform(l.tip.V_Cast(), mat);
+		auto v = l.tip - CENTER;
+		l.tip = CENTER + v.Normalized() * _star.r;
 	}
+
+	++_anim_frame;
 }
 
 Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
@@ -233,6 +235,7 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 		LEG(i).tip.y = CENTER.y + sin(radian * i + DX_PI_F / 180.0f * -90.0f) * _star.r;
 		LEG(i).pos = LEG(i).tip;
 		LEG(i).state = LEG_STATE::NORMAL;
+		LEG(i).halfway_point.resize(LEG(i).T);
 	}
 	select_idx = { -1,-1 };
 	_vel = Vector2();
@@ -271,21 +274,6 @@ void Player::Update(const Input& in)
 		auto v = LEG(i).pos - LEG(i).tip;
 		LEG(i).pos += (LEG(i).tip - LEG(i).pos) / 3.0f;
 	}
-
-	// ヒトデの中心から足の位置までのベジェ曲線
-	for (auto& l : _star.legs)
-	{
-		l.halfway_point.resize(l.T);
-		int t = 0;
-		l.halfway_point[t] = _star.center;
-		for (; t < l.T; ++t)
-		{
-			float b = (float)t / l.T;
-			float a = 1.0f - b;
-			l.halfway_point[t].x = a * a * _star.center.x + 2 * a * b * l.tip.x + b * b * l.pos.x;
-			l.halfway_point[t].y = a * a * _star.center.y + 2 * a * b * l.tip.y + b * b * l.pos.y;
-		}
-	}
 }
 
 void Player::Draw()
@@ -295,6 +283,17 @@ void Player::Draw()
 	int count = 0;
 	for (auto& leg : _star.legs)
 	{
+		// ヒトデの中心から足の位置までのベジェ曲線
+		int idx = 0;
+		leg.halfway_point[idx] = _star.center;
+		for (; idx < leg.T; ++idx)
+		{
+			float b = (float)idx / leg.T;
+			float a = 1.0f - b;
+			leg.halfway_point[idx].x = a * a * _star.center.x + 2 * a * b * leg.tip.x + b * b * leg.pos.x;
+			leg.halfway_point[idx].y = a * a * _star.center.y + 2 * a * b * leg.tip.y + b * b * leg.pos.y;
+		}
+
 		if (leg.state != LEG_STATE::NORMAL) ++count;
 		// 足の先端までのライン
 		Vector2 pre = leg.halfway_point[0];
@@ -391,11 +390,13 @@ void Player::LevelUP()
 
 void Player::ToCatch(const Vector2 & t)
 {
-	_target = t;
-	_updater = &Player::Predation;
+	_target		= t;
+	_anim_frame = 0;
+	_updater	= &Player::Predation;
 }
 
 void Player::OnDamage()
 {
-	_updater = &Player::Die;
+	_anim_frame = 0;
+	_updater	= &Player::Die;
 }
