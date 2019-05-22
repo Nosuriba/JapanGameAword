@@ -430,7 +430,7 @@ void GameScene::Update(const Input & p)
 		std::lock_guard<std::mutex> _lock(_mutex);
 		auto laser = _pl->GetLaser();
 		num++;
-		for (auto l : laser) {
+		for (auto &l : laser) {
 
 			//破壊可能オブジェクト
 			for (auto destroy : _destroyObj) {
@@ -448,6 +448,7 @@ void GameScene::Update(const Input & p)
 							if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
 							{
 								destroy->Break();
+								l.Hit();
 							}
 					}
 					/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
