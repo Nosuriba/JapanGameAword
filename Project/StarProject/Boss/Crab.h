@@ -30,16 +30,17 @@ class Crab :
 {
 private:
 	void Neutral();
+	void Fist();
 	void Shot();
 	void Die();
 
 	void NeutralUpdate();
+	void FistUpdate();
 	void ShotUpdate();
 	void DieUpdate();
 
 	void CalVert();					// 頂点の計算
 	void Rotation();				// 回転用(蟹本体)
-	void Rotation(const int& i);	// 回転用(足など)
 	void MoveLeg();					// 制御点の移動
 
 	void MoveJoint();					
@@ -48,8 +49,8 @@ private:
 	Vector3 Cross(const Vector3& va, const Vector3& vb)
 	{
 		return Vector3(va.y * vb.z - va.z * vb.y,
-			va.z * vb.x - va.x - vb.z,
-			va.x * vb.y - va.y * va.x);
+					   va.z * vb.x - va.x - vb.z,
+					   va.x * vb.y - va.y * va.x);
 	}
 
 	void (Crab::*_updater)();
