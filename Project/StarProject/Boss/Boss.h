@@ -8,15 +8,14 @@ class Camera;
 
 using sqr_vert = std::array<Vector2, 4>;
 
-struct LegInfo
+struct JointInfo
 {
-	// 3つの関節と制御点
+	// 関節の中間点と制御点
 	Vector2 _sPoint, _mPoint, _ePoint, _ctlPoint;
 	Vector2 _vel;
-	Size _size;
-	float cos, sin;						// 三角比用変数
-	float _liftVel;
-	std::array<sqr_vert, 2> legVert;	// 足の関節の頂点を設定するもの
+	Size   _size;
+	float _liftVel;						// 足を持ち上げる速度
+	std::array<sqr_vert, 2> _vert;		// 足の関節の頂点
 
 };
 
@@ -27,7 +26,8 @@ struct CrabInfo
 	Size _size;
 
 	sqr_vert _vert;					// 蟹本体の頂点
-	std::vector<LegInfo> legs;		// 足の関節
+	std::vector<JointInfo> _legs;	// 足の関節
+	std::vector<JointInfo> _arms;	// 腕の関節
 
 	CrabInfo() : _pos(0, 0), _size(0, 0){};
 	CrabInfo(const Position2& _pos, const Size& _size)
