@@ -97,7 +97,12 @@ void ResultScene::Draw()
 	auto size = Game::GetInstance().GetScreenSize();
 	int mode, palam;
 	GetDrawBlendMode(&mode,&palam);
+#ifdef _DEBUG
+	std::string s[4] = { "C","B","A","猿" };
+#else
 	std::string s[4] = { "C","B","A","S" };
+#endif // _DEBUG
+
 	DrawExtendGraph(0, 0, size.x, size.y, imgbuff, true);
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	DrawString(0, 0, "^p^", 0xff00ff);
@@ -136,7 +141,7 @@ void ResultScene::Draw()
 	if (isEnd)
 	{
 		SetFontSize(192);
-		DrawCircle((size.x + (float)(GetFontSize() * 4.5f)) / 2, (size.y - (float)(GetFontSize())) / 10 * 9,96, 0xff3333,0,3);
+		DrawCircle((size.x + (float)(GetFontSize() * 4.5f)) / 2, (size.y - (float)(GetFontSize())) / 10 * 9,96, 0xff3333,0,10);
 		DrawString((size.x + (float)(GetFontSize()*3.6f)) /2, (size.y - (float)(GetFontSize())) / 10*7.35f,s[ResultData[0][(int)R_Data::total]/20000].c_str(), 0xff3333);
 		DrawBox(0, size.y / 10*8.5f, size.x, size.y, 0x000000, true);
 		ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
