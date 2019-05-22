@@ -372,7 +372,6 @@ void GameScene::Update(const Input & p)
 	wait++; shader_time++; waitCnt++;
 
 	auto size = Game::GetInstance().GetScreenSize();
-	auto camera = _camera->CameraCorrection();
 
 	_pl->Update(p);
 
@@ -423,44 +422,10 @@ void GameScene::Update(const Input & p)
 	}
 
 
-	/*if (_bosses.size() != 0) {
+	if (_bosses.size() != 0) {
 		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
-	}*/
-	auto laser = _pl->GetLaser();
-	num++;
-	for (auto l : laser) {
-
-		//破壊可能オブジェクト
-		for (auto &destroy : _destroyObj) {
-
-			if (destroy->GetInfo()._pos.x - camera.x <= size.x &&
-				destroy->GetInfo()._pos.y - camera.y <= size.y) {
-
-				if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - camera.x &&
-
-					destroy->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
-
-					_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - camera.y &&
-
-					destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
-
-					if ((l.pos.x >= 0 && l.pos.x <= size.x / 2) && (destroy->GetInfo()._pos.x >= 0 && destroy->GetInfo()._pos.x <= size.x / 2)) {
-
-						if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
-						{
-							destroy->Break();
-						}
-
-					}
-
-				}
-				/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
-
-				}*/
-			}
-
-		}
 	}
+	
 	auto th = [&]() {
 		std::lock_guard<std::mutex> _lock(_mutex);
 		auto laser = _pl->GetLaser();
@@ -470,26 +435,20 @@ void GameScene::Update(const Input & p)
 			//破壊可能オブジェクト
 			for (auto destroy : _destroyObj) {
 
-				if (destroy->GetInfo()._pos.x - camera.x <= size.x &&
-					destroy->GetInfo()._pos.y - camera.y <= size.y) {
+				if (destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
+					destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - camera.x &&
+					if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - _camera->CameraCorrection().x &&
 
-						destroy->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
+						destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= _cutAreaScreen[num % 4].right &&
 
-						_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - camera.y &&
+						_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - _camera->CameraCorrection().y &&
 
-						destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
-
-						if ((l.pos.x >= 0 && l.pos.x <= size.x / 2) && (destroy->GetInfo()._pos.x >= 0 && destroy->GetInfo()._pos.x <= size.x / 2)) {
-
+						destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= _cutAreaScreen[num % 4].bottom) {
 							if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
 							{
 								destroy->Break();
 							}
-
-						}
-
 					}
 					/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
 
@@ -504,13 +463,13 @@ void GameScene::Update(const Input & p)
 				if (predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
 					predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - camera.x &&
+					if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - _camera->CameraCorrection().x &&
 
-						predatry->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
+						predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= _cutAreaScreen[num % 4].right &&
 
-						_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - camera.y &&
+						_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - _camera->CameraCorrection().y &&
 
-						predatry->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+						predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= _cutAreaScreen[num % 4].bottom) {
 
 						if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
 						{
@@ -535,13 +494,13 @@ void GameScene::Update(const Input & p)
 				if (immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
 					immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - camera.x &&
+					if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - _camera->CameraCorrection().x &&
 
-						immortal->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right&&
+						immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= _cutAreaScreen[num % 4].right&&
 
-						_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - camera.y &&
+						_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - _camera->CameraCorrection().y &&
 
-						immortal->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+						immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= _cutAreaScreen[num % 4].bottom) {
 
 						if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
 						{
