@@ -39,12 +39,7 @@ void ImmortalObject::Update()
 
 void ImmortalObject::Break()
 {
-	obj._color = 0x000000;
-}
-
-void ImmortalObject::ResetColor()
-{
-	obj._color = 0xff00ff;
+	//obj._color = 0x000000;
 }
 
 ObjectInfo ImmortalObject::GetInfo()
