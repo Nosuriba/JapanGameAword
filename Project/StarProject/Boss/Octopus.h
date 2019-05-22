@@ -8,7 +8,8 @@ enum class E_LEG_STATE {
 	NORMAL,
 	PUNCH,
 	OCT_INK,
-	SWEEP,
+	CHASE,
+	RE_MOVE,
 	DAMAGE,
 	DETH,
 };
@@ -16,6 +17,7 @@ enum class E_LEG_STATE {
 struct E_Leg {
 	Vector2 tip;	//先端座標
 	std::vector<Vector2> joint;	//関節座標
+	MATRIX mat;		//回転角
 	const int T = 12;	//関節数
 	E_LEG_STATE state;	//状態
 	int angle;		//目標までの角度
@@ -24,7 +26,7 @@ struct E_Leg {
 struct Oct {
 	float r;		//足の長さ
 	Vector2 center;	//中心座標
-	Vector2 root;	//足の根元
+	std::vector<Vector2> root;	//足の根元
 	std::vector<E_Leg> legs;	//足
 };
 
@@ -33,14 +35,20 @@ class Octopus :
 {
 private:
 	int angle;
+	int cnt;
+	int id;
 	Vector2 targetPos;
+	Vector2 _vec;
 	void Die();
 	void DieUpdate();
-	void Normal(E_Leg& leg,Vector2 pos);
-	void Punch(E_Leg& leg, Vector2 pos);
-	void OctInk(E_Leg& leg, Vector2 pos);
-	void Sweep(E_Leg& leg, Vector2 pos);
+	void Normal(int idx);
+	void Punch(E_Leg& leg, int idx);
+	void OctInk(E_Leg& leg, int idx);
+	void Chase(E_Leg& leg, int idx);
 	void Damage();
+	void ReMove(E_Leg& leg, int idx);
+
+	void LegMove(E_Leg& leg, int idx);
 
 	void NeturalUpdate();
 
