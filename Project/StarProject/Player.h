@@ -37,8 +37,10 @@ struct Laser {
 	Vector2 pos;
 	Vector2 vel;
 	float size;
+	bool isHit;
 
-	Laser(Vector2 p, Vector2 v) : pos(p), vel(v){ count = 0; size = 5;}
+	Laser(Vector2 p, Vector2 v) : pos(p), vel(v) { count = 0; size = 5; isHit = false; }
+	void Hit() { isHit = true; }
 };
 
 class Player
