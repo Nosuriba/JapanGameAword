@@ -6,6 +6,7 @@
 #include "../Particle/Bubble.h"
 #include <string>
 #include "../Stage.h"
+#include "../Player.h"
 
 
 void SelectScene::FadeIn(const Input & p)
@@ -124,6 +125,10 @@ void SelectScene::Draw()
 	auto addy = sin((Cnt)*DX_PI / 720) * 100;
 	auto addr = sin((Cnt)*DX_PI / 180) * 0.1;
 
+	auto pl = std::make_unique<Player>(nullptr);
+
+	pl->SelectDraw(Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5))*130);
+	
 	DrawRotaGraph(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0), 1 + ((Select != 0) ? addr : addr +0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select != 1) ? addr: addr -0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 +((Select != 2) ? addr : addr +0.5), 0, bubble, true);
