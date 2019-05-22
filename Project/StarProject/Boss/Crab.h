@@ -29,12 +29,12 @@ class Crab :
 {
 private:
 	void Neutral();
-	void Attack();
+	void Fist();
 	void Shot();
 	void Die();
 
 	void NeutralUpdate();
-	void AttackUpdate();
+	void FistUpdate();
 	void ShotUpdate();
 	void DieUpdate();
 

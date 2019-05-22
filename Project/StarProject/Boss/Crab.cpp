@@ -5,24 +5,25 @@
 const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
 							   Game::GetInstance().GetScreenSize().y / 2);
 const Vector2 lVel  = Vector2(5.f, 5.f);	// ãrÇÃìÆÇ≠ë¨ìx
-
+const Vector2 fVel  = Vector2(5.f, 5.f);	// â£ÇÈë¨ìx
 const VECTOR rotVec = { 0,0,1.f };
 const float rotVel  = DX_PI_F / 540.f;
-const int length    = 150;
-const int aLength	= 250;
+const int length    = 100;
+const int aLength	= length + 60;
 const int typeMax   = static_cast<int>(AtkType::MAX);
 const int atkCnt	= 60;
-const Size eSize    = Size(450, 300);
-const Size lSize    = Size(length, 30);
+const Size eSize    = Size(250, 150);
+const Size lSize    = Size(length, 20);
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
 	_plPos	  = Vector2();
 	_preCtl	  = Vector2();
 	atkInvCnt = atkCnt;
+	_type	  = AtkType::NORMAL;
 
 	/// äIñ{ëÃÇÃèâä˙âª
-	boss._crab._pos = Vector2(center.x, 900);
+	boss._crab._pos = Vector2(center.x, center.y);
 	boss._crab._size = eSize;
 	for (int i = 0; i < boss._crab._vert.size(); ++i)
 	{
@@ -42,7 +43,7 @@ Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 		{
 			/// âEë´
 			auto pos = Vector2(boss._crab._pos.x + eSize.width  / 2, 
-							   boss._crab._pos.y - eSize.height / 4);
+							   boss._crab._pos.y - eSize.height / 3 - lSize.height / 2);
 			(*leg)._sPoint	 = pos + Vector2(0, (cnt * (lSize.height * 2)));
 			(*leg)._mPoint	 = (*leg)._sPoint + Vector2(length, 0);
 			(*leg)._ePoint	 = (*leg)._mPoint + Vector2(length, 0);
@@ -54,7 +55,7 @@ Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 		{
 			/// ç∂ë´
 			auto pos = Vector2(boss._crab._pos.x - eSize.width  / 2,
-							   boss._crab._pos.y - eSize.height / 4);
+							   boss._crab._pos.y - eSize.height / 3 - lSize.height / 2);
 			(*leg)._sPoint	 = pos + Vector2(0, (cnt % (boss._crab._legs.size() / 2)) * (lSize.height * 2));
 			(*leg)._mPoint	 = (*leg)._sPoint - Vector2(length, 0);
 			(*leg)._ePoint	 = (*leg)._mPoint - Vector2(length, 0);
@@ -102,20 +103,12 @@ Crab::~Crab()
 
 void Crab::Neutral()
 {
-
 	_updater = &Crab::NeutralUpdate;
 }
 
-void Crab::Attack()
+void Crab::Fist()
 {
-	/// ◊›¿ﬁ—Ç≈çUåÇ ﬂ¿∞›ÇåàíË
-	// _type = static_cast<AtkType>(GetRand(typeMax));
-
-	/// debugóp
-	_type = static_cast<AtkType>(typeMax);	/// â£ÇÈçUåÇ
-	 //type = static_cast<AtkType>(2);		/// ã≤ÇﬁçUåÇ
-	//_type = static_cast<AtkType>(1);		/// ñAÇÃçUåÇ
-	_updater = &Crab::AttackUpdate;
+	_updater = &Crab::FistUpdate;
 }
 
 void Crab::Shot()
@@ -133,19 +126,71 @@ void Crab::NeutralUpdate()
 	atkInvCnt--;
 	if (atkInvCnt <= 0)
 	{
-		Attack();
-		return;
+		/// ◊›¿ﬁ—Ç≈çUåÇ ﬂ¿∞›ÇåàíË
+		// _type = static_cast<AtkType>(GetRand(typeMax));
+
+		/// debugóp
+		_type = static_cast<AtkType>(3);	/// â£ÇÈçUåÇ
+		 //type = static_cast<AtkType>(2);		/// ã≤ÇﬁçUåÇ
+		//_type = static_cast<AtkType>(1);		/// ñAÇÃçUåÇ
 	}
 	
 }
 
-void Crab::AttackUpdate()
+void Crab::FistUpdate()
 {
 	if (_type == AtkType::NORMAL)
 	{
-		Neutral();
-		atkInvCnt = atkCnt;
-		return;
+		for (auto arm : boss._crab._arms)
+		{
+			if (arm._vel.x != 0)
+			{
+				if (arm._vel.x > 0)
+				{
+					arm._vel = (arm._ctlPoint.x > _preCtl.x && arm._ctlPoint.y > _preCtl.y ? Vector2(0, 0) : arm._vel);
+				}
+				else
+				{
+					arm._vel = (arm._ctlPoint.x < _preCtl.x && arm._ctlPoint.y < _preCtl.y ? Vector2(0, 0) : arm._vel);
+				}
+
+				if (arm._vel.x == 0)
+				{
+					Neutral();
+					atkInvCnt = atkCnt;
+					break;
+				}
+			}	
+		}
+	}
+	else
+	{
+		/// çUåÇíÜ
+		for (auto arm : boss._crab._arms)
+		{
+			if (arm._vel.x != 0)
+			{
+				if (arm._vel.x > 0)
+				{
+					arm._vel = (arm._ctlPoint.x > _plPos.x && arm._ctlPoint.y > _plPos.y ? Vector2(0, 0) : arm._vel);
+				}
+				else
+				{
+					arm._vel = (arm._ctlPoint.x < _plPos.x && arm._ctlPoint.y < _plPos.y ? Vector2(0, 0) : arm._vel);
+				}
+
+				/// 
+				if (arm._vel.x == 0)
+				{
+					_plPos = Vector2();
+					auto vec = _preCtl - arm._ctlPoint;
+					vec.Normalize();
+					arm._vel = Vector2(fVel.x * vec.x, fVel.y * vec.y);
+					_type = AtkType::NORMAL;
+		
+				}
+			}
+		}
 	}
 }
 
@@ -253,6 +298,7 @@ void Crab::Rotation()
 		arm._ePoint = VTransform(arm._ePoint.V_Cast(), mat);
 		arm._ctlPoint = VTransform(arm._ctlPoint.V_Cast(), mat);
 	}
+	_preCtl = VTransform(_preCtl.V_Cast(), mat);
 }
 
 void Crab::MoveLeg()
@@ -330,7 +376,7 @@ void Crab::MoveJoint()
 	{
 		pLength = (*leg)._ctlPoint - (*leg)._sPoint;
 		cost = (pow(length, 2.0) + pow(pLength.Magnitude(), 2.0) - pow(length, 2.0)) / (2 * length * pLength.Magnitude());
-		rad = acos(cost);
+		rad  = acos(cost);
 		sint = sin(rad);
 
 		if (!(std::isnan(cost) && std::isnan(sint)))
@@ -368,7 +414,7 @@ void Crab::MoveJoint()
 	{
 		pLength = (*arm)._ctlPoint - (*arm)._sPoint;
 		cost = (pow(aLength, 2.0) + pow(pLength.Magnitude(), 2.0) - pow(aLength, 2.0)) / (2 * aLength * pLength.Magnitude());
-		rad = acos(cost);
+		rad  = acos(cost);
 		sint = sin(rad);
 
 		if (!(std::isnan(cost) && std::isnan(sint)))
@@ -472,10 +518,20 @@ void Crab::Update()
 {
 	(this->*_updater)();
 
-	Rotation();
+	/// òrÇÃà⁄ìÆ
+	/*for (auto& arm : boss._crab._arms)
+	{
+		arm._ctlPoint += arm._vel;
+	}
+
+	if (_type == AtkType::NORMAL && atkInvCnt >= 0)
+	{
+		Rotation();
+	}*/
+	
 	CalVert();			/// ãÈå`ÇÃí∏ì_Çê›íË
-	MoveLeg();
-	MoveJoint();
+	/*MoveLeg();
+	MoveJoint();*/
 
 	boss._crab._prePos = boss._crab._pos;
 }
@@ -487,12 +543,24 @@ BossInfo Crab::GetInfo()
 
 void Crab::CalTrackVel(const Vector2 & pos)
 {
-	if (_type == AtkType::FIST)
+	if (_type == AtkType::FIST && _updater == &Crab::NeutralUpdate)
 	{
-		/// âºÇÃí«è](â£ÇÈèàóùÇ…ãAÇÈ)
-		auto vec = pos - boss._crab._arms[0]._ctlPoint;
-		vec.Normalize();
-		boss._crab._arms[0]._ctlPoint += Vector2(2.0f * vec.x, 2.0f * vec.y);
+		_plPos = pos;
+		auto l = GetRand(boss._crab._arms.size() - 1);
+		auto arm = boss._crab._arms.begin();
+		for (; arm != boss._crab._arms.end(); ++arm)
+		{
+			auto cnt = arm - boss._crab._arms.begin();
+			if (cnt == l)
+			{
+				_plPos = pos;
+				auto vec = _plPos - (*arm)._ctlPoint;
+				vec.Normalize();
+				(*arm)._vel = Vector2(fVel.x * vec.x, fVel.y * vec.y);
+				_preCtl = (*arm)._ctlPoint;			/// à⁄ìÆëOÇÃêßå‰ì_Çï€ë∂
+			}
+		}
+		Fist();
 	}
 	
 }
