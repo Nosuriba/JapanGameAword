@@ -83,9 +83,11 @@ void Octopus::OctInk(E_Leg& leg, int idx)
 
 void Octopus::Chase(E_Leg& leg, int idx)
 {
-	for (int it = 0; it < 6; ++it) {
+	auto p = leg.tip - targetPos;
+	auto pos = leg.tip - p.Normalized() * 1;
+	for (int it = 0; it < 3; ++it) {
 		for (int j = leg.T-1; j > 0; --j) {
-			auto p_vec = targetPos - leg.joint[j - 1];		//目標→関節
+			auto p_vec = pos - leg.joint[j - 1];		//目標→関節
 			auto t_vec = leg.tip - leg.joint[j - 1];		//先端→関節
 			auto mat = MGetTranslate((-leg.joint[j - 1]).V_Cast());			//原点まで移動
 			mat = MMult(mat, MGetRotVec2(t_vec.V_Cast(), p_vec.V_Cast()));	//回転
@@ -143,8 +145,7 @@ void Octopus::NeturalUpdate()
 
 		}
 		if (LEG(i).state == E_LEG_STATE::CHASE) {
-			auto p = LEG(i).tip - targetPos;
-			auto pos = LEG(i).tip - p.Normalized() * 1;
+			
 
 			Chase(LEG(i), i);
 
