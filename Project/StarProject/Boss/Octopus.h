@@ -21,6 +21,7 @@ struct E_Leg {
 	const int T = 12;	//関節数
 	E_LEG_STATE state;	//状態
 	int angle;		//目標までの角度
+	int cnt;		//足ごとの動き出すタイミング調整用
 };
 
 struct Oct {
@@ -35,7 +36,6 @@ class Octopus :
 {
 private:
 	int angle;
-	int cnt;
 	int id;
 	Vector2 targetPos;
 	Vector2 _vec;
