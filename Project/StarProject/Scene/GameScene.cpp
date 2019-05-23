@@ -206,8 +206,11 @@ GameScene::GameScene()
 
 GameScene::~GameScene()
 {
-	if (_cutCol1.joinable()) {
-		_cutCol1.join();
+	if (_cutCol.joinable()) {
+		_cutCol.join();
+	}
+	if (__eneCol.joinable()) {
+		__eneCol.join();
 	}
 }
 
@@ -385,46 +388,49 @@ void GameScene::Update(const Input & p)
 		boss->Update();
 	}
 
-	for (int i = 0; i < _enemies.size(); ++i)
-	{
-		/// “G‚ÌŽ€–Sˆ—
-		if (_enemies[i]->GetInfo()._dieFlag)
-		{
-			_enemies.erase(_enemies.begin() + i);
-			continue;
-		}
+	auto _eth = [&]() {
+		std::lock_guard<std::mutex> _lock(_mutex);
 
-		auto laser = _pl->GetLaser();
-		/// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
-		//for (int p = 0; p < _pl->GetLaser().size(); ++p)
-		for (auto& l : laser)
+		for (int i = 0; i < _enemies.size(); ++i)
 		{
-			if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
+			/// “G‚ÌŽ€–Sˆ—
+			if (_enemies[i]->GetInfo()._dieFlag)
 			{
-				auto vec = _enemies[i]->GetInfo()._pos - l.pos;
-				vec.Normalize();
-
-				_enemies[i]->CalEscapeDir(vec);
-				break;
+				_enemies.erase(_enemies.begin() + i);
+				continue;
 			}
 
-			_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));
-		}
-
-		/// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
-		for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
-		{
-			if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
+			auto laser = _pl->GetLaser();
+			/// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
+			//for (int p = 0; p < _pl->GetLaser().size(); ++p)
+			for (auto& l : laser)
 			{
-				_enemies[i]->ShotDelete(s);		/// ÌßÚ²Ô°‚É“–‚½‚Á‚½’e‚ÌF‚ð•Ï‚¦‚Ä‚¢‚éB
+				if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
+				{
+					auto vec = _enemies[i]->GetInfo()._pos - l.pos;
+					vec.Normalize();
+
+					_enemies[i]->CalEscapeDir(vec);
+					break;
+				}
+
+				_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));
+			}
+
+			/// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
+			for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
+			{
+				if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
+				{
+					_enemies[i]->ShotDelete(s);		/// ÌßÚ²Ô°‚É“–‚½‚Á‚½’e‚ÌF‚ð•Ï‚¦‚Ä‚¢‚éB
+				}
 			}
 		}
-	}
 
-
-	if (_bosses.size() != 0) {
-		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
-	}
+		if (_bosses.size() != 0) {
+			_bosses[0]->CalTrackVel(_pl->GetInfo().center);
+		}
+	};
 	
 	auto th = [&]() {
 		std::lock_guard<std::mutex> _lock(_mutex);
@@ -539,12 +545,20 @@ void GameScene::Update(const Input & p)
 		}
 	};
 	
-	if (!_cutCol1.joinable()) {
+	if (!_cutCol.joinable()) {
 		
-		_cutCol1 = std::thread(th);
+		_cutCol = std::thread(th);
 	}
 	else {
-		_cutCol1.join();
+		_cutCol.join();
+	}
+
+	if (!__eneCol.joinable()) {
+
+		__eneCol = std::thread(_eth);
+	}
+	else {
+		__eneCol.join();
 	}
 
 	totaltime = time - (flame / 60);

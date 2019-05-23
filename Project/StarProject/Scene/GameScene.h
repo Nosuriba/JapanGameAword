@@ -103,10 +103,8 @@ private:
 	CutScreenInfo cutscr;
 
 	//ƒXƒŒƒbƒh
-	std::thread _cutCol1;
-	std::thread _cutCol2;
-	std::thread _cutCol3;
-	std::thread _cutCol4;
+	std::thread _cutCol;
+	std::thread __eneCol;
 
 	std::mutex _mutex;
 
