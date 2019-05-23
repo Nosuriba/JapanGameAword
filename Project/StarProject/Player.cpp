@@ -19,6 +19,8 @@ void Player::Normal(const Input & in)
 		ToCatch(LEG(3).pos);
 	if (Buf[KEY_INPUT_O]) 
 		OnDamage();
+	if (Buf[KEY_INPUT_G])
+		LetsGo(Vector2(0, 0));
 
 	// ¶STICK‚Ì“ü—Í
 	if (in.PushTrigger(TRIGGER::LEFT) == 0 && !in.Push(BUTTON::LB))
@@ -236,6 +238,20 @@ void Player::Die(const Input & in)
 	++_anim_frame;
 }
 
+void Player::Move(const Input & in)
+{
+	auto v = _goal - CENTER;
+	if (v.Magnitude() > 5.0f)
+	{
+		MATRIX mat = MGetTranslate((v.Normalized() * 5.0f).V_Cast());
+		CENTER = VTransform(CENTER.V_Cast(), mat);
+		for (auto& l : _star.legs)
+			l.tip = VTransform(l.tip.V_Cast(), mat);
+	}
+	else
+		_updater = &Player::Normal;
+}
+
 void Player::SetStar(const Vector2 & p, const float & s)
 {
 	auto move	= p - CENTER;
@@ -272,7 +288,6 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 		LEG(i).halfway_point.resize(LEG(i).T);
 	}
 	select_idx = { -1,-1 };
-	_vel = Vector2();
 
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
@@ -484,4 +499,10 @@ void Player::OnDamage()
 {
 	_anim_frame = 0;
 	_updater	= &Player::Die;
+}
+
+void Player::LetsGo(const Vector2 p)
+{
+	_goal = p;
+	_updater = &Player::Move;
 }

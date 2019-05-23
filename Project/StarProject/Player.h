@@ -55,9 +55,10 @@ private:
 	std::array<int, 2> select_idx;
 	std::array<std::list<Laser>,2> _laser;
 
-	Vector2 _vel;
 	int _anim_frame;
+
 	Vector2 _target;
+	Vector2 _goal;
 
 	int _img_STICK;
 	int _img_TRIGGER;
@@ -68,6 +69,7 @@ private:
 	void Normal(const Input& in);
 	void Predation(const Input& in);
 	void Die(const Input& in);
+	void Move(const Input& in);
 
 	void SetStar(const Vector2& p, const float& s);
 public:
@@ -85,5 +87,6 @@ public:
 	void LevelUP();
 	void ToCatch(const Vector2& t);
 	void OnDamage();
+	void LetsGo(const Vector2 p);
 };
 
