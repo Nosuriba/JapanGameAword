@@ -401,7 +401,7 @@ void GameScene::Update(const Input & p)
 	auto& laser = _pl->GetLaser(); 
 	const auto camera = _camera->CameraCorrection();
 
-	auto _eth = [&](std::list<Laser> _laser) {
+	auto _eth = [&](std::array<std::list<Laser>,2> _laser) {
 		std::lock_guard<std::mutex> _lock(_mutex);
 
 		for (int i = 0; i < _enemies.size(); ++i)
@@ -415,21 +415,24 @@ void GameScene::Update(const Input & p)
 			
 			/// ﾌﾟﾚｲﾔｰｼｮｯﾄと敵の当たり判定
 			//for (int p = 0; p < _pl->GetLaser().size(); ++p)
-			for (auto& l : _laser)
+			for (int j = 0;j<2;j++)
 			{
-				if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
+				for (auto& l : _laser[j])
 				{
-					auto vec = _enemies[i]->GetInfo()._pos - l.pos;
-					vec.Normalize();
+					if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
+					{
+						auto vec = _enemies[i]->GetInfo()._pos - l.pos;
+						vec.Normalize();
 
-					_enemies[i]->CalEscapeDir(vec);
-					break;
-				}
-				if (_col->CircleToCircle(_pl->GetInfo().center, _pl->GetInfo().r, _enemies[i]->GetInfo()._searchVert))
-				{
-					_enemies[i]->CalTrackVel(_pl->GetInfo().center);
-				}
+						_enemies[i]->CalEscapeDir(vec);
+						break;
+					}
+					if (_col->CircleToCircle(_pl->GetInfo().center, _pl->GetInfo().r, _enemies[i]->GetInfo()._searchVert))
+					{
+						_enemies[i]->CalTrackVel(_pl->GetInfo().center);
+					}
 
+				}
 			}
 
 			/// ﾌﾟﾚｲﾔｰと敵ｼｮｯﾄの当たり判定
@@ -447,92 +450,94 @@ void GameScene::Update(const Input & p)
 			_bosses[0]->CalTrackVel(_pl->GetInfo().center);
 		}
 
-	auto th = [&](std::list<Laser> _laser, Vector2 camera) {
+	auto th = [&](std::array<std::list<Laser>,2> _laser, Vector2 camera) {
 		std::lock_guard<std::mutex> _lock(_mutex);
 		num++;
-		for (auto &l : _laser) {
+		for (int i = 0;i<2;i++)
+		{
+			for (auto &l : _laser[i]) {
 
-			//破壊可能オブジェクト
-			for (auto destroy : _destroyObj) {
+				//破壊可能オブジェクト
+				for (auto destroy : _destroyObj) {
 
-				if (destroy->GetInfo()._pos.x - camera.x <= size.x &&
-					destroy->GetInfo()._pos.y - camera.y <= size.y) {
+					if (destroy->GetInfo()._pos.x - camera.x <= size.x &&
+						destroy->GetInfo()._pos.y - camera.y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - camera.x &&
+						if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - camera.x &&
 
-						destroy->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
+							destroy->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
 
-						_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - camera.y &&
+							_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - camera.y &&
 
-						destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+							destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
 							if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
 							{
 								destroy->Break();
 								l.Hit();
 							}
-					}
-					/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
-
-					}*/
-				}
-
-			}
-
-			//捕食対象
-			for (auto predatry : _predatoryObj) {
-
-				if (predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
-					predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-
-					if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - camera.x &&
-
-						predatry->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
-
-						_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - camera.y &&
-
-						predatry->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
-
-						if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
-						{
-							predatry->Break();
 						}
-
-						if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
-
-							if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
-							{
-								predatry->Predatory();
-							}
-
-						}
-					}
-				}
-			}
-
-			//破壊不可オブジェクト
-			for (auto immortal : _immortalObj) {
-
-				if (immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
-					immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-
-					if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - camera.x &&
-
-						immortal->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right&&
-
-						_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - camera.y &&
-
-						immortal->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
-
-						if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
-						{
-							immortal->Break();
-						}
-						/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
+						/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
 
 						}*/
 					}
 
+				}
+
+				//捕食対象
+				for (auto predatry : _predatoryObj) {
+
+					if (predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
+						predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
+
+						if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - camera.x &&
+
+							predatry->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
+
+							_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - camera.y &&
+
+							predatry->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+
+							if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
+							{
+								predatry->Break();
+							}
+
+							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
+
+								if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
+								{
+									predatry->Predatory();
+								}
+
+							}
+						}
+					}
+				}
+
+				//破壊不可オブジェクト
+				for (auto immortal : _immortalObj) {
+
+					if (immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
+						immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
+
+						if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - camera.x &&
+
+							immortal->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right&&
+
+							_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - camera.y &&
+
+							immortal->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+
+							if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
+							{
+								immortal->Break();
+							}
+							/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
+
+							}*/
+						}
+					}
 				}
 			}
 		}
