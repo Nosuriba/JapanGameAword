@@ -443,9 +443,9 @@ void GameScene::Update(const Input & p)
 		}
 	};
 
-		if (_bosses.size() != 0) {
-			_bosses[0]->CalTrackVel(_pl->GetInfo().center);
-		}
+	if (_bosses.size() != 0) {
+		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
+	}
 
 	auto th = [&](std::list<Laser> _laser, Vector2 camera) {
 		std::lock_guard<std::mutex> _lock(_mutex);
