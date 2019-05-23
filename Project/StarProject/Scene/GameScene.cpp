@@ -47,26 +47,35 @@ void GameScene::LoadResourceUpdate(const Input & p)
 
 void GameScene::FadeIn(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(wait) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (wait >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		waitCnt = 0;
 		_updater = &GameScene::Wait;
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / WAITFRAME);
-	Draw();
 }
 
 void GameScene::FadeOut(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(wait) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (wait >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		(*FadeBubble).Draw();
 		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,totaltime));
 	}
 	else {
 		(*FadeBubble).Create();
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)wait / WAITFRAME);
-		Draw();
 	}
 }
 
@@ -88,6 +97,16 @@ void GameScene::Wait(const Input & p)
 
 void GameScene::Run(const Input & p)
 {
+	_pl->Update(p);
+	for (auto &enemy : _enemies)
+	{
+		enemy->Update();
+	}
+
+	for (auto &boss : _bosses)
+	{
+		boss->Update();
+	}
 	Draw();
 	flame++;
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
@@ -376,19 +395,10 @@ void GameScene::Update(const Input & p)
 
 	auto size = Game::GetInstance().GetScreenSize();
 
-	_pl->Update(p);
+	const auto laser = _pl->GetLaser(); 
+	const auto camera = _camera->CameraCorrection();
 
-	for (auto &enemy : _enemies)
-	{
-		enemy->Update();
-	}
-
-	for (auto &boss : _bosses)
-	{
-		boss->Update();
-	}
-
-	auto _eth = [&]() {
+	auto _eth = [&](std::list<Laser> _laser) {
 		std::lock_guard<std::mutex> _lock(_mutex);
 
 		for (int i = 0; i < _enemies.size(); ++i)
@@ -399,11 +409,10 @@ void GameScene::Update(const Input & p)
 				_enemies.erase(_enemies.begin() + i);
 				continue;
 			}
-
-			auto laser = _pl->GetLaser();
+;
 			/// ﾌﾟﾚｲﾔｰｼｮｯﾄと敵の当たり判定
 			//for (int p = 0; p < _pl->GetLaser().size(); ++p)
-			for (auto& l : laser)
+			for (auto& l : _laser)
 			{
 				if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
 				{
@@ -413,8 +422,11 @@ void GameScene::Update(const Input & p)
 					_enemies[i]->CalEscapeDir(vec);
 					break;
 				}
-
-				_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));
+				if (_col->CircleToCircle(_pl->GetInfo().center, _pl->GetInfo().r, _enemies[i]->GetInfo()._searchVert))
+				{
+					_enemies[i]->CalTrackVel(_pl->GetInfo().center);
+				}
+			
 			}
 
 			/// ﾌﾟﾚｲﾔｰと敵ｼｮｯﾄの当たり判定
@@ -430,31 +442,30 @@ void GameScene::Update(const Input & p)
 		if (_bosses.size() != 0) {
 			_bosses[0]->CalTrackVel(_pl->GetInfo().center);
 		}
-	};
-	
-	auto th = [&]() {
+
+	auto th = [&](std::list<Laser> _laser, Vector2 camera) {
 		std::lock_guard<std::mutex> _lock(_mutex);
-		auto laser = _pl->GetLaser();
 		num++;
-		for (auto &l : laser) {
+		for (auto &l : _laser) {
 
 			//破壊可能オブジェクト
 			for (auto destroy : _destroyObj) {
 
-				if (destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
-					destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
+				if (destroy->GetInfo()._pos.x - camera.x <= size.x &&
+					destroy->GetInfo()._pos.y - camera.y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - _camera->CameraCorrection().x &&
+					if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - camera.x &&
 
-						destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= _cutAreaScreen[num % 4].right &&
+						destroy->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
 
-						_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - _camera->CameraCorrection().y &&
+						_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - camera.y &&
 
-						destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= _cutAreaScreen[num % 4].bottom) {
+						destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+
 							if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
 							{
 								destroy->Break();
-								l.Hit();
+								//l.Hit();
 							}
 					}
 					/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
@@ -470,13 +481,13 @@ void GameScene::Update(const Input & p)
 				if (predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
 					predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - _camera->CameraCorrection().x &&
+					if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - camera.x &&
 
-						predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= _cutAreaScreen[num % 4].right &&
+						predatry->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
 
-						_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - _camera->CameraCorrection().y &&
+						_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - camera.y &&
 
-						predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= _cutAreaScreen[num % 4].bottom) {
+						predatry->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
 						if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
 						{
@@ -501,13 +512,13 @@ void GameScene::Update(const Input & p)
 				if (immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
 					immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - _camera->CameraCorrection().x &&
+					if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - camera.x &&
 
-						immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= _cutAreaScreen[num % 4].right&&
+						immortal->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right&&
 
-						_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - _camera->CameraCorrection().y &&
+						_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - camera.y &&
 
-						immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= _cutAreaScreen[num % 4].bottom) {
+						immortal->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
 						if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
 						{
@@ -547,7 +558,7 @@ void GameScene::Update(const Input & p)
 	
 	if (!_cutCol.joinable()) {
 		
-		_cutCol = std::thread(th);
+		_cutCol = std::thread(th, std::ref(laser), std::ref(camera));
 	}
 	else {
 		_cutCol.join();
@@ -555,7 +566,7 @@ void GameScene::Update(const Input & p)
 
 	if (!__eneCol.joinable()) {
 
-		__eneCol = std::thread(_eth);
+		__eneCol = std::thread(_eth, std::ref(laser));
 	}
 	else {
 		__eneCol.join();

@@ -6,26 +6,34 @@
 
 void ResultScene::FadeIn(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(flame) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (flame >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &ResultScene::Wait;
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / WAITFRAME);
-	Draw();
-
 }
 
 void ResultScene::FadeOut(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(flame) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (flame >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		(*FadeBubble).Draw();
 		Game::GetInstance().ChangeScene(new TitleScene());
 	}
 	else {
 		(*FadeBubble).Create();
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / WAITFRAME);
-		Draw();
 	}
 }
 
@@ -74,12 +82,11 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	ResultCnt = 0;
 
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::enemy]		= 6)*100;
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::bite]		= 3)*100;
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::breakobj]	= 20)*10;
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::time]		= time)*1000;
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::blank]		= 0);
-
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::enemy]		= enemy		)*100;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::bite]		= bite		)*100;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::breakobj]	= breakobj	)*10;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::time]		= time		)*1000;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::blank]		= 0			);
 }
 
 ResultScene::~ResultScene()
@@ -90,6 +97,8 @@ void ResultScene::Update(const Input & p)
 {
 	flame++;
 	(this->*_updater)(p);
+
+	(*FadeBubble).Draw();
 }
 
 void ResultScene::Draw()
@@ -136,8 +145,6 @@ void ResultScene::Draw()
 		}
 	}
 
-	(*FadeBubble).Draw();
-
 	if (isEnd)
 	{
 		SetFontSize(192);
@@ -145,7 +152,7 @@ void ResultScene::Draw()
 		DrawString((size.x + (float)(GetFontSize()*3.6f)) /2, (size.y - (float)(GetFontSize())) / 10*7.35f,s[ResultData[0][(int)R_Data::total]/20000].c_str(), 0xff3333);
 		DrawBox(0, size.y / 10*8.5f, size.x, size.y, 0x000000, true);
 		ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, palam<(abs(ResultCnt % 512-255))?palam : (abs(ResultCnt % 512 - 255)));
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, /*palam<(abs(ResultCnt % 512-255))?palam :*/ (abs(ResultCnt % 512 - 255)));
 		SetFontSize(96);
 		DrawString((size.x - (float)(GetFontSize()) *3.f) / 2.0f, size.y / 10 * 8.7f, "A", 0x33ff33);
 		SetFontSize(64);

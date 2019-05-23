@@ -39,6 +39,6 @@ public:
 	shot_vector GetShotInfo();
 	void CalEscapeDir(const Vector2& vec);
 	void ShotDelete(const int& num);
-	void CalTrackVel(const Vector2& pos, bool col);
+	void CalTrackVel(const Vector2& pos);
 };
 

@@ -1,4 +1,5 @@
 #include "Collision.h"
+#include <cmath>
 
 Vector2 Collision::Sub_Calculation(const Vector2 & posA, const Vector2 & posB)
 {
@@ -182,5 +183,21 @@ bool Collision::CircleToSqr(const Position2 & _posA, const float& _r, const Rect
 	if (termA || termB || termC || termD || termE || termF) {
 		return true;
 	}
+	return false;
+}
+
+bool Collision::CircleToCircle(const Position2 & _posA, const float & _rA, const std::array<Vector2, 3>& _tri)
+{
+	//三角形の中心点
+	auto _posB = (_tri[0] + _tri[1] + _tri[2]) / 3;
+
+	auto vecA = _posA - _posB;
+
+	auto _rB = _tri[0] - _posB;
+
+	if (vecA.Magnitude() <= _rA + _rB.Magnitude()) {
+		return true;
+	}
+
 	return false;
 }

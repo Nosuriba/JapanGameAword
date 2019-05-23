@@ -7,25 +7,34 @@
 
 void TitleScene::FadeIn(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(flame) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (flame >= WAITFRAME) {
-		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		_updater = &TitleScene::Wait;
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / WAITFRAME);
-	Draw();
 }
 
 void TitleScene::FadeOut(const Input & p)
 {
-	if (flame >= WAITFRAME) {
-		//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		(*FadeBubble).Draw();
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(flame) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	if (flame > WAITFRAME) {
 		Game::GetInstance().ChangeScene(new SelectScene());
 	}
 	else {
 		(*FadeBubble).Create();
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / WAITFRAME);
-		Draw();
 	}
 }
 
@@ -38,6 +47,7 @@ void TitleScene::Wait(const Input & p)
 void TitleScene::Run(const Input & p)
 {
 	Draw();
+
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		if (!CheckHandleASyncLoad(se))
 		{
@@ -84,6 +94,8 @@ void TitleScene::Update(const Input & p)
 	flame++;
 	colorflame += blendcolor * 3;
 	(this->*_updater)(p);
+
+	(*FadeBubble).Draw();
 }
 
 void TitleScene::Draw()
@@ -108,6 +120,4 @@ void TitleScene::Draw()
 	DrawString((size.x - (float)(GetFontSize()) * 9) / 2.0f, size.y / 2 + GetFontSize() * 2, "PRESS A BUTTON",0xffffff);
 	DrawString((size.x - (float)(GetFontSize()) ) / 2.0f, size.y / 2 + GetFontSize() * 2, "A", 0x30ff30);
 	SetDrawBlendMode(mode, palam);
-
-	(*FadeBubble).Draw();
 }
