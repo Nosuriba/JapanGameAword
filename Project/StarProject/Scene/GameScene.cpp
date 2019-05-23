@@ -409,7 +409,7 @@ void GameScene::Update(const Input & p)
 				_enemies.erase(_enemies.begin() + i);
 				continue;
 			}
-;
+			
 			/// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
 			//for (int p = 0; p < _pl->GetLaser().size(); ++p)
 			for (auto& l : _laser)
@@ -426,7 +426,7 @@ void GameScene::Update(const Input & p)
 				{
 					_enemies[i]->CalTrackVel(_pl->GetInfo().center);
 				}
-			
+
 			}
 
 			/// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
@@ -438,6 +438,7 @@ void GameScene::Update(const Input & p)
 				}
 			}
 		}
+	};
 
 		if (_bosses.size() != 0) {
 			_bosses[0]->CalTrackVel(_pl->GetInfo().center);
