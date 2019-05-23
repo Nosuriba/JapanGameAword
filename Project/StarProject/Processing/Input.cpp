@@ -86,6 +86,14 @@ const int Input::TriggerTrigger(TRIGGER t) const
 	return 0;
 }
 
+const bool Input::ReleaseTrigger(TRIGGER t) const
+{
+	if (t == TRIGGER::LEFT && _old.LeftTrigger > 0 && _input.LeftTrigger == 0) return true;
+	if (t == TRIGGER::RIGHT && _old.RightTrigger > 0 && _input.RightTrigger == 0) return true;
+
+	return false;
+}
+
 const Vector2 Input::Stick(STICK s) const
 {
 	if (s == STICK::LEFT)return Vector2(_input.ThumbLX / 10000, -_input.ThumbLY / 10000);
