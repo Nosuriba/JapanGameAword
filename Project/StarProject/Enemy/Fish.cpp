@@ -7,6 +7,7 @@ const Size eSize = Size(90, 50);
 const int distance = 150;		// 探知できる距離
 const int deg	   = 30;		// ﾌﾟﾚｲﾔｰを探知する方向を求めるための角度
 const int points   = 10;		// 制御点の個数
+const int trackCnt = 5;
 const float maxVel = 2.f;		// 制御点の最大速度
 
 Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
@@ -58,7 +59,7 @@ void Fish::Swim()
 
 void Fish::Track()
 {
-	_updater == &Fish::TrackUpdate;
+	_updater = &Fish::TrackUpdate;
 }
 
 void Fish::Escape()
@@ -89,7 +90,12 @@ void Fish::SwimUpdate()
 
 void Fish::TrackUpdate()
 {
-
+	trackTime--;
+	if (trackTime < 0)
+	{
+		Swim();
+		_vel.y = 0;
+	}
 }
 
 void Fish::EscapeUpdate()
@@ -295,18 +301,15 @@ void Fish::CalTrackVel(const Vector2 & pos)
 {
 	if (_updater != &Fish::EscapeUpdate && !enemy._dieFlag)
 	{
-		//if (col)
-		//{
-		//	// 見つかった時
-		//	auto vec = pos - enemy._pos;
-		//	vec.Normalize();
-		//	_vel = Vector2(maxSpeed * vec.x, maxSpeed * vec.y);
-		//}
-		//else
-		//{
-		//	/// 見つかっていないとき
-		//	_vel.x = (_turnFlag ? maxSpeed : -maxSpeed);
-		//	_vel.y = 0;
-		//}
+		trackTime = trackCnt;
+		auto vec = pos - enemy._pos;
+		vec.Normalize();
+		_vel = Vector2(maxSpeed * vec.x, maxSpeed * vec.y);
+
+		/// 追従状態でない時に、状態遷移する
+		if (_updater != &Fish::TrackUpdate)
+		{
+			Track();
+		}
 	}
 }

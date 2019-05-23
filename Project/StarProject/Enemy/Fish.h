@@ -28,6 +28,8 @@ private:
 	std::vector<CtlInfo> cPoints;			// ÍŞ¼Şª‹Èü‚Ì§Œä“_
 
 	Rect searchRect;			// ’T’m‚Å‚«‚é”ÍˆÍ
+
+	int trackTime;				// ’Ç]‚·‚éŠÔ
 public:
 	Fish(std::shared_ptr<Camera>& camera);
 	~Fish();
