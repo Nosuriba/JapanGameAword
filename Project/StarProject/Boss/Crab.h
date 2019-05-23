@@ -64,9 +64,10 @@ private:
 public:
 	Crab(std::shared_ptr<Camera>& camera);
 	~Crab();
+	BossInfo GetInfo();
+	void CalTrackVel(const Vector2& pos);
 	void Draw();
 	void DebugDraw(const Vector2& camera);
 	void Update();
-	BossInfo GetInfo();
-	void CalTrackVel(const Vector2& pos);
+	
 };
