@@ -86,12 +86,16 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 				
-				_laser.emplace_back(LEG(i).pos, v.Normalized());
+				_laser[0].emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[0]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
 				_particle[0]->Create();
 
+			}
+			else if (in.ReleaseTrigger(TRIGGER::LEFT))
+			{
+				_laser[0].emplace_back(LEG(i).pos, v.Normalized(),true);
 			}
 			if (in.Push(BUTTON::LB))
 			{
@@ -112,12 +116,16 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 
-				_laser.emplace_back(LEG(i).pos, v.Normalized());
+				_laser[1].emplace_back(LEG(i).pos, v.Normalized());
 
 				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[1]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
 				_particle[1]->Create();
 
+			}
+			else if (in.ReleaseTrigger(TRIGGER::LEFT))
+			{
+				_laser[1].emplace_back(LEG(i).pos, v.Normalized(), true);
 			}
 			if (in.Push(BUTTON::RB))
 			{
@@ -281,14 +289,16 @@ Player::~Player()
 void Player::Update(const Input& in)
 {
 	GetHitKeyStateAll(Buf);
-
-	for (auto& l : _laser)
+	for (int i=0;i<2;i++)
 	{
-		l.pos += l.vel;
-		l.vel += l.vel.Normalized();
-		++l.count;
+		for (auto& l : _laser[i])
+		{
+			l.pos += l.vel;
+			l.vel += l.vel.Normalized();
+			++l.count;
+		}
+		_laser[i].remove_if([](Laser l) { return l.count > 75 || l.isHit; });
 	}
-	_laser.remove_if([](Laser l) { return l.count > 75 || l.isHit; });
 
 	(this->*_updater)(in);
 
@@ -341,11 +351,19 @@ void Player::Draw()
 		if (select_idx[i] != -1)
 			DrawRectRotaGraph
 			(LEG(select_idx[i]).tip.x - c.x, LEG(select_idx[i]).tip.y - c.y, 22 * i, 0, 22, 55, 0.5f, 0, _img_TRIGGER, true);
-	for (auto& l : _laser)
+	for (int i = 0; i < 2; i++)
 	{
-		auto start = l.pos - c;
-		auto end = l.pos + (l.vel.Normalized() * l.size) - c;
-		DrawLine(start.x, start.y, end.x, end.y, 0x000000, 10);
+		for (auto l = _laser[i].begin();l!= _laser[i].end();l++)
+		{
+			auto start = (*l).pos - c;
+			auto end = (*l).pos + ((*l).vel.Normalized() * (*l).size) - c;
+
+			auto s = (*l).pos - c;
+			auto e = ((++l != _laser[i].end()) ? (*l).pos : (*--l).pos) - c;
+
+			DrawLine(start.x, start.y, end.x, end.y, 0x000000, 10);
+			DrawLine(s.x, s.y, e.x, e.y, 0x000000, 10);
+		}
 	}
 	for (auto& p : _particle)
 		p->Draw();
@@ -433,7 +451,7 @@ const std::vector<Vector2> Player::GetShot()
 	return v;
 }
 
-const std::list<Laser> Player::GetLaser()
+const std::array<std::list<Laser>,2> Player::GetLaser()
 {
 	return _laser;
 }
