@@ -82,12 +82,11 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	ResultCnt = 0;
 
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::enemy]		= 6)*100;
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::bite]		= 3)*100;
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::breakobj]	= 20)*10;
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::time]		= time)*1000;
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::blank]		= 0);
-
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::enemy]		= enemy		)*100;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::bite]		= bite		)*100;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::breakobj]	= breakobj	)*10;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::time]		= time		)*1000;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::blank]		= 0			);
 }
 
 ResultScene::~ResultScene()
