@@ -415,13 +415,15 @@ void GameScene::Update(const Input & p)
 			
 			/// ﾌﾟﾚｲﾔｰｼｮｯﾄと敵の当たり判定
 			//for (int p = 0; p < _pl->GetLaser().size(); ++p)
-			for (int j = 0;j<2;j++)
+			for (int num = 0;num<2;num++)
 			{
-				for (auto& l : _laser[j])
+				for (auto l = _laser[num].begin();l!= _laser[num].end(); l++)
 				{
-					if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
+					if (_col->WaterToSqr((*l).pos,
+						(*l).isEnd ? (*l).pos : ((++l != _laser[num].end()) ? (*l--).pos : (*--l).pos),
+						_enemies[i]->GetInfo()._rect))
 					{
-						auto vec = _enemies[i]->GetInfo()._pos - l.pos;
+						auto vec = _enemies[i]->GetInfo()._pos - (*l).pos;
 						vec.Normalize();
 
 						_enemies[i]->CalEscapeDir(vec);
@@ -455,7 +457,7 @@ void GameScene::Update(const Input & p)
 		num++;
 		for (int i = 0;i<2;i++)
 		{
-			for (auto &l : _laser[i]) {
+			for (auto l = _laser[i].begin(); l != _laser[i].end();l++) {
 
 				//破壊可能オブジェクト
 				for (auto destroy : _destroyObj) {
@@ -471,10 +473,14 @@ void GameScene::Update(const Input & p)
 
 							destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
-							if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
+							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
+
+							if (_col->WaterToSqr((*l).pos,
+								e,(e - (*l).pos).Magnitude(),
+								destroy->GetInfo()._rect))
 							{
 								destroy->Break();
-								l.Hit();
+								//(*l).Hit();
 							}
 						}
 						/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
@@ -498,7 +504,10 @@ void GameScene::Update(const Input & p)
 
 							predatry->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
-							if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
+							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
+							if (_col->WaterToSqr((*l).pos,
+								e, (e - (*l).pos).Magnitude(),
+								predatry->GetInfo()._rect))
 							{
 								predatry->Break();
 							}
@@ -529,7 +538,11 @@ void GameScene::Update(const Input & p)
 
 							immortal->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
-							if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
+							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
+
+							if (_col->WaterToSqr((*l).pos,
+								e, (e - (*l).pos).Magnitude(),
+								immortal->GetInfo()._rect))
 							{
 								immortal->Break();
 							}
@@ -581,7 +594,7 @@ void GameScene::Update(const Input & p)
 		__eneCol.join();
 	}
 
-	totaltime = time - (flame / 60);
+	totaltime/* = time - (flame / 60)*/;
 
 	_camera->Update(_pl->GetInfo().center);
 

@@ -380,7 +380,7 @@ void Player::Draw()
 			auto s = (*l).pos - c;
 			auto e = (*l).isEnd?s:((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos)-c;
 
-			DrawLine(s.x, s.y, e.x, e.y, 0xaaaaff, (*l).size);
+			DrawLine(s.x, s.y, e.x, e.y, 0x3333ff, (*l).size);
 		}
 	}
 	for (auto& p : _particle)
