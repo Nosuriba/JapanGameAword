@@ -28,6 +28,10 @@ class Crab :
 	public Boss
 {
 private:
+	void BodyInit();
+	void LegInit();
+	void ArmInit();
+
 	void Neutral();
 	void Fist();
 	void Shot();
@@ -43,6 +47,8 @@ private:
 	void MoveLeg();		// 制御点の移動
 	void MoveJoint();	// 関節の移動
 
+	bool StopCheck(const Vector2& sPos, const Vector2& ePos, const Vector2& vel);
+
 	// 外積の計算
 	Vector3 Cross(const Vector3& va, const Vector3& vb)
 	{
@@ -55,8 +61,13 @@ private:
 
 	std::shared_ptr<Camera>& _camera;
 	AtkType _type;
-	Vector2 _plPos;			// ﾌﾟﾚｲﾔｰの座標保存用
-	Vector2 _preCtl;		// 移動前の制御点
+	Vector2 _plPos;						// ﾌﾟﾚｲﾔｰの座標保存用
+	Vector2 _armPrePos;					// 腕の移動前の制御点座標
+
+	std::vector<sqr_vert> _scissors;	// はさみの爪の数(描画用)
+	std::vector<Vector2> _scisCenter;	// はさみの中心点(当たり判定で使うかも)
+	std::vector<Vector2> _legMovePos;	// 脚の移動先の制御点座標
+	std::vector<Vector2> _legPrePos;	// 脚の移動前の制御点座標
 
 	int atkInvCnt;			// 攻撃するまでの間隔
 

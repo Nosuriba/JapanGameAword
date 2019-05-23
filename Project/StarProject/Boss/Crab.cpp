@@ -12,16 +12,34 @@ const int length    = 100;
 const int aLength	= length + 60;
 const int typeMax   = static_cast<int>(AtkType::MAX);
 const int atkCnt	= 60;
-const Size eSize    = Size(250, 150);
-const Size lSize    = Size(length, 20);
+const Size eSize    = Size(250, 150);			// äIÇÃëÂÇ´Ç≥
+const Size lSize    = Size(length, 20);			// ãrÇÃëÂÇ´Ç≥
+const Size scisSize = Size(length / 2, 10);		// ÇÕÇ≥Ç›ÇÃëÂÇ´Ç≥				
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
-	_plPos	  = Vector2();
-	_preCtl	  = Vector2();
-	atkInvCnt = atkCnt;
-	_type	  = AtkType::NORMAL;
+	_plPos	   = Vector2();
+	_armPrePos = Vector2();
+	atkInvCnt  = atkCnt;
+	_type	   = AtkType::NORMAL;
 
+	/// äIÇÃèâä˙âª
+	BodyInit();
+	LegInit();
+	ArmInit();
+	
+	/// ä÷êﬂÇÃèâä˙âª
+	MoveJoint();
+	CalVert();
+	Neutral();
+}
+
+Crab::~Crab()
+{
+}
+
+void Crab::BodyInit()
+{
 	/// äIñ{ëÃÇÃèâä˙âª
 	boss._crab._pos = Vector2(center.x, 700);
 	boss._crab._size = eSize;
@@ -32,41 +50,53 @@ Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 
 		boss._crab._vert[i] = boss._crab._pos + Vector2(posX, posY);
 	}
-		
+}
+
+void Crab::LegInit()
+{
 	/// ãrÇÃèâä˙âª
 	boss._crab._legs.resize(8);
 	auto leg = boss._crab._legs.begin();
 	for (; leg != boss._crab._legs.end(); ++leg)
 	{
+		_legPrePos.push_back(Vector2());
+		_legMovePos.push_back(Vector2());
+
 		auto cnt = leg - boss._crab._legs.begin();
 		if (!(cnt / (boss._crab._legs.size() / 2)))
 		{
 			/// âEë´
-			auto pos = Vector2(boss._crab._pos.x + eSize.width  / 2, 
-							   boss._crab._pos.y - eSize.height / 3 - lSize.height / 2);
-			(*leg)._sPoint	 = pos + Vector2(0, (cnt * (lSize.height * 2)));
-			(*leg)._mPoint	 = (*leg)._sPoint + Vector2(length, 0);
-			(*leg)._ePoint	 = (*leg)._mPoint + Vector2(length, 0);
+			auto pos = Vector2(boss._crab._pos.x + eSize.width / 2,
+				boss._crab._pos.y - eSize.height / 3 - lSize.height / 2);
+			(*leg)._sPoint = pos + Vector2(0, (cnt * (lSize.height * 2)));
+			(*leg)._mPoint = (*leg)._sPoint + Vector2(length, 0);
+			(*leg)._ePoint = (*leg)._mPoint + Vector2(length, 0);
 			(*leg)._ctlPoint = (*leg)._ePoint - Vector2(length / 2, 0);
 
-			(*leg)._vel = Vector2(lVel.x, lVel.y);
+			(*leg)._vel = Vector2();
 		}
 		else
 		{
 			/// ç∂ë´
-			auto pos = Vector2(boss._crab._pos.x - eSize.width  / 2,
-							   boss._crab._pos.y - eSize.height / 3 - lSize.height / 2);
-			(*leg)._sPoint	 = pos + Vector2(0, (cnt % (boss._crab._legs.size() / 2)) * (lSize.height * 2));
-			(*leg)._mPoint	 = (*leg)._sPoint - Vector2(length, 0);
-			(*leg)._ePoint	 = (*leg)._mPoint - Vector2(length, 0);
-			(*leg)._ctlPoint = (*leg)._ePoint + Vector2(length, 0);
+			auto pos = Vector2(boss._crab._pos.x - eSize.width / 2,
+				boss._crab._pos.y - eSize.height / 3 - lSize.height / 2);
+			(*leg)._sPoint = pos + Vector2(0, (cnt % (boss._crab._legs.size() / 2)) * (lSize.height * 2));
+			(*leg)._mPoint = (*leg)._sPoint - Vector2(length, 0);
+			(*leg)._ePoint = (*leg)._mPoint - Vector2(length, 0);
+			(*leg)._ctlPoint = (*leg)._ePoint + Vector2(length / 2, 0);
 
-			(*leg)._vel = Vector2(lVel.x, -lVel.y);
+			(*leg)._vel = Vector2();
 		}
 	}
+}
 
+void Crab::ArmInit()
+{
 	/// òrÇÃèâä˙âª
 	boss._crab._arms.resize(2);
+	/// ÇÕÇ≥Ç›ÇÃèâä˙âª
+	_scisCenter.resize(boss._crab._arms.size());
+	_scissors.resize(boss._crab._arms.size() * 2);
 	auto arm = boss._crab._arms.begin();
 	for (; arm != boss._crab._arms.end(); ++arm)
 	{
@@ -75,34 +105,25 @@ Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 		{
 			/// âEòr
 			auto pos = Vector2(boss._crab._pos.x + eSize.width / 5,
-							   boss._crab._pos.y - eSize.height / 2);
-			(*arm)._sPoint   = pos;
-			(*arm)._mPoint   = (*arm)._sPoint - Vector2(0, aLength);
-			(*arm)._ePoint   = (*arm)._mPoint - Vector2(0, aLength);
+				boss._crab._pos.y - eSize.height / 2);
+			(*arm)._sPoint = pos;
+			(*arm)._mPoint = (*arm)._sPoint - Vector2(0, aLength);
+			(*arm)._ePoint = (*arm)._mPoint - Vector2(0, aLength);
 			(*arm)._ctlPoint = (*arm)._ePoint + Vector2(0, aLength);
-			(*arm)._vel		 = Vector2();
+			(*arm)._vel = Vector2();
 		}
 		else
 		{
 			/// ç∂òr
 			auto pos = Vector2(boss._crab._pos.x - eSize.width / 5,
-							   boss._crab._pos.y - eSize.height / 2);
-			(*arm)._sPoint   = pos;
-			(*arm)._mPoint   = (*arm)._sPoint - Vector2(0, aLength);
-			(*arm)._ePoint   = (*arm)._mPoint - Vector2(0, aLength);
+				boss._crab._pos.y - eSize.height / 2);
+			(*arm)._sPoint = pos;
+			(*arm)._mPoint = (*arm)._sPoint - Vector2(0, aLength);
+			(*arm)._ePoint = (*arm)._mPoint - Vector2(0, aLength);
 			(*arm)._ctlPoint = (*arm)._ePoint + Vector2(0, aLength);
-			(*arm)._vel		 = Vector2();
+			(*arm)._vel = Vector2();
 		}
 	}
-	/// ä÷êﬂÇÃèâä˙âª
-	MoveJoint();
-	CalVert();
-
-	Neutral();
-}
-
-Crab::~Crab()
-{
 }
 
 void Crab::Neutral()
@@ -148,15 +169,14 @@ void Crab::FistUpdate()
 		/// òrÇà¯Ç´ñﬂÇ∑éû
 		for (auto& arm : boss._crab._arms)
 		{
-			auto d = abs((arm._ctlPoint.x - _preCtl.x) + (arm._ctlPoint.y - _preCtl.y));
-			if (d <= ctlDistance && arm._vel.x != 0)
+			if (StopCheck(arm._ctlPoint, _armPrePos, arm._vel) && arm._vel.x != 0)
 			{
 				Neutral();
-				_preCtl  = Vector2();
-				arm._vel = Vector2();
-				atkInvCnt = atkCnt;
+				_armPrePos = Vector2();
+				arm._vel   = Vector2();
+				atkInvCnt  = atkCnt;
 				break;
-			}	
+			}
 		}
 	}
 	else
@@ -164,16 +184,15 @@ void Crab::FistUpdate()
 		/// òrÇêLÇŒÇ∑éû
 		for (auto& arm : boss._crab._arms)
 		{
-			
-			auto d = abs((arm._ctlPoint.x - _preCtl.x) + (arm._ctlPoint.y - _preCtl.y));
-
-			if (d >= ctlDistance && arm._vel.x != 0)
+       			auto d = abs((_armPrePos.x - arm._ctlPoint.x) + (_armPrePos.y - arm._ctlPoint.y));
+			if ((StopCheck(arm._ctlPoint, _plPos, arm._vel) || (d > aLength)) 
+				&& arm._vel.x != 0)
 			{
-				auto vec = _preCtl - arm._ctlPoint;
+				auto vec = _armPrePos - arm._ctlPoint;
 				vec.Normalize();
 				arm._vel = Vector2(fVel.x * vec.x, fVel.y * vec.y);
-				ctlDistance /= 3;
-				_type = AtkType::NORMAL;
+				_plPos	 = Vector2();
+				_type	 = AtkType::NORMAL;
 		
 			}
 		}
@@ -250,6 +269,42 @@ void Crab::CalVert()
 			arm._vert[1][p] = (p == 0 || p == 3 ? arm._mPoint : arm._ePoint) + sizePos;
 		}
 	}
+
+	/// ÇÕÇ≥Ç›ÇÃãÈå`ê›íË
+	auto scissor = _scissors.begin();
+	auto armCnt = boss._crab._arms.size();
+	for (; scissor != _scissors.end(); ++scissor)
+	{
+		auto sCnt = scissor - _scissors.begin();		// í‹ÇÃêî
+		auto vert = _scissors[0].begin();
+		for (; vert != _scissors[0].end(); ++vert)
+		{
+			auto vCnt = vert - _scissors[0].begin();	// í∏ì_ÇÃêî
+
+
+			/// énì_ê›íË
+			auto sPos = (vCnt / 2 ? boss._crab._arms[sCnt / armCnt]._vert[1][3]
+								  : boss._crab._arms[sCnt / armCnt]._vert[1][3]);
+
+			theta = atan2f(boss._crab._arms[sCnt / armCnt]._ePoint.y - boss._crab._arms[sCnt / armCnt]._mPoint.y,
+						   boss._crab._arms[sCnt / armCnt]._ePoint.x - boss._crab._arms[sCnt / armCnt]._mPoint.x);
+
+			cost = cos(theta + DX_PI / 2);
+			sint = sin(theta + DX_PI / 2);
+
+			/// ãÈå`ê›íË
+			size.x = cost * (scisSize.height / 2);
+			size.y = sint * (scisSize.height / 2);
+			sizePos = ((vCnt % 2) ? size : -size);
+
+			/// êÊí[ÇÃãóó£ê›íË
+			auto lengPos = (vCnt == 1 || vCnt == 2 ? Vector2(scisSize.width * cost, scisSize.height * sint)
+												   : Vector2());
+
+			(*vert) = sPos + sizePos + lengPos;
+		}
+		
+	}
 }
 
 void Crab::Rotation()
@@ -268,12 +323,24 @@ void Crab::Rotation()
 	}
 
 	/// ãrÇÃâÒì]
-	for (auto& leg : boss._crab._legs)
+	auto leg = boss._crab._legs.begin();
+	for (; leg != boss._crab._legs.end(); ++leg)
 	{
-		leg._sPoint = VTransform(leg._sPoint.V_Cast(), mat);
-		leg._mPoint = VTransform(leg._mPoint.V_Cast(), mat);
-		leg._ePoint = VTransform(leg._ePoint.V_Cast(), mat);
-		leg._ctlPoint = VTransform(leg._ctlPoint.V_Cast(), mat);
+		auto cnt = leg - boss._crab._legs.begin();
+		(*leg)._sPoint = VTransform((*leg)._sPoint.V_Cast(), mat);
+		(*leg)._mPoint = VTransform((*leg)._mPoint.V_Cast(), mat);
+		(*leg)._ePoint = VTransform((*leg)._ePoint.V_Cast(), mat);
+		(*leg)._ctlPoint = VTransform((*leg)._ctlPoint.V_Cast(), mat);
+
+		if (_legMovePos[cnt].x != 0)
+		{
+			_legMovePos[cnt] = VTransform(_legMovePos[cnt].V_Cast(), mat);
+		}
+		
+		if (_legPrePos[cnt].x != 0)
+		{
+			_legPrePos[cnt] = VTransform(_legPrePos[cnt].V_Cast(), mat);
+		}
 	}
 
 	/// òrÇÃâÒì]
@@ -284,70 +351,112 @@ void Crab::Rotation()
 		arm._ePoint = VTransform(arm._ePoint.V_Cast(), mat);
 		arm._ctlPoint = VTransform(arm._ctlPoint.V_Cast(), mat);
 	}
-	_preCtl = VTransform(_preCtl.V_Cast(), mat);
+	_armPrePos = VTransform(_armPrePos.V_Cast(), mat);
 }
 
 void Crab::MoveLeg()
 {
-	/// äIñ{ëÃÇÃç∂í[Ç∆âEí[ÇÃí∏ì_Ç©ÇÁï˚å¸ÉxÉNÉgÉãÇéÊìæÇµÇƒÇ¢ÇÈ
-	auto vec = boss._crab._vert[1] - boss._crab._vert[0];
-	vec.Normalize();
+	Vector2 vec;		// à⁄ìÆÇ∑ÇÈï˚å¸ÇÃÕﬁ∏ƒŸéÊìæóp
+
+	/// äIñ{ëÃÇÃç∂í∏ì_Ç©ÇÁâEí∏ì_ÇÃï˚å¸Õﬁ∏ƒŸ(âEãróp)
+	auto rightVec = boss._crab._vert[1] - boss._crab._vert[0];
+	/// äIñ{ëÃÇÃâEí∏ì_Ç©ÇÁç∂í∏ì_ÇÃï˚å¸Õﬁ∏ƒŸ(ç∂ãróp)
+	auto leftVec = boss._crab._vert[0] - boss._crab._vert[1];
+	rightVec.Normalize();
+	leftVec.Normalize();
 	
 	auto leg = boss._crab._legs.begin();
 	for (; leg != boss._crab._legs.end(); ++leg)
 	{
 		auto cnt = leg - boss._crab._legs.begin();
-
-		auto d = Vector2(abs((*leg)._ePoint.x - (*leg)._sPoint.x),
-						 abs((*leg)._ePoint.y - (*leg)._sPoint.y));
 		if (!(cnt / (boss._crab._legs.size() / 2)))
 		{
-			/// âEãrÇÃìÆÇ´
-			if ((*leg)._vel.x > 0)
+			/// âEë´ÇÃìÆÇ´(New)
+			if (_legMovePos[cnt].x == 0 && _legPrePos[cnt].x == 0)
 			{
-				(*leg)._liftVel = ((*leg)._liftVel == 0 ? GetRand(3) * 0.2f : (*leg)._liftVel);
-				(*leg)._vel.x = (d.x > length + (length / 2) ? -(*leg)._vel.x : (*leg)._vel.x);
-			}
-			else
-			{
-				(*leg)._liftVel = 0;
-				(*leg)._vel.x = (d.x < length - (length / 2) ? -(*leg)._vel.x : (*leg)._vel.x);
+				_legMovePos[cnt] = (*leg)._ePoint + Vector2((length / 2) * rightVec.x, (length / 2) * rightVec.y);
+				_legPrePos[cnt] = (*leg)._ctlPoint;
+
+				(*leg)._vel = Vector2(lVel.x * rightVec.x, lVel.y * rightVec.y);
 			}
 
-			if ((*leg)._vel.y > 0)
+			if (_legMovePos[cnt].x != 0)
 			{
-				(*leg)._vel.y = (d.y > length + (length / 2) ? -(*leg)._vel.y : (*leg)._vel.y);
+				/// ë´ÇêLÇŒÇ∑
+				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
+				{
+					_legMovePos[cnt] = Vector2();
+					_legPrePos[cnt] = (*leg)._ctlPoint + Vector2(length * -rightVec.x, length * -rightVec.y);
+					(*leg)._vel = -(*leg)._vel;
+				}
+				else
+				{
+					vec = _legMovePos[cnt] - (*leg)._ctlPoint;
+					vec.Normalize();
+					(*leg)._vel = Vector2(lVel.x * vec.x, lVel.y * vec.y);
+				}
 			}
 			else
 			{
-				(*leg)._vel.y = (d.y < length - (length / 2) ? -(*leg)._vel.y : (*leg)._vel.y);
+				/// ë´ÇñﬂÇ∑
+				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
+				{
+					_legPrePos[cnt] = Vector2();
+					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * rightVec.x, length * rightVec.y);
+					(*leg)._vel = Vector2(lVel.x * rightVec.x, lVel.y * rightVec.y);
+				}
+				else
+				{
+					vec = _legPrePos[cnt] - (*leg)._ctlPoint;
+					vec.Normalize();
+					(*leg)._vel = Vector2(lVel.x * vec.x, lVel.y * vec.y);
+				}
 			}
 		}
 		else
 		{
-			/// ç∂ãrÇÃìÆÇ´
-			if ((*leg)._vel.x > 0)
+			if (_legMovePos[cnt].x == 0 && _legPrePos[cnt].x == 0)
 			{
-				(*leg)._liftVel = 0;
-				(*leg)._vel.x = (d.x < length - (length / 2) ? -(*leg)._vel.x : (*leg)._vel.x);
-			}
-			else
-			{
-				(*leg)._liftVel = ((*leg)._liftVel == 0 ? GetRand(3) * 0.2f : (*leg)._liftVel);
-				(*leg)._vel.x = (d.x > length + (length / 2) ? -(*leg)._vel.x : (*leg)._vel.x);
+				_legMovePos[cnt] = (*leg)._ePoint + Vector2((length / 2) * leftVec.x, (length / 2) * leftVec.y);
+				_legPrePos[cnt] = (*leg)._ctlPoint;
+
+				(*leg)._vel = Vector2(lVel.x * leftVec.x, lVel.y * leftVec.y);
 			}
 
-			if ((*leg)._vel.y > 0)
+			if (_legMovePos[cnt].x != 0)
 			{
-				(*leg)._vel.y = (d.y < length - (length / 2) ? -(*leg)._vel.y : (*leg)._vel.y);
+				/// ë´ÇêLÇŒÇ∑
+				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
+				{
+					_legMovePos[cnt] = Vector2();
+					_legPrePos[cnt] = (*leg)._ctlPoint + Vector2(length * -leftVec.x, length * -leftVec.y);
+					(*leg)._vel = -(*leg)._vel;
+				}
+				else
+				{
+					vec = _legMovePos[cnt] - (*leg)._ctlPoint;
+					vec.Normalize();
+					(*leg)._vel = Vector2(lVel.x * vec.x, lVel.y * vec.y);
+				}
 			}
 			else
 			{
-				(*leg)._vel.y = (d.y > length + (length / 2) ? -(*leg)._vel.y : (*leg)._vel.y);
+				/// ë´ÇñﬂÇ∑
+				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
+				{
+					_legPrePos[cnt] = Vector2();
+					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * leftVec.x, length * leftVec.y);
+					(*leg)._vel = Vector2(lVel.x * leftVec.x, lVel.y * leftVec.y);
+				}
+				else
+				{
+					vec = _legPrePos[cnt] - (*leg)._ctlPoint;
+					vec.Normalize();
+					(*leg)._vel = Vector2(lVel.x * vec.x, lVel.y * vec.y);
+				}
 			}
 		}
-		(*leg)._ctlPoint += Vector2((*leg)._vel.x * vec.x, 
-									(*leg)._vel.y * vec.y /*+ (*leg)._liftVel*/);	
+		(*leg)._ctlPoint += Vector2((*leg)._vel.x, (*leg)._vel.y);
 	}
 }
 
@@ -433,6 +542,34 @@ void Crab::MoveJoint()
 	}
 }
 
+bool Crab::StopCheck(const Vector2 & sPos, const Vector2 & ePos, const Vector2 & vel)
+{
+	auto rtnFlag = false;
+
+	if (vel.x <= 0)
+	{
+		rtnFlag = (sPos.x <= ePos.x);
+	}
+	else
+	{
+		rtnFlag = (sPos.x >= ePos.x);
+	}
+
+	if (rtnFlag)
+	{
+		if (vel.y <= 0)
+		{
+			rtnFlag = (sPos.y <= ePos.y);
+		}
+		else
+		{
+			rtnFlag = (sPos.y >= ePos.y);
+		}
+	}
+
+	return rtnFlag;
+}
+
 BossInfo Crab::GetInfo()
 {
 	return boss;
@@ -454,7 +591,7 @@ void Crab::CalTrackVel(const Vector2 & pos)
 				auto vec = _plPos - (*arm)._ctlPoint;
 				vec.Normalize();
 				(*arm)._vel = Vector2(fVel.x * vec.x, fVel.y * vec.y);
-				_preCtl = (*arm)._ctlPoint;			/// à⁄ìÆëOÇÃêßå‰ì_Çï€ë∂
+				_armPrePos = (*arm)._ctlPoint;			/// à⁄ìÆëOÇÃêßå‰ì_Çï€ë∂
 			}
 		}
 		Fist();
@@ -467,7 +604,7 @@ void Crab::Draw()
 
 	/// ãrÇÃï`âÊ
 	Vector2 p1, p2, p3, p4;
-	for (auto leg : boss._crab._legs)
+	/*for (auto leg : boss._crab._legs)
 	{
 		/// énì_Ç©ÇÁíÜä‘Ç‹Ç≈ÇÃãÈå`
 		p1 = leg._vert[0][0] - camera;
@@ -500,13 +637,27 @@ void Crab::Draw()
 		p3 = arm._vert[1][2] - camera;
 		p4 = arm._vert[1][3] - camera;
 		DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+	}*/
+
+	/// ÇÕÇ≥Ç›ÇÃï`âÊ
+	for (auto scissor : _scissors)
+	{
+		p1 = scissor[0] - camera;
+		p2 = scissor[1] - camera;
+		p3 = scissor[2] - camera;
+		p4 = scissor[3] - camera;
+		DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 	}
-	/// äIñ{ëÃÇÃï`âÊ
+
+	
+
+	/*/// äIñ{ëÃÇÃï`âÊ
 	DxLib::DrawQuadrangle(boss._crab._vert[0].x - camera.x, boss._crab._vert[0].y - camera.y,
 						  boss._crab._vert[1].x - camera.x, boss._crab._vert[1].y - camera.y,
 						  boss._crab._vert[2].x - camera.x, boss._crab._vert[2].y - camera.y,
 						  boss._crab._vert[3].x - camera.x, boss._crab._vert[3].y - camera.y,
-						  0xcc3300, true);
+						  0xcc3300, true);*/
+
 #ifdef _DEBUG
 	DebugDraw(camera);
 #endif
@@ -527,7 +678,7 @@ void Crab::DebugDraw(const Vector2& camera)
 		{
 			if (_type == AtkType::NORMAL)
 			{
-				DxLib::DrawLine(arm._ctlPoint.x, arm._ctlPoint.y, _preCtl.x, _preCtl.y, 0x00ff00, 2);
+				DxLib::DrawLine(arm._ctlPoint.x, arm._ctlPoint.y, _armPrePos.x, _armPrePos.y, 0x00ff00, 2);
 			}
 			else if (_type == AtkType::FIST)
 			{
@@ -535,6 +686,13 @@ void Crab::DebugDraw(const Vector2& camera)
 			}
 			else {}
 		}
+	}
+
+	/// à⁄ìÆÇ∑ÇÈë´ÇÃêßå‰ì_ÇÃï`âÊ
+	for (int i = 0; i < boss._crab._legs.size(); ++i)
+	{
+		DxLib::DrawCircle(_legMovePos[i].x, _legMovePos[i].y, 4, 0xff0000, true);
+		DxLib::DrawCircle(_legPrePos[i].x, _legPrePos[i].y, 4, 0x00ff00, true);
 	}
 
 	/// âÒì]Ç∑ÇÈÇ∆Ç´ÇÃíÜêSì_ÇÃï`âÊ
@@ -548,17 +706,17 @@ void Crab::Update()
 	/// òrÇÃà⁄ìÆ
 	for (auto& arm : boss._crab._arms)
 	{
-		arm._ctlPoint += arm._vel;
+		//arm._ctlPoint += arm._vel;
 	}
 
-	if (_type == AtkType::NORMAL && atkInvCnt >= 0)
-	{
-		Rotation();
-	}
-	
-	CalVert();			/// ãÈå`ÇÃí∏ì_Çê›íË
-	MoveLeg();
-	MoveJoint();
+	//if (_type == AtkType::NORMAL && atkInvCnt >= 0)
+	//{
+	//	Rotation();
+	//	MoveLeg();
+	//}
+	//CalVert();			/// ãÈå`ÇÃí∏ì_Çê›íË
+	//
+	//MoveJoint();
 
 	boss._crab._prePos = boss._crab._pos;
 }

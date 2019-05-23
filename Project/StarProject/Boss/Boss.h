@@ -10,8 +10,10 @@ using sqr_vert = std::array<Vector2, 4>;
 
 struct JointInfo
 {
-	// 関節の中間点と制御点
-	Vector2 _sPoint, _mPoint, _ePoint, _ctlPoint;
+	// 関節の中間点
+	Vector2 _sPoint, _mPoint, _ePoint;
+	// 制御点
+	Vector2 _ctlPoint;
 	Vector2 _vel;
 	Size   _size;
 	float _liftVel;						// 足を持ち上げる速度
