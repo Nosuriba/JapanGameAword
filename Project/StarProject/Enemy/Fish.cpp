@@ -56,6 +56,11 @@ void Fish::Swim()
 	_updater = &Fish::SwimUpdate;
 }
 
+void Fish::Track()
+{
+	_updater == &Fish::TrackUpdate;
+}
+
 void Fish::Escape()
 {
 	auto camera = _camera->CameraCorrection();
@@ -80,6 +85,11 @@ void Fish::Die()
 
 void Fish::SwimUpdate()
 {
+}
+
+void Fish::TrackUpdate()
+{
+
 }
 
 void Fish::EscapeUpdate()
@@ -281,20 +291,22 @@ void Fish::ShotDelete(const int & num)
 	/// ºÆØƒÇë≈Ç¡ÇƒÇ¢Ç»Ç¢ÇÃÇ≈ÅAâΩÇ‡èëÇ©Ç»Ç¢
 }
 
-void Fish::CalTrackVel(const Vector2 & pos, bool col)
+void Fish::CalTrackVel(const Vector2 & pos)
 {
 	if (_updater != &Fish::EscapeUpdate && !enemy._dieFlag)
 	{
-		if (col)
-		{
-			auto vec = pos - enemy._pos;
-			vec.Normalize();
-			_vel = Vector2(maxSpeed * vec.x, maxSpeed * vec.y);
-		}
-		else
-		{
-			_vel.x = (_turnFlag ? maxSpeed : -maxSpeed);
-			_vel.y = 0;
-		}
+		//if (col)
+		//{
+		//	// å©Ç¬Ç©Ç¡ÇΩéû
+		//	auto vec = pos - enemy._pos;
+		//	vec.Normalize();
+		//	_vel = Vector2(maxSpeed * vec.x, maxSpeed * vec.y);
+		//}
+		//else
+		//{
+		//	/// å©Ç¬Ç©Ç¡ÇƒÇ¢Ç»Ç¢Ç∆Ç´
+		//	_vel.x = (_turnFlag ? maxSpeed : -maxSpeed);
+		//	_vel.y = 0;
+		//}
 	}
 }

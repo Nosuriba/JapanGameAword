@@ -9,10 +9,12 @@ class Fish :
 {
 private:
 	void Swim();
+	void Track();
 	void Escape();
 	void Die();
 
 	void SwimUpdate();
+	void TrackUpdate();
 	void EscapeUpdate();
 	void DieUpdate();
 
@@ -24,6 +26,8 @@ private:
 	std::shared_ptr<Camera>& _camera;
 	std::vector<Vector2> midPoints;			// ÍŞ¼Şª‹Èü‚Ì’†ŠÔ“_
 	std::vector<CtlInfo> cPoints;			// ÍŞ¼Şª‹Èü‚Ì§Œä“_
+
+	Rect searchRect;			// ’T’m‚Å‚«‚é”ÍˆÍ
 public:
 	Fish(std::shared_ptr<Camera>& camera);
 	~Fish();
@@ -34,6 +38,6 @@ public:
 	shot_vector ShotGetInfo();
 	void CalEscapeDir(const Vector2& vec);
 	void ShotDelete(const int& num);
-	void CalTrackVel(const Vector2& pos, bool col);
+	void CalTrackVel(const Vector2& pos);
 };
 

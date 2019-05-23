@@ -413,8 +413,8 @@ void GameScene::Update(const Input & p)
 					_enemies[i]->CalEscapeDir(vec);
 					break;
 				}
-
-				_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));
+				/*_col->CircleToSqr();*/
+				_enemies[i]->CalTrackVel(_pl->GetInfo().center/*, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert)*/);
 			}
 
 			/// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
