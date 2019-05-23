@@ -35,6 +35,6 @@ void Enemy::CalEscapeDir(const Vector2& vec)
 {
 }
 
-void Enemy::CalTrackVel(const Vector2 & pos, bool col)
+void Enemy::CalTrackVel(const Vector2 & pos)
 {
 }

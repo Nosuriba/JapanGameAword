@@ -80,6 +80,6 @@ public:
 	virtual shot_vector GetShotInfo();
 	virtual void ShotDelete(const int& num);					// ｼｮｯﾄが当たった時削除するためのもの
 	virtual void CalEscapeDir(const Vector2& vec);
-	virtual void CalTrackVel(const Vector2& pos, bool col);		// 追尾する速度の計算用
+	virtual void CalTrackVel(const Vector2& pos);		// 追尾する速度の計算用
 };
 

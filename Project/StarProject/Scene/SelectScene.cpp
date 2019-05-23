@@ -11,29 +11,39 @@
 
 void SelectScene::FadeIn(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	auto a = 255 - 255 * (float)(flame) / WAITFRAME;
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (flame >= WAITFRAME) 
 	{
 		if (!CheckHandleASyncLoad(BGM)) 
 		{
 			PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
-			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 			_updater = &SelectScene::Wait;
 		}
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / WAITFRAME);
-	Draw();
 }
 
 void SelectScene::FadeOut(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(flame) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (flame >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		(*FadeBubble).Draw();
 		Game::GetInstance().ChangeScene(new GameScene());
 	}
 	else {
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / WAITFRAME);
-		Draw();
 		(*FadeBubble).Create();
 	}
 }
@@ -136,8 +146,6 @@ void SelectScene::Draw()
 	
 
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 4.0f / 2.0f, size.y / 2 + size.y / 4, "Select", 0xa000f0);
-
-	(*FadeBubble).Draw();
 }
 
 void SelectScene::Update(const Input & p)
@@ -150,4 +158,6 @@ void SelectScene::Update(const Input & p)
 	Cnt++;
 	shader_time++;
 	(this->*_updater)(p);
+
+	(*FadeBubble).Draw();
 }
