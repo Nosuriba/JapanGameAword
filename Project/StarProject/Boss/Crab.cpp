@@ -128,7 +128,7 @@ void Crab::Die()
 void Crab::NeutralUpdate()
 {
 	atkInvCnt--;
-	if (atkInvCnt <= 0)
+	if (atkInvCnt < 0)
 	{
 		/// ×ÝÀÞÑ‚ÅUŒ‚ÊßÀ°Ý‚ðŒˆ’è
 		// _type = static_cast<AtkType>(GetRand(typeMax - 1));
@@ -146,55 +146,35 @@ void Crab::FistUpdate()
 	if (_type == AtkType::NORMAL)
 	{
 		/// ˜r‚ðˆø‚«–ß‚·Žž
-		for (auto arm : boss._crab._arms)
+		for (auto& arm : boss._crab._arms)
 		{
-			if (arm._vel.x != 0)
+			auto d = abs((arm._ctlPoint.x - _preCtl.x) + (arm._ctlPoint.y - _preCtl.y));
+			if (d <= ctlDistance && arm._vel.x != 0)
 			{
-				if (arm._vel.x > 0)
-				{
-					arm._vel = (arm._ctlPoint.x > _preCtl.x && arm._ctlPoint.y > _preCtl.y ? Vector2() : arm._vel);
-				}
-				else
-				{
-					arm._vel = (_preCtl.x < arm.l.x && arm._ctlPoint.y < _preCtl.y ? Vector2() : arm._vel);
-				}
-
-				if (arm._vel.x == 0)
-				{
-					Neutral();
-					_preCtl = Vector2();
-					atkInvCnt = atkCnt;
-					break;
-				}
+				Neutral();
+				_preCtl  = Vector2();
+				arm._vel = Vector2();
+				atkInvCnt = atkCnt;
+				break;
 			}	
 		}
 	}
 	else
 	{
 		/// ˜r‚ðL‚Î‚·Žž
-		for (auto arm : boss._crab._arms)
+		for (auto& arm : boss._crab._arms)
 		{
-			if (arm._vel.x != 0)
-			{
-				if (arm._vel.x > 0)
-				{
-					arm._vel = (arm._ctlPoint.x > _plPos.x && arm._ctlPoint.y > _plPos.y ? Vector2() : arm._vel);
-				}
-				else
-				{
-					arm._vel = (arm._ctlPoint.x < _plPos.x && arm._ctlPoint.y < _plPos.y ? Vector2() : arm._vel);
-				}
+			
+			auto d = abs((arm._ctlPoint.x - _preCtl.x) + (arm._ctlPoint.y - _preCtl.y));
 
-				/// 
-				if (arm._vel.x == 0)
-				{
-					_plPos = Vector2();
-					auto vec = _preCtl - arm._ctlPoint;
-					vec.Normalize();
-					arm._vel = Vector2(fVel.x * vec.x, fVel.y * vec.y);
-					_type = AtkType::NORMAL;
+			if (d >= ctlDistance && arm._vel.x != 0)
+			{
+				auto vec = _preCtl - arm._ctlPoint;
+				vec.Normalize();
+				arm._vel = Vector2(fVel.x * vec.x, fVel.y * vec.y);
+				ctlDistance /= 3;
+				_type = AtkType::NORMAL;
 		
-				}
 			}
 		}
 	}

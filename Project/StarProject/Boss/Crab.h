@@ -38,11 +38,10 @@ private:
 	void ShotUpdate();
 	void DieUpdate();
 
-	void CalVert();		// 頂点の計算
-	void Rotation();	// 回転用(蟹本体)
+	void CalVert();		// 矩形の頂点計算
+	void Rotation();	
 	void MoveLeg();		// 制御点の移動
-
-	void MoveJoint();					
+	void MoveJoint();	// 関節の移動
 
 	// 外積の計算
 	Vector3 Cross(const Vector3& va, const Vector3& vb)
