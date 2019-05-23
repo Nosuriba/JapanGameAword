@@ -184,3 +184,8 @@ bool Collision::CircleToSqr(const Position2 & _posA, const float& _r, const Rect
 	}
 	return false;
 }
+
+bool Collision::CircleToTri(const Position2 & _posA, const float & _r, const Rect & _rectB)
+{
+	return false;
+}

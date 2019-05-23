@@ -17,5 +17,6 @@ public:
 	bool WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const Rect& _rect);
 	bool WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const float& size ,const Rect& _rect);
 	bool CircleToSqr(const Position2 & _posA, const float &_r, const Rect & _rectB);
+	bool CircleToTri(const Position2 & _posA, const float &_r, const Rect & _rectB);
 };
 
