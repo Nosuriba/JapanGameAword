@@ -60,6 +60,23 @@ void Player::Normal(const Input & in)
 		auto v = LEG(i).tip - _star.center;
 		LEG(i).vel *= deceleration;
 
+		if (i == select_idx[0] || i == select_idx[1])
+		{
+			LEG(i).state = LEG_STATE::SELECT;
+
+			if (v.Magnitude() < (_star.r * 1.1f))
+				LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f * _star.level);
+		}
+		else
+		{
+			LEG(i).state = LEG_STATE::NORMAL;
+
+			if (v.Magnitude() > _star.r)
+				LEG(i).tip = _star.center + v.Normalized() * max(_star.r, v.Magnitude() - 0.1f);
+			if (v.Magnitude() < _star.r)
+				LEG(i).tip = _star.center + v.Normalized() * max(_star.r, v.Magnitude() + 0.1f);
+		}
+
 		if (i == select_idx[0])
 		{
 			if (in.PushTrigger(TRIGGER::LEFT))
@@ -76,7 +93,7 @@ void Player::Normal(const Input & in)
 				_particle[0]->Create();
 
 			}
-			else if (in.Push(BUTTON::LB))
+			if (in.Push(BUTTON::LB))
 			{
 				LEG(i).state = LEG_STATE::HOLD;
 
@@ -85,15 +102,8 @@ void Player::Normal(const Input & in)
 				if (v.Magnitude() > (_star.r * 0.9f))
 					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f * _star.level);
 			}
-			else
-			{
-				LEG(i).state = LEG_STATE::SELECT;
-
-				if (v.Magnitude() < (_star.r * 1.1f))
-					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f * _star.level);
-			}
 		}
-		else if (i == select_idx[1])
+		if (i == select_idx[1])
 		{
 			if (in.PushTrigger(TRIGGER::RIGHT))
 			{
@@ -109,7 +119,7 @@ void Player::Normal(const Input & in)
 				_particle[1]->Create();
 
 			}
-			else if (in.Push(BUTTON::RB))
+			if (in.Push(BUTTON::RB))
 			{
 				LEG(i).state = LEG_STATE::HOLD;
 
@@ -118,22 +128,6 @@ void Player::Normal(const Input & in)
 				if (v.Magnitude() > (_star.r * 0.9f))
 					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f * _star.level);
 			}
-			else
-			{
-				LEG(i).state = LEG_STATE::SELECT;
-
-				if (v.Magnitude() < (_star.r * 1.1f))
-					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f * _star.level);
-			}
-		}
-		else
-		{
-			LEG(i).state = LEG_STATE::NORMAL;
-
-			if (v.Magnitude() > _star.r)
-				LEG(i).tip = _star.center + v.Normalized() * max(_star.r, v.Magnitude() - 0.1f);
-			if (v.Magnitude() < _star.r)
-				LEG(i).tip = _star.center + v.Normalized() * max(_star.r, v.Magnitude() + 0.1f);
 		}
 	}
 
