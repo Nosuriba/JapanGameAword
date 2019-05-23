@@ -93,7 +93,7 @@ void Player::Normal(const Input & in)
 				_particle[0]->Create();
 
 			}
-			else
+			else if (in.ReleaseTrigger(TRIGGER::LEFT))
 			{
 				_laser[0].emplace_back(LEG(i).pos, v.Normalized(),true);
 			}
@@ -123,9 +123,9 @@ void Player::Normal(const Input & in)
 				_particle[1]->Create();
 
 			}
-			else
+			else if (in.ReleaseTrigger(TRIGGER::LEFT))
 			{
-				_laser[0].emplace_back(LEG(i).pos, v.Normalized(), true);
+				_laser[1].emplace_back(LEG(i).pos, v.Normalized(), true);
 			}
 			if (in.Push(BUTTON::RB))
 			{
@@ -353,14 +353,16 @@ void Player::Draw()
 			(LEG(select_idx[i]).tip.x - c.x, LEG(select_idx[i]).tip.y - c.y, 22 * i, 0, 22, 55, 0.5f, 0, _img_TRIGGER, true);
 	for (int i = 0; i < 2; i++)
 	{
-		for (auto& l : _laser[i])
+		for (auto l = _laser[i].begin();l!= _laser[i].end();l++)
 		{
-			auto start = l.pos - c;
-			auto end = l.pos + (l.vel.Normalized() * l.size) - c;
+			auto start = (*l).pos - c;
+			auto end = (*l).pos + ((*l).vel.Normalized() * (*l).size) - c;
 
-			auto s = l.pos;
+			auto s = (*l).pos - c;
+			auto e = ((++l != _laser[i].end()) ? (*l).pos : (*--l).pos) - c;
 
 			DrawLine(start.x, start.y, end.x, end.y, 0x000000, 10);
+			DrawLine(s.x, s.y, e.x, e.y, 0x000000, 10);
 		}
 	}
 	for (auto& p : _particle)
