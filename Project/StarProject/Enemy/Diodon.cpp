@@ -321,7 +321,7 @@ void Diodon::ShotDelete(const int& num)
 	shot.erase(shot.begin() + num);
 }
 
-void Diodon::CalTrackVel(const Vector2 & pos, bool col)
+void Diodon::CalTrackVel(const Vector2 & pos)
 {
 	/// í«è]Ç»Çµ
 }

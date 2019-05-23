@@ -88,6 +88,16 @@ void GameScene::Wait(const Input & p)
 
 void GameScene::Run(const Input & p)
 {
+	_pl->Update(p);
+	for (auto &enemy : _enemies)
+	{
+		enemy->Update();
+	}
+
+	for (auto &boss : _bosses)
+	{
+		boss->Update();
+	}
 	Draw();
 	flame++;
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
@@ -206,8 +216,11 @@ GameScene::GameScene()
 
 GameScene::~GameScene()
 {
-	if (_cutCol1.joinable()) {
-		_cutCol1.join();
+	if (_cutCol.joinable()) {
+		_cutCol.join();
+	}
+	if (__eneCol.joinable()) {
+		__eneCol.join();
 	}
 }
 
@@ -373,82 +386,75 @@ void GameScene::Update(const Input & p)
 
 	auto size = Game::GetInstance().GetScreenSize();
 
-	_pl->Update(p);
+	const auto laser = _pl->GetLaser(); 
+	const auto camera = _camera->CameraCorrection();
 
-	for (auto &enemy : _enemies)
-	{
-		enemy->Update();
-	}
-
-	for (auto &boss : _bosses)
-	{
-		boss->Update();
-	}
-
-	for (int i = 0; i < _enemies.size(); ++i)
-	{
-		/// “G‚ÌŽ€–Sˆ—
-		if (_enemies[i]->GetInfo()._dieFlag)
-		{
-			_enemies.erase(_enemies.begin() + i);
-			continue;
-		}
-
-		auto laser = _pl->GetLaser();
-		/// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
-		//for (int p = 0; p < _pl->GetLaser().size(); ++p)
-		for (auto& l : laser)
-		{
-			if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
-			{
-				auto vec = _enemies[i]->GetInfo()._pos - l.pos;
-				vec.Normalize();
-
-				_enemies[i]->CalEscapeDir(vec);
-				break;
-			}
-
-			_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));
-		}
-
-		/// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
-		for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
-		{
-			if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
-			{
-				_enemies[i]->ShotDelete(s);		/// ÌßÚ²Ô°‚É“–‚½‚Á‚½’e‚ÌF‚ð•Ï‚¦‚Ä‚¢‚éB
-			}
-		}
-	}
-
-
-	if (_bosses.size() != 0) {
-		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
-	}
-	
-	auto th = [&]() {
+	auto _eth = [&](std::list<Laser> _laser) {
 		std::lock_guard<std::mutex> _lock(_mutex);
-		auto laser = _pl->GetLaser();
+
+		for (int i = 0; i < _enemies.size(); ++i)
+		{
+			/// “G‚ÌŽ€–Sˆ—
+			if (_enemies[i]->GetInfo()._dieFlag)
+			{
+				_enemies.erase(_enemies.begin() + i);
+				continue;
+			}
+;
+			/// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
+			//for (int p = 0; p < _pl->GetLaser().size(); ++p)
+			for (auto& l : _laser)
+			{
+				if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
+				{
+					auto vec = _enemies[i]->GetInfo()._pos - l.pos;
+					vec.Normalize();
+
+					_enemies[i]->CalEscapeDir(vec);
+					break;
+				}
+				/*_col->CircleToSqr();*/
+				_enemies[i]->CalTrackVel(_pl->GetInfo().center/*, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert)*/);
+			}
+
+			/// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
+			for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
+			{
+				if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
+				{
+					_enemies[i]->ShotDelete(s);		/// ÌßÚ²Ô°‚É“–‚½‚Á‚½’e‚ÌF‚ð•Ï‚¦‚Ä‚¢‚éB
+				}
+			}
+		}
+
+		if (_bosses.size() != 0) {
+			_bosses[0]->CalTrackVel(_pl->GetInfo().center);
+		}
+	};
+
+	auto th = [&](std::list<Laser> _laser, Vector2 camera) {
+		std::lock_guard<std::mutex> _lock(_mutex);
 		num++;
-		for (auto &l : laser) {
+		for (auto &l : _laser) {
 
 			//”j‰ó‰Â”\ƒIƒuƒWƒFƒNƒg
 			for (auto destroy : _destroyObj) {
 
-				if (destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
-					destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
+				if (destroy->GetInfo()._pos.x - camera.x <= size.x &&
+					destroy->GetInfo()._pos.y - camera.y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - _camera->CameraCorrection().x &&
+					if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - camera.x &&
 
-						destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= _cutAreaScreen[num % 4].right &&
+						destroy->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
 
-						_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - _camera->CameraCorrection().y &&
+						_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - camera.y &&
 
-						destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= _cutAreaScreen[num % 4].bottom) {
+						destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+
 							if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
 							{
 								destroy->Break();
-								l.Hit();
+								//l.Hit();
 							}
 					}
 					/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
@@ -464,13 +470,13 @@ void GameScene::Update(const Input & p)
 				if (predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
 					predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - _camera->CameraCorrection().x &&
+					if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - camera.x &&
 
-						predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= _cutAreaScreen[num % 4].right &&
+						predatry->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
 
-						_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - _camera->CameraCorrection().y &&
+						_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - camera.y &&
 
-						predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= _cutAreaScreen[num % 4].bottom) {
+						predatry->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
 						if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
 						{
@@ -495,13 +501,13 @@ void GameScene::Update(const Input & p)
 				if (immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
 					immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
 
-					if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - _camera->CameraCorrection().x &&
+					if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - camera.x &&
 
-						immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= _cutAreaScreen[num % 4].right&&
+						immortal->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right&&
 
-						_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - _camera->CameraCorrection().y &&
+						_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - camera.y &&
 
-						immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= _cutAreaScreen[num % 4].bottom) {
+						immortal->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
 						if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
 						{
@@ -539,12 +545,20 @@ void GameScene::Update(const Input & p)
 		}
 	};
 	
-	if (!_cutCol1.joinable()) {
+	if (!_cutCol.joinable()) {
 		
-		_cutCol1 = std::thread(th);
+		_cutCol = std::thread(th, std::ref(laser), std::ref(camera));
 	}
 	else {
-		_cutCol1.join();
+		_cutCol.join();
+	}
+
+	if (!__eneCol.joinable()) {
+
+		__eneCol = std::thread(_eth, std::ref(laser));
+	}
+	else {
+		__eneCol.join();
 	}
 
 	totaltime = time - (flame / 60);
