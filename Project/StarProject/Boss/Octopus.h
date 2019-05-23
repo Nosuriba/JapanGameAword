@@ -25,7 +25,7 @@ struct E_Leg {
 };
 
 struct Oct {
-	float r;		//‘«‚Ì’·‚³
+	const float r =500;		//‘«‚Ì’·‚³
 	Vector2 center;	//’†SÀ•W
 	std::vector<Vector2> root;	//‘«‚ÌªŒ³
 	std::vector<E_Leg> legs;	//‘«
@@ -35,9 +35,10 @@ class Octopus :
 	public Boss
 {
 private:
-	int angle;
-	int id;
-	Vector2 targetPos;
+	int _wait;
+	int _maxAngle;
+	int _idx;
+	Vector2 _targetPos;
 	Vector2 _vec;
 	void Die();
 	void DieUpdate();
