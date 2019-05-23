@@ -60,7 +60,7 @@ void TitleScene::Run(const Input & p)
 
 TitleScene::TitleScene()
 {
-	title = ResourceManager::GetInstance().LoadImg("../img/ŠC¯Œê.png");
+	title = ResourceManager::GetInstance().LoadImg("../img/ŠC¯í‘ˆ.png");
 	titleback = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	flame = 0;
 	colorflame = 0;
@@ -102,11 +102,15 @@ void TitleScene::Draw()
 {
 	auto size = Game::GetInstance().GetScreenSize();
 
-	int mode, palam;
+	int mode, palam,titlex, titley;
+
+	GetGraphSize(title, &titlex, &titley);
 	GetDrawBlendMode(&mode, &palam);
 
-	DxLib::DrawExtendGraph(0, 0, size.x, size.y, titleback, true);	
-	DxLib::DrawRotaGraph(size.x / 2, size.y / 2 - GetFontSize(), 1, 0, title, true);
+	DxLib::DrawExtendGraph(0, 0, size.x, size.y, titleback, true);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 172);
+	DrawBox((size.x- titlex)/2, (size.y + titley) / 2 - titley, (size.x+ titlex)/2, (size.y - titley) / 2 - titley, 0x555555, true);
+	DxLib::DrawRotaGraph((size.x) / 2, (size.y) / 2 - titley, 1, 0, title, true);
 	if (colorflame >= 252) {
 		blendcolor = -1;
 	}
@@ -114,9 +118,8 @@ void TitleScene::Draw()
 		blendcolor = 1;
 	}
 	SetFontSize(84);
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, palam < 172 ? palam : 172);
 	DrawBox(0, size.y / 6*4,size.x, size.y / 6*5, 0x000000, true);
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, palam < (colorflame % 255) ? palam:(colorflame % 255));
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, (colorflame % 255));
 	DrawString((size.x - (float)(GetFontSize()) * 9) / 2.0f, size.y / 2 + GetFontSize() * 2, "PRESS A BUTTON",0xffffff);
 	DrawString((size.x - (float)(GetFontSize()) ) / 2.0f, size.y / 2 + GetFontSize() * 2, "A", 0x30ff30);
 	SetDrawBlendMode(mode, palam);

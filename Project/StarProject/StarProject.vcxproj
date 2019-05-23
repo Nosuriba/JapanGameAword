@@ -162,6 +162,7 @@
     <ClInclude Include="Enemy\Fish.h" />
     <ClInclude Include="Enemy\SeaCucumber.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Icon.h" />
     <ClInclude Include="Object\DestroyableObject.h" />
     <ClInclude Include="Object\ImmortalObject.h" />
     <ClInclude Include="Object\Obstacle.h" />
@@ -181,6 +182,9 @@
     <ClInclude Include="Scene\SelectScene.h" />
     <ClInclude Include="Scene\TitleScene.h" />
     <ClInclude Include="Stage.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Icon.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
