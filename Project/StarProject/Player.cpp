@@ -76,6 +76,16 @@ void Player::Normal(const Input & in)
 			if (v.Magnitude() < _star.r)
 				LEG(i).tip = _star.center + v.Normalized() * max(_star.r, v.Magnitude() + 0.1f);
 		}
+		if (in.ReleaseTrigger(TRIGGER::LEFT))
+		{
+			if (_laser[0].size())
+				(--_laser[0].end())->End();
+		}
+		if (in.ReleaseTrigger(TRIGGER::RIGHT))
+		{
+			if (_laser[1].size())
+				(--_laser[1].end())->End();
+		}
 
 		if (i == select_idx[0])
 		{
@@ -92,10 +102,6 @@ void Player::Normal(const Input & in)
 				_particle[0]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
 				_particle[0]->Create();
 
-			}
-			else if (in.ReleaseTrigger(TRIGGER::LEFT))
-			{
-				_laser[0].emplace_back(LEG(i).pos, v.Normalized(),true);
 			}
 			if (in.Push(BUTTON::LB))
 			{
@@ -122,10 +128,6 @@ void Player::Normal(const Input & in)
 				_particle[1]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
 				_particle[1]->Create();
 
-			}
-			else if (in.ReleaseTrigger(TRIGGER::LEFT))
-			{
-				_laser[1].emplace_back(LEG(i).pos, v.Normalized(), true);
 			}
 			if (in.Push(BUTTON::RB))
 			{
@@ -358,11 +360,12 @@ void Player::Draw()
 			auto start = (*l).pos - c;
 			auto end = (*l).pos + ((*l).vel.Normalized() * (*l).size) - c;
 
-			auto s = (*l).pos - c;
-			auto e = ((++l != _laser[i].end()) ? (*l).pos : (*--l).pos) - c;
-
 			DrawLine(start.x, start.y, end.x, end.y, 0x000000, 10);
-			DrawLine(s.x, s.y, e.x, e.y, 0x000000, 10);
+
+			auto s = (*l).pos - c;
+			auto e = (*l).isEnd?s:((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos)-c;
+
+			DrawLine(s.x, s.y, e.x, e.y, 0x3333ff, (*l).size);
 		}
 	}
 	for (auto& p : _particle)
