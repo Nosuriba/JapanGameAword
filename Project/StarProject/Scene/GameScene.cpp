@@ -119,6 +119,11 @@ void GameScene::Run(const Input & p)
 	}
 }
 
+void GameScene::BossScene(const Input & p)
+{
+
+}
+
 void GameScene::LoadResource()
 {
 	auto &_stage = Stage::GetInstance();
@@ -270,8 +275,6 @@ void GameScene::Draw()
 		0 - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y, beach, true);
 
 
-
-
 	//secondƒXƒNƒŠ[ƒ“(‰e)
 	SetDrawScreen(secondscreen);
 
@@ -395,7 +398,7 @@ void GameScene::Update(const Input & p)
 
 	auto size = Game::GetInstance().GetScreenSize();
 
-	const auto laser = _pl->GetLaser(); 
+	auto& laser = _pl->GetLaser(); 
 	const auto camera = _camera->CameraCorrection();
 
 	auto _eth = [&](std::list<Laser> _laser) {
@@ -466,7 +469,7 @@ void GameScene::Update(const Input & p)
 							if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
 							{
 								destroy->Break();
-								//l.Hit();
+								l.Hit();
 							}
 					}
 					/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {

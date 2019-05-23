@@ -50,6 +50,7 @@ private:
 	void FadeOut(const Input& p);
 	void Wait(const Input &p);
 	void Run(const Input& p);
+	void BossScene(const Input& p);
 
 	std::shared_ptr<Player> _pl;
 	std::shared_ptr<Collision> _col;
