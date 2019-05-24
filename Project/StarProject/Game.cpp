@@ -3,8 +3,6 @@
 #include "Processing/Input.h"
 #include "Scene/TitleScene.h"
 
-#include "Icon.h"
-
 constexpr int screen_x = 1200;
 constexpr int screen_y = 800;
 
@@ -30,12 +28,9 @@ const std::vector<int> Game::GetShaderHandle() const
 
 void Game::Init()
 {
-	DxLib::SetWindowIconID(IDI_ICON1);
-
 	DxLib::SetGraphMode(screen_x, screen_y, 32);
 
 	DxLib::ChangeWindowMode(true);
-
 
 	SetUseDirect3DVersion(DX_DIRECT3D_9EX);
 
