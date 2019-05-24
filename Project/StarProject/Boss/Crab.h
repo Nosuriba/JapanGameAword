@@ -28,6 +28,7 @@ class Crab :
 	public Boss
 {
 private:
+	/// お前らも修正じゃ!!!
 	void BodyInit();
 	void LegInit();
 	void ArmInit();
@@ -42,6 +43,7 @@ private:
 	void ShotUpdate();
 	void DieUpdate();
 
+	/// こいつら全部修正をかけるぞ。
 	void CalVert();		// 矩形の頂点計算
 	void Rotation();	
 	void MoveLeg();		// 制御点の移動

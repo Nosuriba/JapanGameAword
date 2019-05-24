@@ -11,6 +11,7 @@ using sqr_vert = std::array<Vector2, 4>;
 struct JointInfo
 {
 	// 関節の中間点
+	std::vector<Vector2> _points;			/// 後で中間点の部分をこの中にぶち込んでやるぜ
 	Vector2 _sPoint, _mPoint, _ePoint;
 	// 制御点
 	Vector2 _ctlPoint;
@@ -23,7 +24,6 @@ struct JointInfo
 struct CrabInfo
 {
 	Position2 _pos;
-	Position2 _prePos;
 	Size _size;
 
 	sqr_vert _vert;					// 蟹本体の頂点
