@@ -16,7 +16,6 @@ struct JointInfo
 	Vector2 _ctlPoint;
 	Vector2 _vel;
 	Size   _size;
-	float _liftVel;						// ‘«‚ğ‚¿ã‚°‚é‘¬“x
 	std::array<sqr_vert, 2> _vert;		// ‘«‚ÌŠÖß‚Ì’¸“_
 
 };
