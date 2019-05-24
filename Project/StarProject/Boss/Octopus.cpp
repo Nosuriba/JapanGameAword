@@ -8,6 +8,8 @@
 
 #define LEG(x) _oct.legs[x]
 
+constexpr int SPEED = 5;
+
 Octopus::Octopus(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
 	_maxAngle = 30;
@@ -28,11 +30,37 @@ Octopus::Octopus(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera
 			LEG(i).joint.push_back(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)));
 		}
 		LEG(i).state = E_LEG_STATE::NORMAL;
-		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * 5*(i+1);
+		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * SPEED*(i+1);
 		LEG(i).cnt = 0;
 	}
 	_idx = 0;
 	_updater = &Octopus::NeturalUpdate;
+}
+
+void Octopus::IkCcd(E_Leg & leg, Vector2 pos, int idx, int numMaxItaration)
+{
+	for (int it = 0; it < numMaxItaration; ++it) {
+		for (int j = leg.T - 1; j > 0; --j) {
+			auto t_vec = pos - leg.joint[j - 1];		//目標→関節
+			auto p_vec = leg.tip - leg.joint[j - 1];		//先端→関節
+			auto mat = MGetTranslate((-leg.joint[j - 1]).V_Cast());			//原点まで移動
+			mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
+			mat = MMult(mat, MGetTranslate(leg.joint[j - 1].V_Cast()));		//元の位置に移動
+			for (int itr = j; itr < leg.T; ++itr) {
+				leg.joint[itr] = VTransform(leg.joint[itr].V_Cast(), mat);
+			}
+			leg.tip = leg.joint[leg.T - 1];
+		}
+		auto t_vec = pos - _oct.root[idx];		//目標→関節
+		auto p_vec = LEG(idx).tip - _oct.root[idx];		//先端→関節
+		auto mat = MGetTranslate((-_oct.root[idx]).V_Cast());			//原点まで移動
+		mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
+		mat = MMult(mat, MGetTranslate(_oct.root[idx].V_Cast()));		//元の位置に移動
+		for (int j = 0; j < LEG(idx).T; ++j) {
+			LEG(idx).joint[j] = VTransform(LEG(idx).joint[j].V_Cast(), mat);
+		}
+		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
+	}
 }
 
 void Octopus::Die()
@@ -48,7 +76,7 @@ void Octopus::Normal(int idx)
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 	auto rad = radian / 2 * idx - DX_PI_F / 180 * -90;
 
-	auto ang = abs((++LEG(idx).angle / 5) % _maxAngle - _maxAngle / 2) - _maxAngle / 4;
+	auto ang = abs((++LEG(idx).angle / SPEED) % _maxAngle - _maxAngle / 2) - _maxAngle / 4;
 	rad = rad + DX_PI_F / 180 * ang;
 	auto c = _oct.root[idx].x + cos(rad)*_oct.r;
 	auto s = _oct.root[idx].y + sin(rad)*_oct.r;
@@ -124,28 +152,7 @@ void Octopus::Chase(E_Leg& leg, int idx)
 {
 	auto p = LEG(idx).tip - _targetPos;
 	auto pos = LEG(idx).tip - p.Normalized() * 1;
-	for (int it = 0; it < 12; ++it) {
-		for (int j = LEG(idx).T-1; j > 0; --j) {
-			auto t_vec = pos - LEG(idx).joint[j - 1];		//目標→関節
-			auto p_vec = LEG(idx).tip - LEG(idx).joint[j - 1];		//先端→関節
-			auto mat = MGetTranslate((-LEG(idx).joint[j - 1]).V_Cast());			//原点まで移動
-			mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
-			mat = MMult(mat, MGetTranslate(LEG(idx).joint[j - 1].V_Cast()));		//元の位置に移動
-			for (int itr = j; itr < LEG(idx).T; ++itr) {
-				LEG(idx).joint[itr] = VTransform(LEG(idx).joint[itr].V_Cast(), mat);
-			}
-			LEG(idx).tip = LEG(idx).joint[LEG(idx).T-1];
-		}
-		auto t_vec = pos - _oct.root[idx];		//目標→関節
-		auto p_vec = LEG(idx).tip - _oct.root[idx];		//先端→関節
-		auto mat = MGetTranslate((-_oct.root[idx]).V_Cast());			//原点まで移動
-		mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
-		mat = MMult(mat, MGetTranslate(_oct.root[idx].V_Cast()));		//元の位置に移動
-		for (int j = 0; j < LEG(idx).T; ++j) {
-			LEG(idx).joint[j] = VTransform(LEG(idx).joint[j].V_Cast(), mat);
-		}
-		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
-	}
+	IkCcd(LEG(idx), pos, idx, 12);
 }
 
 void Octopus::Damage()
@@ -162,29 +169,7 @@ void Octopus::ReMove(E_Leg & leg, int idx)
 	target = _oct.root[idx] + target * _oct.r;
 	auto p = LEG(idx).tip - target;
 	auto pos = LEG(idx).tip - p.Normalized() * 2;
-	for (int it = 0; it < 100; ++it) {
-		for (int j = LEG(idx).T - 1; j > 0; --j) {
-			auto t_vec = pos - LEG(idx).joint[j - 1];		//目標→関節
-			auto p_vec = LEG(idx).tip - LEG(idx).joint[j - 1];		//先端→関節
-			auto mat = MGetTranslate((-LEG(idx).joint[j - 1]).V_Cast());			//原点まで移動
-			mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
-			mat = MMult(mat, MGetTranslate(LEG(idx).joint[j - 1].V_Cast()));		//元の位置に移動
-			for (int itr = j; itr < LEG(idx).T; ++itr) {
-				LEG(idx).joint[itr] = VTransform(LEG(idx).joint[itr].V_Cast(), mat);
-			}
-			LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
-		}
-		auto t_vec = pos - _oct.root[idx];		//目標→関節
-		auto p_vec = LEG(idx).tip - _oct.root[idx];		//先端→関節
-		auto mat = MGetTranslate((-_oct.root[idx]).V_Cast());			//原点まで移動
-		mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
-		mat = MMult(mat, MGetTranslate(_oct.root[idx].V_Cast()));		//元の位置に移動
-		for (int j = 0; j < LEG(idx).T; ++j) {
-			LEG(idx).joint[j] = VTransform(LEG(idx).joint[j].V_Cast(), mat);
-		}
-		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
-	}
-	
+	IkCcd(LEG(idx), pos, idx, 100);
 	if ((LEG(idx).tip - target).Magnitude() < 8) {
 		for (int j = 0; j < LEG(idx).T; ++j) {
 			LEG(idx).joint[j] = _oct.root[idx] + Vector2(c, s)*(_oct.r / LEG(idx).T*(j + 1));

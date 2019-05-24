@@ -7,8 +7,8 @@ class Camera;
 enum class E_LEG_STATE {
 	NORMAL,
 	PUNCH,
-	OCT_INK,
 	CHASE,
+	OCT_INK,
 	RE_MOVE,
 	DAMAGE,
 	DETH,
@@ -40,6 +40,8 @@ private:
 	int _idx;
 	Vector2 _targetPos;
 	Vector2 _vec;
+	void IkCcd(E_Leg& leg, Vector2 pos,int idx,int numMaxItaration);
+
 	void Die();
 	void DieUpdate();
 	void Normal(int idx);
