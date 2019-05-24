@@ -1,6 +1,8 @@
 #include "Collision.h"
 #include <cmath>
 
+const int cutnum = 4;
+
 Vector2 Collision::Sub_Calculation(const Vector2 & posA, const Vector2 & posB)
 {
 	Vector2 tmp;
@@ -200,4 +202,79 @@ bool Collision::CircleToCircle(const Position2 & _posA, const float & _rA, const
 	}
 
 	return false;
+}
+
+int Collision::BitSeparate(const int & n)
+{
+	int num = n;
+	num = (num | (num << 8)) & 0x00ff00ff;
+	num = (num | (num << 4)) & 0x0f0f0f0f;
+	num = (num | (num << 2)) & 0x33333333;
+	num = (num | (num << 1)) & 0x55555555;
+
+	return num;
+}
+
+int Collision::CalCulation(const Rect & rect)
+{
+	int sizex, sizey;
+	GetDrawScreenSize(&sizex,& sizey);
+
+	auto ltpos = Vector2(rect.Left(), rect.Top());			//左上座標
+	auto rbpos = Vector2(rect.Right(), rect.Bottom());		//右下座標
+
+	//分割した時のサイズに
+	auto cutsize = Vector2(sizex / cutnum, sizey / cutnum);
+
+	//左上座標の空間を計算
+	int ltx = ltpos.x / cutsize.x;
+	int lty = ltpos.y / cutsize.y;
+
+	//間に0を入れていって六桁の二進数にする(その後の計算のため)
+	ltx = BitSeparate(ltx);
+	lty = BitSeparate(lty);
+
+	//y座標を１ビット左シフト
+	lty = lty << 1;
+
+	//x座標とy座標をOR演算
+	auto lt = ltx | lty;
+
+
+	//右下座標の空間を計算
+	int rbx = rbpos.x / cutsize.x;
+	int rby = rbpos.y / cutsize.y;
+
+	//間に0を入れていって六桁の二進数にする(その後の計算のため)
+	rbx = BitSeparate(rbx);
+	rby = BitSeparate(rby);
+
+	//y座標を１ビット左シフト
+	rby = rby << 1;
+
+	//x座標とy座標をOR演算
+	auto rb = rbx | rby;
+
+	//左上空間の番号と左下空間の番号をXOR演算
+	int ltrb = lt ^ rb;
+
+	return ltrb;
+	int spaceNum = 0;
+	int i = 0;
+	int shift = 0;
+
+	//空間を特定
+	while (ltrb != 0) {
+		if ((ltrb & 0x3) != 0) {
+			//空間シフト数
+			spaceNum = (i + 1);
+			shift = spaceNum * 2;
+		}
+
+		//2bitシフトさせて再チェック
+		ltrb >>= 2;
+		i++;
+	}
+
+	rb = rb >> shift;
 }

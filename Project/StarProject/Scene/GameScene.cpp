@@ -480,7 +480,7 @@ void GameScene::Update(const Input & p)
 								destroy->GetInfo()._rect))
 							{
 								destroy->Break();
-								//(*l).Hit();
+								(*l).Hit();
 							}
 						}
 						/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
