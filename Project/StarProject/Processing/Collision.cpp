@@ -278,3 +278,12 @@ int Collision::CalCulation(const Rect & rect)
 
 	rb = rb >> shift;
 }
+
+Vector2 Collision::GetParentCal(const int& spaceNum, const int& rb)
+{
+	auto listnum = (rb - 1) / 4;
+
+	auto spacenum = spaceNum + 1;
+
+	return Vector2(spacenum, listnum);
+}

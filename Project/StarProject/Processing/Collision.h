@@ -22,5 +22,6 @@ public:
 	int BitSeparate(const int& num);
 
 	int CalCulation(const Rect& rect);
+	Vector2 GetParentCal(const int& spaceNum, const int& rb);
 };
 
