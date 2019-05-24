@@ -97,6 +97,8 @@ void GameScene::Wait(const Input & p)
 
 void GameScene::Run(const Input & p)
 {
+	auto& size = Game::GetInstance().GetScreenSize();
+
 	_pl->Update(p);
 	for (auto &enemy : _enemies)
 	{
@@ -117,11 +119,28 @@ void GameScene::Run(const Input & p)
 		wait = 0;
 		_updater = &GameScene::FadeOut;
 	}
+
+	if(bosssceneflag == false) {
+		if (_pl->GetInfo().center.x >= size.x * 3) {
+			_updater = &GameScene::BossScene;
+		}
+	}
 }
 
 void GameScene::BossScene(const Input & p)
 {
+	auto& size = Game::GetInstance().GetScreenSize();
 
+	Draw();
+	_pl->Update(p);
+	_pl->LetsGo(Vector2(size.x * 3 + _pl->GetInfo().r * 3, size.y));
+
+	if ((_pl->GetInfo().center.x >= size.x * 3 + _pl->GetInfo().r * 3) &&
+		(_pl->GetInfo().center.y >= size.y)) {
+		bosssceneflag = true;
+		StageLock();
+		_updater = &GameScene::Run;
+	}
 }
 
 void GameScene::LoadResource()
@@ -206,6 +225,15 @@ void GameScene::LoadResource()
 
 }
 
+void GameScene::StageLock()
+{
+	auto& size = Game::GetInstance().GetScreenSize();
+
+	for (int i = 0; i < _camera->GetRange().y / 32; i++) {
+		_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, size.x * 3, i * 32));
+	}
+}
+
 GameScene::GameScene()
 {
 	_camera.reset(new Camera());
@@ -225,6 +253,9 @@ GameScene::GameScene()
 
 	shader_time = 0;
 	num = 0;
+
+	bosssceneflag = false;
+
 	_updater = &GameScene::LoadStageUpdate;
 }
 

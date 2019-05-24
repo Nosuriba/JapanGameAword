@@ -109,6 +109,10 @@ private:
 
 	std::mutex _mutex;
 
+	bool bosssceneflag;
+
+	void StageLock();
+
 public:
 	GameScene();
 	~GameScene();

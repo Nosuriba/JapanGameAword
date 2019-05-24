@@ -4,7 +4,7 @@
 #include "Scene/TitleScene.h"
 
 #include "Icon.h"
-#define IDI_ICON1 101
+
 constexpr int screen_x = 1200;
 constexpr int screen_y = 800;
 
@@ -30,14 +30,16 @@ const std::vector<int> Game::GetShaderHandle() const
 
 void Game::Init()
 {
+	DxLib::SetWindowIconID(IDI_ICON1);
+
 	DxLib::SetGraphMode(screen_x, screen_y, 32);
+
 	DxLib::ChangeWindowMode(true);
 
-	DxLib::SetWindowIconID(IDI_ICON1);
 
 	SetUseDirect3DVersion(DX_DIRECT3D_9EX);
 
-	DxLib::SetWindowTextA("ñºèÃñ¢ê›íËÇæÇº(ÅL•É÷•`)");
+	DxLib::SetWindowTextA("äCêØêÌëà");
 	if (DxLib_Init() == -1)
 	{
 		return;
