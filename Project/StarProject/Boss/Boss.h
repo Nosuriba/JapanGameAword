@@ -12,7 +12,6 @@ struct JointInfo
 {
 	// ŠÖß‚Ì’†ŠÔ“_
 	std::vector<Vector2> _points;			/// Œã‚Å’†ŠÔ“_‚Ì•”•ª‚ğ‚±‚Ì’†‚É‚Ô‚¿‚ñ‚Å‚â‚é‚º
-	Vector2 _sPoint, _mPoint, _ePoint;
 	// §Œä“_
 	Vector2 _ctlPoint;
 	Vector2 _vel;
