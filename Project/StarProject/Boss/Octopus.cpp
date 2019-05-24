@@ -10,17 +10,17 @@
 
 Octopus::Octopus(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
-	_maxAngle = 46;
+	_maxAngle = 30;
 	_wait = 0;
-	_oct.center = Vector2(900, 400);
+	_oct.center = Vector2(1000, 400);
 	
 	_oct.root.resize(8);
 
 	_oct.legs.resize(8);
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 	for (int i = 0; i < _oct.legs.size(); ++i) {
-		auto c = cos(radian * i);
-		auto s = sin(radian * i);
+		auto c = cos(radian / 2 * i - DX_PI_F / 180 * -90);
+		auto s = sin(radian / 2 * i - DX_PI_F / 180 * -90);
 		auto pos = Vector2(c, s);
 		_oct.root[i] = _oct.center + pos * 50;
 		LEG(i).tip = _oct.root[i]  + pos * _oct.r;
@@ -28,7 +28,7 @@ Octopus::Octopus(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera
 			LEG(i).joint.push_back(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)));
 		}
 		LEG(i).state = E_LEG_STATE::NORMAL;
-		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * 5;
+		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * 5*(i+1);
 		LEG(i).cnt = 0;
 	}
 	_idx = 0;
@@ -46,7 +46,7 @@ void Octopus::DieUpdate()
 void Octopus::Normal(int idx)
 {
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
-	auto rad = radian * idx;
+	auto rad = radian / 2 * idx - DX_PI_F / 180 * -90;
 
 	auto ang = abs((++LEG(idx).angle / 5) % _maxAngle - _maxAngle / 2) - _maxAngle / 4;
 	rad = rad + DX_PI_F / 180 * ang;
@@ -74,17 +74,50 @@ void Octopus::Normal(int idx)
 
 void Octopus::Punch(E_Leg& leg, int idx)
 {
-	if (++_wait < _oct.r/LEG(idx).T) {
-		auto target = LEG(idx).tip - _oct.root[idx];
-		LEG(idx).joint[0] = _oct.root[idx] + target.Normalized()*((_oct.root[idx] - LEG(idx).joint[0]).Magnitude() - 1);
-		for (int j = 1; j < LEG(idx).T; ++j) {				//第一関節から回転
-			LEG(idx).joint[j] = LEG(idx).joint[j-1] + target.Normalized()*((LEG(idx).joint[j] - LEG(idx).joint[j-1]).Magnitude() - 1);
+	auto p = LEG(idx).tip - _targetPos;
+	auto pos = LEG(idx).tip - p.Normalized() * 10;
+	auto t_vec = pos - _oct.root[idx];
+	auto p_vec = LEG(idx).tip - _oct.root[idx];
+	if (++_wait < _oct.r/LEG(idx).T*10) {
+		auto mat = MGetTranslate((-_oct.root[idx]).V_Cast());
+		mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));
+		mat = MMult(mat, MGetTranslate(_oct.root[idx].V_Cast()));
+		for (int j = 0; j < LEG(idx).T; ++j) {
+			LEG(idx).joint[j] = VTransform(LEG(idx).joint[j].V_Cast(), mat);
 		}
+		LEG(idx).tip = LEG(idx).joint[LEG(idx).T-1];
+		p_vec = LEG(idx).tip - _oct.root[idx];
+		for (int j = 2; j < LEG(idx).T; ++j) {				
+			LEG(idx).joint[j] = LEG(idx).joint[j-1] + p_vec.Normalized()*((LEG(idx).joint[j] - LEG(idx).joint[j-1]).Magnitude() - 0.2f);
+		}
+		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
+	}
+	else if ((_wait > _oct.r / LEG(idx).T*10)&&(_wait < _oct.r / LEG(idx).T * 11)) {
+		auto target = LEG(idx).tip - _oct.root[idx];
+		for (int j = 2; j < LEG(idx).T; ++j) {				
+			LEG(idx).joint[j] = LEG(idx).joint[j - 1] + target.Normalized()*((LEG(idx).joint[j] - LEG(idx).joint[j - 1]).Magnitude() +j);
+		}
+		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
+	}
+	else if ((_wait > _oct.r / LEG(idx).T * 11)&&(p_vec.Magnitude()>_oct.r)) {
+		for (int j = 2; j < LEG(idx).T; ++j) {
+			LEG(idx).joint[j] = LEG(idx).joint[j - 1] + p_vec.Normalized()*((LEG(idx).joint[j] - LEG(idx).joint[j - 1]).Magnitude() - j);
+		}
+		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
+	}
+	else {
+		for (int j = 0; j < LEG(idx).T; ++j) {
+			LEG(idx).joint[j] = _oct.root[idx] + p_vec.Normalized()*(_oct.r / LEG(idx).T*(j + 1));
+		}
+		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
+
+		LEG(idx).state = E_LEG_STATE::RE_MOVE;
 	}
 }
 
 void Octopus::OctInk(E_Leg& leg, int idx)
 {
+
 }
 
 void Octopus::Chase(E_Leg& leg, int idx)
@@ -93,46 +126,66 @@ void Octopus::Chase(E_Leg& leg, int idx)
 	auto pos = LEG(idx).tip - p.Normalized() * 1;
 	for (int it = 0; it < 12; ++it) {
 		for (int j = LEG(idx).T-1; j > 0; --j) {
-			auto p_vec = pos - LEG(idx).joint[j - 1];		//目標→関節
-			auto t_vec = LEG(idx).tip - LEG(idx).joint[j - 1];		//先端→関節
+			auto t_vec = pos - LEG(idx).joint[j - 1];		//目標→関節
+			auto p_vec = LEG(idx).tip - LEG(idx).joint[j - 1];		//先端→関節
 			auto mat = MGetTranslate((-LEG(idx).joint[j - 1]).V_Cast());			//原点まで移動
-			mat = MMult(mat, MGetRotVec2(t_vec.V_Cast(), p_vec.V_Cast()));	//回転
+			mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
 			mat = MMult(mat, MGetTranslate(LEG(idx).joint[j - 1].V_Cast()));		//元の位置に移動
 			for (int itr = j; itr < LEG(idx).T; ++itr) {
 				LEG(idx).joint[itr] = VTransform(LEG(idx).joint[itr].V_Cast(), mat);
 			}
 			LEG(idx).tip = LEG(idx).joint[LEG(idx).T-1];
 		}
+		auto t_vec = pos - _oct.root[idx];		//目標→関節
+		auto p_vec = LEG(idx).tip - _oct.root[idx];		//先端→関節
+		auto mat = MGetTranslate((-_oct.root[idx]).V_Cast());			//原点まで移動
+		mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
+		mat = MMult(mat, MGetTranslate(_oct.root[idx].V_Cast()));		//元の位置に移動
+		for (int j = 0; j < LEG(idx).T; ++j) {
+			LEG(idx).joint[j] = VTransform(LEG(idx).joint[j].V_Cast(), mat);
+		}
+		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
 	}
 }
 
 void Octopus::Damage()
 {
+
 }
 
 void Octopus::ReMove(E_Leg & leg, int idx)
 {
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
-	auto c = cos(radian * idx);
-	auto s = sin(radian * idx);
+	auto c = cos(radian / 2 * idx - DX_PI_F / 180 * -90);
+	auto s = sin(radian / 2 * idx - DX_PI_F / 180 * -90);
 	auto target = Vector2(c, s);
 	target = _oct.root[idx] + target * _oct.r;
 	auto p = LEG(idx).tip - target;
-	auto pos = LEG(idx).tip - p.Normalized() * 1;
-	for (int it = 0; it < 12; ++it) {
+	auto pos = LEG(idx).tip - p.Normalized() * 2;
+	for (int it = 0; it < 100; ++it) {
 		for (int j = LEG(idx).T - 1; j > 0; --j) {
-			auto p_vec = pos - LEG(idx).joint[j - 1];		//目標→関節
-			auto t_vec = LEG(idx).tip - LEG(idx).joint[j - 1];		//先端→関節
+			auto t_vec = pos - LEG(idx).joint[j - 1];		//目標→関節
+			auto p_vec = LEG(idx).tip - LEG(idx).joint[j - 1];		//先端→関節
 			auto mat = MGetTranslate((-LEG(idx).joint[j - 1]).V_Cast());			//原点まで移動
-			mat = MMult(mat, MGetRotVec2(t_vec.V_Cast(), p_vec.V_Cast()));	//回転
+			mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
 			mat = MMult(mat, MGetTranslate(LEG(idx).joint[j - 1].V_Cast()));		//元の位置に移動
 			for (int itr = j; itr < LEG(idx).T; ++itr) {
 				LEG(idx).joint[itr] = VTransform(LEG(idx).joint[itr].V_Cast(), mat);
 			}
 			LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
 		}
+		auto t_vec = pos - _oct.root[idx];		//目標→関節
+		auto p_vec = LEG(idx).tip - _oct.root[idx];		//先端→関節
+		auto mat = MGetTranslate((-_oct.root[idx]).V_Cast());			//原点まで移動
+		mat = MMult(mat, MGetRotVec2(p_vec.V_Cast(), t_vec.V_Cast()));	//回転
+		mat = MMult(mat, MGetTranslate(_oct.root[idx].V_Cast()));		//元の位置に移動
+		for (int j = 0; j < LEG(idx).T; ++j) {
+			LEG(idx).joint[j] = VTransform(LEG(idx).joint[j].V_Cast(), mat);
+		}
+		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
 	}
-	if ((LEG(idx).tip - target).Magnitude() < 10) {
+	
+	if ((LEG(idx).tip - target).Magnitude() < 8) {
 		for (int j = 0; j < LEG(idx).T; ++j) {
 			LEG(idx).joint[j] = _oct.root[idx] + Vector2(c, s)*(_oct.r / LEG(idx).T*(j + 1));
 		}
@@ -159,11 +212,10 @@ void Octopus::LegMove(E_Leg & leg, int idx)
 
 void Octopus::NeturalUpdate()
 {
-	LEG(4).state = E_LEG_STATE::PUNCH;
 	int j = 0;
 	float distance = 9999;
 	for (auto& leg : _oct.legs) {
-		if (((_targetPos - leg.tip).Magnitude() < distance)/*&&(leg.state == E_LEG_STATE::NORMAL)*/) {
+		if (((_targetPos - leg.tip).Magnitude() < distance)) {
 			distance = (_targetPos - leg.tip).Magnitude();
 			_idx = j;
 		}
@@ -176,7 +228,7 @@ void Octopus::NeturalUpdate()
 		}
 		else {
 			if (_idx != i) {
-				//LEG(i).state = E_LEG_STATE::RE_MOVE;
+				LEG(i).state = E_LEG_STATE::RE_MOVE;
 			}
 		}
 		if (LEG(i).state == E_LEG_STATE::PUNCH) {
@@ -192,7 +244,7 @@ void Octopus::NeturalUpdate()
 			ReMove(LEG(i), i);
 		}
 		if (_idx == i) {
-			//LEG(i).state = E_LEG_STATE::CHASE;
+			LEG(i).state = E_LEG_STATE::CHASE;
 		}
 	}
 	
@@ -201,6 +253,7 @@ void Octopus::NeturalUpdate()
 void Octopus::Draw()
 {
 	auto c = _camera->CameraCorrection();
+	//足の間の膜の描画
 	for (int i = 0; i <= _oct.legs.size(); ++i) {
 		int j = 1;
 		auto p1 = _oct.root[i%_oct.legs.size()];
@@ -209,33 +262,18 @@ void Octopus::Draw()
 		auto p4 = _oct.root[(i + 1) % _oct.legs.size()];
 		DrawQuadrangle(p1.x - c.x, p1.y - c.y, p2.x - c.x, p2.y - c.y, p3.x - c.x, p3.y - c.y, p4.x - c.x, p4.y - c.y, 0xbb0000, true);
 	}
-
+	//足の描画
 	for (int i = 0; i < _oct.legs.size(); ++i) {
 		int j = 0;
 		auto width = 50;
-
-		/*auto p1 = _oct.root[i] + Vector2(0, 1)*width;
-		auto p2 = LEG(i).joint[j] + Vector2(0, 1)*width;
-		auto p3 = LEG(i).joint[j] + Vector2(0, -1)*width;
-		auto p4 = _oct.root[i] + Vector2(0, -1)*width;*/
-		//DrawQuadrangleAA(p1.x-c.x, p1.y-c.y, p2.x-c.x, p2.y-c.y, p3.x-c.x, p3.y-c.y, p4.x-c.x, p4.y-c.y, 0xaa0000, true);
-
 		DrawLineAA(_oct.root[i].x - c.x, _oct.root[i].y - c.y, LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, 0xcc0000, width);
-
 		for (j = 0; j < LEG(i).T - 1; ++j) {
-
-			/*p1 = p2;
-			p2 = LEG(i).joint[j + 1] + Vector2(0, 1)*width;
-			p4 = p3;
-			p3 = LEG(i).joint[j + 1] + Vector2(0, -1)*width;*/
-			//DrawQuadrangleAA(p1.x-c.x, p1.y-c.y, p2.x-c.x, p2.y-c.y, p3.x-c.x, p3.y-c.y, p4.x-c.x, p4.y-c.y, 0xaa0000, true);
 			DrawLineAA(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, LEG(i).joint[j + 1].x - c.x, LEG(i).joint[j + 1].y - c.y, 0xcc0000, width-=2);
 			DrawCircle(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, (width-=2)/2, 0xcc0000, true);
 		}
 	}
-	
+	//頭の描画
 	DrawOval(_oct.center.x + 50-c.x, _oct.center.y-c.y, 125, 75, 0xee0000, true);
-	//DrawOval(_oct.center.x + 50-c.x, _oct.center.y-c.y, 125, 75, 0x111111, false);
 	for (int i = 0; i < 2; ++i) {
 		DrawOval(_oct.center.x - 45 - c.x, _oct.center.y + 37 - 75 * i - c.y, 8,6, 0xffa500, true);
 		DrawOval(_oct.center.x - 45 - c.x, _oct.center.y + 37 - 75 * i - c.y, 6, 3, 0x000000, true);
