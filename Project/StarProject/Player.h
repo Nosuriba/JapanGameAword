@@ -38,9 +38,11 @@ struct Laser {
 	Vector2 vel;
 	float size;
 	bool isHit;
+	bool isEnd;
 
-	Laser(Vector2 p, Vector2 v) : pos(p), vel(v) { count = 0; size = 5; isHit = false; }
+	Laser(Vector2 p, Vector2 v,bool isEnd = false) : pos(p), vel(v) ,isEnd(isEnd){ count = 0; size = 5; isHit = false;}
 	void Hit() { isHit = true; }
+	void End() { isEnd = true; }
 };
 
 class Player
@@ -51,11 +53,12 @@ private:
 
 	Star _star;
 	std::array<int, 2> select_idx;
-	std::list<Laser> _laser;
+	std::array<std::list<Laser>,2> _laser;
 
-	Vector2 _vel;
 	int _anim_frame;
+
 	Vector2 _target;
+	Vector2 _goal;
 
 	int _img_STICK;
 	int _img_TRIGGER;
@@ -66,6 +69,7 @@ private:
 	void Normal(const Input& in);
 	void Predation(const Input& in);
 	void Die(const Input& in);
+	void Move(const Input& in);
 
 	void SetStar(const Vector2& p, const float& s);
 public:
@@ -79,9 +83,10 @@ public:
 
 	Star GetInfo();
 	const std::vector<Vector2> GetShot();
-	const std::list<Laser> GetLaser();
+	const std::array<std::list<Laser>, 2> GetLaser();
 	void LevelUP();
 	void ToCatch(const Vector2& t);
 	void OnDamage();
+	void LetsGo(const Vector2 p);
 };
 

@@ -18,5 +18,10 @@ public:
 	bool WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const float& size ,const Rect& _rect);
 	bool CircleToSqr(const Position2 & _posA, const float &_r, const Rect & _rectB);
 	bool CircleToCircle(const Position2 & _posA, const float & _rA, const std::array<Vector2, 3>& _tri);
+
+	int BitSeparate(const int& num);
+
+	int CalCulation(const Rect& rect);
+	Vector2 GetParentCal(const int& spaceNum, const int& rb);
 };
 

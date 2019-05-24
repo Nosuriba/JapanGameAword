@@ -19,6 +19,8 @@ void Player::Normal(const Input & in)
 		ToCatch(LEG(3).pos);
 	if (Buf[KEY_INPUT_O]) 
 		OnDamage();
+	if (Buf[KEY_INPUT_G])
+		LetsGo(Vector2(0, 0));
 
 	// ¶STICK‚Ì“ü—Í
 	if (in.PushTrigger(TRIGGER::LEFT) == 0 && !in.Push(BUTTON::LB))
@@ -60,71 +62,12 @@ void Player::Normal(const Input & in)
 		auto v = LEG(i).tip - _star.center;
 		LEG(i).vel *= deceleration;
 
-		if (i == select_idx[0])
+		if (i == select_idx[0] || i == select_idx[1])
 		{
-			if (in.PushTrigger(TRIGGER::LEFT))
-			{
-				LEG(i).state = LEG_STATE::SHOT;
+			LEG(i).state = LEG_STATE::SELECT;
 
-				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
-				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
-				
-				_laser.emplace_back(LEG(i).pos, v.Normalized());
-
-				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
-				_particle[0]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
-				_particle[0]->Create();
-
-			}
-			else if (in.Push(BUTTON::LB))
-			{
-				LEG(i).state = LEG_STATE::HOLD;
-
-				LEG(i).vel = Vector2();
-
-				if (v.Magnitude() > (_star.r * 0.9f))
-					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f * _star.level);
-			}
-			else
-			{
-				LEG(i).state = LEG_STATE::SELECT;
-
-				if (v.Magnitude() < (_star.r * 1.1f))
-					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f * _star.level);
-			}
-		}
-		else if (i == select_idx[1])
-		{
-			if (in.PushTrigger(TRIGGER::RIGHT))
-			{
-				LEG(i).state = LEG_STATE::SHOT;
-
-				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
-				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
-
-				_laser.emplace_back(LEG(i).pos, v.Normalized());
-
-				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
-				_particle[1]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
-				_particle[1]->Create();
-
-			}
-			else if (in.Push(BUTTON::RB))
-			{
-				LEG(i).state = LEG_STATE::HOLD;
-
-				LEG(i).vel = Vector2();
-
-				if (v.Magnitude() > (_star.r * 0.9f))
-					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f * _star.level);
-			}
-			else
-			{
-				LEG(i).state = LEG_STATE::SELECT;
-
-				if (v.Magnitude() < (_star.r * 1.1f))
-					LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f * _star.level);
-			}
+			if (v.Magnitude() < (_star.r * 1.1f))
+				LEG(i).tip = _star.center + v.Normalized() * min((_star.r * 1.1f), v.Magnitude() + 0.1f * _star.level);
 		}
 		else
 		{
@@ -134,6 +77,69 @@ void Player::Normal(const Input & in)
 				LEG(i).tip = _star.center + v.Normalized() * max(_star.r, v.Magnitude() - 0.1f);
 			if (v.Magnitude() < _star.r)
 				LEG(i).tip = _star.center + v.Normalized() * max(_star.r, v.Magnitude() + 0.1f);
+		}
+		if (in.ReleaseTrigger(TRIGGER::LEFT))
+		{
+			if (_laser[0].size())
+				(--_laser[0].end())->End();
+		}
+		if (in.ReleaseTrigger(TRIGGER::RIGHT))
+		{
+			if (_laser[1].size())
+				(--_laser[1].end())->End();
+		}
+
+		if (i == select_idx[0])
+		{
+			if (in.PushTrigger(TRIGGER::LEFT))
+			{
+				LEG(i).state = LEG_STATE::SHOT;
+
+				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
+				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
+				
+				_laser[0].emplace_back(LEG(i).pos, v.Normalized());
+
+				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
+				_particle[0]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
+				_particle[0]->Create();
+
+			}
+			if (in.Push(BUTTON::LB))
+			{
+				LEG(i).state = LEG_STATE::HOLD;
+
+				LEG(i).vel = Vector2();
+
+				if (v.Magnitude() > (_star.r * 0.9f))
+					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f * _star.level);
+			}
+		}
+		if (i == select_idx[1])
+		{
+			if (in.PushTrigger(TRIGGER::RIGHT))
+			{
+				LEG(i).state = LEG_STATE::SHOT;
+
+				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
+				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
+
+				_laser[1].emplace_back(LEG(i).pos, v.Normalized());
+
+				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
+				_particle[1]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
+				_particle[1]->Create();
+
+			}
+			if (in.Push(BUTTON::RB))
+			{
+				LEG(i).state = LEG_STATE::HOLD;
+
+				LEG(i).vel = Vector2();
+
+				if (v.Magnitude() > (_star.r * 0.9f))
+					LEG(i).tip = _star.center + v.Normalized() * max((_star.r * 0.9f), v.Magnitude() - 0.1f * _star.level);
+			}
 		}
 	}
 
@@ -232,6 +238,20 @@ void Player::Die(const Input & in)
 	++_anim_frame;
 }
 
+void Player::Move(const Input & in)
+{
+	auto v = _goal - CENTER;
+	if (v.Magnitude() > 5.0f)
+	{
+		MATRIX mat = MGetTranslate((v.Normalized() * 5.0f).V_Cast());
+		CENTER = VTransform(CENTER.V_Cast(), mat);
+		for (auto& l : _star.legs)
+			l.tip = VTransform(l.tip.V_Cast(), mat);
+	}
+	else
+		_updater = &Player::Normal;
+}
+
 void Player::SetStar(const Vector2 & p, const float & s)
 {
 	auto move	= p - CENTER;
@@ -268,7 +288,6 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 		LEG(i).halfway_point.resize(LEG(i).T);
 	}
 	select_idx = { -1,-1 };
-	_vel = Vector2();
 
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
@@ -287,14 +306,16 @@ Player::~Player()
 void Player::Update(const Input& in)
 {
 	GetHitKeyStateAll(Buf);
-
-	for (auto& l : _laser)
+	for (int i=0;i<2;i++)
 	{
-		l.pos += l.vel;
-		l.vel += l.vel.Normalized();
-		++l.count;
+		for (auto& l : _laser[i])
+		{
+			l.pos += l.vel;
+			l.vel += l.vel.Normalized();
+			++l.count;
+		}
+		_laser[i].remove_if([](Laser l) { return l.count > 75 || l.isHit; });
 	}
-	_laser.remove_if([](Laser l) { return l.count > 75 || l.isHit; });
 
 	(this->*_updater)(in);
 
@@ -347,11 +368,20 @@ void Player::Draw()
 		if (select_idx[i] != -1)
 			DrawRectRotaGraph
 			(LEG(select_idx[i]).tip.x - c.x, LEG(select_idx[i]).tip.y - c.y, 22 * i, 0, 22, 55, 0.5f, 0, _img_TRIGGER, true);
-	for (auto& l : _laser)
+	for (int i = 0; i < 2; i++)
 	{
-		auto start = l.pos - c;
-		auto end = l.pos + (l.vel.Normalized() * l.size) - c;
-		DrawLine(start.x, start.y, end.x, end.y, 0x000000, 10);
+		for (auto l = _laser[i].begin();l!= _laser[i].end();l++)
+		{
+			auto start = (*l).pos - c;
+			auto end = (*l).pos + ((*l).vel.Normalized() * (*l).size) - c;
+
+			DrawLine(start.x, start.y, end.x, end.y, 0x000000, 10);
+
+			auto s = (*l).pos - c;
+			auto e = (*l).isEnd?s:((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos)-c;
+
+			DrawLine(s.x, s.y, e.x, e.y, 0x3333ff, (*l).size);
+		}
 	}
 	for (auto& p : _particle)
 		p->Draw();
@@ -439,7 +469,7 @@ const std::vector<Vector2> Player::GetShot()
 	return v;
 }
 
-const std::list<Laser> Player::GetLaser()
+const std::array<std::list<Laser>,2> Player::GetLaser()
 {
 	return _laser;
 }
@@ -469,4 +499,10 @@ void Player::OnDamage()
 {
 	_anim_frame = 0;
 	_updater	= &Player::Die;
+}
+
+void Player::LetsGo(const Vector2 p)
+{
+	_goal = p;
+	_updater = &Player::Move;
 }
