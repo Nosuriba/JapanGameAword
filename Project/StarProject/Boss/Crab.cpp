@@ -14,7 +14,7 @@ const int typeMax   = static_cast<int>(AtkType::MAX);
 const int atkCnt	= 60;
 const Size eSize    = Size(250, 150);			// ŠI‚Ì‘å‚«‚³
 const Size lSize    = Size(length, 20);			// ‹r‚Ì‘å‚«‚³
-const Size scisSize = Size(60, 20);		// ‚Í‚³‚İ‚Ì‘å‚«‚³				
+const Size scisSize = Size(50, 25);		// ‚Í‚³‚İ‚Ì‘å‚«‚³				
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
@@ -196,8 +196,6 @@ void Crab::CalVert()
 	Vector2 size, sizePos;
 	float theta, cost, sint;
 
-	std::vector<Vector2> dList;
-
 	/// ‹r‚Ì‹éŒ`İ’è
 	for (auto& leg : boss._crab._legs)
 	{
@@ -218,7 +216,6 @@ void Crab::CalVert()
 				sizePos = (p < 2 ? -size : size);
 
 				leg._vert[cnt - 1][p] = (p == 0 || p == 3 ? leg._points[cnt - 1] : (*point)) + sizePos;
-				dList.push_back(leg._vert[cnt - 1][p]);
 			}
 		}
 	}
@@ -251,27 +248,19 @@ void Crab::CalVert()
 		/// ‹r‚Ì•‚ÌŠp“x‚ğ“o˜^‚µ‚Ä‚¢‚é
 		dirTheta.push_back(atan2f((*arm)._vert[1][1].y - (*arm)._vert[1][0].y,
 								  (*arm)._vert[1][1].x - (*arm)._vert[1][0].x));
-		/// æ’[‚Ì˜r‚ğ‘¾‚­‚·‚éˆ—
-		theta = atan2f((*arm)._vert[1][1].y - (*arm)._vert[1][2].y,		/// ’¸“_‚©‚çã•ûŒü‚Ì•‚ÌŠp“x
-					   (*arm)._vert[1][1].x - (*arm)._vert[1][2].x);
-		cost = cos(theta);
-		sint = sin(theta);
-		(*arm)._vert[1][1] = (*arm)._vert[1][1] + Vector2(length / 4 * cost, length / 4 * sint);
 
-		theta = atan2f((*arm)._vert[1][2].y - (*arm)._vert[1][1].y,		/// ’¸“_‚©‚ç‰º•ûŒü‚Ì•‚ÌŠp“x
-					   (*arm)._vert[1][2].x - (*arm)._vert[1][1].x);
-		cost = cos(theta);
-		sint = sin(theta);
-		(*arm)._vert[1][2] = (*arm)._vert[1][2] + Vector2(length / 4 * cost, length / 4 * sint);
-
-		/// ‚±‚±‚ğC³‚·‚é
-		/*for (int i = 1; i <= 2; ++i)
+		/// ˜r‚Ìæ’[‚ğ‘¾‚­‚·‚éˆ—
+		for (int i = 1; i <= (*arm)._points.size() - 1; ++i)
 		{
-			theta = atan2f((*arm)._vert[1][2].y - (*arm)._vert[1][1].y,		/// ’¸“_‚©‚ç‰º•ûŒü‚Ì•‚ÌŠp“x
-						   (*arm)._vert[1][2].x - (*arm)._vert[1][1].x);
-		}*/
+			theta = atan2f((*arm)._vert[1][i].y - (*arm)._vert[1][(*arm)._points.size() - i].y,
+						   (*arm)._vert[1][i].x - (*arm)._vert[1][(*arm)._points.size() - i].x);
+			cost = cos(theta);
+			sint = sin(theta);
+			(*arm)._vert[1][i] = (*arm)._vert[1][i] + Vector2(length / 4 * cost, length / 4 * sint);
+
+		}
 	}
-	
+	/// ‚Í‚³‚İ‚Ì’Ü‚Ì‹éŒ`İ’è
 	auto aSize = boss._crab._arms.size();		/// ˜r‚Ì”
 	auto scis = _scissors.begin();
 	for (; scis != _scissors.end(); ++scis)
@@ -296,7 +285,7 @@ void Crab::CalVert()
 			cost = cos(theta);
 			sint = sin(theta);
 
-			auto lengPos = (vCnt != 0 && vCnt != 3 ? Vector2(scisSize.width * cost, scisSize.height * sint) 
+			auto lengPos = (vCnt != 0 && vCnt != 3 ? Vector2(scisSize.width * cost, scisSize.width * sint) 
 												   : Vector2());
 			(*vert) = sPos + sizePos + lengPos;
 		}
@@ -350,6 +339,17 @@ void Crab::Rotation()
 		arm._ctlPoint = VTransform(arm._ctlPoint.V_Cast(), mat);
 	}
 	_armPrePos = VTransform(_armPrePos.V_Cast(), mat);
+
+	/// ‚Í‚³‚İ‚Ì‰ñ“]
+	auto scissor = _scissors.begin();
+	for (; scissor != _scissors.end(); ++scissor)
+	{
+		auto sCnt = scissor - _scissors.begin();
+		for (auto& vert : _scissors[sCnt])
+		{
+			vert = VTransform(vert.V_Cast(), mat);
+		}
+	}
 }
 
 void Crab::MoveLeg()
@@ -694,7 +694,7 @@ void Crab::Update()
 
 	if (_type == AtkType::NORMAL && atkInvCnt >= 0)
 	{
-		//Rotation();
+		Rotation();
 		MoveLeg();
 	}
 	CalVert();			/// ‹éŒ`‚Ì’¸“_‚ğİ’è
