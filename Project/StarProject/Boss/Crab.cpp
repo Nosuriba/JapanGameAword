@@ -6,21 +6,22 @@ const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
 							   Game::GetInstance().GetScreenSize().y / 2);
 const Vector2 lVel  = Vector2(3.f, 3.f);	// ‹r‚Ì“®‚­‘¬“x
 const Vector2 fVel  = Vector2(5.f, 5.f);	// ‰£‚é‘¬“x
-const VECTOR rotVec = { 0,0,1.f };
+const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
+const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ‹t‚Ì‰ñ“]•ûŒü
 const float rotVel  = DX_PI_F / 540.f;
 const int length    = 100;
 const int aLength	= length + 60;
 const int typeMax   = static_cast<int>(AtkType::MAX);
-const int atkCnt	= 60;
+const int invCntMax	= 60;
 const Size eSize    = Size(250, 150);			// ŠI‚Ì‘å‚«‚³
 const Size lSize    = Size(length, 20);			// ‹r‚Ì‘å‚«‚³
-const Size scisSize = Size(50, 25);		// ‚Í‚³‚İ‚Ì‘å‚«‚³				
+const Size scisSize = Size(60, 25);		// ‚Í‚³‚İ‚Ì‘å‚«‚³				
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
 	_plPos	   = Vector2();
 	_armPrePos = Vector2();
-	atkInvCnt  = atkCnt;
+	atkInvCnt  = invCntMax;
 	_type	   = AtkType::NORMAL;
 
 	/// ŠI‚Ì‰Šú‰»
@@ -89,8 +90,8 @@ void Crab::ArmInit()
 	/// ˜r‚Ì‰Šú‰»
 	boss._crab._arms.resize(2);
 	/// ‚Í‚³‚İ‚Ì‰Šú‰»
-	_scisCenter.resize(boss._crab._arms.size());
-	_scissors.resize(_scisCenter.size() * 2);
+	_scisCenter.resize(boss._crab._arms.size() * 2);
+	_scissors.resize(_scisCenter.size());
 	auto arm = boss._crab._arms.begin();
 	for (; arm != boss._crab._arms.end(); ++arm)
 	{
@@ -158,7 +159,7 @@ void Crab::FistUpdate()
 				Neutral();
 				_armPrePos = Vector2();
 				arm._vel   = Vector2();
-				atkInvCnt  = atkCnt;
+				atkInvCnt  = invCntMax;
 				break;
 			}
 		}
@@ -166,20 +167,28 @@ void Crab::FistUpdate()
 	else
 	{
 		/// ˜r‚ğL‚Î‚·
-		for (auto& arm : boss._crab._arms)
+		if (_type == AtkType::FIST)
 		{
-       			auto d = abs((_armPrePos.x - arm._ctlPoint.x) + (_armPrePos.y - arm._ctlPoint.y));
-			if ((StopCheck(arm._ctlPoint, _plPos, arm._vel) || (d > aLength)) 
-				&& arm._vel.x != 0)
+			for (auto& arm : boss._crab._arms)
 			{
-				auto vec = _armPrePos - arm._ctlPoint;
-				vec.Normalize();
-				arm._vel = Vector2(fVel.x * vec.x, fVel.y * vec.y);
-				_plPos	 = Vector2();
-				_type	 = AtkType::NORMAL;
-		
+				auto d = abs((_armPrePos.x - arm._ctlPoint.x) + (_armPrePos.y - arm._ctlPoint.y));
+				if ((StopCheck(arm._ctlPoint, _plPos, arm._vel) || (d > aLength))
+					&& arm._vel.x != 0)
+				{
+					auto vec = _armPrePos - arm._ctlPoint;
+					vec.Normalize();
+					arm._vel   = Vector2(fVel.x * vec.x, fVel.y * vec.y);
+					_plPos	   = Vector2();
+					_type	   = AtkType::PITCH;
+					rotInvCnt = invCntMax;
+				}
 			}
 		}
+		else
+		{
+			scisRotation();
+		}
+		
 	}
 }
 
@@ -260,35 +269,86 @@ void Crab::CalVert()
 
 		}
 	}
-	/// ‚Í‚³‚İ‚Ì’Ü‚Ì‹éŒ`İ’è
-	auto aSize = boss._crab._arms.size();		/// ˜r‚Ì”
+
+	if (_type != AtkType::PITCH)
+	{
+		/// ‚Í‚³‚İ‚Ì’Ü‚Ì‹éŒ`İ’è
+		auto aSize = boss._crab._arms.size();		/// ˜r‚Ì”
+		auto scis = _scissors.begin();
+		for (; scis != _scissors.end(); ++scis)
+		{
+			auto sCnt = scis - _scissors.begin();
+			auto vert = _scissors[sCnt].begin();
+			for (; vert != _scissors[sCnt].end(); ++vert)
+			{
+				auto vCnt = vert - _scissors[sCnt].begin();
+				auto sPos = boss._crab._arms[sCnt / aSize]._vert[1][(sCnt % 2) + 1];
+
+				theta = dirTheta[sCnt / aSize];		/// ˜r‚Ì’†ŠÔ“_‚©‚çæ’[‚ÉŒü‚¯‚Ä‚ÌÍŞ¸ÄÙ
+				cost = cos(theta + DX_PI / 2);
+				sint = sin(theta + DX_PI / 2);
+
+				size.x = cost * (scisSize.height / 2);
+				size.y = sint * (scisSize.height / 2);
+				sizePos = (vCnt < 2 ? Vector2() : size * 2);
+				sizePos = (sCnt % 2 ? -sizePos : sizePos);
+
+				cost = cos(theta);
+				sint = sin(theta);
+
+				auto offset = -Vector2(scisSize.height / 3 * cost, scisSize.height / 3 * sint);
+				auto lengPos = (vCnt != 0 && vCnt != 3 ? Vector2(scisSize.width * cost, scisSize.width * sint)
+					: Vector2());
+
+				(*vert) = sPos + sizePos + offset + lengPos;
+			}
+			theta = atan2f(_scissors[sCnt][3].y - _scissors[sCnt][0].y,
+						   _scissors[sCnt][3].x - _scissors[sCnt][0].x);
+			cost = cos(theta);
+			sint = sin(theta);
+
+			_scisCenter[sCnt] = boss._crab._arms[sCnt / 2]._points[2] + Vector2(scisSize.width / 2 * cost, scisSize.width / 2 * sint);
+		}
+	}
+	
+}
+
+void Crab::scisRotation()
+{
+	
 	auto scis = _scissors.begin();
 	for (; scis != _scissors.end(); ++scis)
 	{
 		auto sCnt = scis - _scissors.begin();
-		auto vert = _scissors[sCnt].begin();		
+		auto vert = _scissors[sCnt].begin();
 		for (; vert != _scissors[sCnt].end(); ++vert)
 		{
 			auto vCnt = vert - _scissors[sCnt].begin();
-			/// n“_‚Ìİ’è
-			auto sPos = boss._crab._arms[sCnt / aSize]._vert[1][(sCnt % 2) + 1];
-
-			theta = dirTheta[sCnt / aSize];		/// ˜r‚Ì’†ŠÔ“_‚©‚çæ’[‚ÉŒü‚¯‚Ä‚ÌÍŞ¸ÄÙ
-			cost = cos(theta + DX_PI / 2);
-			sint = sin(theta + DX_PI / 2);
-
-			size.x = cost * (scisSize.height / 2);
-			size.y = sint * (scisSize.height / 2);
-			sizePos = (vCnt < 2 ? Vector2() : size * 2);
-			sizePos = (sCnt % 2 ? -sizePos : sizePos);
-
-			cost = cos(theta);
-			sint = sin(theta);
-
-			auto lengPos = (vCnt != 0 && vCnt != 3 ? Vector2(scisSize.width * cost, scisSize.width * sint) 
-												   : Vector2());
-			(*vert) = sPos + sizePos + lengPos;
+			if (vCnt > 0)
+			{
+			 	auto center = (sCnt % 2 ? _scissors[sCnt][0] : _scissors[sCnt][3]);
+				auto rot = (sCnt % 2 ? revRotDir : rotDir);
+				///	‚Í‚³‚ŞŠÔ‚Ì’²®‚ğ‚µ‚Ä‚¢‚é
+				if (rotInvCnt <= invCntMax / 2)
+				{
+					rot = (sCnt % 2 ? rotDir : revRotDir);
+				}
+				
+				auto mat = MGetTranslate((-center).V_Cast());
+				mat		 = MMult(mat, MGetRotAxis(rot, rotVel * 5));	
+				mat		 = MMult(mat, MGetTranslate(center.V_Cast()));
+				(*vert)  = VTransform((*vert).V_Cast(), mat);
+			}
 		}
+	}
+
+	if (rotInvCnt < 0)
+	{
+		_type = AtkType::NORMAL;
+	}
+	else
+	{
+		rotInvCnt--;
 	}
 }
 
@@ -296,7 +356,7 @@ void Crab::Rotation()
 {
 	auto cPos = center;
 	auto mat = MGetTranslate((-cPos).V_Cast());
-	mat = MMult(mat, MGetRotAxis(rotVec, rotVel)); 	 // Z²‚Ì‰ñ“]s—ñ‚ğì‚Á‚Ä‚¢‚é
+	mat = MMult(mat, MGetRotAxis(rotDir, rotVel)); 	 // Z²‚Ì‰ñ“]s—ñ‚ğì‚Á‚Ä‚¢‚é
 	mat = MMult(mat, MGetTranslate(cPos.V_Cast()));
 	/// ŠI–{‘Ì‚Ì‰ñ“]
 	boss._crab._pos = VTransform(boss._crab._pos.V_Cast(), mat);
@@ -569,6 +629,8 @@ BossInfo Crab::GetInfo()
 
 void Crab::CalTrackVel(const Vector2 & pos)
 {
+
+	///	‚±‚±‚É–AUŒ‚‚·‚é‚Ìˆ—‚à’Ç‰Á‚µ‚Ä‚¨‚­
 	if (_type == AtkType::FIST && _updater == &Crab::NeutralUpdate)
 	{
 		_plPos = pos;
@@ -607,8 +669,18 @@ void Crab::Draw()
 			DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
+
+	/// ‚Í‚³‚İ‚Ì•`‰æ
+	for (auto scissor : _scissors)
+	{
+		p1 = scissor[0] - camera;
+		p2 = scissor[1] - camera;
+		p3 = scissor[2] - camera;
+		p4 = scissor[3] - camera;
+		DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdddd0000, true);
+	}
 	
-	/// ˜r‚Ì•`‰æ(Œã‚ÅC³)
+	/// ˜r‚Ì•`‰æ
 	for (auto arm : boss._crab._arms)
 	{
 		for (int i = 0; i < arm._points.size() - 1; ++i)
@@ -619,17 +691,6 @@ void Crab::Draw()
 			p4 = arm._vert[i][3] - camera;
 			DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
-	}
-	
-
-	/// ‚Í‚³‚İ‚Ì•`‰æ
-	for (auto scissor : _scissors)
-	{
-		p1 = scissor[0] - camera;
-		p2 = scissor[1] - camera;
-		p3 = scissor[2] - camera;
-		p4 = scissor[3] - camera;
-		DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdddd0000, true);
 	}
 
 	/// ŠI–{‘Ì‚Ì•`‰æ
@@ -678,6 +739,11 @@ void Crab::DebugDraw(const Vector2& camera)
 		DxLib::DrawCircle(_legPrePos[i].x, _legPrePos[i].y, 4, 0x00ff00, true);
 	}
 
+	for (int i = 0; i < _scisCenter.size(); ++i)
+	{
+		DxLib::DrawCircle(_scisCenter[i].x, _scisCenter[i].y, 4, 0x00ff00, true);
+	}
+
 	/// ‰ñ“]‚·‚é‚Æ‚«‚Ì’†S“_‚Ì•`‰æ
 	DrawCircle(center.x - camera.x, center.y - camera.y, 10, 0xff0000, true);
 }
@@ -689,6 +755,7 @@ void Crab::Update()
 	/// ˜r‚ÌˆÚ“®
 	for (auto& arm : boss._crab._arms)
 	{
+		if (_type != AtkType::PITCH)
 		arm._ctlPoint += arm._vel;
 	}
 
@@ -697,6 +764,7 @@ void Crab::Update()
 		Rotation();
 		MoveLeg();
 	}
+	
 	CalVert();			/// ‹éŒ`‚Ì’¸“_‚ğİ’è
 	
 	MoveJoint();

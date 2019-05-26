@@ -28,7 +28,7 @@ class Crab :
 	public Boss
 {
 private:
-	/// お前らも修正じゃ!!!
+
 	void BodyInit();
 	void LegInit();
 	void ArmInit();
@@ -44,7 +44,8 @@ private:
 	void DieUpdate();
 
 	/// こいつら全部修正をかけるぞ。
-	void CalVert();		// 矩形の頂点計算
+	void CalVert();			// 矩形の頂点計算
+	void scisRotation();	// はさみの回転
 	void Rotation();	
 	void MoveLeg();		// 制御点の移動
 	void MoveJoint();	// 関節の移動
@@ -67,11 +68,12 @@ private:
 	Vector2 _armPrePos;					// 腕の移動前の制御点座標
 
 	std::vector<sqr_vert> _scissors;	// はさみの爪の数(描画用)
-	std::vector<Vector2> _scisCenter;	// はさみの中心点(当たり判定で使うかも)
+	std::vector<Vector2> _scisCenter;	// はさみの中心点
 	std::vector<Vector2> _legMovePos;	// 脚の移動先の制御点座標
 	std::vector<Vector2> _legPrePos;	// 脚の移動前の制御点座標
 
 	int atkInvCnt;			// 攻撃するまでの間隔
+	int rotInvCnt;			// 回転する間隔
 
 public:
 	Crab(std::shared_ptr<Camera>& camera);
