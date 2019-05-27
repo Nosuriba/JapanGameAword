@@ -18,5 +18,6 @@ public:
 	void Create();
 
 	void Draw(int color = -1);
+	void Draw() { Draw(-1); };
 };
 
