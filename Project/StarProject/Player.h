@@ -71,7 +71,7 @@ private:
 	void Die(const Input& in);
 	void Move(const Input& in);
 
-	void SetStar(const Vector2& p, const float& s);
+	//void SetStar(const Vector2& p, const float& s);
 public:
 	Player(const std::shared_ptr<Camera>& c);
 	~Player();
@@ -88,5 +88,6 @@ public:
 	void ToCatch(const Vector2& t);
 	void OnDamage();
 	void LetsGo(const Vector2 p);
+	void SetStar(const Vector2& p, const float& s);
 };
 

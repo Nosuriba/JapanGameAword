@@ -287,3 +287,12 @@ Vector2 Collision::GetParentCal(const int& spaceNum, const int& rb)
 
 	return Vector2(spacenum, listnum);
 }
+
+Vector2 Collision::Pushback(const Star& star, const Rect& rect)
+{
+	auto VecA = star.center - rect.center;
+
+	auto pushback = abs(VecA.Magnitude() - (star.r + rect.size.width / 2));
+
+	return star.center + VecA.Normalized() * pushback;
+}
