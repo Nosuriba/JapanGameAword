@@ -17,6 +17,6 @@ public:
 
 	void Create();
 
-	void Draw();
+	void Draw(int color = -1);
 };
 

@@ -124,7 +124,7 @@ void Water::Move()
 #endif
 }
 
-void Water::Draw()
+void Water::Draw(int color)
 {	// ‚±‚±‚Å“®‚­
 	Move();
 	int imgBff = ResourceManager::GetInstance().LoadImg("../img/Bubble.png");
@@ -133,7 +133,7 @@ void Water::Draw()
 	{
 		if (p.bright > 0)
 		{
-			DrawCircle(p.x / 100-c.x, p.y / 100 - c.y, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright*2/3, p.bright, p.bright), true);
+			DrawCircle(p.x / 100-c.x, p.y / 100 - c.y, 0xff / p.radius - p.bright / p.radius, (color==-1)?GetColor(p.bright*2/3, p.bright, p.bright): color, true);
 			;// DrawRotaGraph(p.x / Magnification - c.x, p.y / Magnification - c.y, (0xff / p.radius - p.bright / p.radius) / Magnification, 0, imgBff, true);
 		}
 	}
