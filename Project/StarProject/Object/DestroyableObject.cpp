@@ -8,9 +8,9 @@ DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera, int x, int
 	auto pos = Position2(x,y);
 	auto size = Size(32,32);
 	auto rect = Rect(pos, size);
-	auto color = 0xff00ff;
+	auto level = 1;
 
-	obj = ObjectInfo(pos, size, rect, color, false);
+	obj = ObjectInfo(pos, size, rect, level, false);
 
 	destroyimg = ResourceManager::GetInstance().LoadImg("../img/destroy.png");
 }
@@ -26,8 +26,8 @@ void DestroyableObject::Draw()
 	DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
 		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, destroyimg, true);
 
-	DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
-		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, obj._color, false);
+	/*DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, 0x00ff00, false);*/
 }
 
 void DestroyableObject::Update()

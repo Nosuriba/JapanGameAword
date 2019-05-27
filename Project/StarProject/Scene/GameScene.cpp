@@ -123,6 +123,7 @@ void GameScene::Run(const Input & p)
 	if(bosssceneflag == false) {
 		if (_pl->GetInfo().center.x >= size.x * 3) {
 			_updater = &GameScene::BossScene;
+			_pl->LetsGo(Vector2(size.x * 3 + _pl->GetInfo().r * 3, size.y));
 		}
 	}
 }
@@ -133,7 +134,6 @@ void GameScene::BossScene(const Input & p)
 
 	Draw();
 	_pl->Update(p);
-	_pl->LetsGo(Vector2(size.x * 3 + _pl->GetInfo().r * 3, size.y));
 
 	if ((_pl->GetInfo().center.x >= size.x * 3 + _pl->GetInfo().r * 3) &&
 		(_pl->GetInfo().center.y >= size.y)) {
@@ -230,7 +230,7 @@ void GameScene::StageLock()
 	auto& size = Game::GetInstance().GetScreenSize();
 
 	for (int i = 0; i < _camera->GetRange().y / 32; i++) {
-		_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, size.x * 3, i * 32));
+		_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, size.x * 3, i * 32 + 16));
 	}
 }
 
@@ -505,13 +505,14 @@ void GameScene::Update(const Input & p)
 							destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
 							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
-
-							if (_col->WaterToSqr((*l).pos,
-								e,(e - (*l).pos).Magnitude(),
-								destroy->GetInfo()._rect))
-							{
-								destroy->Break();
-								(*l).Hit();
+							if (_pl->GetInfo().level >= destroy->GetInfo()._level) {
+								if (_col->WaterToSqr((*l).pos,
+									e, (e - (*l).pos).Magnitude(),
+									destroy->GetInfo()._rect))
+								{
+									destroy->Break();
+									(*l).Hit();
+								}
 							}
 						}
 						/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
@@ -575,7 +576,10 @@ void GameScene::Update(const Input & p)
 								e, (e - (*l).pos).Magnitude(),
 								immortal->GetInfo()._rect))
 							{
-								immortal->Break();
+								
+							}
+							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, immortal->GetInfo()._rect)) {
+								_pl->SetStar(_col->Pushback(_pl->GetInfo(),immortal->GetInfo()._rect), _pl->GetInfo().r);
 							}
 							/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
 
