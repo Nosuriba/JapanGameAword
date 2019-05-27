@@ -11,6 +11,7 @@ enum class AtkType
 	MAX
 };
 
+
 struct Vector3
 {
 	float x, y, z;
