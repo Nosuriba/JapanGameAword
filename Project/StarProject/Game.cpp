@@ -29,11 +29,12 @@ const std::vector<int> Game::GetShaderHandle() const
 void Game::Init()
 {
 	DxLib::SetGraphMode(screen_x, screen_y, 32);
+
 	DxLib::ChangeWindowMode(true);
 
 	SetUseDirect3DVersion(DX_DIRECT3D_9EX);
 
-	DxLib::SetWindowText("–¼Ì–¢İ’è‚¾‚¼(L¥ƒÖ¥`)");
+	DxLib::SetWindowTextA("ŠC¯í‘ˆ");
 	if (DxLib_Init() == -1)
 	{
 		return;

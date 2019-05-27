@@ -4,6 +4,8 @@
 
 #include <vector>
 #include <DxLib.h>
+#include <thread>
+#include <mutex>
 
 class Input;
 class Player;
@@ -21,7 +23,7 @@ struct ScoreInfo {
 	int enemy;
 	int bite;
 	int breakobj;
-	float time;
+	int time;
 	ScoreInfo() :enemy(0), bite(0), breakobj(0), time(0) {};
 	ScoreInfo(const int& enemy, const int& bite, const int & breakobj, const float& time) {
 		this->enemy = enemy;
@@ -29,6 +31,13 @@ struct ScoreInfo {
 		this->breakobj = breakobj;
 		this->time = time;
 	}
+};
+
+struct CutScreenInfo {
+	int top;
+	int bottom;
+	int left;
+	int right;
 };
 
 class GameScene : public Scene
@@ -41,6 +50,7 @@ private:
 	void FadeOut(const Input& p);
 	void Wait(const Input &p);
 	void Run(const Input& p);
+	void BossScene(const Input& p);
 
 	std::shared_ptr<Player> _pl;
 	std::shared_ptr<Collision> _col;
@@ -82,9 +92,27 @@ private:
 	int waitNum;
 	int waitCnt;
 
+	int num;
+
 	void LoadResource();
 
+	//UI等
 	ScoreInfo score;
+
+	//当たり用スクリーンのサイズの保管
+	std::vector<CutScreenInfo> _cutAreaScreen;
+	CutScreenInfo cutscr;
+
+	//スレッド
+	std::thread _cutCol;
+	std::thread __eneCol;
+
+	std::mutex _mutex;
+
+	bool bosssceneflag;
+
+	void StageLock();
+
 public:
 	GameScene();
 	~GameScene();

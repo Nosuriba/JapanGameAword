@@ -7,8 +7,9 @@ class Camera;
 enum class E_LEG_STATE {
 	NORMAL,
 	PUNCH,
+	CHASE,
 	OCT_INK,
-	SWEEP,
+	RE_MOVE,
 	DAMAGE,
 	DETH,
 };
@@ -16,15 +17,17 @@ enum class E_LEG_STATE {
 struct E_Leg {
 	Vector2 tip;	//先端座標
 	std::vector<Vector2> joint;	//関節座標
+	MATRIX mat;		//回転角
 	const int T = 12;	//関節数
 	E_LEG_STATE state;	//状態
 	int angle;		//目標までの角度
+	int cnt;		//足ごとの動き出すタイミング調整用
 };
 
 struct Oct {
-	float r;		//足の長さ
+	const float r =500;		//足の長さ
 	Vector2 center;	//中心座標
-	Vector2 root;	//足の根元
+	std::vector<Vector2> root;	//足の根元
 	std::vector<E_Leg> legs;	//足
 };
 
@@ -32,15 +35,27 @@ class Octopus :
 	public Boss
 {
 private:
-	int angle;
-	Vector2 targetPos;
+	int _wait;
+	int _maxAngle;
+	int _idx;
+	int _timer;
+	Vector2 _targetPos;
+	Vector2 _vec;
+
+	std::vector<std::shared_ptr<Particle>> _particle;
+
+	void IkCcd(Vector2 pos,int idx,int numMaxItaration);
+
 	void Die();
 	void DieUpdate();
-	void Normal(E_Leg& leg,Vector2 pos);
-	void Punch(E_Leg& leg, Vector2 pos);
-	void OctInk(E_Leg& leg, Vector2 pos);
-	void Sweep(E_Leg& leg, Vector2 pos);
+	void Normal(int idx);
+	void Punch(int idx);
+	void OctInk();
+	void Chase(int idx);
 	void Damage();
+	void ReMove(int idx);
+
+	void LegMove(E_Leg& leg, int idx);
 
 	void NeturalUpdate();
 

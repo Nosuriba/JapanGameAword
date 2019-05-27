@@ -57,6 +57,7 @@ public:
 
 	const int PushTrigger(TRIGGER t) const;
 	const int TriggerTrigger(TRIGGER t) const;
+	const bool ReleaseTrigger(TRIGGER t) const;
 
 	const Vector2 Stick(STICK s) const;
 };

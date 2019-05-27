@@ -19,6 +19,7 @@
 #include "../Object/ImmortalObject.h"
 #include "../Stage.h"
 
+
 #include <iostream>
 #include <algorithm>
 
@@ -46,26 +47,35 @@ void GameScene::LoadResourceUpdate(const Input & p)
 
 void GameScene::FadeIn(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(wait) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (wait >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		waitCnt = 0;
 		_updater = &GameScene::Wait;
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)wait / WAITFRAME);
-	Draw();
 }
 
 void GameScene::FadeOut(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(wait) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (wait >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		(*FadeBubble).Draw();
-		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,score.time));
+		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,totaltime));
 	}
 	else {
 		(*FadeBubble).Create();
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)wait / WAITFRAME);
-		Draw();
 	}
 }
 
@@ -87,15 +97,49 @@ void GameScene::Wait(const Input & p)
 
 void GameScene::Run(const Input & p)
 {
+	auto& size = Game::GetInstance().GetScreenSize();
+
+	_pl->Update(p);
+	for (auto &enemy : _enemies)
+	{
+		enemy->Update();
+	}
+
+	for (auto &boss : _bosses)
+	{
+		boss->Update();
+	}
 	Draw();
 	flame++;
-	if (p.IsTrigger(PAD_INPUT_10)) {
+	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		wait = 0;
 		_updater = &GameScene::FadeOut;
 	}
 	else if (totaltime == 0) {
 		wait = 0;
 		_updater = &GameScene::FadeOut;
+	}
+
+	if(bosssceneflag == false) {
+		if (_pl->GetInfo().center.x >= size.x * 3) {
+			_updater = &GameScene::BossScene;
+			_pl->LetsGo(Vector2(size.x * 3 + _pl->GetInfo().r * 3, size.y));
+		}
+	}
+}
+
+void GameScene::BossScene(const Input & p)
+{
+	auto& size = Game::GetInstance().GetScreenSize();
+
+	Draw();
+	_pl->Update(p);
+
+	if ((_pl->GetInfo().center.x >= size.x * 3 + _pl->GetInfo().r * 3) &&
+		(_pl->GetInfo().center.y >= size.y)) {
+		bosssceneflag = true;
+		StageLock();
+		_updater = &GameScene::Run;
 	}
 }
 
@@ -119,6 +163,18 @@ void GameScene::LoadResource()
 	secondscreen = MakeScreen(size.x - 1, size.y - 1);
 	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
 	_4thscreen = MakeScreen(size.x, size.y);
+
+
+	//当たり範囲の指定のための領域
+	for (int i = 0; i < 4; i++) {
+
+		cutscr.top = 0 + size.y / 2 * (i / 2);
+		cutscr.bottom = size.y / 2 + size.y / 2 * (i / 2);
+		cutscr.right = size.x / 2 + size.x / 2 * (i % 2);
+		cutscr.left = 0 + size.x / 2 * (i % 2);
+
+		_cutAreaScreen.push_back(cutscr);
+	}
 
 	//画像の読み込み
 	auto& manager = ResourceManager::GetInstance();
@@ -169,6 +225,15 @@ void GameScene::LoadResource()
 
 }
 
+void GameScene::StageLock()
+{
+	auto& size = Game::GetInstance().GetScreenSize();
+
+	for (int i = 0; i < _camera->GetRange().y / 32; i++) {
+		_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, size.x * 3, i * 32 + 16));
+	}
+}
+
 GameScene::GameScene()
 {
 	_camera.reset(new Camera());
@@ -179,6 +244,7 @@ GameScene::GameScene()
 
 	flame = 0;
 	wait = 0;
+
 	time = 60;
 	totaltime = 60;
 
@@ -186,19 +252,29 @@ GameScene::GameScene()
 	waitCnt = 0;
 
 	shader_time = 0;
+	num = 0;
+
+	bosssceneflag = false;
 
 	_updater = &GameScene::LoadStageUpdate;
 }
 
 GameScene::~GameScene()
 {
-	
+	if (_cutCol.joinable()) {
+		_cutCol.join();
+	}
+	if (__eneCol.joinable()) {
+		__eneCol.join();
+	}
 }
 
 void GameScene::Draw()
 {
 	auto size = Game::GetInstance().GetScreenSize();
 
+	int mode, palam;
+	GetDrawBlendMode(&mode, &palam);
 
 	//firstスクリーン(砂浜)
 	SetDrawScreen(firstscreen);
@@ -228,14 +304,6 @@ void GameScene::Draw()
 
 	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y,
 		0 - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y, beach, true);
-
-	auto one = totaltime % 10;
-	auto ten = totaltime / 10;
-
-	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
-	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
-
-
 
 
 	//secondスクリーン(影)
@@ -306,7 +374,7 @@ void GameScene::Draw()
 
 	DrawGraph(0, 0, secondscreen, true);
 
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	SetDrawBlendMode(mode, palam);
 
 	_pl->Draw();
 
@@ -329,6 +397,12 @@ void GameScene::Draw()
 	for (auto &immortal : _immortalObj) {
 		immortal->Draw();
 	}
+
+	auto one = totaltime % 10;
+	auto ten = totaltime / 10;
+
+	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
+	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
@@ -355,134 +429,207 @@ void GameScene::Update(const Input & p)
 
 	auto size = Game::GetInstance().GetScreenSize();
 
-	_pl->Update(p);
+	auto& laser = _pl->GetLaser(); 
+	const auto camera = _camera->CameraCorrection();
 
-	for (auto &enemy : _enemies)
-	{
-		enemy->Update();
-	}
+	auto _eth = [&](std::array<std::list<Laser>,2> _laser) {
+		std::lock_guard<std::mutex> _lock(_mutex);
 
-	for (auto &boss : _bosses)
-	{
-		boss->Update();
-	}
-
-	for (int i = 0; i < _enemies.size(); ++i)
-	{
-		/// 敵の死亡処理
-		if (_enemies[i]->GetInfo()._dieFlag)
+		for (int i = 0; i < _enemies.size(); ++i)
 		{
-			_enemies.erase(_enemies.begin() + i);
-			continue;
-		}
-
-		auto laser = _pl->GetLaser();
-		/// ﾌﾟﾚｲﾔｰｼｮｯﾄと敵の当たり判定
-		//for (int p = 0; p < _pl->GetLaser().size(); ++p)
-		for (auto& l : laser)
-		{
-			if (_col->WaterToSqr(l.pos, l.vel, _enemies[i]->GetInfo()._rect))
+			/// 敵の死亡処理
+			if (_enemies[i]->GetInfo()._dieFlag)
 			{
-				auto vec = _enemies[i]->GetInfo()._pos - l.pos;
-				vec.Normalize();
-
-				_enemies[i]->CalEscapeDir(vec);
-				break;
+				_enemies.erase(_enemies.begin() + i);
+				continue;
 			}
-			_enemies[i]->CalTrackVel(_pl->GetInfo().center, _col->TriToTri(_pl->GetInfo().legs, _enemies[i]->GetInfo()._searchVert));
-		}
-
-		/// ﾌﾟﾚｲﾔｰと敵ｼｮｯﾄの当たり判定
-		for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
-		{
-			if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
+			
+			/// ﾌﾟﾚｲﾔｰｼｮｯﾄと敵の当たり判定
+			//for (int p = 0; p < _pl->GetLaser().size(); ++p)
+			for (int num = 0;num<2;num++)
 			{
-				_enemies[i]->ShotDelete(s);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
+				for (auto l = _laser[num].begin();l!= _laser[num].end(); l++)
+				{
+					if (_col->WaterToSqr((*l).pos,
+						(*l).isEnd ? (*l).pos : ((++l != _laser[num].end()) ? (*l--).pos : (*--l).pos),
+						_enemies[i]->GetInfo()._rect))
+					{
+						auto vec = _enemies[i]->GetInfo()._pos - (*l).pos;
+						vec.Normalize();
+
+						_enemies[i]->CalEscapeDir(vec);
+						break;
+					}
+					if (_col->CircleToCircle(_pl->GetInfo().center, _pl->GetInfo().r, _enemies[i]->GetInfo()._searchVert))
+					{
+						_enemies[i]->CalTrackVel(_pl->GetInfo().center);
+					}
+
+				}
+			}
+
+			/// ﾌﾟﾚｲﾔｰと敵ｼｮｯﾄの当たり判定
+			for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
+			{
+				if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
+				{
+					_enemies[i]->ShotDelete(s);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
+				}
 			}
 		}
-	}
-
+	};
 
 	if (_bosses.size() != 0) {
 		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
 	}
 
-
-	for (int i = 0; i < _destroyObj.size(); i++) {
-		if (_destroyObj[i]->GetInfo()._breakflag)
+	auto th = [&](std::array<std::list<Laser>,2> _laser, Vector2 camera) {
+		std::lock_guard<std::mutex> _lock(_mutex);
+		num++;
+		for (int i = 0;i<2;i++)
 		{
-			_destroyObj.erase(_destroyObj.begin() + i);
-			continue;
-		}
-	}
-	
-	for (int i = 0; i < _predatoryObj.size(); i++) {
-		if (_predatoryObj[i]->GetInfo()._breakflag)
-		{
-			_predatoryObj.erase(_predatoryObj.begin() + i);
-			continue;
-		}
+			for (auto l = _laser[i].begin(); l != _laser[i].end();l++) {
 
-		if (_predatoryObj[i]->GetInfo()._predatoryflag)
-		{
-			_predatoryObj.erase(_predatoryObj.begin() + i);
-			continue;
-		}
-	}
-	
-	auto laser = _pl->GetLaser();
-	for (auto& l : laser) {
+				//破壊可能オブジェクト
+				for (auto destroy : _destroyObj) {
 
-		//破壊可能オブジェクト
-		for (auto &destroy : _destroyObj) {
-			if (destroy->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x && 
-				destroy->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-				if ((l.pos.x >= 0 && l.pos.x <= size.x / 2) && (destroy->GetInfo()._pos.x >= 0 && destroy->GetInfo()._pos.x <= size.x / 2)) {
-					if (_col->WaterToSqr(l.pos, l.vel, l.size, destroy->GetInfo()._rect))
-					{
-						destroy->Break();
+					if (destroy->GetInfo()._pos.x - camera.x <= size.x &&
+						destroy->GetInfo()._pos.y - camera.y <= size.y) {
+
+						if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - camera.x &&
+
+							destroy->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
+
+							_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - camera.y &&
+
+							destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+
+							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
+							if (_pl->GetInfo().level >= destroy->GetInfo()._level) {
+								if (_col->WaterToSqr((*l).pos,
+									e, (e - (*l).pos).Magnitude(),
+									destroy->GetInfo()._rect))
+								{
+									destroy->Break();
+									(*l).Hit();
+								}
+							}
+						}
+						/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
+
+						}*/
+					}
+
+				}
+
+				//捕食対象
+				for (auto predatry : _predatoryObj) {
+
+					if (predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
+						predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
+
+						if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - camera.x &&
+
+							predatry->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right &&
+
+							_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - camera.y &&
+
+							predatry->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+
+							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
+							if (_col->WaterToSqr((*l).pos,
+								e, (e - (*l).pos).Magnitude(),
+								predatry->GetInfo()._rect))
+							{
+								predatry->Break();
+							}
+
+							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
+
+								if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
+								{
+									predatry->Predatory();
+								}
+
+							}
+						}
 					}
 				}
-				
-				/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
 
-				}*/
-			}
-		}
+				//破壊不可オブジェクト
+				for (auto immortal : _immortalObj) {
 
-		//捕食対象
-		for (auto &predatry : _predatoryObj) {
-			if (predatry->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x && 
-				predatry->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-				if (_col->WaterToSqr(l.pos, l.vel, l.size, predatry->GetInfo()._rect))
-				{
-					predatry->Break();
-				}
-				if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
-					if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
-					{
-						predatry->Predatory();
+					if (immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x &&
+						immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
+
+						if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - camera.x &&
+
+							immortal->GetInfo()._pos.x - camera.x <= _cutAreaScreen[num % 4].right&&
+
+							_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - camera.y &&
+
+							immortal->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
+
+							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
+
+							if (_col->WaterToSqr((*l).pos,
+								e, (e - (*l).pos).Magnitude(),
+								immortal->GetInfo()._rect))
+							{
+								
+							}
+							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, immortal->GetInfo()._rect)) {
+								_pl->SetStar(_col->Pushback(_pl->GetInfo(),immortal->GetInfo()._rect), _pl->GetInfo().r);
+							}
+							/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
+
+							}*/
+						}
 					}
 				}
 			}
 		}
 
-		//破壊不可オブジェクト
-		for (auto &immortal : _immortalObj) {
-			if (immortal->GetInfo()._pos.x - _camera->CameraCorrection().x <= size.x && 
-				immortal->GetInfo()._pos.y - _camera->CameraCorrection().y <= size.y) {
-				if (_col->WaterToSqr(l.pos, l.vel, l.size, immortal->GetInfo()._rect))
-				{
-					immortal->Break();
-				}
-				/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
-
-				}*/
+		for (int i = 0; i < _destroyObj.size(); i++) {
+			if (_destroyObj[i]->GetInfo()._breakflag)
+			{
+				_destroyObj.erase(_destroyObj.begin() + i);
+				continue;
 			}
 		}
+
+		for (int i = 0; i < _predatoryObj.size(); i++) {
+			if (_predatoryObj[i]->GetInfo()._breakflag)
+			{
+				_predatoryObj.erase(_predatoryObj.begin() + i);
+				continue;
+			}
+
+			if (_predatoryObj[i]->GetInfo()._predatoryflag)
+			{
+				_predatoryObj.erase(_predatoryObj.begin() + i);
+				continue;
+			}
+		}
+	};
+	
+	if (!_cutCol.joinable()) {
+		
+		_cutCol = std::thread(th, std::ref(laser), std::ref(camera));
+	}
+	else {
+		_cutCol.join();
 	}
 
-	totaltime = time - (flame / 60);
+	if (!__eneCol.joinable()) {
+
+		__eneCol = std::thread(_eth, std::ref(laser));
+	}
+	else {
+		__eneCol.join();
+	}
+
+	totaltime/* = time - (flame / 60)*/;
 
 	_camera->Update(_pl->GetInfo().center);
 

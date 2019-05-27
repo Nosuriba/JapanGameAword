@@ -59,6 +59,7 @@ protected:
 public:
 	// •`‰æ—pŠÖ”
 	virtual void Draw() = 0;
+	virtual void Draw(int color) { };
 
 	void SetRota(int _rota) { rota = _rota; };
 	void SetPos(int _x, int _y) { x = _x, y = _y; };

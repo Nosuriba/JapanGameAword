@@ -1,4 +1,7 @@
 #include "Collision.h"
+#include <cmath>
+
+const int cutnum = 4;
 
 Vector2 Collision::Sub_Calculation(const Vector2 & posA, const Vector2 & posB)
 {
@@ -31,30 +34,30 @@ bool Collision::TriToTri(const std::vector<Leg>& _leg, const std::array<Vector2,
  	Vector2 triB = _tri[1];
 	Vector2 triC = _tri[2];
 
-	for (int i = 0; i < _leg.size(); ++i)
-	{
-		auto AB1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triA.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triA.x);
-		auto AB2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triB.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triB.x);
-		auto AB3 = (triA.x - triB.x) * (_leg[i].tip.y - triA.y) + (triA.y - triB.y) * (triA.x - _leg[i].tip.x);
-		auto AB4 = (triA.x - triB.x) * (_leg[(i + 2) % 5].tip.y - triA.y) + (triA.y - triB.y) * (triA.x - _leg[(i + 2) % 5].tip.x);
+	//for (int i = 0; i < _leg.size(); ++i)
+	//{
+	//	auto AB1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triA.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triA.x);
+	//	auto AB2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triB.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triB.x);
+	//	auto AB3 = (triA.x - triB.x) * (_leg[i].tip.y - triA.y) + (triA.y - triB.y) * (triA.x - _leg[i].tip.x);
+	//	auto AB4 = (triA.x - triB.x) * (_leg[(i + 2) % 5].tip.y - triA.y) + (triA.y - triB.y) * (triA.x - _leg[(i + 2) % 5].tip.x);
 
-		auto BC1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triB.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triB.x);
-		auto BC2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triC.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triC.x);
-		auto BC3 = (triB.x - triC.x) * (_leg[i].tip.y - triB.y) + (triB.y - triC.y) * (triB.x - _leg[i].tip.x);
-		auto BC4 = (triB.x - triC.x) * (_leg[(i + 2) % 5].tip.y - triB.y) + (triB.y - triC.y) * (triB.x - _leg[(i + 2) % 5].tip.x);
+	//	auto BC1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triB.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triB.x);
+	//	auto BC2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triC.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triC.x);
+	//	auto BC3 = (triB.x - triC.x) * (_leg[i].tip.y - triB.y) + (triB.y - triC.y) * (triB.x - _leg[i].tip.x);
+	//	auto BC4 = (triB.x - triC.x) * (_leg[(i + 2) % 5].tip.y - triB.y) + (triB.y - triC.y) * (triB.x - _leg[(i + 2) % 5].tip.x);
 
-		auto CA1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triC.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triC.x);
-		auto CA2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triA.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triA.x);
-		auto CA3 = (triC.x - triA.x) * (_leg[i].tip.y - triC.y) + (triC.y - triA.y) * (triC.x - _leg[i].tip.x);
-		auto CA4 = (triC.x - triA.x) * (_leg[(i + 2) % 5].tip.y - triC.y) + (triC.y - triA.y) * (triC.x - _leg[(i + 2) % 5].tip.x);
+	//	auto CA1 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triC.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triC.x);
+	//	auto CA2 = (_leg[i].tip.x - _leg[(i + 2) % 5].tip.x) * (triA.y - _leg[i].tip.y) + (_leg[i].tip.y - _leg[(i + 2) % 5].tip.y) * (_leg[i].tip.x - triA.x);
+	//	auto CA3 = (triC.x - triA.x) * (_leg[i].tip.y - triC.y) + (triC.y - triA.y) * (triC.x - _leg[i].tip.x);
+	//	auto CA4 = (triC.x - triA.x) * (_leg[(i + 2) % 5].tip.y - triC.y) + (triC.y - triA.y) * (triC.x - _leg[(i + 2) % 5].tip.x);
 
-		if ((AB1 * AB2 < 0) && (AB3 * AB4 < 0) ||
-			(BC1 * BC2 < 0) && (BC3 * BC4 < 0) ||
-			(CA1 * CA2 < 0) && (CA3 * CA4 < 0))
-		{
-			return true;
-		}
-	}
+	//	if ((AB1 * AB2 < 0) && (AB3 * AB4 < 0) ||
+	//		(BC1 * BC2 < 0) && (BC3 * BC4 < 0) ||
+	//		(CA1 * CA2 < 0) && (CA3 * CA4 < 0))
+	//	{
+	//		return true;
+	//	}
+	//}
 	return false;
 }
 
@@ -183,4 +186,113 @@ bool Collision::CircleToSqr(const Position2 & _posA, const float& _r, const Rect
 		return true;
 	}
 	return false;
+}
+
+bool Collision::CircleToCircle(const Position2 & _posA, const float & _rA, const std::array<Vector2, 3>& _tri)
+{
+	//三角形の中心点
+	auto _posB = (_tri[0] + _tri[1] + _tri[2]) / 3;
+
+	auto vecA = _posA - _posB;
+
+	auto _rB = _tri[0] - _posB;
+
+	if (vecA.Magnitude() <= _rA + _rB.Magnitude()) {
+		return true;
+	}
+
+	return false;
+}
+
+int Collision::BitSeparate(const int & n)
+{
+	int num = n;
+	num = (num | (num << 8)) & 0x00ff00ff;
+	num = (num | (num << 4)) & 0x0f0f0f0f;
+	num = (num | (num << 2)) & 0x33333333;
+	num = (num | (num << 1)) & 0x55555555;
+
+	return num;
+}
+
+int Collision::CalCulation(const Rect & rect)
+{
+	int sizex, sizey;
+	GetDrawScreenSize(&sizex,& sizey);
+
+	auto ltpos = Vector2(rect.Left(), rect.Top());			//左上座標
+	auto rbpos = Vector2(rect.Right(), rect.Bottom());		//右下座標
+
+	//分割した時のサイズに
+	auto cutsize = Vector2(sizex / cutnum, sizey / cutnum);
+
+	//左上座標の空間を計算
+	int ltx = ltpos.x / cutsize.x;
+	int lty = ltpos.y / cutsize.y;
+
+	//間に0を入れていって六桁の二進数にする(その後の計算のため)
+	ltx = BitSeparate(ltx);
+	lty = BitSeparate(lty);
+
+	//y座標を１ビット左シフト
+	lty = lty << 1;
+
+	//x座標とy座標をOR演算
+	auto lt = ltx | lty;
+
+
+	//右下座標の空間を計算
+	int rbx = rbpos.x / cutsize.x;
+	int rby = rbpos.y / cutsize.y;
+
+	//間に0を入れていって六桁の二進数にする(その後の計算のため)
+	rbx = BitSeparate(rbx);
+	rby = BitSeparate(rby);
+
+	//y座標を１ビット左シフト
+	rby = rby << 1;
+
+	//x座標とy座標をOR演算
+	auto rb = rbx | rby;
+
+	//左上空間の番号と左下空間の番号をXOR演算
+	int ltrb = lt ^ rb;
+
+	return ltrb;
+	int spaceNum = 0;
+	int i = 0;
+	int shift = 0;
+
+	//空間を特定
+	while (ltrb != 0) {
+		if ((ltrb & 0x3) != 0) {
+			//空間シフト数
+			spaceNum = (i + 1);
+			shift = spaceNum * 2;
+		}
+
+		//2bitシフトさせて再チェック
+		ltrb >>= 2;
+		i++;
+	}
+
+	rb = rb >> shift;
+}
+
+Vector2 Collision::GetParentCal(const int& spaceNum, const int& rb)
+{
+	auto listnum = (rb - 1) / 4;
+
+	auto spacenum = spaceNum + 1;
+
+	return Vector2(spacenum, listnum);
+}
+
+Vector2 Collision::Pushback(const Star& star, const Rect& rect)
+{
+	auto VecA = star.center - rect.center;
+
+	auto pushback = abs(VecA.Magnitude() - (star.r + rect.size.width / 2));
+
+	return star.center + VecA.Normalized() * pushback;
 }

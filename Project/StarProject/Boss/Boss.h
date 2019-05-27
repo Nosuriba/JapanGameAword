@@ -1,5 +1,6 @@
 #pragma once
 #include "../Processing/Geometry.h"
+#include "../Particle/Water.h"
 #include <memory>
 
 class Camera;

@@ -4,35 +4,46 @@
 #include "GameScene.h"
 #include "../ResourceManager.h"
 #include "../Particle/Bubble.h"
-
+#include <string>
 #include "../Stage.h"
+#include "../Player.h"
 
 
 void SelectScene::FadeIn(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	auto a = 255 - 255 * (float)(flame) / WAITFRAME;
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (flame >= WAITFRAME) 
 	{
 		if (!CheckHandleASyncLoad(BGM)) 
 		{
 			PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
-			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 			_updater = &SelectScene::Wait;
 		}
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 * (float)(flame) / WAITFRAME);
-	Draw();
 }
 
 void SelectScene::FadeOut(const Input & p)
 {
+	auto s = Game::GetInstance().GetScreenSize();
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	Draw();
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(flame) / WAITFRAME);
+	DrawBox(0, 0, s.x, s.y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	if (flame >= WAITFRAME) {
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		(*FadeBubble).Draw();
 		Game::GetInstance().ChangeScene(new GameScene());
 	}
 	else {
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - 255 * (float)(flame) / WAITFRAME);
-		Draw();
 		(*FadeBubble).Create();
 	}
 }
@@ -48,13 +59,13 @@ void SelectScene::Run(const Input & p)
 {
 	Draw();
 
-	if (p.IsTrigger(PAD_INPUT_10)) {
+	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		if (!CheckHandleASyncLoad(SE))
 		{
 			flame = 0;
 			PlaySoundMem(SE, DX_PLAYTYPE_BACK);
 			StopSoundMem(BGM);
-			Stage::GetInstance().LoadStage("../Stage/test3.fmf");
+			Stage::GetInstance().LoadStage("../Stage/test"+ std::to_string(Select+1) +".fmf");
 			_updater = &SelectScene::FadeOut;
 		}
 	}
@@ -93,7 +104,7 @@ SelectScene::SelectScene()
 	shader_time = 0;
 	flame = 0;
 	Cnt = 0;
-	Select = 0; 
+	Select = 1; 
 
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
 	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 10 * 7, 100, true, 1));
@@ -124,6 +135,10 @@ void SelectScene::Draw()
 	auto addy = sin((Cnt)*DX_PI / 720) * 100;
 	auto addr = sin((Cnt)*DX_PI / 180) * 0.1;
 
+	auto pl = std::make_unique<Player>(nullptr);
+
+	pl->SelectDraw(Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5))*130);
+	
 	DrawRotaGraph(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0), 1 + ((Select != 0) ? addr : addr +0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select != 1) ? addr: addr -0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 +((Select != 2) ? addr : addr +0.5), 0, bubble, true);
@@ -131,8 +146,6 @@ void SelectScene::Draw()
 	
 
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 4.0f / 2.0f, size.y / 2 + size.y / 4, "Select", 0xa000f0);
-
-	(*FadeBubble).Draw();
 }
 
 void SelectScene::Update(const Input & p)
@@ -145,4 +158,6 @@ void SelectScene::Update(const Input & p)
 	Cnt++;
 	shader_time++;
 	(this->*_updater)(p);
+
+	(*FadeBubble).Draw();
 }
