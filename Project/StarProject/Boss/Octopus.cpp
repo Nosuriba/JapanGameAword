@@ -34,6 +34,8 @@ Octopus::Octopus(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera
 		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * SPEED*(i+1);
 		LEG(i).cnt = 0;
 	}
+	_particle.emplace_back(std::make_shared<Water>(_oct.center.x, _oct.center.y, 5000, _camera));
+
 	_idx = 0;
 	_updater = &Octopus::NeturalUpdate;
 }
@@ -145,9 +147,11 @@ void Octopus::Punch(int idx)
 	}
 }
 
-void Octopus::OctInk(E_Leg& leg, int idx)
+void Octopus::OctInk()
 {
-
+	_particle[0]->SetPos(_oct.center.x, _oct.center.y);
+	_particle[0]->SetRota(120*180.0f/DX_PI_F);
+	_particle[0]->Create();
 }
 
 void Octopus::Chase(int idx)
@@ -202,13 +206,15 @@ void Octopus::NeturalUpdate()
 {
 	int j = 0;
 	float distance = 9999;
-	if ((++_timer)== (200)) {
+	if ((++_timer)% 200==0) {
 		int i = GetRand(_oct.legs.size() - 1);
 		if (LEG(i).state == E_LEG_STATE::NORMAL) {
 			LEG(i).cnt = 0;
 			LEG(i).state = E_LEG_STATE::PUNCH;
 		}
-		_timer = 0;
+	}
+	if (_timer % 300 == 0) {
+		OctInk();
 	}
 	for (auto& leg : _oct.legs) {
 		if (((_targetPos - leg.tip).Magnitude() < distance)) {
@@ -274,6 +280,8 @@ void Octopus::Draw()
 		DrawOval(_oct.center.x - 45 - c.x, _oct.center.y + 37 - 75 * i - c.y, 8,6, 0xffa500, true);
 		DrawOval(_oct.center.x - 45 - c.x, _oct.center.y + 37 - 75 * i - c.y, 6, 3, 0x000000, true);
 	}
+	for (auto& p : _particle)
+		p->Draw(0x000000);
 }
 
 void Octopus::Update()

@@ -41,13 +41,16 @@ private:
 	int _timer;
 	Vector2 _targetPos;
 	Vector2 _vec;
+
+	std::vector<std::shared_ptr<Particle>> _particle;
+
 	void IkCcd(Vector2 pos,int idx,int numMaxItaration);
 
 	void Die();
 	void DieUpdate();
 	void Normal(int idx);
 	void Punch(int idx);
-	void OctInk(E_Leg& leg, int idx);
+	void OctInk();
 	void Chase(int idx);
 	void Damage();
 	void ReMove(int idx);
