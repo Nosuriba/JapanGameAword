@@ -235,7 +235,7 @@ void Crab::CalVert()
 	for (; arm != boss._crab._arms.end(); ++arm)
 	{
 		auto aCnt = arm - boss._crab._arms.begin();
-		for (int p = 0; p < (*arm)._vert[0].size(); ++p)
+		for (int i = 0; i < (*arm)._vert[0].size(); ++i)
 		{
 			auto point = (*arm)._points.begin() + 1;
 			for (; point != (*arm)._points.end(); ++point)
@@ -249,9 +249,9 @@ void Crab::CalVert()
 
 				size.x = cost * (lSize.height / 2);
 				size.y = sint * (lSize.height / 2);
-				sizePos = (p < 2 ? -size : size);
+				sizePos = (i < 2 ? -size : size);
 
-				(*arm)._vert[cnt - 1][p] = (p == 0 || p == 3 ? (*arm)._points[cnt - 1] : (*point)) + sizePos;
+				(*arm)._vert[cnt - 1][i] = (i == 0 || i == 3 ? (*arm)._points[cnt - 1] : (*point)) + sizePos;
 			}
 		}
 		/// ‹r‚Ì•‚ÌŠp“x‚ð“o˜^‚µ‚Ä‚¢‚é
@@ -302,12 +302,11 @@ void Crab::CalVert()
 
 				(*vert) = sPos + sizePos + offset + lengPos;
 			}
-			theta = atan2f(_scissors[sCnt][3].y - _scissors[sCnt][0].y,
-						   _scissors[sCnt][3].x - _scissors[sCnt][0].x);
+			theta = atan2f((*scis)[2].y - (*scis)[0].y, (*scis)[2].x - (*scis)[0].x);
 			cost = cos(theta);
 			sint = sin(theta);
 
-			_scisCenter[sCnt] = boss._crab._arms[sCnt / 2]._points[2] + Vector2(scisSize.width / 2 * cost, scisSize.width / 2 * sint);
+			_scisCenter[sCnt] = (*scis)[0] + Vector2(scisSize.width / 2 * cost, scisSize.width / 2 * sint);
 		}
 	}
 	
@@ -315,10 +314,10 @@ void Crab::CalVert()
 
 void Crab::scisRotation()
 {
-	
 	auto scis = _scissors.begin();
 	for (; scis != _scissors.end(); ++scis)
 	{
+		
 		auto sCnt = scis - _scissors.begin();
 		auto vert = _scissors[sCnt].begin();
 		for (; vert != _scissors[sCnt].end(); ++vert)
@@ -333,23 +332,26 @@ void Crab::scisRotation()
 				{
 					rot = (sCnt % 2 ? rotDir : revRotDir);
 				}
-				
-				auto mat = MGetTranslate((-center).V_Cast());
+				auto mat = MGetTranslate((-center).V_Cast());		/// ‰ñ“]‚·‚é’†S“_‚ÌÝ’è
 				mat		 = MMult(mat, MGetRotAxis(rot, rotVel * 5));	
 				mat		 = MMult(mat, MGetTranslate(center.V_Cast()));
 				(*vert)  = VTransform((*vert).V_Cast(), mat);
+				if (vCnt == 3)
+				{
+					_scisCenter[sCnt] = VTransform(_scisCenter[sCnt].V_Cast(), mat);
+				}
+				
 			}
 		}
+		
 	}
 
 	if (rotInvCnt < 0)
 	{
 		_type = AtkType::NORMAL;
+		return;
 	}
-	else
-	{
-		rotInvCnt--;
-	}
+	rotInvCnt--;
 }
 
 void Crab::Rotation()
@@ -739,9 +741,19 @@ void Crab::DebugDraw(const Vector2& camera)
 		DxLib::DrawCircle(_legPrePos[i].x, _legPrePos[i].y, 4, 0x00ff00, true);
 	}
 
+	/// ’†S“_‚Ì•`‰æ
 	for (int i = 0; i < _scisCenter.size(); ++i)
 	{
 		DxLib::DrawCircle(_scisCenter[i].x, _scisCenter[i].y, 4, 0x00ff00, true);
+	}
+
+	auto scis = _scissors.begin();
+	for (; scis != _scissors.end(); ++scis)
+	{
+		auto sCnt = scis - _scissors.begin();
+		auto sPos = (*scis)[0];
+
+		DrawLine(sPos.x, sPos.y, _scisCenter[sCnt].x, _scisCenter[sCnt].y, 0xffff00);
 	}
 
 	/// ‰ñ“]‚·‚é‚Æ‚«‚Ì’†S“_‚Ì•`‰æ
