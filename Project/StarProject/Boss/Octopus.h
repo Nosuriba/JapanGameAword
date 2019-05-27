@@ -38,18 +38,19 @@ private:
 	int _wait;
 	int _maxAngle;
 	int _idx;
+	int _timer;
 	Vector2 _targetPos;
 	Vector2 _vec;
-	void IkCcd(E_Leg& leg, Vector2 pos,int idx,int numMaxItaration);
+	void IkCcd(Vector2 pos,int idx,int numMaxItaration);
 
 	void Die();
 	void DieUpdate();
 	void Normal(int idx);
-	void Punch(E_Leg& leg, int idx);
+	void Punch(int idx);
 	void OctInk(E_Leg& leg, int idx);
-	void Chase(E_Leg& leg, int idx);
+	void Chase(int idx);
 	void Damage();
-	void ReMove(E_Leg& leg, int idx);
+	void ReMove(int idx);
 
 	void LegMove(E_Leg& leg, int idx);
 
