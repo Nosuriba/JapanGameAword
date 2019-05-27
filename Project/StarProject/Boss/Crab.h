@@ -5,9 +5,9 @@
 enum class AtkType
 {
 	NORMAL,	// ’Êí
-	BUBBLE,	// –AUŒ‚
+	SHOT,	// ¼®¯ÄUŒ‚
+	MOVE,	// ˜r‚ÌˆÚ“®
 	PITCH,	// ‹²‚ŞUŒ‚
-	FIST,	// ‰£‚éUŒ‚
 	MAX
 };
 
@@ -24,31 +24,47 @@ struct Vector3
 	}
 };
 
+struct ShotDebug
+{
+	Position2 _pos;
+	Vector2 _vel;
+	Size _size;
+	Rect _rect;
+
+	ShotDebug() : _pos(0, 0), _vel(0, 0), _size(0, 0), _rect(_pos, _size) {};
+	ShotDebug(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
+	{
+		this->_pos = _pos;
+		this->_vel = _vel;
+		this->_size = _size;
+		this->_rect = _rect;
+	}
+};
+
 class Crab :
 	public Boss
 {
 private:
-
 	void BodyInit();
 	void LegInit();
 	void ArmInit();
 
 	void Neutral();
-	void Fist();
+	void Pitch();
 	void Shot();
 	void Die();
 
 	void NeutralUpdate();
-	void FistUpdate();
+	void PitchUpdate();
 	void ShotUpdate();
 	void DieUpdate();
 
-	/// ‚±‚¢‚Â‚ç‘S•”C³‚ğ‚©‚¯‚é‚¼B
-	void CalVert();			// ‹éŒ`‚Ì’¸“_ŒvZ
-	void scisRotation();	// ‚Í‚³‚İ‚Ì‰ñ“]
+	void CalVert();		// ‹éŒ`‚Ì’¸“_ŒvZ
+	void scisRota();	
 	void Rotation();	
 	void MoveLeg();		// §Œä“_‚ÌˆÚ“®
 	void MoveJoint();	// ŠÖß‚ÌˆÚ“®
+	void ShotDelete();	// ¼®¯Ä‚Ìíœ—p	
 
 	bool StopCheck(const Vector2& sPos, const Vector2& ePos, const Vector2& vel);
 
@@ -65,20 +81,22 @@ private:
 	std::shared_ptr<Camera>& _camera;
 	AtkType _type;
 	Vector2 _plPos;						// ÌßÚ²Ô°‚ÌÀ•W•Û‘¶—p
-	Vector2 _armPrePos;					// ˜r‚ÌˆÚ“®‘O‚Ì§Œä“_À•W
+	Vector2 _armPrePos;			
 
-	std::vector<sqr_vert> _scissors;	// ‚Í‚³‚İ‚Ì’Ü‚Ì”(•`‰æ—p)
-	std::vector<Vector2> _scisCenter;	// ‚Í‚³‚İ‚Ì’†S“_
-	std::vector<Vector2> _legMovePos;	// ‹r‚ÌˆÚ“®æ‚Ì§Œä“_À•W
-	std::vector<Vector2> _legPrePos;	// ‹r‚ÌˆÚ“®‘O‚Ì§Œä“_À•W
+	std::vector<ShotDebug> _shot;		// ‰¼‚Ì¼®¯Ä—p•Ï”(CrabInfo‚É‚Á‚Ä‚¢‚­—\’è)
 
-	int atkInvCnt;			// UŒ‚‚·‚é‚Ü‚Å‚ÌŠÔŠu
-	int rotInvCnt;			// ‰ñ“]‚·‚éŠÔŠu
+	std::vector<sqr_vert> _scissors;	// ‚Í‚³‚İ‚Ì’Ü‚Ì”
+	std::vector<Vector2> _scisCenter;	
+	std::vector<Vector2> _legMovePos;	
+	std::vector<Vector2> _legPrePos;	
 
+	int atkCnt;			// UŒ‚‚·‚é‚Ü‚Å‚ÌŠÔŠu
+	int pitchCnt;		// ‰ñ“]‚·‚éŠÔŠu
+	int shotCnt;
 public:
 	Crab(std::shared_ptr<Camera>& camera);
 	~Crab();
-	BossInfo GetInfo();
+	BossInfo GetInfo() { return boss; };
 	void CalTrackVel(const Vector2& pos);
 	void Draw();
 	void DebugDraw(const Vector2& camera);

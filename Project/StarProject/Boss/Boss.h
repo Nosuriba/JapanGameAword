@@ -14,10 +14,10 @@ struct JointInfo
 	std::vector<Vector2> _points;			/// Œã‚Å’†ŠÔ“_‚Ì•”•ª‚ğ‚±‚Ì’†‚É‚Ô‚¿‚ñ‚Å‚â‚é‚º
 	// §Œä“_
 	Vector2 _ctlPoint;
+	Vector2 _center;
 	Vector2 _vel;
 	Size   _size;
 	std::array<sqr_vert, 2> _vert;		// ‘«‚ÌŠÖß‚Ì’¸“_
-
 };
 
 struct CrabInfo
