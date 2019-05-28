@@ -45,6 +45,7 @@ struct CutScreenInfo {
 struct LevelUIInfo {
 	Position2 circlePos;
 	int circle_r;
+	int backCircle_r;
 };
 
 class GameScene : public Scene
@@ -124,6 +125,8 @@ private:
 
 	//UI
 	LevelUIInfo leveluiInfo;
+
+	int maru;
 
 public:
 	GameScene();
