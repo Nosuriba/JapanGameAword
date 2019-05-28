@@ -1,22 +1,17 @@
 #include "Crab.h"
 #include "../Game.h"
 #include "../Camera.h"
+
 const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
 							   Game::GetInstance().GetScreenSize().y / 2);
-const Vector2 lVel  = Vector2(3.f, 3.f);	// ‹r‚Ì“®‚­‘¬“x
-const Vector2 aVel  = Vector2(3.f, 3.f);	// ˜r‚Ì‘¬“x
 const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
 const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ‹t‚Ì‰ñ“]•ûŒü
+const Vector2 eSize = Vector2(250, 150);
 const float rotVel  = DX_PI_F / 540.f;
-const int length    = 100;
-const int aLength	= length + 60;
-const int typeMax   = static_cast<int>(AtkType::MAX);
+const float mVel = 3.f;
 const int atkMax	= 120;
 const int pitchMax	= 50;
 const int shotMax	= 240;
-const Size eSize    = Size(250, 150);			// ŠI‚Ì‘å‚«‚³
-const Size lSize    = Size(length, 20);			// ‹r‚Ì‘å‚«‚³
-const Size scisSize = Size(70, 20);				// ‚Í‚³‚İ‚Ì‘å‚«‚³				
 
 Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
@@ -24,12 +19,18 @@ Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 	_armPrePos = Vector2();
 	atkCnt  = atkMax;
 	_type	   = AtkType::NORMAL;
+	
+	/// »²½Şİ’è
+	boss._crab._pos  = Vector2(600, 750);
+	boss._crab._size = Size(eSize.x, eSize.y);
+	lSize	 = Size(100, 20);
+	scisSize = Size(70, lSize.height);
+	length   = lSize.width;
+	aLength  = (lSize.width + 60);
 
-	/// ŠI‚Ì‰Šú‰»
 	BodyInit();
 	LegInit();
 	ArmInit();
-	
 	/// ŠÖß‚Ì‰Šú‰»
 	MoveJoint();
 	CalVert();
@@ -42,41 +43,39 @@ Crab::~Crab()
 
 void Crab::BodyInit()
 {
-	/// ŠI–{‘Ì‚Ì‰Šú‰»
-	boss._crab._pos = Vector2(center.x, 700);
-	boss._crab._size = eSize;
+	//boss._crab._pos = Vector2(center.x, 750);
+	//boss._crab._size = eSize;
 	for (int i = 0; i < boss._crab._vert.size(); ++i)
 	{
-		auto posX = (i != 0 && i != 3 ? eSize.width / 2 : -eSize.width / 2);
-		auto posY = (!(i / (boss._crab._vert.size() / 2)) ? -eSize.height / 2 : eSize.height / 2);
+		auto posX = (i != 0 && i != 3 ? boss._crab._size.width / 2 : -boss._crab._size.width / 2);
+		auto posY = (!(i / (boss._crab._vert.size() / 2)) ? -boss._crab._size.height / 2 : boss._crab._size.height / 2);
 		boss._crab._vert[i] = boss._crab._pos + Vector2(posX, posY);
 	}
 }
 
 void Crab::LegInit()
 {
-	/// ‹r‚Ì‰Šú‰»
 	boss._crab._legs.resize(8);
 	auto leg = boss._crab._legs.begin();
 	for (; leg != boss._crab._legs.end(); ++leg)
 	{
-		/// ŠÖß‚ğ’Ç‰Á‚µ‚Ä‚¢‚é
 		(*leg)._points.resize(3);
 		/// ˆÚ“®§Œä—p‚ÌÀ•W
 		_legPrePos.push_back(Vector2());
 		_legMovePos.push_back(Vector2());
+		_legAccel.push_back(Vector2());
 
 		auto cnt = leg - boss._crab._legs.begin();
 		auto pos = boss._crab._pos + (!(cnt / (boss._crab._legs.size() / 2))
-									  ? Vector2(eSize.width / 2, -eSize.height / 3 - lSize.height / 2)
-									  : Vector2(-eSize.width / 2, -eSize.height / 3 - lSize.height / 2));
+									  ? Vector2(boss._crab._size.width / 2, -boss._crab._size.height / 3 - lSize.height / 2)
+									  : Vector2(-boss._crab._size.width / 2, -boss._crab._size.height / 3 - lSize.height / 2));
 		(*leg)._points[0] = pos + Vector2(0, (cnt % (boss._crab._legs.size() / 2)) * (lSize.height * 2));
 		auto point = (*leg)._points.begin() + 1;
 		for (; point != (*leg)._points.end(); ++point)
 		{
 			auto pCnt = point - (*leg)._points.begin();
 			auto leng = (!(cnt / (boss._crab._legs.size() / 2)) ? length : -length);
-			(*point) = (*leg)._points[pCnt - 1] + Vector2(leng, 0 );
+			(*point)  = (*leg)._points[pCnt - 1] + Vector2(leng - (leng / 6), 0 );
 		}
 		(*leg)._ctlPoint = (*leg)._points[2] + (!(cnt / (boss._crab._legs.size() / 2))
 												? Vector2(-length / 2, 0)
@@ -87,7 +86,6 @@ void Crab::LegInit()
 
 void Crab::ArmInit()
 {
-	/// ˜r‚Ì‰Šú‰»
 	boss._crab._arms.resize(2);
 	/// ‚Í‚³‚İ‚Ì‰Šú‰»
 	_scisCenter.resize(boss._crab._arms.size() * 2);
@@ -97,8 +95,8 @@ void Crab::ArmInit()
 	{
 		(*arm)._points.resize(3);
 		auto cnt = arm - boss._crab._arms.begin();
-		auto pos = boss._crab._pos - (!(cnt % 2) ? Vector2(-eSize.width / 4, eSize.height / 2)
-												 : Vector2(eSize.width / 4, eSize.height / 2));
+		auto pos = boss._crab._pos - (!(cnt % 2) ? Vector2(-boss._crab._size.width / 4, boss._crab._size.height / 2)
+												 : Vector2(boss._crab._size.width / 4, boss._crab._size.height / 2));
 		(*arm)._points[0] = pos;
 		auto point = (*arm)._points.begin() + 1;
 		for (; point != (*arm)._points.end(); ++point)
@@ -143,7 +141,7 @@ void Crab::PitchUpdate()
 {
 	if (_type == AtkType::NORMAL)
 	{
-		/// ˜r‚ğˆø‚«–ß‚·
+		/// ˜r‚ğ–ß‚µ‚Ä‚¢‚é
 		for (auto& arm : boss._crab._arms)
 		{
 			if (StopCheck(arm._ctlPoint, _armPrePos, arm._vel) && arm._vel.x != 0)
@@ -158,7 +156,7 @@ void Crab::PitchUpdate()
 	}
 	else
 	{
-		/// ˜r‚ğL‚Î‚·
+		/// ˜r‚ğL‚Î‚µ‚Ä‚¢‚é
 		if (_type == AtkType::MOVE)
 		{
 			for (auto& arm : boss._crab._arms)
@@ -168,7 +166,7 @@ void Crab::PitchUpdate()
 					&& arm._vel.x != 0)
 				{
 					auto vec = (_armPrePos - arm._ctlPoint).Normalized();
-					arm._vel   = Vector2(aVel.x * vec.x, aVel.y * vec.y);
+					arm._vel   = Vector2(mVel * vec.x, mVel * vec.y);
 					_plPos	   = Vector2();
 					_type	   = AtkType::PITCH;
 					pitchCnt   = pitchMax;
@@ -188,20 +186,20 @@ void Crab::ShotUpdate()
 	{
 		if (!(shotCnt % 10))
 		{
-			auto vec = _plPos - boss._crab._pos;
-			auto lengPos = Vector2(length * vec.Normalized().x, length * vec.Normalized().y);
-			auto rand = (GetRand(8) - 4);
-			auto pos = Vector2(15 * rand, 15 * rand) + lengPos;
+			//auto vec = (_plPos - boss._crab._pos).Normalized();						/// ÌßÚ²Ô°‚ÌŒü‚«‚ÉŒü‚©‚Á‚Ä•úËó
+			auto vec = (boss._crab._vert[0] - boss._crab._vert[3]).Normalized();		/// ‚©‚É‚ÌŒü‚¢‚Ä‚é•ûŒü‚ÉŒü‚©‚Á‚Ä•úËó
+			auto lengPos = Vector2(length * vec.x, length * vec.y);
+			auto rand = (GetRand(10) - 5);
+			auto pos = Vector2(10 * rand, 10 * rand) + lengPos;
 			/// ƒvƒŒƒCƒ„[‚Ì•ûŒü‚ÉŒü‚©‚Á‚Ä•úËã‚É‘Å‚Â‚æ‚¤İ’è‚ğs‚¤
 			auto theta = atan2f((boss._crab._pos.y + pos.y) - boss._crab._pos.y,
 							    (boss._crab._pos.x + pos.x) - boss._crab._pos.x);
 			auto cost = cos(theta);
 			auto sint = sin(theta);
-			auto vel = Vector2(3.0f * cost, 3.0f * sint);
+			auto vel = Vector2(5.0f * cost, 5.0f * sint);
 			auto size = Size(10, 10);
 
-			/// ×İÀŞÑ‚È•ûŒü‚É¼®¯Ä‚ğ‘Å‚Â
-			_shot.push_back(ShotDebug(boss._crab._pos, vel, size, Rect(_plPos, size)));
+			_shot.push_back(ShotDebug(boss._crab._pos, vel));
 		}
 		shotCnt--;
 	}
@@ -223,7 +221,6 @@ void Crab::CalVert()
 	Vector2 size, sizePos;
 	float theta, cost, sint;
 
-	/// ‹r‚Ì‹éŒ`İ’è
 	for (auto& leg : boss._crab._legs)
 	{
 		for (int p = 0; p < leg._vert[0].size(); ++p)
@@ -232,13 +229,11 @@ void Crab::CalVert()
 			for (; point != leg._points.end(); ++point)
 			{
 				auto cnt = point - leg._points.begin();
-				theta = atan2f((*point).y - leg._points[cnt - 1].y,
-							   (*point).x - leg._points[cnt - 1].x);
-				cost = cos(theta + DX_PI / 2);
-				sint = sin(theta + DX_PI / 2);
+				theta = atan2f((*point).y - leg._points[cnt - 1].y, (*point).x - leg._points[cnt - 1].x);
+				cost  = cos(theta + DX_PI / 2);
+				sint  = sin(theta + DX_PI / 2);
 
-				size.x = cost * (lSize.height / 2);
-				size.y = sint * (lSize.height / 2);
+				size = Vector2((lSize.height / 2) * cost, (lSize.height / 2) * sint);
 				sizePos = (p < 2 ? -size : size);
 
 				leg._vert[cnt - 1][p] = (p == 0 || p == 3 ? leg._points[cnt - 1] : (*point)) + sizePos;
@@ -246,8 +241,7 @@ void Crab::CalVert()
 		}
 	}
 
-	std::vector<float> dirTheta;		/// ‚Í‚³‚İ‚Ì’Ü‚Ì•ûŒü
-	/// ˜r‚Ì‹éŒ`İ’è
+	std::vector<float> dirTheta;		/// ‚Í‚³‚İ‚Ì’Ü‚Ì•ûŒü—p
 	auto arm = boss._crab._arms.begin();
 	for (; arm != boss._crab._arms.end(); ++arm)
 	{
@@ -258,15 +252,12 @@ void Crab::CalVert()
 			for (; point != (*arm)._points.end(); ++point)
 			{
 				auto cnt = point - (*arm)._points.begin();
-				theta = atan2f((*point).y - (*arm)._points[cnt - 1].y,
-							   (*point).x - (*arm)._points[cnt - 1].x);
-				cost = cos(theta + DX_PI / 2);
-				sint = sin(theta + DX_PI / 2);
+				theta = atan2f((*point).y - (*arm)._points[cnt - 1].y, (*point).x - (*arm)._points[cnt - 1].x);
+				cost  = cos(theta + DX_PI / 2);
+				sint  = sin(theta + DX_PI / 2);
 
-				size.x = cost * (lSize.height / 2);
-				size.y = sint * (lSize.height / 2);
+				size = Vector2((lSize.height / 2) * cost, (lSize.height / 2) * sint);
 				sizePos = (i < 2 ? -size : size);
-
 				(*arm)._vert[cnt - 1][i] = (i == 0 || i == 3 ? (*arm)._points[cnt - 1] : (*point)) + sizePos;
 			}
 		}
@@ -279,16 +270,14 @@ void Crab::CalVert()
 		{
 			theta = atan2f((*arm)._vert[1][i].y - (*arm)._vert[1][(*arm)._points.size() - i].y,
 						   (*arm)._vert[1][i].x - (*arm)._vert[1][(*arm)._points.size() - i].x);
-			cost = cos(theta);
-			sint = sin(theta);
+			cost  = cos(theta);
+			sint  = sin(theta);
 			(*arm)._vert[1][i] = (*arm)._vert[1][i] + Vector2(length / 4 * cost, length / 4 * sint);
-
 		}
 	}
 
 	if (_type != AtkType::PITCH)
 	{
-		/// ‚Í‚³‚İ‚Ì’Ü‚Ì‹éŒ`İ’è
 		auto aSize = boss._crab._arms.size();		/// ˜r‚Ì”
 		auto scis = _scissors.begin();
 		for (; scis != _scissors.end(); ++scis)
@@ -304,8 +293,7 @@ void Crab::CalVert()
 				cost  = cos(theta + DX_PI / 2);
 				sint  = sin(theta + DX_PI / 2);
 
-				size.x  = cost * (scisSize.height / 2);
-				size.y  = sint * (scisSize.height / 2);
+				size	= Vector2((scisSize.height / 2) * cost, (scisSize.height / 2) * sint);
 				sizePos = (vCnt < 2 ? Vector2() : size * 2);
 				sizePos = (sCnt % 2 ? -sizePos : sizePos);
 
@@ -315,12 +303,11 @@ void Crab::CalVert()
 				auto offset  = -Vector2(scisSize.height / 3 * cost, scisSize.height / 3 * sint);
 				auto lengPos = (vCnt != 0 && vCnt != 3 ? Vector2(scisSize.width * cost, scisSize.width * sint)
 													   : Vector2());
-
 				(*vert) = sPos + sizePos + offset + lengPos;
 			}
 			theta = atan2f((*scis)[2].y - (*scis)[0].y, (*scis)[2].x - (*scis)[0].x);
-			cost = cos(theta);
-			sint = sin(theta);
+			cost  = cos(theta);
+			sint  = sin(theta);
 
 			_scisCenter[sCnt] = (*scis)[0] + Vector2(scisSize.width / 2 * cost, scisSize.width / 2 * sint);
 		}
@@ -435,85 +422,92 @@ void Crab::MoveLeg()
 	auto leg = boss._crab._legs.begin();
 	for (; leg != boss._crab._legs.end(); ++leg)
 	{
+		auto rand = GetRand(4);			/// ‰Á‘¬“x’²®—p‚Ì—”
 		auto cnt = leg - boss._crab._legs.begin();
 		if (!(cnt / (boss._crab._legs.size() / 2)))
-		{
-			/// ‰E‘«‚Ì“®‚«
+		{	/// ‰E‹r
 			if (_legMovePos[cnt].x == 0 && _legPrePos[cnt].x == 0)
 			{
+				_legAccel[cnt] = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
 				_legMovePos[cnt] = (*leg)._points[2] + Vector2((length / 2) * dirVec.x, (length / 2) * dirVec.y);
-
-				(*leg)._vel = Vector2(lVel.x * dirVec.x, lVel.y * dirVec.y);
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * dirVec.x,
+									  (mVel + _legAccel[cnt].y) * dirVec.y);
 			}
 
 			if (_legMovePos[cnt].x != 0)
 			{
-				/// ‹r‚ğL‚Î‚·
+				/// ‹r‚Ì–ß‚·ˆÊ’uİ’è
 				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
 				{
+					auto vec = ((*leg)._points[2] - (*leg)._points[0]).Normalized();
+					auto lengPos = Vector2((length / 2) * vec.x, (length / 2) * vec.y);
 					_legMovePos[cnt] = Vector2();
-					_legPrePos[cnt] = (*leg)._ctlPoint + Vector2(length * -dirVec.x, length * -dirVec.y);
+					_legPrePos[cnt] = (*leg)._points[0] + lengPos;
 					(*leg)._vel = -(*leg)._vel;
+					continue;
 				}
-				else
-				{
-					vec = (_legMovePos[cnt] - (*leg)._ctlPoint).Normalized();
-					(*leg)._vel = Vector2(lVel.x * vec.x, lVel.y * vec.y);
-				}
+				vec = (_legMovePos[cnt] - (*leg)._ctlPoint).Normalized();
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * vec.x,
+									  (mVel + _legAccel[cnt].y) * vec.y);
 			}
 			else
 			{
-				/// ‹r‚ğ–ß‚·
+				/// ‹r‚ÌˆÚ“®‚·‚éˆÊ’uİ’è
 				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
 				{
-					_legPrePos[cnt] = Vector2();
+					_legAccel[cnt]	 = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
+					_legPrePos[cnt]	 = Vector2();
 					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * dirVec.x, length * dirVec.y);
-					(*leg)._vel = Vector2(lVel.x * dirVec.x, lVel.y * dirVec.y);
+					(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * dirVec.x,
+										  (mVel + _legAccel[cnt].y) * dirVec.y);
+					continue;
 				}
-				else
-				{
-					vec = (_legPrePos[cnt] - (*leg)._ctlPoint).Normalized();
-					(*leg)._vel = Vector2(lVel.x * vec.x, lVel.y * vec.y);
-				}
+				vec = (_legPrePos[cnt] - (*leg)._ctlPoint).Normalized();
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * vec.x, 
+									  (mVel + _legAccel[cnt].y) * vec.y);
 			}
 		}
 		else
-		{
+		{	/// ¶‹r
 			if (_legMovePos[cnt].x == 0 && _legPrePos[cnt].x == 0)
 			{
+				_legAccel[cnt] = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
 				_legMovePos[cnt] = (*leg)._points[2] + Vector2((length / 2) * -dirVec.x, (length / 2) * -dirVec.y);
-				(*leg)._vel = Vector2(lVel.x * -dirVec.x, lVel.y * -dirVec.y);
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * -dirVec.x,
+									  (mVel + _legAccel[cnt].y) * -dirVec.y);
 			}
 
 			if (_legMovePos[cnt].x != 0)
 			{
-				/// ‹r‚ğL‚Î‚·
+				/// ‹r‚Ì–ß‚·ˆÊ’uİ’è
 				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
 				{
+					auto vec = ((*leg)._points[2] - (*leg)._points[0]).Normalized();
+					auto lengPos = Vector2((length / 2) * vec.x, (length / 2) * vec.y);
 					_legMovePos[cnt] = Vector2();
-					_legPrePos[cnt] = (*leg)._ctlPoint + Vector2(length * dirVec.x, length * dirVec.y);
+					_legPrePos[cnt] = (*leg)._points[0] + lengPos;
 					(*leg)._vel = -(*leg)._vel;
+					continue;
 				}
-				else
-				{
-					vec = (_legMovePos[cnt] - (*leg)._ctlPoint).Normalized();
-					(*leg)._vel = Vector2(lVel.x * vec.x, lVel.y * vec.y);
-				}
+				vec = (_legMovePos[cnt] - (*leg)._ctlPoint).Normalized();
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * vec.x,
+									  (mVel + _legAccel[cnt].y) * vec.y);
 			}
 			else
 			{
-				/// ‹r‚ğ–ß‚·
+				/// ‹r‚ÌˆÚ“®‚·‚éˆÊ’uİ’è
 				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
 				{
-					_legPrePos[cnt] = Vector2();
+					_legAccel[cnt]   = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
+					_legPrePos[cnt]  = Vector2();
 					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * -dirVec.x, length * -dirVec.y);
-					(*leg)._vel = Vector2(lVel.x * -dirVec.x, lVel.y * -dirVec.y);
+					(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * -dirVec.x,
+										  (mVel + _legAccel[cnt].y) * -dirVec.y);
+					continue;
 				}
-				else
-				{
-					vec = (_legPrePos[cnt] - (*leg)._ctlPoint).Normalized();
-					(*leg)._vel = Vector2(lVel.x * vec.x, lVel.y * vec.y);
-				}
+				vec = (_legPrePos[cnt] - (*leg)._ctlPoint).Normalized();
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * vec.x,
+									  (mVel + _legAccel[cnt].y) * vec.y);
 			}
 		}
 		(*leg)._ctlPoint += Vector2((*leg)._vel.x, (*leg)._vel.y);
@@ -672,12 +666,11 @@ void Crab::CalTrackVel(const Vector2 & pos)
 		{
 			Pitch();
 			auto vec = (_plPos - boss._crab._arms[mCnt]._ctlPoint).Normalized();
-			boss._crab._arms[mCnt]._vel = Vector2(aVel.x * vec.x, aVel.y * vec.y);
+			boss._crab._arms[mCnt]._vel = Vector2(mVel * vec.x, mVel * vec.y);
 			/// ˆÚ“®‘O‚Ì§Œä“_‚ğ•Û‘¶
 			_armPrePos = boss._crab._arms[mCnt]._ctlPoint;			
 			return;
 		}
-
 		if (_updater == &Crab::NeutralUpdate)
 		{
 			Shot();
@@ -690,13 +683,12 @@ void Crab::CalTrackVel(const Vector2 & pos)
 void Crab::Draw()
 {
 	auto camera = _camera->CameraCorrection();
-	/// ¼®¯Ä‚Ì•`‰æ
+
 	for (auto shot : _shot)
 	{
-		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, shot._size.height, 0x55eedd, true);
+		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, 10, 0xddffff, true);
 	}
 
-	/// ‹r‚Ì•`‰æ
 	Vector2 p1, p2, p3, p4;
 	for (auto leg : boss._crab._legs)
 	{
@@ -704,11 +696,10 @@ void Crab::Draw()
 		{
 			p1 = leg._vert[i][0] - camera; p2 = leg._vert[i][1] - camera;
 			p3 = leg._vert[i][2] - camera; p4 = leg._vert[i][3] - camera;
-			DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
 
-	/// ‚Í‚³‚İ‚Ì•`‰æ
 	auto scis = _scissors.begin();
 	for (; scis != _scissors.end(); ++scis)
 	{
@@ -720,34 +711,93 @@ void Crab::Draw()
 		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - camera;
 
 		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
-		DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
 	}
-	
-	/// ˜r‚Ì•`‰æ
+
 	for (auto arm : boss._crab._arms)
 	{
 		for (int i = 0; i < arm._points.size() - 1; ++i)
 		{
 			p1 = arm._vert[i][0] - camera; p2 = arm._vert[i][1] - camera; 
 			p3 = arm._vert[i][2] - camera; p4 = arm._vert[i][3] - camera;
-			DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
 	/// ŠI–{‘Ì‚Ì•`‰æ
 	p1 = boss._crab._vert[0] - camera; p2 = boss._crab._vert[1] - camera;
 	p3 = boss._crab._vert[2] - camera; p4 = boss._crab._vert[3] - camera;
-	DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 
 	auto vec = (p2 - p1).Normalized();
-	auto rEyePos = p1 + Vector2((eSize.width / 3) * vec.x, (eSize.width / 3) * vec.y);
-	auto lEyePos = p2 + Vector2((eSize.width / 3) * (-vec.x), (eSize.width / 3) * (-vec.y));
-
-	DxLib::DrawCircle(rEyePos.x, rEyePos.y, 5, 0x000000, true);
-	DxLib::DrawCircle(lEyePos.x, lEyePos.y, 5, 0x000000, true);
+	auto rEyePos = p1 + Vector2((boss._crab._size.width / 3) * vec.x, (boss._crab._size.width / 3) * vec.y);
+	auto lEyePos = p2 + Vector2((boss._crab._size.width / 3) * (-vec.x), (boss._crab._size.width / 3) * (-vec.y));
+	
+	/// –Ú‚Ì•`‰æ
+	DxLib::DrawCircleAA(rEyePos.x, rEyePos.y, 5, 0x000000, true);
+	DxLib::DrawCircleAA(lEyePos.x, lEyePos.y, 5, 0x000000, true);
 
 #ifdef _DEBUG
 	DebugDraw(camera);
 #endif
+}
+
+void Crab::SelectDraw(const Vector2 & pos, const Size & size)
+{
+	auto camera = _camera->CameraCorrection();
+	auto scaleMag = Vector2(size.width / eSize.x,
+							size.height / eSize.y);
+	lSize	 = Size(100 * scaleMag.x, 20 * scaleMag.y);
+	scisSize = Size(70 * scaleMag.x, lSize.height);
+	length	 = lSize.width * scaleMag.x;
+	aLength	 = (lSize.width + (60 * scaleMag.x)) * scaleMag.x;
+	CalVert();
+
+	Vector2 p1, p2, p3, p4;
+	for (auto leg : boss._crab._legs)
+	{
+		for (int i = 0; i < leg._points.size() - 1; ++i)
+		{
+			p1 = leg._vert[i][0] - camera; p2 = leg._vert[i][1] - camera;
+			p3 = leg._vert[i][2] - camera; p4 = leg._vert[i][3] - camera;
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+		}
+	}
+
+	auto scis = _scissors.begin();
+	for (; scis != _scissors.end(); ++scis)
+	{
+		auto sCnt = scis - _scissors.begin();
+		p1 = (*scis)[0] - camera; p2 = (*scis)[1] - camera;
+		p3 = (*scis)[2] - camera; p4 = (*scis)[3] - camera;
+
+		auto vec = (p1 - p4).Normalized();
+		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - camera;
+
+		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
+	}
+
+	for (auto arm : boss._crab._arms)
+	{
+		for (int i = 0; i < arm._points.size() - 1; ++i)
+		{
+			p1 = arm._vert[i][0] - camera; p2 = arm._vert[i][1] - camera;
+			p3 = arm._vert[i][2] - camera; p4 = arm._vert[i][3] - camera;
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+		}
+	}
+	/// ŠI–{‘Ì‚Ì•`‰æ
+	p1 = boss._crab._vert[0] - camera; p2 = boss._crab._vert[1] - camera;
+	p3 = boss._crab._vert[2] - camera; p4 = boss._crab._vert[3] - camera;
+	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+
+	auto vec = (p2 - p1).Normalized();
+	auto rEyePos = p1 + Vector2((boss._crab._size.width / 3) * vec.x, (boss._crab._size.width / 3) * vec.y);
+	auto lEyePos = p2 + Vector2((boss._crab._size.width / 3) * (-vec.x), (boss._crab._size.width / 3) * (-vec.y));
+
+	/// –Ú‚Ì•`‰æ
+	DxLib::DrawCircleAA(rEyePos.x, rEyePos.y, 5 * scaleMag.x, 0x000000, true);
+	DxLib::DrawCircleAA(lEyePos.x, lEyePos.y, 5 * scaleMag.x, 0x000000, true);
 }
 
 void Crab::DebugDraw(const Vector2& camera)
@@ -791,16 +841,6 @@ void Crab::DebugDraw(const Vector2& camera)
 	{
 		DxLib::DrawCircle(_scisCenter[i].x - camera.x, _scisCenter[i].y - camera.y, 4, 0x00ff00, true);
 	}
-
-	auto scis = _scissors.begin();
-	for (; scis != _scissors.end(); ++scis)
-	{
-		auto sCnt = scis - _scissors.begin();
-		auto sPos = (*scis)[0];
-
-		DrawLine(sPos.x - camera.x, sPos.y - camera.y,
-				_scisCenter[sCnt].x - camera.x, _scisCenter[sCnt].y - camera.y, 0xffff00);
-	}
 	/// ‰ñ“]‚·‚é‚Æ‚«‚Ì’†S“_‚Ì•`‰æ
 	DrawCircle(center.x - camera.x, center.y - camera.y, 10, 0xff0000, true);
 }
@@ -827,6 +867,7 @@ void Crab::Update()
 		Rotation();
 		MoveLeg();
 	}
+	//MoveLeg();
 	CalVert();			/// ‹éŒ`‚Ì’¸“_‚ğİ’è
 	MoveJoint();
 }

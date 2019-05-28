@@ -13,7 +13,7 @@ ImmortalObject::ImmortalObject(std::shared_ptr<Camera>& camera, int x, int y):Ob
 
 	obj = ObjectInfo(pos, size, rect, level, false);
 
-	immortalimg = ResourceManager::GetInstance().LoadImg("../img/immortal.png");
+	LoadDivGraph("../img/immortal.png", 9, 9, 1, 1357 / 9, 136, immortalimg);
 }
 
 
@@ -26,7 +26,7 @@ void ImmortalObject::Draw()
 	auto camera = _camera->CameraCorrection();
 
 	DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
-		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, immortalimg, true);
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, immortalimg[0], true);
 
 	/*DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
 		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, 0x00ff00, false);*/

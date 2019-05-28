@@ -29,16 +29,11 @@ struct ShotDebug
 {
 	Position2 _pos;
 	Vector2 _vel;
-	Size _size;
-	Rect _rect;
-
-	ShotDebug() : _pos(0, 0), _vel(0, 0), _size(0, 0), _rect(_pos, _size) {};
-	ShotDebug(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
+	ShotDebug() : _pos(0, 0), _vel(0, 0){};
+	ShotDebug(const Position2& _pos, const Vector2& _vel)
 	{
 		this->_pos = _pos;
 		this->_vel = _vel;
-		this->_size = _size;
-		this->_rect = _rect;
 	}
 };
 
@@ -90,16 +85,24 @@ private:
 	std::vector<Vector2> _scisCenter;	
 	std::vector<Vector2> _legMovePos;	
 	std::vector<Vector2> _legPrePos;	
+	std::vector<Vector2> _legAccel;		// ‹r‚Ì‰Á‘¬“x—p
 
 	int atkCnt;			// UŒ‚‚·‚é‚Ü‚Å‚ÌŠÔŠu
 	int pitchCnt;		// ‰ñ“]‚·‚éŠÔŠu
 	int shotCnt;
+	int inviCnt;		// –³“GŠÔ
+
+	float length;
+	float aLength;
+	Size lSize;			// ‹r‚Ì‘å‚«‚³
+	Size scisSize;		// ‚Í‚³‚İ‚Ì‘å‚«‚³				
 public:
 	Crab(std::shared_ptr<Camera>& camera);
 	~Crab();
 	BossInfo GetInfo() { return boss; };
 	void CalTrackVel(const Vector2& pos);
 	void Draw();
+	void SelectDraw(const Vector2& pos, const Size& size);
 	void DebugDraw(const Vector2& camera);
 	void Update();
 	
