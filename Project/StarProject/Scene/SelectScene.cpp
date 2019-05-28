@@ -107,7 +107,7 @@ SelectScene::SelectScene()
 	shader_time = 0;
 	flame = 0;
 	Cnt = 0;
-	Select = 1; 
+	Select = 0; 
 
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
 	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 10 * 7, 100, true, 1));
@@ -142,10 +142,10 @@ void SelectScene::Draw()
 
 	auto pl = std::make_unique<Player>(nullptr);
 	auto oct = std::make_shared<Octopus>(_camera);
-	//auto crab = std::make_shared<Crab>(_camera);
+	auto crab = std::make_shared<Crab>(_camera);
 
 	oct->Draw();
-	//->Draw(); 
+	crab->SelectDraw(Vector2(0,0), {0,0});
 	pl->SelectDraw(Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5)) * 130);
 
 
