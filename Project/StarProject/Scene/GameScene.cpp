@@ -164,6 +164,7 @@ void GameScene::LoadResource()
 	secondscreen = MakeScreen(size.x - 1, size.y - 1);
 	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
 	_4thscreen = MakeScreen(size.x, size.y);
+	uiscreen = MakeScreen(size.x, size.y, true);
 
 
 	//当たり範囲の指定のための領域
@@ -181,7 +182,7 @@ void GameScene::LoadResource()
 	auto& manager = ResourceManager::GetInstance();
 	sea = manager.LoadImg("../img/sea.png");
 	sea_effect = manager.LoadImg("../img/sea2.png");
-	
+	maru = manager.LoadImg("../img/maru.png");
 
 	//波のシェーダー頂点
 	for (int i = 0; i < 4; i++)
@@ -221,6 +222,10 @@ void GameScene::LoadResource()
 
 	//score初期化
 	score = ScoreInfo(0, 0, 0, 0);
+
+	leveluiInfo.circlePos = Vector2(0, size.y);
+	leveluiInfo.circle_r = 200;
+	leveluiInfo.backCircle_r = 250;
 
 	SetUseASyncLoadFlag(false);
 
@@ -287,6 +292,9 @@ void GameScene::Draw()
 	//背景
 	_bg->Draw();
 
+
+
+
 	//secondスクリーン(影)
 	SetDrawScreen(secondscreen);
 
@@ -344,6 +352,47 @@ void GameScene::Draw()
 
 	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
+
+
+
+	//UI描画
+	SetDrawScreen(uiscreen);
+
+	ClearDrawScreen();
+
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 150);
+
+	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.backCircle_r, 0x777777,true);
+
+	DrawCircleGauge(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, 10, maru, 0.0);
+
+	//SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
+
+	
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.circle_r, 0x999999, true);
+	auto one = totaltime % 10;
+	auto ten = totaltime / 10;
+
+	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
+	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
+
+	SetFontSize(128);
+
+	if (_updater == &GameScene::Wait && waitNum >= 1) {
+		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
+	}
+
+	DrawFormatString(GetFontSize() / 2 + GetFontSize() / 4, size.y - GetFontSize(), 0xff8000, "%d", _pl->GetInfo().level);
+
+	SetFontSize(64);
+
+	DrawString(GetFontSize() / 6, size.y - GetFontSize() - 5, "Lv ", 0xff8000);
+
+
+
 	//バック描画
 	SetDrawScreen(DX_SCREEN_BACK);
 
@@ -369,21 +418,17 @@ void GameScene::Draw()
 		boss->Draw();
 	}
 
-	for (auto &destroy : _destroyObj) {
-		destroy->Draw();
-	}
-	for (auto &predatory : _predatoryObj) {
-		predatory->Draw();
-	}
 	for (auto &immortal : _immortalObj) {
 		immortal->Draw();
 	}
 
-	auto one = totaltime % 10;
-	auto ten = totaltime / 10;
+	for (auto &destroy : _destroyObj) {
+		destroy->Draw();
+	}
 
-	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
-	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
+	for (auto &predatory : _predatoryObj) {
+		predatory->Draw();
+	}
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
@@ -395,13 +440,9 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	SetFontSize(128);
+	DrawGraph(0, 0, uiscreen, true);
 
-	if (_updater == &GameScene::Wait && waitNum >= 1) {
-		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
-	}
-
-	SetFontSize(64);
+	
 }
 
 void GameScene::Update(const Input & p)
@@ -486,7 +527,7 @@ void GameScene::Update(const Input & p)
 							destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
 							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
-							if (_pl->GetInfo().level >= destroy->GetInfo()._level) {
+							if (_pl->GetInfo().level >= destroy->GetInfo()._level && !destroy->GetInfo()._hitflag) {
 								if (_col->WaterToSqr((*l).pos,
 									e, (e - (*l).pos).Magnitude(),
 									destroy->GetInfo()._rect))
@@ -494,6 +535,9 @@ void GameScene::Update(const Input & p)
 									destroy->Break();
 									(*l).Hit();
 								}
+							}
+							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, destroy->GetInfo()._rect)) {
+								_pl->SetStar(_col->Pushback(_pl->GetInfo(), destroy->GetInfo()._rect), _pl->GetInfo().r);
 							}
 						}
 						/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
@@ -562,9 +606,6 @@ void GameScene::Update(const Input & p)
 							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, immortal->GetInfo()._rect)) {
 								_pl->SetStar(_col->Pushback(_pl->GetInfo(),immortal->GetInfo()._rect), _pl->GetInfo().r);
 							}
-							/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
-
-							}*/
 						}
 					}
 				}
@@ -586,7 +627,7 @@ void GameScene::Update(const Input & p)
 				continue;
 			}
 
-			if (_predatoryObj[i]->GetInfo()._predatoryflag)
+			if (_predatoryObj[i]->GetInfo()._hitflag)
 			{
 				_predatoryObj.erase(_predatoryObj.begin() + i);
 				continue;
@@ -613,6 +654,13 @@ void GameScene::Update(const Input & p)
 	totaltime/* = time - (flame / 60)*/;
 
 	_camera->Update(_pl->GetInfo().center);
+
+	for (auto predatry : _predatoryObj) {
+		predatry->Update();
+	}
+	for (auto destroy : _destroyObj) {
+		destroy->Update(p);
+	}
 
 	(this->*_updater)(p);
 
