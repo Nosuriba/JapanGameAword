@@ -496,6 +496,9 @@ void GameScene::Update(const Input & p)
 									(*l).Hit();
 								}
 							}
+							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, destroy->GetInfo()._rect)) {
+								_pl->SetStar(_col->Pushback(_pl->GetInfo(), destroy->GetInfo()._rect), _pl->GetInfo().r);
+							}
 						}
 						/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
 
