@@ -183,7 +183,7 @@ void GameScene::LoadResource()
 	auto& manager = ResourceManager::GetInstance();
 	sea = manager.LoadImg("../img/sea.png");
 	sea_effect = manager.LoadImg("../img/sea2.png");
-	
+	maru = manager.LoadImg("../img/maru.png");
 
 	//波のシェーダー頂点
 	for (int i = 0; i < 4; i++)
@@ -226,6 +226,7 @@ void GameScene::LoadResource()
 
 	leveluiInfo.circlePos = Vector2(0, size.y);
 	leveluiInfo.circle_r = 200;
+	leveluiInfo.backCircle_r = 250;
 
 	SetUseASyncLoadFlag(false);
 
@@ -360,8 +361,19 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.circle_r, 0x00ff00,true);
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 150);
 
+	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.backCircle_r, 0x777777,true);
+
+	DrawCircleGauge(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, 10, maru, 0.0);
+
+	//SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
+
+	
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.circle_r, 0x999999, true);
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
 
@@ -374,9 +386,12 @@ void GameScene::Draw()
 		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
 	}
 
+	DrawFormatString(GetFontSize() / 2 + GetFontSize() / 4, size.y - GetFontSize(), 0xff8000, "%d", _pl->GetInfo().level);
+
 	SetFontSize(64);
 
-	DrawFormatString(GetFontSize(), size.y - GetFontSize(), 0xffff00, "Lv %d", _pl->GetInfo().level);
+	DrawString(GetFontSize() / 6, size.y - GetFontSize() - 5, "Lv ", 0xff8000);
+
 
 
 	//バック描画

@@ -102,7 +102,7 @@ public:
 	BossInfo GetInfo() { return boss; };
 	void CalTrackVel(const Vector2& pos);
 	void Draw();
-	void SelectDraw(const Vector2& pos, const Size& size);
+	void SelectDraw(const Vector2& pos, const float& scale);
 	void DebugDraw(const Vector2& camera);
 	void Update();
 	
