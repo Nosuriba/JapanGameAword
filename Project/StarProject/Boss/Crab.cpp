@@ -6,23 +6,30 @@ const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
 							   Game::GetInstance().GetScreenSize().y / 2);
 const VECTOR rotDir = { 0,0,1.f };								// âÒì]ï˚å¸
 const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ãtÇÃâÒì]ï˚å¸
+const Vector2 eSize = Vector2(250, 150);
 const float rotVel  = DX_PI_F / 540.f;
 const float mVel = 3.f;
-const int length    = 100;
-const int aLength	= length + 60;
 const int atkMax	= 120;
 const int pitchMax	= 50;
 const int shotMax	= 240;
-const Size eSize    = Size(250, 150);			// äIÇÃëÂÇ´Ç≥
-const Size lSize    = Size(length, 20);			// ãrÇÃëÂÇ´Ç≥
-const Size scisSize = Size(70, 20);				// ÇÕÇ≥Ç›ÇÃëÂÇ´Ç≥				
 
-Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
+Crab::Crab(const Vector2& pos, const Size& size, std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
 	_plPos	   = Vector2();
 	_armPrePos = Vector2();
 	atkCnt  = atkMax;
 	_type	   = AtkType::NORMAL;
+	
+	/// ª≤Ωﬁê›íË
+	boss._crab._pos  = pos;
+	boss._crab._size = size;
+
+	auto scaleMag = Vector2(size.width / eSize.x,
+							size.height / eSize.y);
+	lSize = Size(100 * scaleMag.x, 20 * scaleMag.y);
+	scisSize = Size(70 * scaleMag.x, lSize.height);
+	length   = lSize.width * scaleMag.x;
+	aLength  = (lSize.width + (60 * scaleMag.x)) * scaleMag.x;
 
 	BodyInit();
 	LegInit();
@@ -39,12 +46,12 @@ Crab::~Crab()
 
 void Crab::BodyInit()
 {
-	boss._crab._pos = Vector2(center.x, 750);
-	boss._crab._size = eSize;
+	//boss._crab._pos = Vector2(center.x, 750);
+	//boss._crab._size = eSize;
 	for (int i = 0; i < boss._crab._vert.size(); ++i)
 	{
-		auto posX = (i != 0 && i != 3 ? eSize.width / 2 : -eSize.width / 2);
-		auto posY = (!(i / (boss._crab._vert.size() / 2)) ? -eSize.height / 2 : eSize.height / 2);
+		auto posX = (i != 0 && i != 3 ? boss._crab._size.width / 2 : -boss._crab._size.width / 2);
+		auto posY = (!(i / (boss._crab._vert.size() / 2)) ? -boss._crab._size.height / 2 : boss._crab._size.height / 2);
 		boss._crab._vert[i] = boss._crab._pos + Vector2(posX, posY);
 	}
 }
@@ -63,8 +70,8 @@ void Crab::LegInit()
 
 		auto cnt = leg - boss._crab._legs.begin();
 		auto pos = boss._crab._pos + (!(cnt / (boss._crab._legs.size() / 2))
-									  ? Vector2(eSize.width / 2, -eSize.height / 3 - lSize.height / 2)
-									  : Vector2(-eSize.width / 2, -eSize.height / 3 - lSize.height / 2));
+									  ? Vector2(boss._crab._size.width / 2, -boss._crab._size.height / 3 - lSize.height / 2)
+									  : Vector2(-boss._crab._size.width / 2, -boss._crab._size.height / 3 - lSize.height / 2));
 		(*leg)._points[0] = pos + Vector2(0, (cnt % (boss._crab._legs.size() / 2)) * (lSize.height * 2));
 		auto point = (*leg)._points.begin() + 1;
 		for (; point != (*leg)._points.end(); ++point)
@@ -91,8 +98,8 @@ void Crab::ArmInit()
 	{
 		(*arm)._points.resize(3);
 		auto cnt = arm - boss._crab._arms.begin();
-		auto pos = boss._crab._pos - (!(cnt % 2) ? Vector2(-eSize.width / 4, eSize.height / 2)
-												 : Vector2(eSize.width / 4, eSize.height / 2));
+		auto pos = boss._crab._pos - (!(cnt % 2) ? Vector2(-boss._crab._size.width / 4, boss._crab._size.height / 2)
+												 : Vector2(boss._crab._size.width / 4, boss._crab._size.height / 2));
 		(*arm)._points[0] = pos;
 		auto point = (*arm)._points.begin() + 1;
 		for (; point != (*arm)._points.end(); ++point)
@@ -725,8 +732,8 @@ void Crab::Draw()
 	DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 
 	auto vec = (p2 - p1).Normalized();
-	auto rEyePos = p1 + Vector2((eSize.width / 3) * vec.x, (eSize.width / 3) * vec.y);
-	auto lEyePos = p2 + Vector2((eSize.width / 3) * (-vec.x), (eSize.width / 3) * (-vec.y));
+	auto rEyePos = p1 + Vector2((boss._crab._size.width / 3) * vec.x, (boss._crab._size.width / 3) * vec.y);
+	auto lEyePos = p2 + Vector2((boss._crab._size.width / 3) * (-vec.x), (boss._crab._size.width / 3) * (-vec.y));
 	
 	/// ñ⁄ÇÃï`âÊ
 	DxLib::DrawCircle(rEyePos.x, rEyePos.y, 5, 0x000000, true);

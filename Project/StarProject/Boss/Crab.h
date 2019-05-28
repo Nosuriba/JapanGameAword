@@ -91,8 +91,13 @@ private:
 	int pitchCnt;		// ‰ñ“]‚·‚éŠÔŠu
 	int shotCnt;
 	int inviCnt;		// –³“GŽžŠÔ
+
+	float length;
+	float aLength;
+	Size lSize;			// ‹r‚Ì‘å‚«‚³
+	Size scisSize;				// ‚Í‚³‚Ý‚Ì‘å‚«‚³				
 public:
-	Crab(std::shared_ptr<Camera>& camera);
+	Crab(const Vector2& pos, const Size& size, std::shared_ptr<Camera>& camera);
 	~Crab();
 	BossInfo GetInfo() { return boss; };
 	void CalTrackVel(const Vector2& pos);

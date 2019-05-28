@@ -157,7 +157,7 @@ void GameScene::LoadResource()
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
 	_bosses.push_back(std::make_shared<Octopus>(_camera));*/
 
-	_bosses.push_back(std::make_shared<Crab>(_camera));
+	_bosses.push_back(std::make_shared<Crab>(Vector2(600, 750), Size(250, 150), _camera));
 
 	//ƒXƒNƒŠ[ƒ“ì¬
 	firstscreen = MakeScreen(size.x, size.y);
