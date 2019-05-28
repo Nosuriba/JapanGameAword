@@ -13,7 +13,7 @@ const int atkMax	= 120;
 const int pitchMax	= 50;
 const int shotMax	= 240;
 
-Crab::Crab(const Vector2& pos, const Size& size, std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
+Crab::Crab(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
 {
 	_plPos	   = Vector2();
 	_armPrePos = Vector2();
@@ -21,15 +21,12 @@ Crab::Crab(const Vector2& pos, const Size& size, std::shared_ptr<Camera>& camera
 	_type	   = AtkType::NORMAL;
 	
 	/// »²½ÞÝ’è
-	boss._crab._pos  = pos;
-	boss._crab._size = size;
-
-	auto scaleMag = Vector2(size.width / eSize.x,
-							size.height / eSize.y);
-	lSize = Size(100 * scaleMag.x, 20 * scaleMag.y);
-	scisSize = Size(70 * scaleMag.x, lSize.height);
-	length   = lSize.width * scaleMag.x;
-	aLength  = (lSize.width + (60 * scaleMag.x)) * scaleMag.x;
+	boss._crab._pos  = Vector2(600, 750);
+	boss._crab._size = Size(eSize.x, eSize.y);
+	lSize	 = Size(100, 20);
+	scisSize = Size(70, lSize.height);
+	length   = lSize.width;
+	aLength  = (lSize.width + 60);
 
 	BodyInit();
 	LegInit();
@@ -699,7 +696,7 @@ void Crab::Draw()
 		{
 			p1 = leg._vert[i][0] - camera; p2 = leg._vert[i][1] - camera;
 			p3 = leg._vert[i][2] - camera; p4 = leg._vert[i][3] - camera;
-			DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
 
@@ -714,7 +711,7 @@ void Crab::Draw()
 		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - camera;
 
 		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
-		DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
 	}
 
 	for (auto arm : boss._crab._arms)
@@ -723,25 +720,84 @@ void Crab::Draw()
 		{
 			p1 = arm._vert[i][0] - camera; p2 = arm._vert[i][1] - camera; 
 			p3 = arm._vert[i][2] - camera; p4 = arm._vert[i][3] - camera;
-			DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
 	/// ŠI–{‘Ì‚Ì•`‰æ
 	p1 = boss._crab._vert[0] - camera; p2 = boss._crab._vert[1] - camera;
 	p3 = boss._crab._vert[2] - camera; p4 = boss._crab._vert[3] - camera;
-	DxLib::DrawQuadrangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 
 	auto vec = (p2 - p1).Normalized();
 	auto rEyePos = p1 + Vector2((boss._crab._size.width / 3) * vec.x, (boss._crab._size.width / 3) * vec.y);
 	auto lEyePos = p2 + Vector2((boss._crab._size.width / 3) * (-vec.x), (boss._crab._size.width / 3) * (-vec.y));
 	
 	/// –Ú‚Ì•`‰æ
-	DxLib::DrawCircle(rEyePos.x, rEyePos.y, 5, 0x000000, true);
-	DxLib::DrawCircle(lEyePos.x, lEyePos.y, 5, 0x000000, true);
+	DxLib::DrawCircleAA(rEyePos.x, rEyePos.y, 5, 0x000000, true);
+	DxLib::DrawCircleAA(lEyePos.x, lEyePos.y, 5, 0x000000, true);
 
 #ifdef _DEBUG
 	DebugDraw(camera);
 #endif
+}
+
+void Crab::SelectDraw(const Vector2 & pos, const Size & size)
+{
+	auto camera = _camera->CameraCorrection();
+	auto scaleMag = Vector2(size.width / eSize.x,
+							size.height / eSize.y);
+	lSize	 = Size(100 * scaleMag.x, 20 * scaleMag.y);
+	scisSize = Size(70 * scaleMag.x, lSize.height);
+	length	 = lSize.width * scaleMag.x;
+	aLength	 = (lSize.width + (60 * scaleMag.x)) * scaleMag.x;
+	CalVert();
+
+	Vector2 p1, p2, p3, p4;
+	for (auto leg : boss._crab._legs)
+	{
+		for (int i = 0; i < leg._points.size() - 1; ++i)
+		{
+			p1 = leg._vert[i][0] - camera; p2 = leg._vert[i][1] - camera;
+			p3 = leg._vert[i][2] - camera; p4 = leg._vert[i][3] - camera;
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+		}
+	}
+
+	auto scis = _scissors.begin();
+	for (; scis != _scissors.end(); ++scis)
+	{
+		auto sCnt = scis - _scissors.begin();
+		p1 = (*scis)[0] - camera; p2 = (*scis)[1] - camera;
+		p3 = (*scis)[2] - camera; p4 = (*scis)[3] - camera;
+
+		auto vec = (p1 - p4).Normalized();
+		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - camera;
+
+		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
+	}
+
+	for (auto arm : boss._crab._arms)
+	{
+		for (int i = 0; i < arm._points.size() - 1; ++i)
+		{
+			p1 = arm._vert[i][0] - camera; p2 = arm._vert[i][1] - camera;
+			p3 = arm._vert[i][2] - camera; p4 = arm._vert[i][3] - camera;
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+		}
+	}
+	/// ŠI–{‘Ì‚Ì•`‰æ
+	p1 = boss._crab._vert[0] - camera; p2 = boss._crab._vert[1] - camera;
+	p3 = boss._crab._vert[2] - camera; p4 = boss._crab._vert[3] - camera;
+	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+
+	auto vec = (p2 - p1).Normalized();
+	auto rEyePos = p1 + Vector2((boss._crab._size.width / 3) * vec.x, (boss._crab._size.width / 3) * vec.y);
+	auto lEyePos = p2 + Vector2((boss._crab._size.width / 3) * (-vec.x), (boss._crab._size.width / 3) * (-vec.y));
+
+	/// –Ú‚Ì•`‰æ
+	DxLib::DrawCircleAA(rEyePos.x, rEyePos.y, 5 * scaleMag.x, 0x000000, true);
+	DxLib::DrawCircleAA(lEyePos.x, lEyePos.y, 5 * scaleMag.x, 0x000000, true);
 }
 
 void Crab::DebugDraw(const Vector2& camera)
