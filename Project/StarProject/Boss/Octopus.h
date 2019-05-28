@@ -8,7 +8,6 @@ enum class E_LEG_STATE {
 	NORMAL,
 	PUNCH,
 	CHASE,
-	OCT_INK,
 	RE_MOVE,
 	DAMAGE,
 	DETH,
@@ -29,12 +28,15 @@ struct Oct {
 	Vector2 center;	//’†SÀ•W
 	std::vector<Vector2> root;	//‘«‚ÌªŒ³
 	std::vector<E_Leg> legs;	//‘«
+	int helth = 200;		//‘Ì—Í
+	int interval = 0;		//–³“GŠÔ
 };
 
 class Octopus :
 	public Boss
 {
 private:
+	bool _damageFlag;
 	int _wait;
 	int _maxAngle;
 	int _idx;
