@@ -165,6 +165,7 @@ void GameScene::LoadResource()
 	secondscreen = MakeScreen(size.x - 1, size.y - 1);
 	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
 	_4thscreen = MakeScreen(size.x, size.y);
+	uiscreen = MakeScreen(size.x, size.y, true);
 
 
 	//“–‚½‚è”ÍˆÍ‚ÌŽw’è‚Ì‚½‚ß‚Ì—Ìˆæ
@@ -222,6 +223,9 @@ void GameScene::LoadResource()
 
 	//score‰Šú‰»
 	score = ScoreInfo(0, 0, 0, 0);
+
+	leveluiInfo.circlePos = Vector2(0, size.y);
+	leveluiInfo.circle_r = 200;
 
 	SetUseASyncLoadFlag(false);
 
@@ -288,6 +292,9 @@ void GameScene::Draw()
 	//”wŒi
 	_bg->Draw();
 
+
+
+
 	//secondƒXƒNƒŠ[ƒ“(‰e)
 	SetDrawScreen(secondscreen);
 
@@ -345,6 +352,33 @@ void GameScene::Draw()
 
 	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
+
+
+
+	//UI•`‰æ
+	SetDrawScreen(uiscreen);
+
+	ClearDrawScreen();
+
+	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.circle_r, 0x00ff00,true);
+
+	auto one = totaltime % 10;
+	auto ten = totaltime / 10;
+
+	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
+	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
+
+	SetFontSize(128);
+
+	if (_updater == &GameScene::Wait && waitNum >= 1) {
+		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
+	}
+
+	SetFontSize(64);
+
+	DrawFormatString(GetFontSize(), size.y - GetFontSize(), 0xffff00, "Lv %d", _pl->GetInfo().level);
+
+
 	//ƒoƒbƒN•`‰æ
 	SetDrawScreen(DX_SCREEN_BACK);
 
@@ -370,22 +404,17 @@ void GameScene::Draw()
 		boss->Draw();
 	}
 
-
 	for (auto &immortal : _immortalObj) {
 		immortal->Draw();
 	}
+
 	for (auto &destroy : _destroyObj) {
 		destroy->Draw();
 	}
+
 	for (auto &predatory : _predatoryObj) {
 		predatory->Draw();
 	}
-
-	auto one = totaltime % 10;
-	auto ten = totaltime / 10;
-
-	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
-	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
@@ -397,13 +426,9 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	SetFontSize(128);
+	DrawGraph(0, 0, uiscreen, true);
 
-	if (_updater == &GameScene::Wait && waitNum >= 1) {
-		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
-	}
-
-	SetFontSize(64);
+	
 }
 
 void GameScene::Update(const Input & p)

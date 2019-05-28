@@ -107,7 +107,7 @@ SelectScene::SelectScene()
 	shader_time = 0;
 	flame = 0;
 	Cnt = 0;
-	Select = 1; 
+	Select = 0; 
 
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
 	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 10 * 7, 100, true, 1));
@@ -139,15 +139,16 @@ void SelectScene::Draw()
 	auto addr = sin((Cnt)*DX_PI / 180) * 0.1;
 
 	auto _camera = std::make_shared<Camera>();
+
 	auto pl = std::make_unique<Player>(nullptr);
 	auto oct = std::make_shared<Octopus>(_camera);
 	auto crab = std::make_shared<Crab>(_camera);
 
-	pl->SelectDraw(Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5))*130);
-	oct->Update();
-	crab->Update();
 	oct->Draw();
-	crab->Draw();
+	crab->SelectDraw(Vector2(0,0), {0,0});
+	pl->SelectDraw(Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5)) * 130);
+
+
 	DrawRotaGraph(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0), 1 + ((Select != 0) ? addr : addr +0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select != 1) ? addr: addr -0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 +((Select != 2) ? addr : addr +0.5), 0, bubble, true);
