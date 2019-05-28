@@ -19,6 +19,8 @@ class DestroyableObject;
 class PredatoryObject;
 class ImmortalObject;
 
+class BackGround;
+
 struct ScoreInfo {
 	int enemy;
 	int bite;
@@ -67,6 +69,8 @@ private:
 	std::vector<std::shared_ptr<PredatoryObject>> _predatoryObj;
 	std::vector<std::shared_ptr<ImmortalObject>> _immortalObj;
 
+	std::shared_ptr<BackGround> _bg;
+
 	//スクリーン
 	int firstscreen;
 	int secondscreen;
@@ -81,7 +85,6 @@ private:
 	//イメージ
 	int sea;
 	int sea_effect;
-	int beach;
 
 	int flame;
 	int time;
