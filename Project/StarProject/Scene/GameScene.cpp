@@ -157,7 +157,8 @@ void GameScene::LoadResource()
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
 	_bosses.push_back(std::make_shared<Octopus>(_camera));
 
-	_bosses.push_back(std::make_shared<Crab>(_camera));
+	// とりあえず、ｺﾒﾝﾄｱｳﾄしている
+	///_bosses.push_back(std::make_shared<Crab>(_camera));
 
 	//スクリーン作成
 	firstscreen = MakeScreen(size.x, size.y);
