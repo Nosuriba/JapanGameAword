@@ -60,7 +60,7 @@ void PredatoryObject::Break()
 
 void PredatoryObject::Predatory()
 {
-	obj._predatoryflag = true;
+	obj._hitflag = true;
 }
 
 ObjectInfo PredatoryObject::GetInfo()
