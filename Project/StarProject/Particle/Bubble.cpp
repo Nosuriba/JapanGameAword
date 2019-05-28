@@ -2,7 +2,6 @@
 #include "../ResourceManager.h"
 
 constexpr int Magnification = 100;
-constexpr int VelocitySize = 100;
 constexpr int ShakeSize = 31;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
@@ -13,6 +12,7 @@ Bubble::Bubble(int _x, int _y, int _Enum, bool flag, int _BubbleMax):BubbleMax(_
 	x = _x, y = _y;
 	ElementNum = _Enum;
 	isSmall = flag;
+	vel = 100;
 	// èâä˙âª
 	Init();
 }
@@ -57,7 +57,7 @@ void Bubble::Create()
 				particle[i].bright = 255;
 
 				auto Theta = (Rand() % 360)*DX_PI_F/180.0;
-				auto vSize = (Rand() % (VelocitySize));
+				auto vSize = (Rand() % (vel));
 				particle[i].vx = cos(Theta)* (isSmall? vSize/2: vSize * 20);
 				particle[i].vy = sin(Theta)*vSize * 10;
 

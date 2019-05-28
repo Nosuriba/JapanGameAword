@@ -4,7 +4,6 @@
 
 constexpr int BubbleMax = 10;
 constexpr int Magnification = 100;
-constexpr int VelocitySize = 100;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
 
@@ -12,8 +11,9 @@ Water::Water(int _x, int _y, int _Enum,const std::shared_ptr<Camera>& c)
 {
 	x = _x, y = _y;
 	ElementNum = _Enum;
-	Init();
 	camera = c;
+	vel = 100;
+	Init();
 }
 
 
@@ -55,10 +55,10 @@ void Water::Create()
 				particle[i].bright = 255;
 
 				auto Theta = (Rand() % 360)* DX_PI_F / 180.0;
-				auto vSize = (Rand() % (VelocitySize/10))+90;
+				auto vSize = (Rand() % (vel/10))+ (vel / 10)*9;
 
-				particle[i].vx = cos(Theta)*VelocitySize/2;
-				particle[i].vy = sin(Theta)*VelocitySize/2;
+				particle[i].vx = cos(Theta)*vel /2;
+				particle[i].vy = sin(Theta)*vel /2;
 
 				particle[i].avx = cos(rota* DX_PI_F / 180.0)*vSize;
 				particle[i].avy = sin(rota* DX_PI_F / 180.0)*vSize;
