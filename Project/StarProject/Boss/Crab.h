@@ -95,13 +95,14 @@ private:
 	float length;
 	float aLength;
 	Size lSize;			// ‹r‚Ì‘å‚«‚³
-	Size scisSize;				// ‚Í‚³‚Ý‚Ì‘å‚«‚³				
+	Size scisSize;		// ‚Í‚³‚Ý‚Ì‘å‚«‚³				
 public:
-	Crab(const Vector2& pos, const Size& size, std::shared_ptr<Camera>& camera);
+	Crab(std::shared_ptr<Camera>& camera);
 	~Crab();
 	BossInfo GetInfo() { return boss; };
 	void CalTrackVel(const Vector2& pos);
 	void Draw();
+	void SelectDraw(const Vector2& pos, const Size& size);
 	void DebugDraw(const Vector2& camera);
 	void Update();
 	
