@@ -86,6 +86,10 @@ float Cross(const Vector2 & v1, const Vector2 & v2)
 Size::Size() : width(0), height(0) {}
 Size::Size(int inx, int iny) : width(inx), height(iny) {}
 
+
+Sizef::Sizef() : width(0), height(0) {}
+Sizef::Sizef(float inx, float iny) : width(inx), height(iny) {}
+
 Rect::Rect() : center(0, 0), size(0, 0) {}
 Rect::Rect(int x, int y, int w, int h) {}
 Rect::Rect(Position2& p, Size & s) : center(p), size(s) {}

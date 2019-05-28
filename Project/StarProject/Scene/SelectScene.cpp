@@ -139,15 +139,16 @@ void SelectScene::Draw()
 	auto addr = sin((Cnt)*DX_PI / 180) * 0.1;
 
 	auto _camera = std::make_shared<Camera>();
+
 	auto pl = std::make_unique<Player>(nullptr);
 	auto oct = std::make_shared<Octopus>(_camera);
-	auto crab = std::make_shared<Crab>(_camera);
+	//auto crab = std::make_shared<Crab>(_camera);
 
-	pl->SelectDraw(Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5))*130);
-	oct->Update();
-	crab->Update();
 	oct->Draw();
-	crab->Draw();
+	//->Draw(); 
+	pl->SelectDraw(Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5)) * 130);
+
+
 	DrawRotaGraph(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0), 1 + ((Select != 0) ? addr : addr +0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select != 1) ? addr: addr -0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 +((Select != 2) ? addr : addr +0.5), 0, bubble, true);
