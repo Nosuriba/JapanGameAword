@@ -1,5 +1,6 @@
 #pragma once
 #include "../Processing/Geometry.h"
+#include "../Processing/Input.h"
 #include <vector>
 #include <memory>
 
@@ -11,8 +12,8 @@ struct ObjectInfo {
 	Rect _rect;
 	int _level;
 	bool _breakflag;
-	bool _predatoryflag;
-	ObjectInfo() :_pos(0, 0), _size(0, 0), _rect(_pos, _size), _breakflag(false), _predatoryflag(false){};
+	bool _hitflag;
+	ObjectInfo() :_pos(0, 0), _size(0, 0), _rect(_pos, _size), _breakflag(false), _hitflag(false){};
 	ObjectInfo(const Vector2 &pos, const Size & size, const Rect& rect, const int& level, const bool& breakflag) {
 		_pos = pos;
 		_size = size;
@@ -20,13 +21,13 @@ struct ObjectInfo {
 		_level = level;
 		_breakflag = breakflag;
 	}
-	ObjectInfo(const Vector2 &pos, const Size & size, const Rect& rect, const int & level, const bool& breakflag, const bool& predatoryflag) {
+	ObjectInfo(const Vector2 &pos, const Size & size, const Rect& rect, const int & level, const bool& breakflag, const bool& hitflag) {
 		_pos = pos;
 		_size = size;
 		_rect = rect;
 		_level = level;
 		_breakflag = breakflag;
-		_predatoryflag = predatoryflag;
+		_hitflag = hitflag;
 	}
 };
 

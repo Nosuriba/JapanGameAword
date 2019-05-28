@@ -13,6 +13,7 @@ private:
 
 	int predatoryimg;
 	int changecolor;
+
 public:
 	PredatoryObject(std::shared_ptr<Camera>& camera, int x, int y);
 	~PredatoryObject();

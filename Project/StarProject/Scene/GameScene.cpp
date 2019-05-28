@@ -370,14 +370,15 @@ void GameScene::Draw()
 		boss->Draw();
 	}
 
+
+	for (auto &immortal : _immortalObj) {
+		immortal->Draw();
+	}
 	for (auto &destroy : _destroyObj) {
 		destroy->Draw();
 	}
 	for (auto &predatory : _predatoryObj) {
 		predatory->Draw();
-	}
-	for (auto &immortal : _immortalObj) {
-		immortal->Draw();
 	}
 
 	auto one = totaltime % 10;
@@ -487,7 +488,7 @@ void GameScene::Update(const Input & p)
 							destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
 							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
-							if (_pl->GetInfo().level >= destroy->GetInfo()._level) {
+							if (_pl->GetInfo().level >= destroy->GetInfo()._level && !destroy->GetInfo()._hitflag) {
 								if (_col->WaterToSqr((*l).pos,
 									e, (e - (*l).pos).Magnitude(),
 									destroy->GetInfo()._rect))
@@ -566,9 +567,6 @@ void GameScene::Update(const Input & p)
 							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, immortal->GetInfo()._rect)) {
 								_pl->SetStar(_col->Pushback(_pl->GetInfo(),immortal->GetInfo()._rect), _pl->GetInfo().r);
 							}
-							/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
-
-							}*/
 						}
 					}
 				}
@@ -590,7 +588,7 @@ void GameScene::Update(const Input & p)
 				continue;
 			}
 
-			if (_predatoryObj[i]->GetInfo()._predatoryflag)
+			if (_predatoryObj[i]->GetInfo()._hitflag)
 			{
 				_predatoryObj.erase(_predatoryObj.begin() + i);
 				continue;
@@ -617,6 +615,13 @@ void GameScene::Update(const Input & p)
 	totaltime/* = time - (flame / 60)*/;
 
 	_camera->Update(_pl->GetInfo().center);
+
+	for (auto predatry : _predatoryObj) {
+		predatry->Update();
+	}
+	for (auto destroy : _destroyObj) {
+		destroy->Update(p);
+	}
 
 	(this->*_updater)(p);
 
