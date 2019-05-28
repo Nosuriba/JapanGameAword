@@ -8,7 +8,7 @@ const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
 const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ‹t‚Ì‰ñ“]•ûŒü
 const Vector2 eSize = Vector2(250, 150);
 const float rotVel  = DX_PI_F / 540.f;
-const float mVel = 3.f;
+const float mVel	= 3.f;
 const int atkMax	= 120;
 const int pitchMax	= 50;
 const int shotMax	= 240;
@@ -43,8 +43,6 @@ Crab::~Crab()
 
 void Crab::BodyInit()
 {
-	//boss._crab._pos = Vector2(center.x, 750);
-	//boss._crab._size = eSize;
 	for (int i = 0; i < boss._crab._vert.size(); ++i)
 	{
 		auto posX = (i != 0 && i != 3 ? boss._crab._size.width / 2 : -boss._crab._size.width / 2);
@@ -55,6 +53,10 @@ void Crab::BodyInit()
 
 void Crab::LegInit()
 {
+	if (boss._crab._legs.size() > 0)
+	{
+		boss._crab._legs.clear();
+	}
 	boss._crab._legs.resize(8);
 	auto leg = boss._crab._legs.begin();
 	for (; leg != boss._crab._legs.end(); ++leg)
@@ -86,6 +88,12 @@ void Crab::LegInit()
 
 void Crab::ArmInit()
 {
+	if (boss._crab._arms.size() > 0)
+	{
+		boss._crab._arms.clear();
+		_scisCenter.clear();
+		_scissors.clear();
+	}
 	boss._crab._arms.resize(2);
 	/// ‚Í‚³‚Ý‚Ì‰Šú‰»
 	_scisCenter.resize(boss._crab._arms.size() * 2);
@@ -741,15 +749,22 @@ void Crab::Draw()
 #endif
 }
 
-void Crab::SelectDraw(const Vector2 & pos, const Size & size)
+void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 {
 	auto camera = _camera->CameraCorrection();
-	auto scaleMag = Vector2(size.width / eSize.x,
-							size.height / eSize.y);
-	lSize	 = Size(100 * scaleMag.x, 20 * scaleMag.y);
-	scisSize = Size(70 * scaleMag.x, lSize.height);
-	length	 = lSize.width * scaleMag.x;
-	aLength	 = (lSize.width + (60 * scaleMag.x)) * scaleMag.x;
+
+	boss._crab._pos = pos;
+	boss._crab._size = Size(eSize.x * scale, eSize.y * scale);
+	lSize	 = Size(100 * scale, 20 * scale);
+	scisSize = Size(70 * scale, lSize.height);
+	length   = lSize.width * scale;
+	aLength  = (lSize.width + (60 * scale)) * scale;
+
+
+	BodyInit();
+	LegInit();
+	ArmInit();
+	MoveJoint();
 	CalVert();
 
 	Vector2 p1, p2, p3, p4;
