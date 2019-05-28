@@ -811,8 +811,8 @@ void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 	auto lEyePos = p2 + Vector2((boss._crab._size.width / 3) * (-vec.x), (boss._crab._size.width / 3) * (-vec.y));
 
 	/// –Ú‚Ì•`‰æ
-	DxLib::DrawCircleAA(rEyePos.x, rEyePos.y, 5 * scaleMag.x, 0x000000, true);
-	DxLib::DrawCircleAA(lEyePos.x, lEyePos.y, 5 * scaleMag.x, 0x000000, true);
+	DxLib::DrawCircle(rEyePos.x, rEyePos.y, 5 * scale, 0x000000, true);
+	DxLib::DrawCircle(lEyePos.x, lEyePos.y, 5 * scale, 0x000000, true);
 }
 
 void Crab::DebugDraw(const Vector2& camera)
