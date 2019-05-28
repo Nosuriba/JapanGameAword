@@ -34,7 +34,7 @@ void Game::Init()
 
 	SetUseDirect3DVersion(DX_DIRECT3D_9EX);
 
-	DxLib::SetWindowTextA("ŠC¯í‘ˆ");
+	DxLib::SetWindowTextA("? ŠC ¯ í ‘ˆ ?");
 	if (DxLib_Init() == -1)
 	{
 		return;
