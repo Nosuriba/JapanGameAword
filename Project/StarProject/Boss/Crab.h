@@ -1,8 +1,6 @@
 #pragma once
 #include "Boss.h"
 
-class Particle;
-
 // çUåÇÇÃéÌóﬁ
 enum class AtkType
 {
@@ -31,16 +29,11 @@ struct ShotDebug
 {
 	Position2 _pos;
 	Vector2 _vel;
-	Size _size;
-	Rect _rect;
-
-	ShotDebug() : _pos(0, 0), _vel(0, 0), _size(0, 0), _rect(_pos, _size) {};
-	ShotDebug(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
+	ShotDebug() : _pos(0, 0), _vel(0, 0){};
+	ShotDebug(const Position2& _pos, const Vector2& _vel)
 	{
 		this->_pos = _pos;
 		this->_vel = _vel;
-		this->_size = _size;
-		this->_rect = _rect;
 	}
 };
 
@@ -82,7 +75,6 @@ private:
 	void (Crab::*_updater)();
 
 	std::shared_ptr<Camera>& _camera;
-	std::vector<std::shared_ptr<Particle>> _particle;
 	AtkType _type;
 	Vector2 _plPos;						// Ãﬂ⁄≤‘∞ÇÃç¿ïWï€ë∂óp
 	Vector2 _armPrePos;			

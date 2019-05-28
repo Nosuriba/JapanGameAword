@@ -1,17 +1,15 @@
 #include "Crab.h"
 #include "../Game.h"
 #include "../Camera.h"
-#include "../Particle/Bubble.h"
 
 const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
 							   Game::GetInstance().GetScreenSize().y / 2);
-const Vector2 mVel  = Vector2(3.f, 3.f);	// ‹r‚â˜r‚Ì“®‚­‘¬“x
 const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
 const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ‹t‚Ì‰ñ“]•ûŒü
 const float rotVel  = DX_PI_F / 540.f;
+const float mVel = 3.f;
 const int length    = 100;
 const int aLength	= length + 60;
-const int typeMax   = static_cast<int>(AtkType::MAX);
 const int atkMax	= 120;
 const int pitchMax	= 50;
 const int shotMax	= 240;
@@ -41,7 +39,7 @@ Crab::~Crab()
 
 void Crab::BodyInit()
 {
-	boss._crab._pos = Vector2(center.x, 700);
+	boss._crab._pos = Vector2(center.x, 750);
 	boss._crab._size = eSize;
 	for (int i = 0; i < boss._crab._vert.size(); ++i)
 	{
@@ -61,6 +59,7 @@ void Crab::LegInit()
 		/// ˆÚ“®§Œä—p‚ÌÀ•W
 		_legPrePos.push_back(Vector2());
 		_legMovePos.push_back(Vector2());
+		_legAccel.push_back(Vector2());
 
 		auto cnt = leg - boss._crab._legs.begin();
 		auto pos = boss._crab._pos + (!(cnt / (boss._crab._legs.size() / 2))
@@ -72,7 +71,7 @@ void Crab::LegInit()
 		{
 			auto pCnt = point - (*leg)._points.begin();
 			auto leng = (!(cnt / (boss._crab._legs.size() / 2)) ? length : -length);
-			(*point)  = (*leg)._points[pCnt - 1] + Vector2(leng, 0 );
+			(*point)  = (*leg)._points[pCnt - 1] + Vector2(leng - (leng / 6), 0 );
 		}
 		(*leg)._ctlPoint = (*leg)._points[2] + (!(cnt / (boss._crab._legs.size() / 2))
 												? Vector2(-length / 2, 0)
@@ -163,7 +162,7 @@ void Crab::PitchUpdate()
 					&& arm._vel.x != 0)
 				{
 					auto vec = (_armPrePos - arm._ctlPoint).Normalized();
-					arm._vel   = Vector2(mVel.x * vec.x, mVel.y * vec.y);
+					arm._vel   = Vector2(mVel * vec.x, mVel * vec.y);
 					_plPos	   = Vector2();
 					_type	   = AtkType::PITCH;
 					pitchCnt   = pitchMax;
@@ -183,21 +182,20 @@ void Crab::ShotUpdate()
 	{
 		if (!(shotCnt % 10))
 		{
-			auto vec = (_plPos - boss._crab._pos).Normalized();						/// ÌßÚ²Ô°‚ÌŒü‚«‚ÉŒü‚©‚Á‚Ä•úŽËó
-			// vec = (boss._crab._vert[0] - boss._crab._vert[3]).Normalized();		/// ‚©‚É‚ÌŒü‚¢‚Ä‚é•ûŒü‚ÉŒü‚©‚Á‚Ä•úŽËó
+			//auto vec = (_plPos - boss._crab._pos).Normalized();						/// ÌßÚ²Ô°‚ÌŒü‚«‚ÉŒü‚©‚Á‚Ä•úŽËó
+			auto vec = (boss._crab._vert[0] - boss._crab._vert[3]).Normalized();		/// ‚©‚É‚ÌŒü‚¢‚Ä‚é•ûŒü‚ÉŒü‚©‚Á‚Ä•úŽËó
 			auto lengPos = Vector2(length * vec.x, length * vec.y);
-			auto rand = (GetRand(8) - 4);
-			auto pos = Vector2(15 * rand, 15 * rand) + lengPos;
+			auto rand = (GetRand(10) - 5);
+			auto pos = Vector2(10 * rand, 10 * rand) + lengPos;
 			/// ƒvƒŒƒCƒ„[‚Ì•ûŒü‚ÉŒü‚©‚Á‚Ä•úŽËã‚É‘Å‚Â‚æ‚¤Ý’è‚ðs‚¤
 			auto theta = atan2f((boss._crab._pos.y + pos.y) - boss._crab._pos.y,
 							    (boss._crab._pos.x + pos.x) - boss._crab._pos.x);
 			auto cost = cos(theta);
 			auto sint = sin(theta);
-			auto vel = Vector2(3.0f * cost, 3.0f * sint);
+			auto vel = Vector2(5.0f * cost, 5.0f * sint);
 			auto size = Size(10, 10);
 
-			_particle.push_back(boss._crab._pos.x, boss._crab._pos.y);
-			_shot.push_back(ShotDebug(boss._crab._pos, vel, size, Rect(_plPos, size)));
+			_shot.push_back(ShotDebug(boss._crab._pos, vel));
 		}
 		shotCnt--;
 	}
@@ -420,85 +418,92 @@ void Crab::MoveLeg()
 	auto leg = boss._crab._legs.begin();
 	for (; leg != boss._crab._legs.end(); ++leg)
 	{
+		auto rand = GetRand(4);			/// ‰Á‘¬“x’²®—p‚Ì—”
 		auto cnt = leg - boss._crab._legs.begin();
 		if (!(cnt / (boss._crab._legs.size() / 2)))
-		{
-			/// ‰E‘«‚Ì“®‚«
+		{	/// ‰E‹r
 			if (_legMovePos[cnt].x == 0 && _legPrePos[cnt].x == 0)
 			{
+				_legAccel[cnt] = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
 				_legMovePos[cnt] = (*leg)._points[2] + Vector2((length / 2) * dirVec.x, (length / 2) * dirVec.y);
-
-				(*leg)._vel = Vector2(mVel.x * dirVec.x, mVel.y * dirVec.y);
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * dirVec.x,
+									  (mVel + _legAccel[cnt].y) * dirVec.y);
 			}
 
 			if (_legMovePos[cnt].x != 0)
 			{
-				/// ‹r‚ðL‚Î‚·
+				/// ‹r‚Ì–ß‚·ˆÊ’uÝ’è
 				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
 				{
+					auto vec = ((*leg)._points[2] - (*leg)._points[0]).Normalized();
+					auto lengPos = Vector2((length / 2) * vec.x, (length / 2) * vec.y);
 					_legMovePos[cnt] = Vector2();
-					_legPrePos[cnt] = (*leg)._ctlPoint + Vector2(length * -dirVec.x, length * -dirVec.y);
+					_legPrePos[cnt] = (*leg)._points[0] + lengPos;
 					(*leg)._vel = -(*leg)._vel;
+					continue;
 				}
-				else
-				{
-					vec = (_legMovePos[cnt] - (*leg)._ctlPoint).Normalized();
-					(*leg)._vel = Vector2(mVel.x * vec.x, mVel.y * vec.y);
-				}
+				vec = (_legMovePos[cnt] - (*leg)._ctlPoint).Normalized();
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * vec.x,
+									  (mVel + _legAccel[cnt].y) * vec.y);
 			}
 			else
 			{
-				/// ‹r‚ð–ß‚·
+				/// ‹r‚ÌˆÚ“®‚·‚éˆÊ’uÝ’è
 				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
 				{
-					_legPrePos[cnt] = Vector2();
+					_legAccel[cnt]	 = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
+					_legPrePos[cnt]	 = Vector2();
 					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * dirVec.x, length * dirVec.y);
-					(*leg)._vel = Vector2(mVel.x * dirVec.x, mVel.y * dirVec.y);
+					(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * dirVec.x,
+										  (mVel + _legAccel[cnt].y) * dirVec.y);
+					continue;
 				}
-				else
-				{
-					vec = (_legPrePos[cnt] - (*leg)._ctlPoint).Normalized();
-					(*leg)._vel = Vector2(mVel.x * vec.x, mVel.y * vec.y);
-				}
+				vec = (_legPrePos[cnt] - (*leg)._ctlPoint).Normalized();
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * vec.x, 
+									  (mVel + _legAccel[cnt].y) * vec.y);
 			}
 		}
 		else
-		{
+		{	/// ¶‹r
 			if (_legMovePos[cnt].x == 0 && _legPrePos[cnt].x == 0)
 			{
+				_legAccel[cnt] = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
 				_legMovePos[cnt] = (*leg)._points[2] + Vector2((length / 2) * -dirVec.x, (length / 2) * -dirVec.y);
-				(*leg)._vel = Vector2(mVel.x * -dirVec.x, mVel.y * -dirVec.y);
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * -dirVec.x,
+									  (mVel + _legAccel[cnt].y) * -dirVec.y);
 			}
 
 			if (_legMovePos[cnt].x != 0)
 			{
-				/// ‹r‚ðL‚Î‚·
+				/// ‹r‚Ì–ß‚·ˆÊ’uÝ’è
 				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
 				{
+					auto vec = ((*leg)._points[2] - (*leg)._points[0]).Normalized();
+					auto lengPos = Vector2((length / 2) * vec.x, (length / 2) * vec.y);
 					_legMovePos[cnt] = Vector2();
-					_legPrePos[cnt] = (*leg)._ctlPoint + Vector2(length * dirVec.x, length * dirVec.y);
+					_legPrePos[cnt] = (*leg)._points[0] + lengPos;
 					(*leg)._vel = -(*leg)._vel;
+					continue;
 				}
-				else
-				{
-					vec = (_legMovePos[cnt] - (*leg)._ctlPoint).Normalized();
-					(*leg)._vel = Vector2(mVel.x * vec.x, mVel.y * vec.y);
-				}
+				vec = (_legMovePos[cnt] - (*leg)._ctlPoint).Normalized();
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * vec.x,
+									  (mVel + _legAccel[cnt].y) * vec.y);
 			}
 			else
 			{
-				/// ‹r‚ð–ß‚·
+				/// ‹r‚ÌˆÚ“®‚·‚éˆÊ’uÝ’è
 				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
 				{
-					_legPrePos[cnt] = Vector2();
+					_legAccel[cnt]   = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
+					_legPrePos[cnt]  = Vector2();
 					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * -dirVec.x, length * -dirVec.y);
-					(*leg)._vel = Vector2(mVel.x * -dirVec.x, mVel.y * -dirVec.y);
+					(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * -dirVec.x,
+										  (mVel + _legAccel[cnt].y) * -dirVec.y);
+					continue;
 				}
-				else
-				{
-					vec = (_legPrePos[cnt] - (*leg)._ctlPoint).Normalized();
-					(*leg)._vel = Vector2(mVel.x * vec.x, mVel.y * vec.y);
-				}
+				vec = (_legPrePos[cnt] - (*leg)._ctlPoint).Normalized();
+				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * vec.x,
+									  (mVel + _legAccel[cnt].y) * vec.y);
 			}
 		}
 		(*leg)._ctlPoint += Vector2((*leg)._vel.x, (*leg)._vel.y);
@@ -657,7 +662,7 @@ void Crab::CalTrackVel(const Vector2 & pos)
 		{
 			Pitch();
 			auto vec = (_plPos - boss._crab._arms[mCnt]._ctlPoint).Normalized();
-			boss._crab._arms[mCnt]._vel = Vector2(mVel.x * vec.x, mVel.y * vec.y);
+			boss._crab._arms[mCnt]._vel = Vector2(mVel * vec.x, mVel * vec.y);
 			/// ˆÚ“®‘O‚Ì§Œä“_‚ð•Û‘¶
 			_armPrePos = boss._crab._arms[mCnt]._ctlPoint;			
 			return;
@@ -677,7 +682,7 @@ void Crab::Draw()
 
 	for (auto shot : _shot)
 	{
-		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, shot._size.height, 0x55eedd, true);
+		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, 10, 0xddffff, true);
 	}
 
 	Vector2 p1, p2, p3, p4;
@@ -799,6 +804,7 @@ void Crab::Update()
 		Rotation();
 		MoveLeg();
 	}
+	//MoveLeg();
 	CalVert();			/// ‹éŒ`‚Ì’¸“_‚ðÝ’è
 	MoveJoint();
 }
