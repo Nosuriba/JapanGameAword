@@ -47,7 +47,7 @@ protected:
 	// 座標
 	float x, y;
 	int rota;
-
+	int vel;
 	// ﾊﾟｰﾃｨｸﾙ本体の配列
 	std::vector<Element> particle;
 
@@ -62,6 +62,7 @@ public:
 	virtual void Draw(int color) { };
 
 	void SetRota(int _rota) { rota = _rota; };
+	void SetVelocity(int _vel) { vel = _vel; };
 	void SetPos(int _x, int _y) { x = _x, y = _y; };
 
 	// 生成用関数

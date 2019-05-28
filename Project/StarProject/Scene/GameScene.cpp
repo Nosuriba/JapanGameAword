@@ -18,6 +18,7 @@
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
 #include "../Stage.h"
+#include "../BackGround.h"
 
 
 #include <iostream>
@@ -181,7 +182,7 @@ void GameScene::LoadResource()
 	auto& manager = ResourceManager::GetInstance();
 	sea = manager.LoadImg("../img/sea.png");
 	sea_effect = manager.LoadImg("../img/sea2.png");
-	beach = manager.LoadImg("../img/砂浜.png");
+	
 
 	//波のシェーダー頂点
 	for (int i = 0; i < 4; i++)
@@ -243,6 +244,8 @@ GameScene::GameScene()
 
 	_col.reset(new Collision());
 
+	_bg.reset(new BackGround());
+
 	flame = 0;
 	wait = 0;
 
@@ -282,30 +285,8 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
-		size.x - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y, beach, true);
-
-	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x, 0 - _camera->CameraCorrection().y,
-		0 - _camera->CameraCorrection().x + size.x, size.y - _camera->CameraCorrection().y, beach, true);
-
-	DrawExtendGraph(0 - _camera->CameraCorrection().x + size.x * 2, 0 - _camera->CameraCorrection().y,
-		size.x - _camera->CameraCorrection().x + size.x * 2, size.y - _camera->CameraCorrection().y, beach, true);
-
-	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y,
-		0 - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y, beach, true);
-
-	DrawExtendGraph(0 - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y + size.y,
-		size.x - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y + size.y, beach, true);
-
-	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x, size.y - _camera->CameraCorrection().y + size.y,
-		0 - _camera->CameraCorrection().x + size.x, 0 - _camera->CameraCorrection().y + size.y, beach, true);
-
-	DrawExtendGraph(0 - _camera->CameraCorrection().x + size.x * 2, size.y - _camera->CameraCorrection().y + size.y,
-		size.x - _camera->CameraCorrection().x + size.x * 2, 0 - _camera->CameraCorrection().y + size.y, beach, true);
-
-	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y,
-		0 - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y, beach, true);
-
+	//背景
+	_bg->Draw();
 
 	//secondスクリーン(影)
 	SetDrawScreen(secondscreen);
