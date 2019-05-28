@@ -741,13 +741,15 @@ void Crab::Draw()
 #endif
 }
 
-void Crab::SelectDraw(const Vector2 & pos, const Size & size)
+void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 {
 	auto camera = _camera->CameraCorrection();
-	auto scaleMag = Vector2(size.width / eSize.x,
-							size.height / eSize.y);
+
+	auto scaleMag = Vector2(scale, scale * 0.6);
+	boss._crab._pos = pos;
+	boss._crab._size = Size(eSize.x * scaleMag.x, eSize.y * scaleMag.y);
 	lSize	 = Size(100 * scaleMag.x, 20 * scaleMag.y);
-	scisSize = Size(70 * scaleMag.x, lSize.height);
+	scisSize = Size(70 *  scaleMag.x, lSize.height);
 	length	 = lSize.width * scaleMag.x;
 	aLength	 = (lSize.width + (60 * scaleMag.x)) * scaleMag.x;
 	CalVert();
