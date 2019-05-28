@@ -42,6 +42,11 @@ struct CutScreenInfo {
 	int right;
 };
 
+struct LevelUIInfo {
+	Position2 circlePos;
+	int circle_r;
+};
+
 class GameScene : public Scene
 {
 private:
@@ -76,6 +81,7 @@ private:
 	int secondscreen;
 	int thirdscreen;
 	int _4thscreen;
+	int uiscreen;
 
 	int shader_time;
 
@@ -115,6 +121,9 @@ private:
 	bool bosssceneflag;
 
 	void StageLock();
+
+	//UI
+	LevelUIInfo leveluiInfo;
 
 public:
 	GameScene();
