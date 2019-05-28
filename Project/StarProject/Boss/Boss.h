@@ -13,13 +13,13 @@ using sqr_vert = std::array<Vector2, 4>;
 struct JointInfo
 {
 	// 関節の中間点
-	std::vector<Vector2> _points;			/// 後で中間点の部分をこの中にぶち込んでやるぜ
+	std::vector<Vector2> _points;
 	// 制御点
 	Vector2 _ctlPoint;
-	Vector2 _center;
+	std::vector<Vector2> _center;
 	Vector2 _vel;
 	Size   _size;
-	std::array<sqr_vert, 2> _vert;		// 足の関節の頂点
+	std::array<sqr_vert, 2> _vert;		// 関節の頂点
 };
 
 struct CrabInfo
