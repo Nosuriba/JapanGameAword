@@ -1,6 +1,8 @@
 #pragma once
 #include "Boss.h"
 
+class Particle;
+
 // UŒ‚‚Ìí—Ş
 enum class AtkType
 {
@@ -80,6 +82,7 @@ private:
 	void (Crab::*_updater)();
 
 	std::shared_ptr<Camera>& _camera;
+	std::vector<std::shared_ptr<Particle>> _particle;
 	AtkType _type;
 	Vector2 _plPos;						// ÌßÚ²Ô°‚ÌÀ•W•Û‘¶—p
 	Vector2 _armPrePos;			
@@ -90,10 +93,12 @@ private:
 	std::vector<Vector2> _scisCenter;	
 	std::vector<Vector2> _legMovePos;	
 	std::vector<Vector2> _legPrePos;	
+	std::vector<Vector2> _legAccel;		// ‹r‚Ì‰Á‘¬“x—p
 
 	int atkCnt;			// UŒ‚‚·‚é‚Ü‚Å‚ÌŠÔŠu
 	int pitchCnt;		// ‰ñ“]‚·‚éŠÔŠu
 	int shotCnt;
+	int inviCnt;		// –³“GŠÔ
 public:
 	Crab(std::shared_ptr<Camera>& camera);
 	~Crab();
