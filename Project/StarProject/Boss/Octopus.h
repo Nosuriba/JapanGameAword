@@ -72,6 +72,7 @@ public:
 	~Octopus();
 	void OnDamage();
 	void Draw();
+	void ShadowDraw();
 	void SelectDraw(const Vector2 p, const float s);
 	void Update();
 };
