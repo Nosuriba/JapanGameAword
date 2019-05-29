@@ -152,13 +152,12 @@ void GameScene::LoadResource()
 	SetUseASyncLoadFlag(true);
 
 	/// 敵の生成(debug用)
-	_enemies.push_back(std::make_shared<Fish>(_camera));
+	/*_enemies.push_back(std::make_shared<Fish>(_camera));
 	_enemies.push_back(std::make_shared<Diodon>(_camera));
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
-	_bosses.push_back(std::make_shared<Octopus>(_camera));
+	_bosses.push_back(std::make_shared<Octopus>(_camera));*/
 
-	// とりあえず、ｺﾒﾝﾄｱｳﾄしている
-	///_bosses.push_back(std::make_shared<Crab>(_camera));
+	_bosses.push_back(std::make_shared<Crab>(_camera));
 
 	//スクリーン作成
 	firstscreen = MakeScreen(size.x, size.y);
