@@ -20,6 +20,8 @@ public:
 	bool WaterToCircle(const Position2 & _posA1, const Position2 & _posA2, const Rect& rect);
 	bool CircleToSqr(const Position2 & _posA, const float &_r, const Rect & _rectB);
 	bool CircleToCircle(const Position2 & _posA, const float & _rA, const std::array<Vector2, 3>& _tri);
+	bool CircleToCircleBoss(const Position2 & _posA, const float & _rA, const Position2 & _posB, const float & _rb);
+	bool CircleToCircleEne(const Position2 & _posA, const float & _rA, const Position2 & _posB, const float & _rb);
 
 	int BitSeparate(const int& num);
 
