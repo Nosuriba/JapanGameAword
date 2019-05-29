@@ -116,7 +116,7 @@ private:
 	int pitchCnt;		// ‰ñ“]‚·‚éŠÔŠu
 	int shotCnt;
 	int inviCnt;		// –³“GŽžŠÔ
-	int lifeCnt;
+	int _lifeCnt;
 
 	bool _isAlive;		// 
 
