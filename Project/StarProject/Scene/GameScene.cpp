@@ -129,15 +129,32 @@ void GameScene::Run(const Input & p)
 		//for (int p = 0; p < _pl->GetLaser().size(); ++p)
 		auto _p = _enemies[i]->GetInfo()._pos - CC;
 		if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
-		for (int num = 0; num < 2; num++)
+		for (int j = 0; j < 2; j++)
 		{
-			for (auto l = laser[num].begin(); l != laser[num].end(); l++)
+			for (auto l = laser[j].begin(); l != laser[j].end(); l++)
 			{
 				if (_col->WaterToCircle(
-					(*l).pos, (*l).isEnd ? (*l).pos : ((++l != laser[num].end()) ? (*l--).pos : (*--l).pos),
+					(*l).pos, (*l).isEnd ? (*l).pos : ((++l != laser[j].end()) ? (*l--).pos : (*--l).pos),
 					_enemies[i]->GetInfo()._pos, _enemies[i]->GetInfo()._size.height))
 				{
 					_enemies[i]->OnDamage();
+				}
+			}
+		}
+	}
+
+	for (auto boss:_bosses) {
+		for (auto itr : boss->GetDamageInfo()) {
+			auto _p = itr._pos - CC;
+			if(_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+			for (int j = 0; j < 2; ++j) {
+				for (auto l = laser[j].begin(); l != laser[j].end(); l++) {
+					if (_col->WaterToCircle(
+						(*l).pos, (*l).isEnd ? (*l).pos : ((++l != laser[j].end()) ? (*l--).pos : (*--l).pos),
+						itr._pos, itr._r)) 
+					{
+						boss->OnDamage();
+					}
 				}
 			}
 		}

@@ -352,8 +352,8 @@ void Octopus::Draw()
 	for (auto& p : _particle)
 		p->Draw(0x000000);
 	auto c = _camera->CameraCorrection();
-	if (!_damageFlag && (_oct.interval % 10 == 0)) {
-		SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
+	if (!_damageFlag && ((_oct.interval/2) % 10 == 0)) {
+		SetDrawBlendMode(DX_BLENDMODE_ADD, 128/2);
 	}
 
 
@@ -366,10 +366,6 @@ void Octopus::Draw()
 		auto p4 = _oct.root[(i + 1) ];
 		DrawQuadrangle(p1.x - c.x, p1.y - c.y, p2.x - c.x, p2.y - c.y, p3.x - c.x, p3.y - c.y, p4.x - c.x, p4.y - c.y, 0xbb0000, true);
 	}
-	for (int i = 0; i < _oct.legs.size(); ++i) {
-		DrawCircle(_oct.root[i].x - c.x, _oct.root[i].y - c.y, 5, 0xfffffff, true);
-	}
-	DrawCircle(_oct.center.x - c.x, _oct.center.y - c.y, 5, 0xfffffff, true);
 
 	//‘«‚Ì•`‰æ
 	for (int i = 0; i < _oct.legs.size(); ++i) {
