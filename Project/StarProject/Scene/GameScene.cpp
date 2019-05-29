@@ -160,7 +160,7 @@ void GameScene::LoadResource()
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
 	_bosses.push_back(std::make_shared<Octopus>(_camera));*/
 
-	_bosses.push_back(std::make_shared<Crab>(_camera));
+	_bosses.push_back(std::make_shared<Crab>(_camera,_pl));
 
 	//ƒXƒNƒŠ[ƒ“ì¬
 	firstscreen = MakeScreen(size.x, size.y);
@@ -592,9 +592,9 @@ void GameScene::Update(const Input & p)
 									_pl->ToCatch(predatry->GetInfo()._pos);
 									predatry->Predatory();
 									score.bite++;
-									if (score.bite % 5 == 1) {
-										_pl->LevelUP();
-									}
+									//if (score.bite % 5 == 1) {
+									//	_pl->LevelUP();
+									//}
 								}
 
 							}

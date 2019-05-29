@@ -65,6 +65,8 @@ private:
 
 	char Buf[256];
 
+	int _eatCnt;
+
 	void (Player::*_updater)(const Input& in);
 	void Normal(const Input& in);
 	void Predation(const Input& in);
