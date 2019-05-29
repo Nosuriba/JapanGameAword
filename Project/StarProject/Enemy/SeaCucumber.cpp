@@ -93,8 +93,9 @@ void SeaCucumber::CounterUpdate()
 	++_anim_frame;
 	if (_anim_frame > 300)
 	{
+		DAMAGE		= false;
 		_anim_frame = 0;
-		_updater = &SeaCucumber::WaitUpdate;
+		_updater	= &SeaCucumber::WaitUpdate;
 	}
 }
 
@@ -128,9 +129,9 @@ void SeaCucumber::Update()
 
 void SeaCucumber::OnDamage()
 {
-	if (ALIVE)
+	if (DAMAGE)
 	{
-		ALIVE = false;
+		DAMAGE = true;
 		_updater = &SeaCucumber::CounterUpdate;
 	}
 }
