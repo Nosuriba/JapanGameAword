@@ -199,8 +199,12 @@ void Player::Predation(const Input & in)
 			l.tip = CENTER + v.Normalized() * max(_star.r, v.Magnitude() - 1.5f * _star.level);
 	}
 	++_anim_frame;
-	if(_anim_frame > 90)
+	if (_anim_frame > 90)
+	{
+		++_eatCnt;
+		if (_eatCnt % 5 == 0) LevelUP();
 		_updater = &Player::Normal;
+	}
 }
 
 void Player::Die(const Input & in)
@@ -258,7 +262,7 @@ void Player::SetStar(const Vector2 & p, const float & s)
 	_star.r		= s;
 	MATRIX mat	= MGetTranslate(move.V_Cast());
 
-	CENTER = VTransform(CENTER.V_Cast(), mat);
+	CENTER		= VTransform(CENTER.V_Cast(), mat);
 	for (auto& l : _star.legs)
 	{
 		l.tip = VTransform(l.tip.V_Cast(), mat);
@@ -271,11 +275,11 @@ void Player::SetStar(const Vector2 & p, const float & s)
 	}
 }
 
-Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
+Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 {
-	_star.center = Vector2(500, 300);
-	_star.level = 1;
-	_star.r = 50.0f * (float)_star.level + 25.0f;
+	_star.center	= p;
+	_star.level		= 1;
+	_star.r			= 20.0f * (float)_star.level + 40.0f;
 
 	_star.legs.resize(5);
 	auto radian = 2.0f * DX_PI_F / (float)_star.legs.size();
@@ -292,8 +296,10 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
 
-	_img_STICK = ResourceManager::GetInstance().LoadImg("../img/STICK.png");
-	_img_TRIGGER = ResourceManager::GetInstance().LoadImg("../img/TRIGGER.png");
+	_img_STICK		= ResourceManager::GetInstance().LoadImg("../img/STICK.png");
+	_img_TRIGGER	= ResourceManager::GetInstance().LoadImg("../img/TRIGGER.png");
+
+	_eatCnt = 0;
 
 	_updater = &Player::Normal;
 }
@@ -478,7 +484,7 @@ void Player::LevelUP()
 {
 	_star.level++;
 
-	_star.r = 50.0f * (float)_star.level + 25.0f;
+	_star.r = 20.0f * (float)_star.level + 40.0f;
 
 	for (auto& l : _star.legs)
 	{
@@ -490,9 +496,12 @@ void Player::LevelUP()
 
 void Player::ToCatch(const Vector2 & t)
 {
-	_target		= t;
-	_anim_frame = 0;
-	_updater	= &Player::Predation;
+	if (_updater != &Player::Predation)
+	{
+		_target = t;
+		_anim_frame = 0;
+		_updater = &Player::Predation;
+	}
 }
 
 void Player::OnDamage()

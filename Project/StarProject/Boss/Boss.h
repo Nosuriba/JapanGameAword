@@ -3,25 +3,18 @@
 #include <array>
 #include <vector>
 #include <list>
-#include "../Processing/Geometry.h"
-#include "../Particle/Water.h"
 #include "../Camera.h"
 #include "../Player.h"
-
-class Camera;
-class Player;
+#include "../Processing/Geometry.h"
+#include "../Particle/Water.h"
 
 struct AttackInfo
 {
 	Vector2 _pos;
 	float _r;
 
-	AttackInfo() : _pos(0, 0), _r(0) {};
-	AttackInfo(const Vector2& p, const float& r)
-	{
-		_pos = p;
-		_r = r;
-	}
+	AttackInfo() :_pos(0,0), _r(0) {}
+	AttackInfo(const Vector2& p, const float& r) :_pos(p), _r(r) {}
 };
 
 class Boss
@@ -37,6 +30,7 @@ protected:
 public:
 	~Boss();
 	virtual void Draw() = 0;
+	virtual void ShadowDraw() = 0;
 	virtual void Update() = 0;
 
 	std::list<AttackInfo> GetAttackInfo();

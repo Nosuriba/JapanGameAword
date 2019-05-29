@@ -4,9 +4,8 @@
 
 Camera::Camera()
 {
-	_range = Vector2(4800, 1600 );
+	_range = Vector2(0, 0);
 }
-
 
 Camera::~Camera()
 {
@@ -44,4 +43,9 @@ const Vector2 Camera::GetShadowPos(const float & h)
 const Vector2 Camera::GetRange() const
 {
 	return _range;
+}
+
+const void Camera::SetRange(const Vector2& range)
+{
+	_range = range;
 }

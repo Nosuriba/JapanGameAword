@@ -6,11 +6,13 @@ class Bubble :
 {
 private:
 	void Move();
-	bool isSmall;
+	bool isSmall,flag;
 	int imgBff;
-	const int BubbleMax;
+	int v_Speed;
+	const int BubbleMax, color;
 public:
-	Bubble(int _x, int _y, int _Enum,bool flag = false,int BubbleMax = 100);
+	Bubble(int _x, int _y, int _Enum, bool _isSmall = false, int BubbleMax = 100, int color = -1);
+	Bubble(int _x, int _y, int _Enum, bool _isSmall = false, bool flag = false,int vs = 1,int BubbleMax = 100, int color = -1);
 	~Bubble();
 
 	void Init();
