@@ -41,20 +41,6 @@ struct CrabInfo
 	}
 };
 
-struct ShotInfo
-{
-	Position2 _pos;
-	Vector2 _vel;
-	Size _size;
-	ShotInfo() : _pos(0, 0), _vel(0, 0), _size(0, 0) {};
-	ShotInfo(const Position2& p, const Vector2& v, const Size& s)
-	{
-		_pos = p;
-		_vel = v;
-		_size = s;
-	}
-};
-
 struct Vector3
 {
 	float x, y, z;
@@ -96,6 +82,7 @@ private:
 	bool StopCheck(const Vector2& sPos, const Vector2& ePos, const Vector2& vel);
 
 	void RegistAtkInfo();
+	void RegistDamageInfo();
 	void ChangeAtkMode();
 
 	// ŠOÏ‚ÌŒvZ
@@ -126,13 +113,16 @@ private:
 	int pitchCnt;		// ‰ñ“]‚·‚éŠÔŠu
 	int shotCnt;
 	int inviCnt;		// –³“GŠÔ
+	int lifeCnt;
+
+	bool _isAlive;		// 
 
 	float length;
 	float aLength;
 	Size lSize;			// ‹r‚Ì‘å‚«‚³
 	Size scisSize;		// ‚Í‚³‚İ‚Ì‘å‚«‚³				
 public:
-	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
+	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos);
 	~Crab();
 
 	void Draw();
