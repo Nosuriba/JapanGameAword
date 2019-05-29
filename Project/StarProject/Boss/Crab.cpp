@@ -1,6 +1,6 @@
 #include "Crab.h"
 #include "../Game.h"
-
+#include "../Stage.h"
 
 const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
 							   Game::GetInstance().GetScreenSize().y / 2);
@@ -22,11 +22,11 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p) :
 	
 	/// »²½Şİ’è
 	_crab._pos  = Vector2(600, 750);
-	_crab._size = Size(eSize.x, eSize.y);
-	lSize	 = Size(100, 20);
-	scisSize = Size(70, lSize.height);
-	length   = lSize.width;
-	aLength  = (lSize.width + 60);
+	_crab._size = Size(eSize.x * 1.5, eSize.y * 1.5);
+	lSize	 = Size(100 * 1.5, 20 * 1.5);
+	scisSize = Size(70 * 1.5, lSize.height * 1.5);
+	length   = lSize.width * 1.5;
+	aLength  = (lSize.width + (60 * 1.5)) * 1.5;
 
 	BodyInit();
 	LegInit();
@@ -283,7 +283,7 @@ void Crab::CalVert()
 				if (p >= 3)
 				{
 					auto vec = ((*arm)._vert[cnt - 1][2] - (*arm)._vert[cnt - 1][0]).Normalized();
-					(*arm)._center[cnt - 1] = (*arm)._vert[cnt - 1][0] + Vector2(lSize.width * vec.x, lSize.width * vec.y);
+					(*arm)._center[cnt - 1] = (*arm)._vert[cnt - 1][0] + Vector2(aLength / 2 * vec.x, aLength / 2 * vec.y);
 				}
 			}
 		}
@@ -334,6 +334,8 @@ void Crab::CalVert()
 			theta = atan2f((*scis)[2].y - (*scis)[0].y, (*scis)[2].x - (*scis)[0].x);
 			cost  = cos(theta);
 			sint  = sin(theta);
+
+			_scisCenter[sCnt] = (*scis)[0] + Vector2(scisSize.width / 2 * cost, scisSize.width / 2 * sint);
 		}
 	}
 }
@@ -632,8 +634,12 @@ void Crab::ShotDelete()
 
 void Crab::RegistAtkInfo()
 {
+	if (at.size() > 0)
+	{
+		at.clear();
+	}
+
 	at.push_back(AttackInfo(_crab._pos, _crab._size.height / 2));
-	
 	auto leg = _crab._legs.begin();
 	for (; leg != _crab._legs.end(); ++leg)
 	{
@@ -645,9 +651,26 @@ void Crab::RegistAtkInfo()
 		}
 	}
 
-	/*auto arm = _crab._arms.begin();
-	for ()
-	*/
+	auto arm = _crab._arms.begin();
+	for (; arm != _crab._arms.end(); ++arm)
+	{
+		auto point = (*arm)._points.begin() + 1;
+		for (; point != (*arm)._points.end(); ++point)
+		{
+			auto cnt = point - (*arm)._points.begin();
+			at.push_back(AttackInfo((*arm)._center[cnt - 1], lSize.height));
+		}
+	}
+	
+	for (auto scis : _scisCenter)
+	{
+		at.push_back(AttackInfo(scis, lSize.height / 2));
+	}
+
+	for (auto shot : _shot)
+	{
+		at.push_back(AttackInfo(shot._pos, shot._size.height));
+	}
 }
 
 void Crab::ChangeAtkMode()
@@ -822,6 +845,8 @@ void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 		auto vec = (p1 - p4).Normalized();
 		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - camera;
 
+
+		/// OŠpŒ`‚ÌŒvZ‚Å‹‚ß‚Ä‚¢‚éˆÊ’u‚ª‚¨‚©‚µ‚¢‚ÌC³‚µ‚Ä‚¨‚­
 		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
 		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
 	}
@@ -887,7 +912,7 @@ void Crab::DebugDraw(const Vector2& camera)
 
 	for (auto a : at)
 	{
-		DrawCircle(a._pos.x - camera.x, a._pos.y - camera.y, a._r, 0x0000ff, true);
+		DrawCircle(a._pos.x - camera.x, a._pos.y - camera.y, a._r, 0xaacc00, true);
 	}
 }
 
@@ -899,9 +924,7 @@ void Crab::Update()
 {
 	(this->*_updater)();
 	ChangeAtkMode();
-
 	ShotDelete();
-
 	/// ˜r‚ÌˆÚ“®
 	for (auto& arm : _crab._arms)
 	{
@@ -920,4 +943,5 @@ void Crab::Update()
 	}
 	CalVert();			/// ‹éŒ`‚Ì’¸“_‚ğİ’è
 	MoveJoint();
+	RegistAtkInfo();
 }
