@@ -1,45 +1,63 @@
 #pragma once
 #include "Enemy.h"
 
-class Player;
-class Camera;
+// 制御点用
+struct CtlInfo
+{
+	Vector2 _pos;
+	bool	_isTurn;
+
+	CtlInfo() : _pos(0, 0), _isTurn(false) {};
+	CtlInfo(const Vector2& p, bool f)
+	{
+		this->_pos = p;
+		this->_isTurn = f;
+	}
+};
 
 class Fish :
 	public Enemy
 {
 private:
-	void Swim();
-	void Track();
-	void Escape();
-	void Die();
-
+	// 泳ぐ
 	void SwimUpdate();
+	// 旋回
+	void TurnUpdate();
+	// 追跡
 	void TrackUpdate();
+	// 逃げる
 	void EscapeUpdate();
+	// 死亡
 	void DieUpdate();
-
-	void SearchMove();			// 探知する範囲を移動させている
-	void CalBezier();			// ﾍﾞｼﾞｪ曲線の計算用(3次ﾍﾞｼﾞｪ)
 
 	void (Fish::*_updater)();
 
-	std::shared_ptr<Camera>& _camera;
 	std::vector<Vector2> midPoints;			// ﾍﾞｼﾞｪ曲線の中間点
 	std::vector<CtlInfo> cPoints;			// ﾍﾞｼﾞｪ曲線の制御点
 
-	Rect searchRect;			// 探知できる範囲
+	Vector2 _target;		// 追跡対象
+	int		_escapeTime;	// 逃走経過時間
 
-	int trackTime;				// 追従する時間
+	Vector2 _axis;	// 旋回の軸
+	float	_angle;	// 1フレームの旋回角度
+
+	void Search();		// 索敵
+	void CalBezier();	// ﾍﾞｼﾞｪ曲線の計算用(3次ﾍﾞｼﾞｪ)
+	void LookAt(const Vector2& v);
+
 public:
-	Fish(std::shared_ptr<Camera>& camera);
+	Fish(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 	~Fish();
-	void Draw();
-	void DebugDraw(const Vector2& camera);
+
 	void Update();
-	EnemyInfo GetInfo();
-	shot_vector ShotGetInfo();
-	void CalEscapeDir(const Vector2& vec);
-	void ShotDelete(const int& num);
-	void CalTrackVel(const Vector2& pos);
+
+	void Draw();
+	void DebugDraw();
+
+	void OnDamage();
+
+	//////////// いらない子 //////////////
+
+	//////////////////////////////////////
 };
 

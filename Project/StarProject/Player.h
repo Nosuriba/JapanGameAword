@@ -73,7 +73,7 @@ private:
 
 	//void SetStar(const Vector2& p, const float& s);
 public:
-	Player(const std::shared_ptr<Camera>& c);
+	Player(const std::shared_ptr<Camera>& c, const Vector2& p = Vector2(200, 200));
 	~Player();
 
 	void Update(const Input& in);

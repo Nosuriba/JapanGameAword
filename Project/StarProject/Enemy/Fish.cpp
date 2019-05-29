@@ -2,314 +2,287 @@
 #include "Fish.h"
 #include "../Game.h"
 #include "../Camera.h"
+#include "../Player.h"
 
-const Size eSize = Size(90, 50);
-const int distance = 150;		// 探知できる距離
-const int deg	   = 30;		// ﾌﾟﾚｲﾔｰを探知する方向を求めるための角度
-const int points   = 10;		// 制御点の個数
-const int trackCnt = 5;
-const float maxVel = 2.f;		// 制御点の最大速度
+constexpr int Search_range	= 300;		// 探知できる距離
+constexpr int Viewing_angle = 30;		// 視野角
+constexpr int points		= 10;		// 中間点の個数
+constexpr float Speed		= 3.0f;		// 移動速度
 
-Fish::Fish(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
+Fish::Fish(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p) :Enemy(c, p)
 {
-	auto pos  = Vector2(200, 200);
-	auto size = eSize;
-	auto rect = Rect(pos, size);
-	enemy	  = EnemyInfo(pos, size, rect);
-	enemy._prePos = enemy._pos;
-	_vel	  = Vector2();
+	auto pos	= Vector2(800, 500);
+	auto size	= Size(150, 50);
+	_enemy		= EnemyInfo(pos, size);
 
-	_turnFlag		= false;
-	enemy._dieFlag  = false;
+	_isTurn		= false;
+	_vel		= _isTurn ? Vector2(1, 0) : Vector2(-1, 0);
+
+	_anim_frame = 0;
+	_escapeTime	= 0;
+
+	_axis		= POS;
 	
 	/// 制御点の設定
-	CtlInfo cPoint[2];
-	cPoint[0]._vel = Vector2(0, 0);
-	cPoint[1]._vel = Vector2(0, -0.4);
-	cPoint[0]._pos = Vector2(enemy._rect.Left()  + size.width / 3, enemy._pos.y + 20);
-	cPoint[1]._pos = Vector2(enemy._rect.Right() - size.width / 3, enemy._pos.y - 20);
-	cPoint[0]._flag = false;
-	cPoint[1]._flag = true;
+	cPoints.emplace_back(POS + _vel.Normalized() * (SIZE.width / 4.0f), false);
+	cPoints.emplace_back(POS - _vel.Normalized() * (SIZE.width / 4.0f), true);
 
-	for (auto& itr : cPoint)
-	{
-		cPoints.push_back(itr);
-	}
+	midPoints.resize(points);
 
-	/// 敵を察知する範囲の頂点を設定
-	for (int i = 0; i < enemy._searchVert.size(); ++i)
-	{
-		enemy._searchVert[i] = enemy._pos;
-	}
-	color = 0x88ff88;
-
-	Swim();
+	_updater = &Fish::SwimUpdate;
 }
 
 Fish::~Fish()
 {
 }
 
-void Fish::Swim()
-{
-	_vel.x  = (_turnFlag ? maxSpeed : -maxSpeed);
-
-	_updater = &Fish::SwimUpdate;
-}
-
-void Fish::Track()
-{
-	_updater = &Fish::TrackUpdate;
-}
-
-void Fish::Escape()
-{
-	auto camera = _camera->CameraCorrection();
-	_vel.x = (enemy._pos.x < Game::GetInstance().GetScreenSize().x / 2 - camera.x ? -maxSpeed : maxSpeed);
-	_vel.y = 0;
-
-	for (auto& pos : enemy._searchVert)
-	{
-		 pos = enemy._pos;
-	}
-
-	_updater = &Fish::EscapeUpdate;
-}
-
-void Fish::Die()
-{
-	_vel = Vector2(0, 0);
-	enemy._dieFlag = true;
-	
-	_updater = &Fish::DieUpdate;
-}
 
 void Fish::SwimUpdate()
 {
+	auto tmp = _isTurn ? Vector2(1, 0) : Vector2(-1, 0);
+	LookAt(tmp);
+
+	POS += _vel.Normalized() * Speed;
+	for (auto& cp : cPoints)
+		cp._pos += (_vel.Normalized() * Speed);
+
+	++_anim_frame;
+	if (_anim_frame > 150)
+	{
+		_anim_frame = 0;
+		_isTurn		= !_isTurn;
+		_angle		= 2;
+		_axis		= VCross(_vel.V_Cast(), VGet(0, 0, -1));
+		_axis		= POS + _axis.Normalized() * 80;
+		_updater	= &Fish::TurnUpdate;
+	}
+
+	Search();
+}
+
+void Fish::TurnUpdate()
+{
+	auto v = _vel.Normalized();
+	_vel = VTransform(v.V_Cast(), MGetRotZ(DX_PI_F / 180.0f * _angle));
+
+	MATRIX mat;
+
+	mat = MGetTranslate(VScale(_axis.V_Cast(), -1));
+	mat = MMult(mat, MGetRotZ(DX_PI_F / 180.0f * _angle));
+	mat = MMult(mat, MGetTranslate(_axis.V_Cast()));
+
+	POS = VTransform(POS.V_Cast(), mat);
+
+	for (int i = 0; i < cPoints.size(); ++i)
+	{
+		cPoints[i]._pos = VTransform(cPoints[i]._pos.V_Cast(), mat);
+	}
+
+	++_anim_frame;
+	if (_anim_frame >= (180 / _angle))
+	{
+		_anim_frame = 0;
+		_updater = &Fish::SwimUpdate;
+	}
+
+	Search();
 }
 
 void Fish::TrackUpdate()
 {
-	trackTime--;
-	if (trackTime < 0)
+	POS += _vel.Normalized() * Speed;
+	for (auto& cp : cPoints)
+		cp._pos += (_vel.Normalized() * Speed);
+
+	auto v = (_target + _vel.Normalized() * 50);
+	if ((v - POS).Magnitude() < 5)
 	{
-		Swim();
-		_vel.y = 0;
+		_updater = &Fish::SwimUpdate;
 	}
 }
 
 void Fish::EscapeUpdate()
 {
+	POS += _vel.Normalized() * Speed * 2;
+	for (auto& cp : cPoints)
+		cp._pos += (_vel.Normalized() * Speed * 2);
+
+	++_escapeTime;
 	/// 画面外に出た時、死亡状態にする
-	if (enemy._pos.x + enemy._size.width / 2 < 0 ||
-		enemy._pos.x - enemy._size.width / 2 > Game::GetInstance().GetScreenSize().x)
-	{
-		Die();
-	}
+	if (_escapeTime > 255)
+		_updater = &Fish::DieUpdate;
 }
 
 void Fish::DieUpdate()
 {
-}
 
-void Fish::SearchMove()
-{
-	for (int i = 0; i < enemy._searchVert.size(); ++i)
-	{
-		if (i == 0)
-		{
-			enemy._searchVert[i] = _turnFlag ? Vector2(enemy._rect.Right(), enemy._pos.y) :
-											   Vector2(enemy._rect.Left(),  enemy._pos.y);
-		}
-		else
-		{
-			float  rad, cosD, sinD;
-			Vector2 pos;
-			if (_turnFlag)
-			{
-				rad = (deg - (deg * (i / 2 * 2))) * DX_PI / 180;
-				cosD = cos(rad);
-				sinD = sin(rad);
-
-				pos = Vector2(enemy._pos.x + (enemy._size.width / 2), enemy._pos.y);
-			}
-			else
-			{
-				rad = (180 - deg + (deg * (i / 2 * 2))) * DX_PI / 180;
-				cosD = cos(rad);
-				sinD = sin(rad);
-
-				pos = Vector2(enemy._pos.x - (enemy._size.width / 2), enemy._pos.y);
-			}
-			enemy._searchVert[i] = Vector2(pos + Vector2(distance * cosD, -distance * sinD));
-		}
-	}
 }
 
 void Fish::CalBezier()
 {
-	/// 制御点の移動
-	for (int i = 0; i < cPoints.size(); ++i)
-	{
-		if (cPoints[i]._flag)
-		{
-			cPoints[i]._flag = (cPoints[i]._vel.y >= maxVel ? false : true);
-		}
-		else
-		{
-			cPoints[i]._flag = (cPoints[i]._vel.y <= -maxVel ? true : false);
-		}
-		auto escSpeed = (_updater == &Fish::EscapeUpdate ? 1.f : 0);
-		cPoints[i]._vel.y += (cPoints[i]._flag ? 0.1f + (0.1 * escSpeed) : -0.1f - (0.1f * escSpeed));
-		cPoints[i]._pos += cPoints[i]._vel + _vel;
-	}
-
 	/// 中間点の設定
-	midPoints.resize(points);
-	midPoints[0] = enemy._pos;
+	auto start	= POS + (_vel.Normalized()		* SIZE.width / 2);
+	auto end	= POS + ((-_vel.Normalized())	* SIZE.width / 2);
+
 	for (int m = 0; m < points; ++m)
 	{
 		float b = (float)m / points;
 		float a = 1.0f - b;
 
 		/// 3次ﾍﾞｼﾞｪの計算
-		midPoints[m].x = (a * a * a * (enemy._pos.x - (eSize.width / 2))) + (3 * a * a * b * cPoints[0]._pos.x) + 
-						 (3 * a * b * b * cPoints[1]._pos.x) + (b * b * b * (enemy._pos.x + (eSize.width / 2)));
+		midPoints[m].x = (a * a * a * start.x) + (3 * a * a * b * cPoints[0]._pos.x) + 
+						 (3 * a * b * b * cPoints[1]._pos.x) + (b * b * b * end.x);
 
-		midPoints[m].y = (a * a * a * enemy._pos.y)			 + (3 * a * a * b * cPoints[0]._pos.y) +
-						 (3 * a * b * b * cPoints[1]._pos.y) + (b * b * b * enemy._pos.y);
+		midPoints[m].y = (a * a * a * start.y) + (3 * a * a * b * cPoints[0]._pos.y) +
+						 (3 * a * b * b * cPoints[1]._pos.y) + (b * b * b * end.y);
+	}
+}
+
+void Fish::LookAt(const Vector2& v)
+{
+	MATRIX rot;
+	rot = MGetRotVec2(_vel.V_Cast(), v.V_Cast());
+	_vel = VTransform(_vel.V_Cast(), rot);
+
+	MATRIX mat;
+
+	mat = MGetTranslate(VScale(POS.V_Cast(), -1));
+	mat = MMult(mat, rot);
+	mat = MMult(mat, MGetTranslate(POS.V_Cast()));
+
+	POS = VTransform(POS.V_Cast(), mat);
+
+	for (int i = 0; i < cPoints.size(); ++i)
+	{
+		cPoints[i]._pos = VTransform(cPoints[i]._pos.V_Cast(), mat);
 	}
 }
 
 void Fish::Draw()
 {
-	auto camera = _camera->CameraCorrection();
+	CalBezier();
+
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - _escapeTime);
 
 	/// ﾍﾞｼﾞｪ曲線を用いての描画
 	Vector2 p1, p2, p3, p4;
-	auto height = enemy._size.height / 4 + 2;			/// 描画する高さの調整
-	color = (_updater == &Fish::EscapeUpdate ? 0xaa4444 : 0xff4444);
 	for (int i = 1; i < midPoints.size(); ++i)
 	{
-		p1 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y - height - camera.y);
-		p2 = Vector2(midPoints[i].x - camera.x + 1 , midPoints[i].y - height - camera.y);
-		p3 = Vector2(midPoints[i].x - camera.x + 1, midPoints[i].y + height - camera.y);
-		p4 = Vector2(midPoints[i - 1].x - camera.x, midPoints[i - 1].y + height - camera.y);
+		auto t = abs(((i + 6) % 10) - 5) * 4 + 2;
 
-		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, color, true);
+		Vector2 v; 
+		v	= VCross(_vel.V_Cast(), VGet(0, 0, -1));
+		p1	= midPoints[i - 1]	+ v.Normalized() * t - CC;
+		p2	= midPoints[i]		+ v.Normalized() * t - CC;
+
+		v	= VCross(VGet(0, 0, -1), _vel.V_Cast());
+		p3	= midPoints[i]		+ v.Normalized() * t - CC;
+		p4	= midPoints[i - 1]	+ v.Normalized() * t - CC;
+
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0x808080, true);
+
+		if (i > 1 && i < 8)
+			DrawLine(midPoints[i - 1].x - CC.x, midPoints[i - 1].y - CC.y,
+				midPoints[i].x - CC.x, midPoints[i].y - CC.y, 0xC0C0C0, 2);
+		if (i == 2)
+		{
+			DrawLine(p1.x, p1.y, p2.x, p2.y, 0, 3);
+			DrawLine(p3.x, p3.y, p4.x, p4.y, 0, 3);
+		}
 	}
+	auto start	= POS + (_vel.Normalized() * SIZE.width / 2);
+	auto end	= POS + ((-_vel.Normalized()) * SIZE.width / 2);
+
+	DrawLine(midPoints[9].x - CC.x, midPoints[9].y - CC.y,
+		end.x - CC.x, end.y - CC.y, 0x808080, 5);
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 #ifdef _DEBUG
-	DebugDraw(camera);
+	//DebugDraw();
 #endif
 
 }
 
-void Fish::DebugDraw(const Vector2& camera)
+void Fish::DebugDraw()
 {
-	/// 当たり判定の描画
-	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, 0xff0000, false);
+	auto start	= POS + (_vel.Normalized() * SIZE.width / 2);
+	auto end	= POS + ((-_vel.Normalized()) * SIZE.width / 2);
 
+	DrawCircle(start.x - CC.x, start.y - CC.y, 5, 0x00ff00);
+	DrawCircle(end.x - CC.x, end.y - CC.y, 5, 0xffff00);
 
-	/// 探知できる範囲の描画
-	for (int i = 0; i < enemy._searchVert.size(); ++i)
+	auto vp = start + _vel.Normalized() * 100;
+	DrawLine(start.x - CC.x, start.y - CC.y, vp.x - CC.x, vp.y - CC.y, 0, 5);
+
+	DrawCircle(POS.x - CC.x,	POS.y - CC.y,	5, 0x000000);
+	DrawCircle(_axis.x - CC.x,	_axis.y - CC.y, 5, 0x000000);
+	for (auto& p : cPoints)
 	{
-		/*DxLib::DrawCircle(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y, 5, 0xff2222);
-*/
-		DxLib::DrawLineAA(enemy._searchVert[i].x - camera.x, enemy._searchVert[i].y - camera.y,
-						  enemy._searchVert[(i + 1) % 3].x - camera.x, enemy._searchVert[(i + 1) % 3].y - camera.y, 0x0000ff, 2.0);
-	}
+		DrawCircle(p._pos.x - CC.x, p._pos.y - CC.y, 5, 0x0000ff);
 
-	/// 制御点の描画(debug用)
-	for (auto& itr : cPoints)
-	{
-		DxLib::DrawCircle(itr._pos.x - camera.x, itr._pos.y - camera.y, 3, 0x00ffff, true);
+		auto vp = start + (-_vel.Normalized()) * Dot((-_vel.Normalized()), (p._pos - start));
+		DrawCircle(vp.x - CC.x, vp.y - CC.y, 5, 0x0000ff);
 	}
-
 }
 
 void Fish::Update()
 {
-	/// debug用のループ
-	auto velX = _vel.x;
-	auto screenX = Game::GetInstance().GetScreenSize().x;
-	auto DebugRoop = [&velX, &screenX](const Position2& pos)
-	{
-		if (velX > 0)
-		{
-			/// 右端を超えた時
-			return (pos.x - 60 > screenX ? Position2(0, pos.y) : pos);
-		}
-		/// 左端を超えた時
-		return (pos.x + 60 < 0 ? Position2(screenX, pos.y) : pos);
-	};
-
 	(this->*_updater)();
 
-	enemy._prePos = enemy._pos;
-	enemy._pos += _vel;
-	enemy._pos = DebugRoop(enemy._pos);
+	auto start	= POS + (_vel.Normalized() * SIZE.width / 2);
+	auto end	= POS + ((-_vel.Normalized()) * SIZE.width / 2);
 
-	/// 死亡状態かの確認
-	if (_updater == &Fish::EscapeUpdate || enemy._dieFlag)
+	/// 制御点の移動
+	for (auto& cp : cPoints)
 	{
-		auto size = Size(0, 0);
-		enemy._rect = Rect(enemy._pos, size);
-		cPoints[0]._pos.x = enemy._pos.x - eSize.width / 2 + enemy._size.width / 3;
-		cPoints[1]._pos.x = enemy._pos.x + eSize.width / 2 - enemy._size.width / 3;
-	}
-	else
-	{
-		enemy._rect = Rect(enemy._pos, enemy._size);
-		SearchMove();
-	}
+		Vector2 v;
+		v = VCross((_isTurn ? VGet(0, 0, 1) : VGet(0, 0, -1)), _vel.V_Cast());
+		v = v.Normalized() * (cp._isTurn ? 2 : -2);
+		cp._pos += v;
 
-	if (enemy._pos.x <= 0 || enemy._pos.x >= screenX)
-	{
-		cPoints[0]._pos.x = enemy._rect.Left()  + enemy._size.width / 3;
-		cPoints[1]._pos.x = enemy._rect.Right() - enemy._size.width / 3;
-	}
-
-	CalBezier();
-}
-
-EnemyInfo Fish::GetInfo()
-{
-	return enemy;
-}
-
-shot_vector Fish::ShotGetInfo()
-{
-	return shot;
-}
-
-void Fish::CalEscapeDir(const Vector2 & vec)
-{
-	if (_updater != &Fish::EscapeUpdate && !enemy._dieFlag)
-	{
-		Escape();
-	}
-}
-
-void Fish::ShotDelete(const int & num)
-{
-	/// ｼｮｯﾄを打っていないので、何も書かない
-}
-
-void Fish::CalTrackVel(const Vector2 & pos)
-{
-	if (_updater != &Fish::EscapeUpdate && !enemy._dieFlag)
-	{
-		trackTime = trackCnt;
-		auto vec = pos - enemy._pos;
-		vec.Normalize();
-		_vel = Vector2(maxSpeed * vec.x, maxSpeed * vec.y);
-
-		/// 追従状態でない時に、状態遷移する
-		if (_updater != &Fish::TrackUpdate)
+		auto p = start + (-_vel.Normalized()) * Dot((-_vel.Normalized()), (cp._pos - start));
+		if ((cp._pos - p).Magnitude() > 30)
 		{
-			Track();
+			cp._isTurn = !cp._isTurn;
+			cp._pos = p + (cp._pos - p).Normalized() * 30.0f;
 		}
+	}
+}
+
+void Fish::Search()
+{
+	_target = _player->GetInfo().center;
+	
+	auto v1 = _vel;
+	auto v2 = _target - POS;
+
+	if (v2.Magnitude() < Search_range)
+	{
+		auto theta = Dot(v1, v2) / (v1.Magnitude() * v2.Magnitude());
+
+		if (acos(theta) < (DX_PI_F / 180.0f * Viewing_angle))
+		{
+			LookAt(v2);
+
+			_updater = &Fish::TrackUpdate;
+		}
+	}
+}
+
+void Fish::OnDamage()
+{
+	_target = _player->GetInfo().center;
+
+	if (ALIVE)
+	{
+		auto v1 = _vel;
+		auto v2 = POS - _target;
+		v2 += v1;
+
+		LookAt(v2);
+
+		ALIVE = false;
+		_updater = &Fish::EscapeUpdate;
 	}
 }
