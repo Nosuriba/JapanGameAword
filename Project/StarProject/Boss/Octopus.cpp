@@ -10,7 +10,7 @@
 
 constexpr int SPEED = 5;
 
-Octopus::Octopus(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera)
+Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Player>& player):Boss(camera,player)
 {
 	_damageFlag = true;
 	_maxAngle = 30;
@@ -26,9 +26,11 @@ Octopus::Octopus(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera
 	auto s = sin(DX_PI_F / 180 * 0);
 	auto p = Vector2(c, s);
 	_oct.movePos = _oct.center + p * _oct.r;
-	_oct.root.resize(8);
 
+	_oct.root.resize(8);
 	_oct.legs.resize(8);
+
+	at.clear();
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 	for (int i = 0; i < _oct.legs.size(); ++i) {
 		c = cos(radian / 2 * i - DX_PI_F / 180 * -90);
@@ -36,8 +38,10 @@ Octopus::Octopus(std::shared_ptr<Camera>& camera) : Boss(camera), _camera(camera
 		auto pos = Vector2(c, s);
 		_oct.root[i] = _oct.center + pos * 50;
 		LEG(i).tip = _oct.root[i]  + pos * _oct.r;
+		LEG(i).joint.clear();
 		for (int j = 0; j < LEG(i).T; ++j) {
-			LEG(i).joint.push_back(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)));
+			LEG(i).joint.emplace_back(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)));
+			at.emplace_back();
 		}
 		LEG(i).state = E_LEG_STATE::NORMAL;
 		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * SPEED*(i+1);
@@ -313,6 +317,7 @@ void Octopus::NeturalUpdate()
 			_oct.interval = 0;
 		}
 	}
+
 	
 }
 
@@ -321,7 +326,7 @@ void Octopus::Draw()
 	for (auto& p : _particle)
 		p->Draw(0x000000);
 	auto c = _camera->CameraCorrection();
-	if (!_damageFlag&&(_oct.interval%10==0)) {
+	if (!_damageFlag && (_oct.interval % 10 == 0)) {
 		SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
 	}
 
@@ -346,8 +351,8 @@ void Octopus::Draw()
 		auto width = 50;
 		DrawLineAA(_oct.root[i].x - c.x, _oct.root[i].y - c.y, LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, 0xcc0000, width);
 		for (j = 0; j < LEG(i).T - 1; ++j) {
-			DrawLineAA(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, LEG(i).joint[j + 1].x - c.x, LEG(i).joint[j + 1].y - c.y, 0xcc0000, width-=2);
-			DrawCircle(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, (width-=2)/2, 0xcc0000, true);
+			DrawLineAA(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, LEG(i).joint[j + 1].x - c.x, LEG(i).joint[j + 1].y - c.y, 0xcc0000, width-=4);
+			DrawCircle(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, width / 2, 0xcc0000, true);
 		}
 	}
 	//“ª‚Ì•`‰æ
@@ -402,8 +407,8 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 		auto width = 50*s;
 		DrawLineAA(_oct.root[i].x, _oct.root[i].y, LEG(i).joint[j].x, LEG(i).joint[j].y, 0xcc0000, width);
 		for (j = 0; j < LEG(i).T - 1; ++j) {
-			DrawLineAA(LEG(i).joint[j].x , LEG(i).joint[j].y , LEG(i).joint[j + 1].x , LEG(i).joint[j + 1].y , 0xcc0000, width -= 1);
-			DrawCircle(LEG(i).joint[j].x , LEG(i).joint[j].y , (width -= 1) / 2, 0xcc0000, true);
+			DrawLineAA(LEG(i).joint[j].x , LEG(i).joint[j].y , LEG(i).joint[j + 1].x , LEG(i).joint[j + 1].y , 0xcc0000, (width -= 4)*s);
+			DrawCircle(LEG(i).joint[j].x , LEG(i).joint[j].y , width / 2, 0xcc0000, true);
 		}
 	}
 	//“ª‚Ì•`‰æ
@@ -417,16 +422,6 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 void Octopus::Update()
 {
 	(this->*_updater)();
-}
-
-AttackInfo Octopus::GetInfo()
-{
-	return AttackInfo();
-}
-
-void Octopus::CalTrackVel(const Vector2 & pos)
-{
-	_targetPos = pos;
 }
 
 Octopus::~Octopus()
