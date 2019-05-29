@@ -1,6 +1,5 @@
 #include "Crab.h"
 #include "../Particle/Bubble.h"
-#include "../Game.h"
 #include "../Stage.h"
 
 const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
@@ -613,8 +612,8 @@ void Crab::ShotDelete()
 	for (int i = 0; i < _shot.size(); ++i)
 	{
 		if (_shot[i]._pos.x < 0 || _shot[i]._pos.y < 0 ||
-			_shot[i]._pos.x > Game::GetInstance().GetScreenSize().x ||
-			_shot[i]._pos.y > Game::GetInstance().GetScreenSize().y)
+			_shot[i]._pos.x > Stage::GetInstance().GetStageSize().x ||
+			_shot[i]._pos.y > Stage::GetInstance().GetStageSize().y)
 		{
 			_shot.erase(i + _shot.begin());
 		}

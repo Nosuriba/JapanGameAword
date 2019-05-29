@@ -1,6 +1,8 @@
 #pragma once
 #include "Boss.h"
 
+class Particle;
+
 // UŒ‚‚Ìí—Ş
 enum class AtkType
 {
@@ -122,7 +124,7 @@ private:
 	Size lSize;			// ‹r‚Ì‘å‚«‚³
 	Size scisSize;		// ‚Í‚³‚İ‚Ì‘å‚«‚³				
 public:
-	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos);
+	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos = Vector2(0,0));
 	~Crab();
 
 	void Draw();
