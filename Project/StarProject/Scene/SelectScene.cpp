@@ -44,7 +44,7 @@ void SelectScene::FadeOut(const Input & p)
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	if (flame >= WAITFRAME) {
-		Game::GetInstance().ChangeScene(new GameScene());
+		Game::GetInstance().ChangeScene(new GameScene(Select));
 	}
 	else {
 		(*FadeBubble).Create();

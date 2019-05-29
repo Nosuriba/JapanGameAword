@@ -16,7 +16,7 @@ void DestroyableObject::BreakUpdate(const Input & p)
 	}
 	else if (flame >= 30) {
 		obj._breakflag = true;
-		_updater = &DestroyableObject::NormalUpdate;
+		updater = &DestroyableObject::NormalUpdate;
 	}
 	flame++;
 }
@@ -35,7 +35,7 @@ DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera, int x, int
 	destroyimg = ResourceManager::GetInstance().LoadImg("../img/destroy.png");
 	LoadDivGraph("../img/destroy.png", 4, 2, 2, 624 / 2, 624 / 2, destroyactimg);
 
-	_updater = &DestroyableObject::NormalUpdate;
+	updater = &DestroyableObject::NormalUpdate;
 }
 
 DestroyableObject::~DestroyableObject()
@@ -49,7 +49,6 @@ void DestroyableObject::Draw()
 	/*DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
 		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, destroyimg, true);*/
 	
-
 	DxLib::DrawExtendGraph(
 		obj._rect.Left() - camera.x,
 		obj._rect.Top() - camera.y - (flame),
@@ -81,14 +80,14 @@ void DestroyableObject::Draw()
 
 void DestroyableObject::Update(const Input& p)
 {
-	(this->*_updater)(p);
+	(this->*updater)(p);
 }
 
 void DestroyableObject::Break()
 {
 	flame = 0;
 	obj._hitflag = true;
-	_updater = &DestroyableObject::BreakUpdate;
+	updater = &DestroyableObject::BreakUpdate;
 }
 
 ObjectInfo DestroyableObject::GetInfo()

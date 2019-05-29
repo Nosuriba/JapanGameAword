@@ -490,9 +490,12 @@ void Player::LevelUP()
 
 void Player::ToCatch(const Vector2 & t)
 {
-	_target		= t;
-	_anim_frame = 0;
-	_updater	= &Player::Predation;
+	if (_updater != &Player::Predation)
+	{
+		_target = t;
+		_anim_frame = 0;
+		_updater = &Player::Predation;
+	}
 }
 
 void Player::OnDamage()

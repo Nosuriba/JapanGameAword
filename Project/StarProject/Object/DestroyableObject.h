@@ -10,7 +10,7 @@ class DestroyableObject :
 	public Obstacle
 {
 private:
-	void (DestroyableObject::*_updater)(const Input& p);
+	void (DestroyableObject::*updater)(const Input& p);
 	void NormalUpdate(const Input& p);
 	void BreakUpdate(const Input& p);
 	std::shared_ptr<Camera>& _camera;

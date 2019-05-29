@@ -123,7 +123,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BackGround.cpp" />
     <ClCompile Include="Boss\Boss.cpp" />
     <ClCompile Include="Boss\Crab.cpp" />
     <ClCompile Include="Boss\Octopus.cpp" />
@@ -154,7 +153,6 @@
     <ClCompile Include="Stage.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BackGround.h" />
     <ClInclude Include="Boss\Boss.h" />
     <ClInclude Include="Boss\Crab.h" />
     <ClInclude Include="Boss\Octopus.h" />

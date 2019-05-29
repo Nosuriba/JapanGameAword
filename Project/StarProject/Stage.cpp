@@ -1,5 +1,8 @@
 #include "Stage.h"
 #include <DxLib.h>
+
+#define FMF _stages[name].fmf
+
 Stage::Stage()
 {
 }
@@ -54,6 +57,11 @@ const bool Stage::LoadCheck()
 		return true;
 	}
 	return false;
+}
+
+const Vector2 Stage::GetStageSize()
+{
+	return Vector2(FMF.mapWidth * FMF.chipW, FMF.mapHeight * FMF.chipW);
 }
 
 std::vector<ChipInfo> Stage::GetStageData()
