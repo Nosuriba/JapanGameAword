@@ -31,6 +31,7 @@ void GameScene::LoadStageUpdate(const Input & p)
 
 	if(_stage.LoadCheck()) {
 		LoadResource();
+		_camera->SetRange(Vector2(_stage.GetStageSize().x, _stage.GetStageSize().y));
 		_updater = &GameScene::LoadResourceUpdate;
 	}
 }
@@ -97,6 +98,8 @@ void GameScene::Wait(const Input & p)
 
 void GameScene::Run(const Input & p)
 {
+	auto& size = Game::GetInstance().GetScreenSize();
+
 	_pl->Update(p);
 	for (auto &enemy : _enemies)
 	{
@@ -107,8 +110,11 @@ void GameScene::Run(const Input & p)
 	{
 		boss->Update();
 	}
+
 	Draw();
+
 	flame++;
+
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		wait = 0;
 		_updater = &GameScene::FadeOut;
@@ -117,11 +123,28 @@ void GameScene::Run(const Input & p)
 		wait = 0;
 		_updater = &GameScene::FadeOut;
 	}
+
+	//if(bosssceneflag == false) {
+	//	if (_pl->GetInfo().center.x >= size.x * 3) {
+	//		_updater = &GameScene::BossScene;
+	//		_pl->LetsGo(Vector2(size.x * 3 + _pl->GetInfo().r * 3, size.y));
+	//	}
+	//}
 }
 
 void GameScene::BossScene(const Input & p)
 {
+	auto& size = Game::GetInstance().GetScreenSize();
 
+	Draw();
+	_pl->Update(p);
+
+	if ((_pl->GetInfo().center.x >= size.x * 3 + _pl->GetInfo().r * 3) &&
+		(_pl->GetInfo().center.y >= size.y)) {
+		bosssceneflag = true;
+		StageLock();
+		_updater = &GameScene::Run;
+	}
 }
 
 void GameScene::LoadResource()
@@ -132,10 +155,10 @@ void GameScene::LoadResource()
 	SetUseASyncLoadFlag(true);
 
 	/// 敵の生成(debug用)
-	_enemies.push_back(std::make_shared<Fish>(_camera));
+	/*_enemies.push_back(std::make_shared<Fish>(_camera));
 	_enemies.push_back(std::make_shared<Diodon>(_camera));
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
-	_bosses.push_back(std::make_shared<Octopus>(_camera));
+	_bosses.push_back(std::make_shared<Octopus>(_camera));*/
 
 	_bosses.push_back(std::make_shared<Crab>(_camera));
 
@@ -144,6 +167,7 @@ void GameScene::LoadResource()
 	secondscreen = MakeScreen(size.x - 1, size.y - 1);
 	thirdscreen = MakeScreen(size.x - 1, size.y - 1);
 	_4thscreen = MakeScreen(size.x, size.y);
+	uiscreen = MakeScreen(size.x, size.y, true);
 
 
 	//当たり範囲の指定のための領域
@@ -161,6 +185,7 @@ void GameScene::LoadResource()
 	auto& manager = ResourceManager::GetInstance();
 	sea = manager.LoadImg("../img/sea.png");
 	sea_effect = manager.LoadImg("../img/sea2.png");
+	guage = manager.LoadImg("../img/maru.png"); 
 	beach = manager.LoadImg("../img/砂浜.png");
 
 	//波のシェーダー頂点
@@ -202,12 +227,27 @@ void GameScene::LoadResource()
 	//score初期化
 	score = ScoreInfo(0, 0, 0, 0);
 
+	leveluiInfo.circlePos = Vector2(0, size.y);
+	leveluiInfo.circle_r = 200;
+	leveluiInfo.backCircle_r = 250;
+
 	SetUseASyncLoadFlag(false);
 
 }
 
-GameScene::GameScene()
+void GameScene::StageLock()
 {
+	auto& size = Game::GetInstance().GetScreenSize();
+
+	for (int i = 0; i < _camera->GetRange().y / 32; i++) {
+		_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, size.x * 3, i * 32 + 16));
+	}
+}
+
+GameScene::GameScene(const int& stagenum)
+{
+	stageNum = stagenum;
+
 	_camera.reset(new Camera());
 
 	_pl.reset(new Player(_camera));
@@ -225,6 +265,9 @@ GameScene::GameScene()
 
 	shader_time = 0;
 	num = 0;
+
+	bosssceneflag = false;
+
 	_updater = &GameScene::LoadStageUpdate;
 }
 
@@ -250,6 +293,7 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
+	//背景
 	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
 		size.x - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y, beach, true);
 
@@ -273,6 +317,7 @@ void GameScene::Draw()
 
 	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y,
 		0 - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y, beach, true);
+
 
 
 	//secondスクリーン(影)
@@ -332,6 +377,45 @@ void GameScene::Draw()
 
 	DrawPrimitive2DToShader(wave_vertex, 4, DX_PRIMTYPE_TRIANGLESTRIP);
 
+
+
+
+	//UI描画
+	SetDrawScreen(uiscreen);
+
+	ClearDrawScreen();
+
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 150);
+
+	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.backCircle_r, 0x777777,true);
+
+	DrawCircleGauge(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, score.bite % 5 * 5 , guage, 0.0);
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.circle_r, 0x00cccc, true);
+
+	auto one = totaltime % 10;
+	auto ten = totaltime / 10;
+
+	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
+	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
+
+	SetFontSize(128);
+
+	if (_updater == &GameScene::Wait && waitNum >= 1) {
+		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
+	}
+
+	DrawFormatString(GetFontSize() / 2 + GetFontSize() / 4, size.y - GetFontSize(), 0xff8000, "%d", _pl->GetInfo().level);
+
+	SetFontSize(64);
+
+	DrawString(GetFontSize() / 6, size.y - GetFontSize() - 5, "Lv ", 0xff8000);
+
+
+
+
 	//バック描画
 	SetDrawScreen(DX_SCREEN_BACK);
 
@@ -357,21 +441,17 @@ void GameScene::Draw()
 		boss->Draw();
 	}
 
-	for (auto &destroy : _destroyObj) {
-		destroy->Draw();
-	}
-	for (auto &predatory : _predatoryObj) {
-		predatory->Draw();
-	}
 	for (auto &immortal : _immortalObj) {
 		immortal->Draw();
 	}
 
-	auto one = totaltime % 10;
-	auto ten = totaltime / 10;
+	for (auto &destroy : _destroyObj) {
+		destroy->Draw();
+	}
 
-	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
-	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
+	for (auto &predatory : _predatoryObj) {
+		predatory->Draw();
+	}
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
@@ -383,13 +463,9 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	SetFontSize(128);
+	DrawGraph(0, 0, uiscreen, true);
 
-	if (_updater == &GameScene::Wait && waitNum >= 1) {
-		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
-	}
-
-	SetFontSize(64);
+	
 }
 
 void GameScene::Update(const Input & p)
@@ -448,9 +524,9 @@ void GameScene::Update(const Input & p)
 		}
 	};
 
-		if (_bosses.size() != 0) {
-			_bosses[0]->CalTrackVel(_pl->GetInfo().center);
-		}
+	if (_bosses.size() != 0) {
+		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
+	}
 
 	auto th = [&](std::array<std::list<Laser>,2> _laser, Vector2 camera) {
 		std::lock_guard<std::mutex> _lock(_mutex);
@@ -474,18 +550,19 @@ void GameScene::Update(const Input & p)
 							destroy->GetInfo()._pos.y - camera.y <= _cutAreaScreen[num % 4].bottom) {
 
 							auto e = (*l).isEnd ? (*l).pos : ((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos);
-
-							if (_col->WaterToSqr((*l).pos,
-								e,(e - (*l).pos).Magnitude(),
-								destroy->GetInfo()._rect))
-							{
-								destroy->Break();
-								//(*l).Hit();
+							if (_pl->GetInfo().level >= destroy->GetInfo()._level && !destroy->GetInfo()._hitflag) {
+								if (_col->WaterToSqr((*l).pos,
+									e, (e - (*l).pos).Magnitude(),
+									destroy->GetInfo()._rect))
+								{
+									destroy->Break();
+									(*l).Hit();
+								}
+							}
+							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, destroy->GetInfo()._rect)) {
+								_pl->SetStar(_col->Pushback(_pl->GetInfo(), destroy->GetInfo()._rect), _pl->GetInfo().r);
 							}
 						}
-						/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
-
-						}*/
 					}
 
 				}
@@ -516,7 +593,12 @@ void GameScene::Update(const Input & p)
 
 								if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
 								{
+									_pl->ToCatch(predatry->GetInfo()._pos);
 									predatry->Predatory();
+									score.bite++;
+									if (score.bite % 5 == 1) {
+										_pl->LevelUP();
+									}
 								}
 
 							}
@@ -544,11 +626,11 @@ void GameScene::Update(const Input & p)
 								e, (e - (*l).pos).Magnitude(),
 								immortal->GetInfo()._rect))
 							{
-								immortal->Break();
+								
 							}
-							/*if (_col->TriToSqr(_pl->GetInfo().legs, immortal->GetInfo()._pos, immortal->GetInfo()._size)) {
-
-							}*/
+							if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, immortal->GetInfo()._rect)) {
+								_pl->SetStar(_col->Pushback(_pl->GetInfo(),immortal->GetInfo()._rect), _pl->GetInfo().r);
+							}
 						}
 					}
 				}
@@ -570,7 +652,7 @@ void GameScene::Update(const Input & p)
 				continue;
 			}
 
-			if (_predatoryObj[i]->GetInfo()._predatoryflag)
+			if (_predatoryObj[i]->GetInfo()._hitflag)
 			{
 				_predatoryObj.erase(_predatoryObj.begin() + i);
 				continue;
@@ -597,6 +679,13 @@ void GameScene::Update(const Input & p)
 	totaltime/* = time - (flame / 60)*/;
 
 	_camera->Update(_pl->GetInfo().center);
+
+	for (auto predatry : _predatoryObj) {
+		predatry->Update();
+	}
+	for (auto destroy : _destroyObj) {
+		destroy->Update(p);
+	}
 
 	(this->*_updater)(p);
 

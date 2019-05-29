@@ -117,9 +117,6 @@
     <ClInclude Include="Boss\Octopus.h">
       <Filter>Boss</Filter>
     </ClInclude>
-    <ClInclude Include="Icon.h">
-      <Filter>ソース ファイル</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -206,10 +203,5 @@
     <ClCompile Include="Boss\Octopus.cpp">
       <Filter>Boss</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Icon.rc">
-      <Filter>ソース ファイル</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

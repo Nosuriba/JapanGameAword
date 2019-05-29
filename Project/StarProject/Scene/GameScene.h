@@ -19,6 +19,7 @@ class DestroyableObject;
 class PredatoryObject;
 class ImmortalObject;
 
+
 struct ScoreInfo {
 	int enemy;
 	int bite;
@@ -38,6 +39,12 @@ struct CutScreenInfo {
 	int bottom;
 	int left;
 	int right;
+};
+
+struct LevelUIInfo {
+	Position2 circlePos;
+	int circle_r;
+	int backCircle_r;
 };
 
 class GameScene : public Scene
@@ -72,6 +79,7 @@ private:
 	int secondscreen;
 	int thirdscreen;
 	int _4thscreen;
+	int uiscreen;
 
 	int shader_time;
 
@@ -109,8 +117,19 @@ private:
 
 	std::mutex _mutex;
 
+	bool bosssceneflag;
+
+	void StageLock();
+
+	int stageNum;
+
+	//UI
+	LevelUIInfo leveluiInfo;
+
+	int guage;
+
 public:
-	GameScene();
+	GameScene(const int& stagenum);
 	~GameScene();
 
 	void Draw();

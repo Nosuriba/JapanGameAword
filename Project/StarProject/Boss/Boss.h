@@ -1,45 +1,43 @@
 #pragma once
-#include "../Processing/Geometry.h"
 #include <memory>
+#include <array>
+#include <vector>
+#include <list>
+#include "../Processing/Geometry.h"
+#include "../Particle/Water.h"
+
 
 class Camera;
+class Player;
 
-struct CrabInfo
+struct AttackInfo
 {
-	Position2 _pos;
-	Position2 _prePos;
-	Size _size;
-	Rect _rect;
+	Vector2 _pos;
+	float _r;
 
-	CrabInfo() : _pos(0, 0), _size(0, 0), _rect(_pos, _size) {};
-	CrabInfo(const Position2& _pos, const Size& _size, const Rect& _rect)
+	AttackInfo(const Vector2& p, const float& r)
 	{
-		this->_pos = _pos;
-		this->_size = _size;
-		this->_rect = _rect;
+		_pos = p;
+		_r = r;
 	}
-};
-
-struct BossInfo
-{
-	CrabInfo _crab;
 };
 
 class Boss
 {
-private:
-
-	std::shared_ptr<Camera>& _camera;
 protected:
-	BossInfo boss;
+	std::list<AttackInfo> at;
 
-	Boss(std::shared_ptr<Camera>& camera);
+	const std::shared_ptr<Camera>& _camera;
+	const std::shared_ptr<Player>& _player;
+
+	Boss(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 
 public:
 	~Boss();
-	virtual void Draw();
-	virtual void Update();
-	virtual BossInfo GetInfo();
-	virtual void CalTrackVel(const Vector2& pos);
+	virtual void Draw() = 0;
+	virtual void Update() = 0;
 
+	std::list<AttackInfo> GetAttackInfo();
+
+	virtual void OnDamage() = 0;
 };

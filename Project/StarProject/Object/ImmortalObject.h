@@ -14,15 +14,13 @@ private:
 	std::shared_ptr<Camera>& _camera; 
 	std::vector<ObjectInfo> _immortalInfo;
 
-	int immortalimg;
+	int immortalimg[9];
 
 public:
 	ImmortalObject(std::shared_ptr<Camera>& camera, int x, int y);
 	~ImmortalObject();
 	void Draw();
 	void Update();
-	void Break();
-	void ResetColor();
 
 	ObjectInfo GetInfo();
 };

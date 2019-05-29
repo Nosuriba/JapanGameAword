@@ -9,9 +9,9 @@ PredatoryObject::PredatoryObject(std::shared_ptr<Camera>& camera, int x, int y):
 	auto pos = Position2(x,y);
 	auto size = Size(32,32);
 	auto rect = Rect(pos, size);
-	auto color = 0xff00ff;
+	auto level = 1;
 
-	obj = ObjectInfo(pos, size, rect, color,false,false);
+	obj = ObjectInfo(pos, size, rect, level, false, false);
 
 	predatoryimg = ResourceManager::GetInstance().LoadImg("../img/predatory.png");
 }
@@ -27,12 +27,30 @@ void PredatoryObject::Draw()
 	DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
 		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, predatoryimg, true);
 
-	DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
-		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, obj._color, false);
+	SetDrawBlendMode(DX_BLENDMODE_ADD, abs(changecolor / 5 % 40 - 20));
+
+	DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, predatoryimg, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_ADD, abs(changecolor / 5 % 40 - 20));
+
+	DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, predatoryimg, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_ADD, abs(changecolor / 5 % 40 - 20));
+
+	DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, predatoryimg, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	/*DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, 0x0ff00, false);*/
 }
 
 void PredatoryObject::Update()
 {
+	changecolor++;
 }
 
 void PredatoryObject::Break()
@@ -42,7 +60,7 @@ void PredatoryObject::Break()
 
 void PredatoryObject::Predatory()
 {
-	obj._predatoryflag = true;
+	obj._hitflag = true;
 }
 
 ObjectInfo PredatoryObject::GetInfo()

@@ -4,7 +4,6 @@
 
 constexpr int BubbleMax = 10;
 constexpr int Magnification = 100;
-constexpr int VelocitySize = 100;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
 
@@ -12,8 +11,9 @@ Water::Water(int _x, int _y, int _Enum,const std::shared_ptr<Camera>& c)
 {
 	x = _x, y = _y;
 	ElementNum = _Enum;
-	Init();
 	camera = c;
+	vel = 100;
+	Init();
 }
 
 
@@ -55,10 +55,10 @@ void Water::Create()
 				particle[i].bright = 255;
 
 				auto Theta = (Rand() % 360)* DX_PI_F / 180.0;
-				auto vSize = (Rand() % (VelocitySize/10))+90;
+				auto vSize = (Rand() % (vel/10))+ (vel / 10)*9;
 
-				particle[i].vx = cos(Theta)*VelocitySize/2;
-				particle[i].vy = sin(Theta)*VelocitySize/2;
+				particle[i].vx = cos(Theta)*vel /2;
+				particle[i].vy = sin(Theta)*vel /2;
 
 				particle[i].avx = cos(rota* DX_PI_F / 180.0)*vSize;
 				particle[i].avy = sin(rota* DX_PI_F / 180.0)*vSize;
@@ -124,17 +124,16 @@ void Water::Move()
 #endif
 }
 
-void Water::Draw()
+void Water::Draw(int color)
 {	// ‚±‚±‚Å“®‚­
 	Move();
-	int imgBff = ResourceManager::GetInstance().LoadImg("../img/Bubble.png");
+
 	auto c = camera->CameraCorrection();
 	for (auto p : particle)
 	{
 		if (p.bright > 0)
 		{
-			DrawCircle(p.x / 100-c.x, p.y / 100 - c.y, 0xff / p.radius - p.bright / p.radius, GetColor(p.bright*2/3, p.bright, p.bright), true);
-			;// DrawRotaGraph(p.x / Magnification - c.x, p.y / Magnification - c.y, (0xff / p.radius - p.bright / p.radius) / Magnification, 0, imgBff, true);
+			DrawCircle(p.x / 100-c.x, p.y / 100 - c.y, 0xff / p.radius - p.bright / p.radius, (color==-1)?GetColor(p.bright*2/3, p.bright, p.bright): color, true);
 		}
 	}
 }

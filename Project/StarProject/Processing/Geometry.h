@@ -64,6 +64,13 @@ struct Size {
 	int height;
 };
 
+struct Sizef {
+	Sizef();
+	Sizef(float inx, float iny);
+	float width;
+	float height;
+};
+
 struct Rect {
 	Position2 center;
 	Size size;

@@ -22,5 +22,7 @@ public:
 	const Vector2 GetShadowPos(const float& h);
 
 	const Vector2 GetRange() const;
+
+	const void SetRange(const Vector2& range);
 };
 

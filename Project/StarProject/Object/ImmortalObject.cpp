@@ -9,11 +9,11 @@ ImmortalObject::ImmortalObject(std::shared_ptr<Camera>& camera, int x, int y):Ob
 	auto pos = Position2(x,y);
 	auto size = Size(32,32);
 	auto rect = Rect(pos, size);
-	auto color = 0xff00ff;
+	auto level = 1;
 
-	obj = ObjectInfo(pos, size, rect, color,false);
+	obj = ObjectInfo(pos, size, rect, level, false);
 
-	immortalimg = ResourceManager::GetInstance().LoadImg("../img/immortal.png");
+	LoadDivGraph("../img/immortal.png", 9, 9, 1, 1357 / 9, 136, immortalimg);
 }
 
 
@@ -26,20 +26,15 @@ void ImmortalObject::Draw()
 	auto camera = _camera->CameraCorrection();
 
 	DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
-		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, immortalimg, true);
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, immortalimg[0], true);
 
-	DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
-		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, obj._color, false);
+	/*DxLib::DrawBox(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
+		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, 0x00ff00, false);*/
 
 }
 
 void ImmortalObject::Update()
 {
-}
-
-void ImmortalObject::Break()
-{
-	//obj._color = 0x000000;
 }
 
 ObjectInfo ImmortalObject::GetInfo()

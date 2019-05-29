@@ -7,6 +7,9 @@
 #include <string>
 #include "../Stage.h"
 #include "../Player.h"
+#include "../Camera.h"
+#include "../Boss/Octopus.h"
+#include "../Boss/Crab.h"
 
 
 void SelectScene::FadeIn(const Input & p)
@@ -41,7 +44,7 @@ void SelectScene::FadeOut(const Input & p)
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	if (flame >= WAITFRAME) {
-		Game::GetInstance().ChangeScene(new GameScene());
+		Game::GetInstance().ChangeScene(new GameScene(Select));
 	}
 	else {
 		(*FadeBubble).Create();
@@ -104,7 +107,7 @@ SelectScene::SelectScene()
 	shader_time = 0;
 	flame = 0;
 	Cnt = 0;
-	Select = 1; 
+	Select = 0; 
 
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
 	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 10 * 7, 100, true, 1));
@@ -135,10 +138,18 @@ void SelectScene::Draw()
 	auto addy = sin((Cnt)*DX_PI / 720) * 100;
 	auto addr = sin((Cnt)*DX_PI / 180) * 0.1;
 
-	auto pl = std::make_unique<Player>(nullptr);
+	auto _camera = std::make_shared<Camera>();
 
-	pl->SelectDraw(Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5))*130);
-	
+	auto pl = std::make_unique<Player>(nullptr);
+	auto oct = std::make_shared<Octopus>(_camera);
+	auto crab = std::make_shared<Crab>(_camera);
+
+	// –A‚Ì’†‚ÌDraw
+	oct->SelectDraw (Vector2(size.x / 4 * 3 + 130 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0) - 10), (1 + ((Select != 2) ? addr : addr + 0.5))*0.3f);
+	crab->SelectDraw(Vector2(size.x / 4 * 2 + ((Select != 1) ? addx : 0) - 5, size.y / 2 - ((Select != 1) ? addy : 0) + 20), (1 - ((Select != 1) ? addr : addr - 0.5))*0.58f);
+	pl->SelectDraw  (Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5)) * 100);
+
+	// –A‚ÌDraw
 	DrawRotaGraph(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0), 1 + ((Select != 0) ? addr : addr +0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select != 1) ? addr: addr -0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 +((Select != 2) ? addr : addr +0.5), 0, bubble, true);
