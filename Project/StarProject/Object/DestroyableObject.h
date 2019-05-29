@@ -21,7 +21,7 @@ private:
 	int flame;
 
 public:
-	DestroyableObject(std::shared_ptr<Camera>& camera, int x, int y);
+	DestroyableObject(std::shared_ptr<Camera>& camera, int x, int y, int level);
 	~DestroyableObject();
 
 	void Draw();

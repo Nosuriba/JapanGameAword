@@ -21,7 +21,7 @@ private:
 	void DrawNeedle(const Vector2& p, const Vector2& v, const float r);
 
 public:
-	Diodon(std::shared_ptr<Camera>& c, std::shared_ptr<Player>& p);
+	Diodon(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos);
 	~Diodon();
 
 	void Update();
