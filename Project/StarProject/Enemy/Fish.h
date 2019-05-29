@@ -37,7 +37,6 @@ public:
 	void DebugDraw(const Vector2& camera);
 	void Update();
 	EnemyInfo GetInfo();
-	shot_vector ShotGetInfo();
 	void CalEscapeDir(const Vector2& vec);
 	void ShotDelete(const int& num);
 	void CalTrackVel(const Vector2& pos);

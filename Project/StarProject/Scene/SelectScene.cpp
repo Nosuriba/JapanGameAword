@@ -141,8 +141,8 @@ void SelectScene::Draw()
 	auto _camera = std::make_shared<Camera>();
 
 	auto pl = std::make_unique<Player>(nullptr);
-	auto oct = std::make_shared<Octopus>(_camera);
-	auto crab = std::make_shared<Crab>(_camera);
+	auto oct = std::make_shared<Octopus>(_camera, nullptr);
+	auto crab = std::make_shared<Crab>(_camera, nullptr);
 	oct->Update();
 	oct->SelectDraw (Vector2(size.x / 4 * 3 + 130 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0) - 10), (1 + ((Select != 2) ? addr : addr + 0.5))*0.3f);
 	crab->SelectDraw(Vector2(size.x / 4 * 2 + ((Select != 1) ? addx : 0) - 5, size.y / 2 - ((Select != 1) ? addy : 0) + 20), (1 - ((Select != 1) ? addr : addr - 0.5))*0.58f);

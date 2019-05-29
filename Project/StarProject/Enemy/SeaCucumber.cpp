@@ -234,11 +234,6 @@ EnemyInfo SeaCucumber::GetInfo()
 	return enemy;
 }
 
-shot_vector SeaCucumber::GetShotInfo()
-{
-	return shot;
-}
-
 void SeaCucumber::CalEscapeDir(const Vector2 & vec)
 {
 	if (_updater != &SeaCucumber::EscapeUpdate && !enemy._dieFlag)

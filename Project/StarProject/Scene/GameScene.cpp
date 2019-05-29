@@ -157,7 +157,7 @@ void GameScene::LoadResource()
 	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
 	_bosses.push_back(std::make_shared<Octopus>(_camera));*/
 
-	_bosses.push_back(std::make_shared<Crab>(_camera));
+	_bosses.push_back(std::make_shared<Crab>(_camera, _pl));
 
 	//スクリーン作成
 	firstscreen = MakeScreen(size.x, size.y);
@@ -489,21 +489,8 @@ void GameScene::Update(const Input & p)
 
 				}
 			}
-
-			/// ﾌﾟﾚｲﾔｰと敵ｼｮｯﾄの当たり判定
-			for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
-			{
-				if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
-				{
-					_enemies[i]->ShotDelete(s);		/// ﾌﾟﾚｲﾔｰに当たった弾の色を変えている。
-				}
-			}
 		}
 	};
-
-	if (_bosses.size() != 0) {
-		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
-	}
 
 	auto th = [&](std::array<std::list<Laser>,2> _laser, Vector2 camera) {
 		std::lock_guard<std::mutex> _lock(_mutex);

@@ -22,11 +22,6 @@ EnemyInfo Enemy::GetInfo()
 	return enemy;
 }
 
-shot_vector Enemy::GetShotInfo()
-{
-	return shot;
-}
-
 void Enemy::ShotDelete(const int& num)
 {
 }
