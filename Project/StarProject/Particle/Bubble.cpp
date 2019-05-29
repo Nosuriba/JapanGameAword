@@ -170,7 +170,9 @@ void Bubble::Draw()
 	{
 		if (p.bright> VanishBright)
 		{
-			isSmall ? SetDrawBlendMode(mode, param): flag? SetDrawBlendMode(DX_BLENDMODE_ALPHA, param):SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+			DrawCircle(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius) / ((Magnification)*(isSmall ? 8 : flag ? 0xff / v_Speed / 2 : 1)), 0x000000);
+			isSmall ? SetDrawBlendMode(mode, param): flag? SetDrawBlendMode(mode, param) :SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
 			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ?  8 : flag ? 0xff/v_Speed/2 : 1)), 0, imgBff, true);
 			continue;
 		}
