@@ -365,6 +365,10 @@ void Octopus::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
+void Octopus::ShadowDraw()
+{
+}
+
 void Octopus::SelectDraw(const Vector2 p, const float s)
 {
 	_oct.center = p;
