@@ -64,7 +64,7 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 	_updater = &ResultScene::FadeIn;
 
 	flame = 0;
-
+	StampCnt = 0;
 	//フォントのロード
 	LPCSTR font = "CP_Revenge.ttf";
 	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
@@ -115,10 +115,10 @@ void ResultScene::Draw()
 	DrawExtendGraph(0, 0, size.x, size.y, imgbuff, true);
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA,128);
+	DrawBox(size.x / 2 - GetFontSize() * 2 - 5, 6,
+		size.x / 2 + GetFontSize() * 2 + 5, GetFontSize() + 5, 0x003377, true);
 	DrawBox(size.x / 2 - GetFontSize()*8, size.y / 10,
 		size.x / 2 + GetFontSize() * 8, size.y /5*4, 0x003377,true);
-	DrawBox(size.x / 2 - GetFontSize() * 2-5, 6,
-		size.x / 2 + GetFontSize() *2+5, GetFontSize()+5, 0x003377, true);
 	SetDrawBlendMode(mode, palam);
 
 	DrawString(size.x / 2 - GetFontSize() * 2.05, 5.05, "リザルト", 0);
@@ -148,18 +148,36 @@ void ResultScene::Draw()
 
 	if (isEnd)
 	{
-		SetFontSize(192);
-		DrawCircle((size.x + (float)(GetFontSize() * 4.5f)) / 2, (size.y - (float)(GetFontSize())) / 10 * 9,96, 0xff3333,0,10);
-		DrawString((size.x + (float)(GetFontSize()*3.6f)) /2, (size.y - (float)(GetFontSize())) / 10*7.35f,s[ResultData[0][(int)R_Data::total]/20000].c_str(), 0xff3333);
-		DrawBox(0, size.y / 10*8.5f, size.x, size.y, 0x000000, true);
-		ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (abs(ResultCnt % 512 - 255)));
-		SetFontSize(96);
-		DrawString((size.x - (float)(GetFontSize()) *3.f) / 2.0f, size.y / 10 * 8.7f, "A", 0x33ff33);
-		SetFontSize(64);
-		ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
-		DrawString((size.x - (float)(GetFontSize()) * 2) / 2.0f, size.y / 10 * 9, "button to Title", 0xffffff);
-		SetDrawBlendMode(mode, palam);
+		if (StampCnt >30)
+		{
+			if (192 > StampCnt)
+			{
+				StampCnt+=3;
+			}
+			else
+			{
+				DrawBox(0, size.y / 10 * 8.5f, size.x, size.y, 0x000000, true);
+				ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
+				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (abs(ResultCnt % 512 - 255)));
+				SetFontSize(96);
+				DrawString((size.x - (float)(GetFontSize()) *3.f) / 2.0f, size.y / 10 * 8.7f, "A", 0x33ff33);
+				SetFontSize(64);
+				ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
+				DrawString((size.x - (float)(GetFontSize()) * 2) / 2.0f, size.y / 10 * 9, "button to Title", 0xffffff);
+				SetDrawBlendMode(mode, palam);
+			}
+
+			SetFontSize(StampCnt);
+			DrawCircle((size.x + (float)(192 * 4.5f)) / 2, (size.y - (float)(192)) / 10 * 9, 96, 0xff3333, 0, 10);
+			DrawRotaString((size.x + (float)(GetFontSize()*3.6f)) / 2+ GetFontSize() / 2, (size.y - (float)(GetFontSize())) / 10 * 7.35f+ GetFontSize() / 2,1,1,
+				GetFontSize()/2-2.78f, GetFontSize()/2-0.1f,(StampCnt*2 %360)*DX_PI_F/180,
+				0xff3333, 0xff3333,false,s[ResultData[0][(int)R_Data::total] / 20000].c_str());
+			SetFontSize(64);
+		}
+		else
+		{
+			++StampCnt;
+		}
 	}
 
 	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);

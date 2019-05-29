@@ -11,6 +11,7 @@
 #include "../Boss/Octopus.h"
 #include "../Boss/Crab.h"
 
+constexpr int WaitScrollDef = 60;
 
 void SelectScene::FadeIn(const Input & p)
 {
@@ -60,8 +61,17 @@ void SelectScene::Wait(const Input & p)
 
 void SelectScene::Run(const Input & p)
 {
+	auto size = Game::GetInstance().GetScreenSize();
 	Draw();
-
+	if (scrollCnt <= (int)((selectStr[Select].size() / 3*2)*(-GetFontSize())))
+	{
+		scrollCnt = 0;
+		scrollWait = WaitScrollDef;
+	}
+	if (--scrollWait<0)
+	{
+		scrollCnt -= 2;
+	}
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		if (!CheckHandleASyncLoad(SE))
 		{
@@ -74,16 +84,28 @@ void SelectScene::Run(const Input & p)
 	}
 	if (p.TriggerTrigger(TRIGGER::RIGHT)) {
 		Select = (Select<2)?++Select:Select;
+		scrollCnt = 0;
+		scrollWait = WaitScrollDef;
 	}
 
 	if (p.TriggerTrigger(TRIGGER::LEFT)) {
 		Select = (Select>0)?--Select:Select;
+		scrollCnt = 0;
+		scrollWait = WaitScrollDef;
 	}
 }
 
 SelectScene::SelectScene()
 {
 	auto size = Game::GetInstance().GetScreenSize();
+
+	//フォントのロード
+	LPCSTR font = "CP_Revenge.ttf";
+	if (AddFontResourceEx(font, FR_PRIVATE, nullptr) > 0) {
+	}
+	else {
+		MessageBox(nullptr, "失敗", "", MB_OK);
+	}
 
 	bubble = ResourceManager::GetInstance().LoadImg("../img/Bubble.png");
 	background = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
@@ -108,6 +130,13 @@ SelectScene::SelectScene()
 	flame = 0;
 	Cnt = 0;
 	Select = 0; 
+	scrollCnt = 0;
+	scrollWait = WaitScrollDef;
+	selectStr = {
+		"最初はここで操作方法の基本を学ぼう！",
+		"カニが出るステージだよ！挟まれないように気を付けよう！",
+		"タコが出るステージだよ！捕まらないように頑張ろう！"
+	};
 
 	CoralBubble.push_back(std::make_unique<Bubble>(size.x /5*2, size.y / 5 * 2,150,true,1));
 	CoralBubble.push_back(std::make_unique<Bubble>(50, size.y / 10 * 7, 100, true, 1));
@@ -154,7 +183,17 @@ void SelectScene::Draw()
 	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select != 1) ? addr: addr -0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 +((Select != 2) ? addr : addr +0.5), 0, bubble, true);
 
-	DrawString(size.x / 2 - (float)(GetFontSize()) * 4.0f / 2.0f, size.y / 2 + size.y / 4, "Select", 0xa000f0);
+	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+	DrawBox(0, 6,size.x, GetFontSize() + 5, 0x003377, true);
+	DrawBox(0, size.y-(GetFontSize()+45), size.x, size.y-45, 0x003377, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	DrawString(size.x / 2 - GetFontSize() * 3.1, 5.05, "ステージを選んでね！", 0);
+	DrawString(size.x / 2 - GetFontSize() * 3, 5, "ステージを選んでね！", 0xffdd00);
+	DrawString(scrollCnt+ GetFontSize() * -0.1, size.y - (GetFontSize() + 45.1), ("STAGE" + std::to_string(Select + 1) + selectStr[Select]).c_str(), 0);
+	DrawString(scrollCnt, size.y - (GetFontSize() + 45), ("STAGE"+std::to_string(Select + 1) + selectStr[Select]).c_str(), 0xffdd00);
+
+	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
 }
 
 void SelectScene::Update(const Input & p)
