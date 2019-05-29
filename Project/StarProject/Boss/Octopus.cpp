@@ -184,7 +184,7 @@ void Octopus::Chase(int idx)
 	IkCcd(pos, idx, 12);
 }
 
-void Octopus::Damage()
+void Octopus::OnDamage()
 {
 	if (_damageFlag) {
 		_oct.helth -= 10;
@@ -419,9 +419,9 @@ void Octopus::Update()
 	(this->*_updater)();
 }
 
-BossInfo Octopus::GetInfo()
+AttackInfo Octopus::GetInfo()
 {
-	return BossInfo();
+	return AttackInfo();
 }
 
 void Octopus::CalTrackVel(const Vector2 & pos)
