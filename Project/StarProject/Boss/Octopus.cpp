@@ -35,9 +35,10 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 		_oct.root[i] = _oct.center + pos * 50;
 		LEG(i).tip = _oct.root[i]  + pos * _oct.r;
 		LEG(i).joint.clear();
+		auto width = 25;
 		for (int j = 0; j < LEG(i).T; ++j) {
 			LEG(i).joint.emplace_back(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)));
-			at.emplace_back(AttackInfo(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)),50));
+			at.emplace_back(AttackInfo(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)),width-=2));
 		}
 		LEG(i).state = E_LEG_STATE::NORMAL;
 		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * SPEED*(i+1);
@@ -228,6 +229,18 @@ void Octopus::LegMove(E_Leg & leg, int idx)
 	LegMove(leg, idx);
 }
 
+void Octopus::HitUpd()
+{
+	auto itr = at.begin();
+	for (int i = 0; i < _oct.legs.size(); ++i) {
+		auto width = 25;
+		for (int j = 0; j < LEG(i).T; ++j) {
+			*itr=(AttackInfo(LEG(i).joint[j], width-=2));
+			++itr;
+		}
+	}
+}
+
 //void Octopus::Move()
 //{
 //	auto t = _oct.movePos - _targetPos;
@@ -313,8 +326,15 @@ void Octopus::NeturalUpdate()
 			_oct.interval = 0;
 		}
 	}
-
+	HitUpd();
 	
+}
+
+void Octopus::DebugDraw()
+{
+	for (auto attack : at) {
+		DrawCircle(attack._pos.x, attack._pos.y, attack._r, 0x00ff00, true);
+	}
 }
 
 void Octopus::Draw()
@@ -359,6 +379,10 @@ void Octopus::Draw()
 	}
 	
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+#ifdef DEBUG
+#endif // DEBUG
+	DebugDraw();
+
 }
 
 void Octopus::ShadowDraw()

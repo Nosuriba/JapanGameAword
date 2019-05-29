@@ -62,8 +62,10 @@ private:
 
 	void LegMove(E_Leg& leg, int idx);
 	//void Move();
+	void HitUpd();
 
 	void NeturalUpdate();
+	void DebugDraw();
 
 	void (Octopus::*_updater)();
 	Oct _oct;
