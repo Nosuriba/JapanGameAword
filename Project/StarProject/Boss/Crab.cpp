@@ -775,6 +775,10 @@ void Crab::Draw()
 #endif
 }
 
+void Crab::ShadowDraw()
+{
+}
+
 void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 {
 	auto camera = _camera->CameraCorrection();

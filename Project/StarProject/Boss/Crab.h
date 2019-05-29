@@ -134,6 +134,7 @@ public:
 	~Crab();
 	
 	void Draw();
+	void ShadowDraw();
 	void SelectDraw(const Vector2& pos, const float& scale);
 	void DebugDraw(const Vector2& camera);
 	void OnDamage();
