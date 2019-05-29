@@ -77,7 +77,7 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	
-	ResultStr = { "たおしたてき　:%3d ×100" ,"たべたかず　　:%3d ×100" , "こわしたかず　:%3d ×10","のこりタイム　:%3d ×1000","","　　総合点　　:%6d", };
+	ResultStr = { "たおしたてき　:%3d x 100" ,"たべたかず　　:%3d x 100" , "こわしたかず　:%3d x 10","のこりタイム　:%3d x 1000","","　　総合点　　:%6d", };
 
 	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	ResultCnt = 0;
@@ -114,14 +114,15 @@ void ResultScene::Draw()
 
 	DrawExtendGraph(0, 0, size.x, size.y, imgbuff, true);
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
-	DrawString(0, 0, "^p^", 0xff00ff);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA,128);
 	DrawBox(size.x / 2 - GetFontSize()*8, size.y / 10,
-		size.x / 2 + GetFontSize() * 8, size.y /5*4, 0x000000,true);
+		size.x / 2 + GetFontSize() * 8, size.y /5*4, 0x003377,true);
+	DrawBox(size.x / 2 - GetFontSize() * 2-5, 6,
+		size.x / 2 + GetFontSize() *2+5, GetFontSize()+5, 0x003377, true);
 	SetDrawBlendMode(mode, palam);
 
 	DrawString(size.x / 2 - GetFontSize() * 2.05, 5.05, "リザルト", 0);
-	DrawString(size.x / 2 - GetFontSize() * 2, 5, "リザルト", 0xff8c00);
+	DrawString(size.x / 2 - GetFontSize() * 2, 5, "リザルト", 0xffdd00);
 
 	int Cnt = 0;
 	for (auto str: ResultStr)
@@ -137,9 +138,9 @@ void ResultScene::Draw()
 				ResultData[1][Cnt] = ResultData[0][Cnt];
 
 				if (str == ResultStr[ResultStr.size() - 1])	isEnd = true;
-			}
-			DrawFormatString(size.x / 2 - GetFontSize() * 7.55f, size.y / 10 * (2 + Cnt) + 0.05f, 0, str.c_str(), ResultData[1][Cnt]);
-			DrawFormatString(size.x / 2 - GetFontSize() * 7.5f, size.y / 10 * (2 + Cnt), 0xff8c00, str.c_str(), ResultData[1][Cnt]);
+			} 
+			DrawFormatString(size.x / 2 - GetFontSize() * 7.55f, size.y / 10 * (2 + Cnt) + 0.1f, 0, str.c_str(), ResultData[1][Cnt]);
+			DrawFormatString(size.x / 2 - GetFontSize() * 7.5f, size.y / 10 * (2 + Cnt), 0xffdd00, str.c_str(), ResultData[1][Cnt]);
 			if (ResultData[1][Cnt] == ResultData[0][Cnt])Cnt++;
 			else break;
 		}
@@ -152,7 +153,7 @@ void ResultScene::Draw()
 		DrawString((size.x + (float)(GetFontSize()*3.6f)) /2, (size.y - (float)(GetFontSize())) / 10*7.35f,s[ResultData[0][(int)R_Data::total]/20000].c_str(), 0xff3333);
 		DrawBox(0, size.y / 10*8.5f, size.x, size.y, 0x000000, true);
 		ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, /*palam<(abs(ResultCnt % 512-255))?palam :*/ (abs(ResultCnt % 512 - 255)));
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (abs(ResultCnt % 512 - 255)));
 		SetFontSize(96);
 		DrawString((size.x - (float)(GetFontSize()) *3.f) / 2.0f, size.y / 10 * 8.7f, "A", 0x33ff33);
 		SetFontSize(64);

@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include "Processing/Geometry.h"
 
 struct FMF
 {
@@ -53,6 +54,8 @@ public:
 
 	void LoadStage(std::string str);
 	const bool LoadCheck();
+
+	const Vector2 GetStageSize();
 	std::vector<ChipInfo> GetStageData();
 	std::vector<ChipInfo> GetStageData(int min, int max);
 };

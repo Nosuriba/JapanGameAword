@@ -18,7 +18,6 @@
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
 #include "../Stage.h"
-#include "../BackGround.h"
 
 
 #include <iostream>
@@ -32,6 +31,7 @@ void GameScene::LoadStageUpdate(const Input & p)
 
 	if(_stage.LoadCheck()) {
 		LoadResource();
+		_camera->SetRange(Vector2(_stage.GetStageSize().x, _stage.GetStageSize().y));
 		_updater = &GameScene::LoadResourceUpdate;
 	}
 }
@@ -110,8 +110,11 @@ void GameScene::Run(const Input & p)
 	{
 		boss->Update();
 	}
+
 	Draw();
+
 	flame++;
+
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		wait = 0;
 		_updater = &GameScene::FadeOut;
@@ -121,12 +124,12 @@ void GameScene::Run(const Input & p)
 		_updater = &GameScene::FadeOut;
 	}
 
-	if(bosssceneflag == false) {
-		if (_pl->GetInfo().center.x >= size.x * 3) {
-			_updater = &GameScene::BossScene;
-			_pl->LetsGo(Vector2(size.x * 3 + _pl->GetInfo().r * 3, size.y));
-		}
-	}
+	//if(bosssceneflag == false) {
+	//	if (_pl->GetInfo().center.x >= size.x * 3) {
+	//		_updater = &GameScene::BossScene;
+	//		_pl->LetsGo(Vector2(size.x * 3 + _pl->GetInfo().r * 3, size.y));
+	//	}
+	//}
 }
 
 void GameScene::BossScene(const Input & p)
@@ -182,7 +185,8 @@ void GameScene::LoadResource()
 	auto& manager = ResourceManager::GetInstance();
 	sea = manager.LoadImg("../img/sea.png");
 	sea_effect = manager.LoadImg("../img/sea2.png");
-	maru = manager.LoadImg("../img/maru.png");
+	guage = manager.LoadImg("../img/maru.png"); 
+	beach = manager.LoadImg("../img/çªïl.png");
 
 	//îgÇÃÉVÉFÅ[É_Å[í∏ì_
 	for (int i = 0; i < 4; i++)
@@ -240,15 +244,15 @@ void GameScene::StageLock()
 	}
 }
 
-GameScene::GameScene()
+GameScene::GameScene(const int& stagenum)
 {
+	stageNum = stagenum;
+
 	_camera.reset(new Camera());
 
 	_pl.reset(new Player(_camera));
 
 	_col.reset(new Collision());
-
-	_bg.reset(new BackGround());
 
 	flame = 0;
 	wait = 0;
@@ -290,8 +294,29 @@ void GameScene::Draw()
 	ClearDrawScreen();
 
 	//îwåi
-	_bg->Draw();
+	DrawExtendGraph(0 - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y,
+		size.x - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y, beach, true);
 
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x, 0 - _camera->CameraCorrection().y,
+		0 - _camera->CameraCorrection().x + size.x, size.y - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(0 - _camera->CameraCorrection().x + size.x * 2, 0 - _camera->CameraCorrection().y,
+		size.x - _camera->CameraCorrection().x + size.x * 2, size.y - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y,
+		0 - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y, beach, true);
+
+	DrawExtendGraph(0 - _camera->CameraCorrection().x, size.y - _camera->CameraCorrection().y + size.y,
+		size.x - _camera->CameraCorrection().x, 0 - _camera->CameraCorrection().y + size.y, beach, true);
+
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x, size.y - _camera->CameraCorrection().y + size.y,
+		0 - _camera->CameraCorrection().x + size.x, 0 - _camera->CameraCorrection().y + size.y, beach, true);
+
+	DrawExtendGraph(0 - _camera->CameraCorrection().x + size.x * 2, size.y - _camera->CameraCorrection().y + size.y,
+		size.x - _camera->CameraCorrection().x + size.x * 2, 0 - _camera->CameraCorrection().y + size.y, beach, true);
+
+	DrawExtendGraph(size.x - _camera->CameraCorrection().x + size.x * 3, size.y - _camera->CameraCorrection().y + size.y,
+		0 - _camera->CameraCorrection().x + size.x * 3, 0 - _camera->CameraCorrection().y + size.y, beach, true);
 
 
 
@@ -364,15 +389,12 @@ void GameScene::Draw()
 
 	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.backCircle_r, 0x777777,true);
 
-	DrawCircleGauge(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, 10, maru, 0.0);
-
-	//SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
-
-	
+	DrawCircleGauge(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, score.bite % 5 * 5 , guage, 0.0);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.circle_r, 0x999999, true);
+	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.circle_r, 0x00cccc, true);
+
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
 
@@ -390,6 +412,7 @@ void GameScene::Draw()
 	SetFontSize(64);
 
 	DrawString(GetFontSize() / 6, size.y - GetFontSize() - 5, "Lv ", 0xff8000);
+
 
 
 
@@ -540,9 +563,6 @@ void GameScene::Update(const Input & p)
 								_pl->SetStar(_col->Pushback(_pl->GetInfo(), destroy->GetInfo()._rect), _pl->GetInfo().r);
 							}
 						}
-						/*if (_col->TriToSqr(_pl->GetInfo().legs, destroy->GetInfo()._pos, destroy->GetInfo()._size)) {
-
-						}*/
 					}
 
 				}
@@ -573,7 +593,12 @@ void GameScene::Update(const Input & p)
 
 								if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
 								{
+									_pl->ToCatch(predatry->GetInfo()._pos);
 									predatry->Predatory();
+									score.bite++;
+									if (score.bite % 5 == 1) {
+										_pl->LevelUP();
+									}
 								}
 
 							}
