@@ -712,7 +712,7 @@ void Crab::Draw()
 
 	for (auto shot : _shot)
 	{
-		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, 10, 0xddffff, true);
+		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, 10, 0xccffff, true);
 	}
 
 	Vector2 p1, p2, p3, p4;
@@ -789,8 +789,7 @@ void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 	{
 		for (int i = 0; i < leg._points.size() - 1; ++i)
 		{
-			p1 = leg._vert[i][0] - camera; p2 = leg._vert[i][1] - camera;
-			p3 = leg._vert[i][2] - camera; p4 = leg._vert[i][3] - camera;
+			p1 = leg._vert[i][0]; p2 = leg._vert[i][1]; p3 = leg._vert[i][2]; p4 = leg._vert[i][3];
 			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
@@ -799,8 +798,7 @@ void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 	for (; scis != _scissors.end(); ++scis)
 	{
 		auto sCnt = scis - _scissors.begin();
-		p1 = (*scis)[0] - camera; p2 = (*scis)[1] - camera;
-		p3 = (*scis)[2] - camera; p4 = (*scis)[3] - camera;
+		p1 = (*scis)[0]; p2 = (*scis)[1]; p3 = (*scis)[2];  p4 = (*scis)[3];
 
 		auto vec = (p1 - p4).Normalized();
 		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - camera;
@@ -813,14 +811,12 @@ void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 	{
 		for (int i = 0; i < arm._points.size() - 1; ++i)
 		{
-			p1 = arm._vert[i][0] - camera; p2 = arm._vert[i][1] - camera;
-			p3 = arm._vert[i][2] - camera; p4 = arm._vert[i][3] - camera;
+			p1 = arm._vert[i][0]; p2 = arm._vert[i][1]; p3 = arm._vert[i][2]; p4 = arm._vert[i][3];
 			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
 	/// ŠI–{‘Ì‚Ì•`‰æ
-	p1 = boss._crab._vert[0] - camera; p2 = boss._crab._vert[1] - camera;
-	p3 = boss._crab._vert[2] - camera; p4 = boss._crab._vert[3] - camera;
+	p1 = boss._crab._vert[0]; p2 = boss._crab._vert[1]; p3 = boss._crab._vert[2]; p4 = boss._crab._vert[3];
 	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 
 	auto vec = (p2 - p1).Normalized();
@@ -879,6 +875,7 @@ void Crab::DebugDraw(const Vector2& camera)
 	}
 	/// ‰ñ“]‚·‚é‚Æ‚«‚Ì’†S“_‚Ì•`‰æ
 	DrawCircle(center.x - camera.x, center.y - camera.y, 10, 0xff0000, true);
+	DrawCircle(boss._crab._pos.x - camera.x, boss._crab._pos.y - camera.y, 10, 0xff0000, true);
 }
 
 void Crab::Update()
