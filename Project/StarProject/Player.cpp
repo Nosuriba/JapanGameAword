@@ -240,6 +240,8 @@ void Player::Die(const Input & in)
 		}
 	}
 	++_anim_frame;
+	if (_anim_frame > 240)
+		_isDie = true;
 }
 
 void Player::Move(const Input & in)
@@ -299,7 +301,11 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 	_img_STICK		= ResourceManager::GetInstance().LoadImg("../img/STICK.png");
 	_img_TRIGGER	= ResourceManager::GetInstance().LoadImg("../img/TRIGGER.png");
 
-	_eatCnt = 0;
+	_eatCnt		= 0;
+	_isAlive	= true;
+	_isDie		= false;
+	_life		= 3;
+	_interval	= 0;
 
 	_updater = &Player::Normal;
 }
@@ -331,6 +337,8 @@ void Player::Update(const Input& in)
 		auto v = LEG(i).pos - LEG(i).tip;
 		LEG(i).pos += (LEG(i).tip - LEG(i).pos) / 3.0f;
 	}
+
+	_interval = max(0, --_interval);
 }
 
 void Player::Draw()
@@ -506,8 +514,17 @@ void Player::ToCatch(const Vector2 & t)
 
 void Player::OnDamage()
 {
-	_anim_frame = 0;
-	_updater	= &Player::Die;
+	if (_interval == 0)
+	{
+		_life--;
+		_interval = 180;
+		if (_life == 0)
+		{
+			_isAlive	= false;
+			_anim_frame = 0;
+			_updater	= &Player::Die;
+		}
+	}
 }
 
 void Player::LetsGo(const Vector2 p)

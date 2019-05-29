@@ -79,7 +79,10 @@ void SeaCucumber::MoveUpdate()
 	}
 	++_anim_frame;
 	if (_anim_frame > 40)
-		_updater = &SeaCucumber::WaitUpdate;
+	{
+		_anim_frame = 0;
+		_updater	= &SeaCucumber::WaitUpdate;
+	}
 }
 
 void SeaCucumber::CounterUpdate()
@@ -129,9 +132,10 @@ void SeaCucumber::Update()
 
 void SeaCucumber::OnDamage()
 {
-	if (DAMAGE)
+	if (!DAMAGE)
 	{
-		DAMAGE = true;
-		_updater = &SeaCucumber::CounterUpdate;
+		DAMAGE		= true;
+		_anim_frame = 0;
+		_updater	= &SeaCucumber::CounterUpdate;
 	}
 }
