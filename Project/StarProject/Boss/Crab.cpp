@@ -1,4 +1,5 @@
 #include "Crab.h"
+#include "../Particle/Particle.h"
 #include "../Particle/Bubble.h"
 #include "../Stage.h"
 
@@ -9,6 +10,7 @@ const double magRate = 1.3;						// ägëÂó¶
 const float rotVel = DX_PI_F / 540.f;
 const float mVel   = 3.f;
 const int atkMax   = 120;
+const int inviMax  = 180;
 const int pitchMax = 50;
 const int shotMax  = 240;
 
@@ -18,6 +20,7 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
+	_isAlive = true;
 
 	center = pos;
 	/// ª≤Ωﬁê›íË
@@ -64,9 +67,9 @@ void Crab::LegInit()
 		(*leg)._points.resize(3);
 		(*leg)._center.resize(2);
 		/// à⁄ìÆêßå‰ópÇÃç¿ïW
-		_legPrePos.push_back(Vector2());
-		_legMovePos.push_back(Vector2());
-		_legAccel.push_back(Vector2());
+		_legPrePos.emplace_back(Vector2());
+		_legMovePos.emplace_back(Vector2());
+		_legAccel.emplace_back(Vector2());
 
 		auto cnt = leg - _crab._legs.begin();
 		auto pos = _crab._pos + (!(cnt / (_crab._legs.size() / 2))
@@ -140,6 +143,7 @@ void Crab::Shot()
 
 void Crab::Die()
 {
+	_isAlive = false;
 	_updater = &Crab::DieUpdate;
 }
 
@@ -207,7 +211,10 @@ void Crab::ShotUpdate()
 			auto vel = Vector2(5.0f * cost, 5.0f * sint);
 			auto r = 15 * magRate;
 
-			_shot.push_back(ShotInfo(_crab._pos, vel, r));
+			_shot.emplace_back(ShotInfo(_crab._pos, vel, r));
+			auto debug = Stage::GetInstance().GetStageSize() / 2;
+			//_particle.emplace_back(std::make_shared<Bubble>(600, 600, 1000, false, true, 5, 3, 0x0000ff));
+			_particle.emplace_back(std::make_shared<Bubble>(debug.x, debug.y, 1000, false, true, 5, 3, 0x000000));
 		}
 		shotCnt--;
 	}
@@ -286,7 +293,7 @@ void Crab::CalVert()
 			}
 		}
 		/// ãrÇÃïùÇÃäpìxÇìoò^ÇµÇƒÇ¢ÇÈ
-		dirTheta.push_back(atan2f((*arm)._vert[1][1].y - (*arm)._vert[1][0].y,
+		dirTheta.emplace_back(atan2f((*arm)._vert[1][1].y - (*arm)._vert[1][0].y,
 			(*arm)._vert[1][1].x - (*arm)._vert[1][0].x));
 
 		/// òrÇÃêÊí[ÇëæÇ≠Ç∑ÇÈèàóù
@@ -628,19 +635,19 @@ void Crab::RegistAtkInfo()
 	{
 		for (auto point : leg._points)
 		{
-			at.push_back(AttackInfo(point, lSize.height));
+			at.emplace_back(AttackInfo(point, lSize.height));
 		}
 	}
 	for (auto arm : _crab._arms)
 	{
 		for (auto point : arm._points)
 		{
-			at.push_back(AttackInfo(point, lSize.width / 2));
+			at.emplace_back(AttackInfo(point, lSize.width / 2));
 		}
 	}
 	for (auto shot : _shot)
 	{
-		at.push_back(AttackInfo(shot._pos, shot._r));
+		at.emplace_back(AttackInfo(shot._pos, shot._r));
 	}
 }
 
@@ -652,7 +659,7 @@ void Crab::RegistDamageInfo()
 	for (int i = 0; i < 2; ++i)
 	{
 		vec = (i % 2 ? -vec : vec);
-		da.push_back(DamageInfo(_crab._pos + Vector2(_crab._size.height / 3 * vec.x, _crab._size.height / 3 * vec.y), _crab._size.height / 2));
+		da.emplace_back(DamageInfo(_crab._pos + Vector2(_crab._size.height / 3 * vec.x, _crab._size.height / 3 * vec.y), _crab._size.height / 2));
 	}
 
 }
@@ -731,16 +738,37 @@ bool Crab::StopCheck(const Vector2 & sPos, const Vector2 & ePos, const Vector2 &
 	return rtnFlag;
 }
 
-
 void Crab::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
 	for (auto shot : _shot)
 	{
-		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, 10, 0xccffff, true);
+		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, shot._r, 0xccffff, true);
 	}
 
+	for (auto p : _particle)
+	{
+		p->Draw();
+	}
+
+	/// ñ≥ìGèÛë‘ÇÃéûÅAìßñæìxÇí≤êÆÇ∑ÇÈ
+	if (inviCnt > 0)
+	{
+		if (inviCnt <= inviMax / 2)
+		{
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+		}
+		else
+		{
+			if ((inviCnt / 10) % 2)
+			{
+				SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+			}
+		}
+	}
+	
+	///Å@Ç±Ç±Ç©ÇÁÉ_ÉÅÅ[ÉWÇêHÇÁÇ¡ÇΩéûÇÃï`âÊÇÇ∑ÇÈ
 	Vector2 p1, p2, p3, p4;
 	for (auto leg : _crab._legs)
 	{
@@ -762,7 +790,7 @@ void Crab::Draw()
 		auto vec = (p1 - p4).Normalized();
 		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - camera;
 
-		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
+		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000 , true);
 		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
 	}
 
@@ -785,8 +813,10 @@ void Crab::Draw()
 	auto lEyePos = p2 + Vector2((_crab._size.width / 3) * (-vec.x), (_crab._size.width / 3) * (-vec.y));
 
 	/// ñ⁄ÇÃï`âÊ
-	DxLib::DrawCircle(rEyePos.x, rEyePos.y, 5, 0x000000, true);
-	DxLib::DrawCircle(lEyePos.x, lEyePos.y, 5, 0x000000, true);
+	DxLib::DrawCircle(rEyePos.x, rEyePos.y, 5 * magRate, 0x000000, true);
+	DxLib::DrawCircle(lEyePos.x, lEyePos.y, 5 * magRate, 0x000000, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 #ifdef _DEBUG
 	DebugDraw(camera);
@@ -911,11 +941,12 @@ void Crab::OnDamage()
 	if (inviCnt <= 0)
 	{
 		lifeCnt--;
-		inviCnt = 60;
 		if (lifeCnt == 0)
 		{
 			Die();
+			return;
 		}
+		inviCnt = inviMax;
 	}
 
 }
@@ -923,26 +954,30 @@ void Crab::OnDamage()
 void Crab::Update()
 {
 	(this->*_updater)();
-	ChangeAtkMode();
-	ShotDelete();
-	/// òrÇÃà⁄ìÆ
-	for (auto& arm : _crab._arms)
+	if (_isAlive)
 	{
-		if (_type != AtkType::PITCH)
-			arm._ctlPoint += arm._vel;
+		inviCnt = (inviCnt <= 0 ? inviCnt : inviCnt - 1);
+		ChangeAtkMode();
+		ShotDelete();
+		/// òrÇÃà⁄ìÆ
+		for (auto& arm : _crab._arms)
+		{
+			if (_type != AtkType::PITCH)
+				arm._ctlPoint += arm._vel;
+		}
+		/// ºÆØƒÇÃà⁄ìÆ
+		for (auto& shot : _shot)
+		{
+			shot._pos += shot._vel;
+		}
+		if (_type == AtkType::NORMAL && atkCnt >= 0)
+		{
+			Rotation();
+			MoveLeg();
+		}
+		CalVert();			/// ãÈå`ÇÃí∏ì_Çê›íË
+		MoveJoint();
+		RegistAtkInfo();
+		RegistDamageInfo();
 	}
-	/// ºÆØƒÇÃà⁄ìÆ
-	for (auto& shot : _shot)
-	{
-		shot._pos += shot._vel;
-	}
-	if (_type == AtkType::NORMAL && atkCnt >= 0)
-	{
-		Rotation();
-		MoveLeg();
-	}
-	CalVert();			/// ãÈå`ÇÃí∏ì_Çê›íË
-	MoveJoint();
-	RegistAtkInfo();
-	RegistDamageInfo();
 }
