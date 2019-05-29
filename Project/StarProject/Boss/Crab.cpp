@@ -206,9 +206,9 @@ void Crab::ShotUpdate()
 			auto cost = cos(theta);
 			auto sint = sin(theta);
 			auto vel = Vector2(5.0f * cost, 5.0f * sint);
-			auto size = Size(15 * magRate, 15 * magRate);
+			auto r = 15 * magRate;
 
-			_shot.push_back(ShotInfo(_crab._pos, vel, size));
+			_shot.push_back(ShotInfo(_crab._pos, vel, r));
 		}
 		shotCnt--;
 	}
@@ -641,7 +641,7 @@ void Crab::RegistAtkInfo()
 	}
 	for (auto shot : _shot)
 	{
-		at.push_back(AttackInfo(shot._pos, shot._size.height));
+		at.push_back(AttackInfo(shot._pos, shot._r));
 	}
 }
 
