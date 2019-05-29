@@ -279,7 +279,7 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 {
 	_star.center	= p;
 	_star.level		= 1;
-	_star.r			= 50.0f * (float)_star.level + 25.0f;
+	_star.r			= 20.0f * (float)_star.level + 40.0f;
 
 	_star.legs.resize(5);
 	auto radian = 2.0f * DX_PI_F / (float)_star.legs.size();
@@ -484,7 +484,7 @@ void Player::LevelUP()
 {
 	_star.level++;
 
-	_star.r = 50.0f * (float)_star.level + 25.0f;
+	_star.r = 20.0f * (float)_star.level + 40.0f;
 
 	for (auto& l : _star.legs)
 	{

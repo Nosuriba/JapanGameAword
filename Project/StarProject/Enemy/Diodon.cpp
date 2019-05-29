@@ -13,9 +13,8 @@ constexpr float MIN_W = 70;
 constexpr float MIN_H = 50;
 constexpr float Boiling_Speed = 5;		//膨らむスピード
 
-Diodon::Diodon(std::shared_ptr<Camera>& c, std::shared_ptr<Player>& p) :Enemy(c, p)
+Diodon::Diodon(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) :Enemy(c, p)
 {
-	auto pos	= Vector2(600, 300);
 	auto size	= Size(MIN_W, MIN_H);
 	_enemy		= EnemyInfo(pos, size);
 
@@ -121,26 +120,26 @@ void Diodon::Draw()
 
 		Vector2 v;
 		v = VCross(_vel.V_Cast(), VGet(0, 0, -1));
-		p1 = midPoints[i - 1] + v.Normalized() * t - CC;
-		p2 = midPoints[i] + v.Normalized() * t - CC;
+		p1 = midPoints[i - 1] + v.Normalized() * t;
+		p2 = midPoints[i] + v.Normalized() * t;
 
 		v = VCross(VGet(0, 0, -1), _vel.V_Cast());
-		p3 = midPoints[i] + v.Normalized() * t - CC;
-		p4 = midPoints[i - 1] + v.Normalized() * t - CC;
+		p3 = midPoints[i] + v.Normalized() * t;
+		p4 = midPoints[i - 1] + v.Normalized() * t;
 
 		if (i % 2)
-			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xCC9933, true);
+			DxLib::DrawQuadrangleAA(p1.x - CC.x, p1.y - CC.y, p2.x - CC.x, p2.y - CC.y, p3.x - CC.x, p3.y - CC.y, p4.x - CC.x, p4.y - CC.y, 0xCC9933, true);
 		else
-			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0x550000, true);
+			DxLib::DrawQuadrangleAA(p1.x - CC.x, p1.y - CC.y, p2.x - CC.x, p2.y - CC.y, p3.x - CC.x, p3.y - CC.y, p4.x - CC.x, p4.y - CC.y, 0x550000, true);
 
 		DrawNeedle(midPoints[i - 1], midPoints[i - 1] - POS, SIZE.height / 4);
 		DrawNeedle(p1, p1 - POS, SIZE.height / 4);
 		DrawNeedle(p4, p4 - POS, SIZE.height / 4);
 
 		v = VCross(_vel.V_Cast(), VGet(0, 0, -1));
-		DrawNeedle(midPoints[i - 1] + v.Normalized() * (t / 2) - CC, (midPoints[i - 1] + v.Normalized() * (t / 2) - CC) - POS, SIZE.height / 4);
+		DrawNeedle(midPoints[i - 1] + v.Normalized() * (t / 2), (midPoints[i - 1] + v.Normalized() * (t / 2)) - POS, SIZE.height / 4);
 		v = VCross(VGet(0, 0, -1), _vel.V_Cast());
-		DrawNeedle(midPoints[i - 1] + v.Normalized() * (t / 2) - CC, (midPoints[i - 1] + v.Normalized() * (t / 2) - CC) - POS, SIZE.height / 4);
+		DrawNeedle(midPoints[i - 1] + v.Normalized() * (t / 2), (midPoints[i - 1] + v.Normalized() * (t / 2)) - POS, SIZE.height / 4);
 	}
 	
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -168,7 +167,7 @@ void Diodon::DrawNeedle(const Vector2& p, const Vector2& v, const float r)
 	vc = VCross(v.V_Cast(), VGet(0, 0, -1));
 	p3 = p + vc.Normalized() * (r / 10);
 
-	DrawTriangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, 0xffffff, true);
+	DrawTriangle(p1.x - CC.x, p1.y - CC.y, p2.x - CC.x, p2.y - CC.y, p3.x - CC.x, p3.y - CC.y, 0xffffff, true);
 }
 
 void Diodon::Update()
@@ -182,12 +181,14 @@ void Diodon::Search()
 	auto p = _player->GetInfo().center;
 	if ((p - POS).Magnitude() < 300)
 	{
-		_anim_frame = 0;
+		if (_updater != &Diodon::SwellUpdate)
+			_anim_frame = 0;
 		_updater	= &Diodon::SwellUpdate;
 	}
 	else
 	{
-		_anim_frame = 0;
+		if (_updater != &Diodon::SwimUpdate)
+			_anim_frame = 0;
 		_updater	= &Diodon::SwimUpdate;
 	}
 }

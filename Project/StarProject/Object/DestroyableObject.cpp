@@ -21,14 +21,14 @@ void DestroyableObject::BreakUpdate(const Input & p)
 	flame++;
 }
 
-DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera, int x, int y):Obstacle(camera),_camera(camera)
+DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera, int x, int y, int level):Obstacle(camera),_camera(camera)
 {
 	auto pos = Position2(x,y);
 	auto size = Size(32 + offset,32 + offset);
 	auto rect = Rect(pos, size);
-	auto level = 1;
+	auto _level = level;
 
-	obj = ObjectInfo(pos, size, rect, level, false ,false);
+	obj = ObjectInfo(pos, size, rect, _level, false ,false);
 
 	flame = 0;
 

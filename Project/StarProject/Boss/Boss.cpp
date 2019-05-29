@@ -14,4 +14,9 @@ std::list<AttackInfo> Boss::GetAttackInfo()
 	return at;
 }
 
+std::list<DamageInfo> Boss::GetDamageInfo()
+{
+	return da;
+}
+
 
