@@ -63,8 +63,8 @@ void Diodon::EscapeUpdate()
 
 	if (_anim_frame % 5 == 0)
 	{
-		SIZE.width	= min(10, SIZE.width	- Boiling_Speed);
-		SIZE.height = min(10, SIZE.height	- Boiling_Speed);
+		SIZE.width	= max(10, SIZE.width	- Boiling_Speed);
+		SIZE.height = max(10, SIZE.height	- Boiling_Speed);
 	}
 
 	if (_escapeTime > 255)
