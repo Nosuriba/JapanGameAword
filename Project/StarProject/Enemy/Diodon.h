@@ -19,8 +19,6 @@ private:
 	void EscapeUpdate();
 	void DieUpdate();
 
-	bool CheckOutScreen();		 // ¼®¯Ä‚ª‰æ–ÊŠO‚És‚Á‚½‚©‚Ì”»’è—p
-
 	void (Diodon::*_updater)();
 
 	std::shared_ptr<Camera> _camera;
@@ -36,9 +34,7 @@ public:
 	void DebugDraw(const Vector2& camera);
 	void Update();
 	EnemyInfo GetInfo();
-	shot_vector GetShotInfo();
 	void CalEscapeDir(const Vector2& vec);
-	void ShotDelete(const int& num);
 	void CalTrackVel(const Vector2& pos);
 };
 

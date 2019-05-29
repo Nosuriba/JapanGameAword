@@ -59,7 +59,7 @@ void Diodon::Swell()
 
 void Diodon::Shot()
 {
-	Vector2 vec, vel;
+	/*Vector2 vec, vel;
 	Size size;
 	Rect rect;
 
@@ -81,7 +81,7 @@ void Diodon::Shot()
 	_vel = Vector2(0, 0);
 	enemy._size = Size(0, 0);
 	
-	_updater = &Diodon::ShotUpdate;
+	_updater = &Diodon::ShotUpdate;*/
 }
 
 void Diodon::Escape()
@@ -167,17 +167,6 @@ void Diodon::SwellUpdate()
 
 void Diodon::ShotUpdate()
 {
-	auto debug = shot.size();
-	for (int i = 0; i < shot.size(); ++i)
-	{
-		shot[i]._pos += shot[i]._vel;
-		shot[i]._rect = Rect(shot[i]._pos, shot[i]._size);
-	}
-
-	if (CheckOutScreen())
-	{
-		Die();
-	}
 }
 
 void Diodon::EscapeUpdate()
@@ -204,25 +193,6 @@ void Diodon::DieUpdate()
 
 }
 
-bool Diodon::CheckOutScreen()
-{
-	for (int i = 0; i < shot.size(); ++i)
-	{
-		/// Ç∆ÇËÇ†Ç¶Ç∏ÅAâÊñ äOÇ…çsÇ≠Ç∆ºÆØƒÇè¡Ç∑ÇÊÇ§Ç…ÇµÇƒÇ¢ÇÈ
-		if (shot[i]._pos.x < 0 || shot[i]._pos.y < 0 ||
-			shot[i]._pos.x > Game::GetInstance().GetScreenSize().x ||
-			shot[i]._pos.y > Game::GetInstance().GetScreenSize().y)
-		{
-			shot.erase(shot.begin() + i);
-		}
-	}
-	if (shot.size() <= 0)
-	{
-		return true;
-	}
-	return false;
-}
-
 void Diodon::Draw()
 {
 	auto camera = _camera->CameraCorrection();
@@ -238,10 +208,6 @@ void Diodon::Draw()
 	
 	DxLib::DrawCircle(enemy._pos.x - camera.x, enemy._pos.y - camera.y, enemy._size.height / 2 - 1,color);
 
-	for (auto itr : shot)
-	{
-		DxLib::DrawCircle(itr._pos.x - camera.x, itr._pos.y - camera.y, itr._size.height / 2 - 1, 0x000000, true);
-	}
 
 #ifdef _DEBUG
 	DebugDraw(camera);
@@ -253,11 +219,6 @@ void Diodon::DebugDraw(const Vector2& camera)
 	/// ìñÇΩÇËîªíËÇÃï`âÊ
 	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
 				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, 0xff0000, false);
-	for (auto itr : shot)
-	{
-		DxLib::DrawBox(itr._rect.Left() - camera.x, itr._rect.Top() - camera.y,
-					   itr._rect.Right() - camera.x, itr._rect.Bottom() - camera.y, 0xff0000, false);
-	}
 }
 
 void Diodon::Update()
@@ -288,11 +249,6 @@ EnemyInfo Diodon::GetInfo()
 	return enemy;
 }
 
-shot_vector Diodon::GetShotInfo()
-{
-	return shot;
-}
-
 void Diodon::CalEscapeDir(const Vector2 & vec)
 {
 	if (!enemy._dieFlag)
@@ -315,12 +271,6 @@ void Diodon::CalEscapeDir(const Vector2 & vec)
 		}
 	}
 }
-
-void Diodon::ShotDelete(const int& num)
-{
-	shot.erase(shot.begin() + num);
-}
-
 void Diodon::CalTrackVel(const Vector2 & pos)
 {
 	/// í«è]Ç»Çµ

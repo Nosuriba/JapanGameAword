@@ -279,11 +279,6 @@ EnemyInfo Fish::GetInfo()
 	return enemy;
 }
 
-shot_vector Fish::ShotGetInfo()
-{
-	return shot;
-}
-
 void Fish::CalEscapeDir(const Vector2 & vec)
 {
 	if (_updater != &Fish::EscapeUpdate && !enemy._dieFlag)

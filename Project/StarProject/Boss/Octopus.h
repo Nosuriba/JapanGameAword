@@ -51,32 +51,30 @@ private:
 
 	std::vector<std::shared_ptr<Particle>> _particle;
 
-	void IkCcd(Vector2 pos,int idx,int numMaxItaration);
+	//void IkCcd(Vector2 pos,int idx,int numMaxItaration);
 
-	void Die();
-	void DieUpdate();
-	void Normal(int idx);
-	void Punch(int idx);
-	void OctInk();
-	void Chase(int idx);
-	void ReMove(int idx);
+	//void Die();
+	//void DieUpdate();
+	//void Normal(int idx);
+	//void Punch(int idx);
+	//void OctInk();
+	//void Chase(int idx);
+	//void ReMove(int idx);
 
-	void LegMove(E_Leg& leg, int idx);
-	//void Move();
+	//void LegMove(E_Leg& leg, int idx);
+	////void Move();
 
-	void NeturalUpdate();
+	//void NeturalUpdate();
 
 	void (Octopus::*_updater)();
-	std::shared_ptr<Camera>& _camera;
 	Oct _oct;
 public:
-	Octopus(std::shared_ptr<Camera>& camera);
+	Octopus(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 	~Octopus();
 	void OnDamage();
 	void Draw();
 	void SelectDraw(const Vector2 p, const float s);
 	void Update();
-	AttackInfo GetInfo();
-	void CalTrackVel(const Vector2& pos);
+
 };
 

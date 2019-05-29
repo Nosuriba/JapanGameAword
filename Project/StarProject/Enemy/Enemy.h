@@ -21,23 +21,6 @@ struct EnemyInfo {
 		this->_rect = _rect;
 	}
 };
-
-struct ShotInfo {
-	Position2 _pos;
-	Vector2 _vel;
-	Size _size;
-	Rect _rect;
-
-	ShotInfo() : _pos(0, 0), _vel(0,0),_size(0, 0), _rect(_pos, _size) {};
-	ShotInfo(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
-	{
-		this->_pos  = _pos;
-		this->_vel = _vel;
-		this->_size = _size;
-		this->_rect = _rect;
-	}
-};
-
 // 制御点用
 struct CtlInfo
 {
@@ -54,8 +37,6 @@ struct CtlInfo
 	}
 };
 
-using shot_vector = std::vector<ShotInfo>;
-
 class Enemy
 {
 private:
@@ -63,7 +44,6 @@ private:
 
 protected:
 	EnemyInfo enemy;
-	shot_vector shot;
 	Vector2 _vel;
 	int color;
 	bool _turnFlag;			// true:右方向, false:左方向		
@@ -77,7 +57,6 @@ public:
 	virtual void Draw();
 	virtual void Update();
 	virtual EnemyInfo GetInfo();
-	virtual shot_vector GetShotInfo();
 	virtual void ShotDelete(const int& num);					// ｼｮｯﾄが当たった時削除するためのもの
 	virtual void CalEscapeDir(const Vector2& vec);
 	virtual void CalTrackVel(const Vector2& pos);		// 追尾する速度の計算用
