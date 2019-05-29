@@ -1,6 +1,9 @@
 #include "Boss.h"
+#include "../Camera.h"
+#include "../Player.h"
 
-Boss::Boss(std::shared_ptr<Camera>& camera) : _camera(camera)
+
+Boss::Boss(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p) :_camera(c), _player(p)
 {
 }
 
@@ -8,19 +11,9 @@ Boss::~Boss()
 {
 }
 
-void Boss::Draw()
+std::list<AttackInfo> Boss::GetAttackInfo()
 {
+	return at;
 }
 
-void Boss::Update()
-{
-}
 
-BossInfo Boss::GetInfo()
-{
-	return boss;
-}
-
-void Boss::CalTrackVel(const Vector2 & pos)
-{
-}

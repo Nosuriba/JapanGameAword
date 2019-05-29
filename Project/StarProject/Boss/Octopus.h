@@ -3,7 +3,6 @@
 #include <vector>
 #include <array>
 
-class Camera;
 
 enum class E_LEG_STATE {
 	NORMAL,
@@ -67,16 +66,13 @@ private:
 	void NeturalUpdate();
 
 	void (Octopus::*_updater)();
-	std::shared_ptr<Camera>& _camera;
 	Oct _oct;
 public:
-	Octopus(std::shared_ptr<Camera>& camera);
+	Octopus(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 	~Octopus();
-	void Damage();
+	void OnDamage();
 	void Draw();
 	void SelectDraw(const Vector2 p, const float s);
 	void Update();
-	BossInfo GetInfo();
-	void CalTrackVel(const Vector2& pos);
 };
 
