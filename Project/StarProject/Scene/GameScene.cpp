@@ -250,7 +250,7 @@ GameScene::GameScene(const int& stagenum)
 
 	_camera.reset(new Camera());
 
-	_pl.reset(new Player(_camera));
+	_pl.reset(new Player(_camera, Vector2(200, 200)));
 
 	_col.reset(new Collision());
 
