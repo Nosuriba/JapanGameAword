@@ -18,13 +18,13 @@ void Vector2::Normalize()
 	y = y / m;
 }
 
-Vector2 Vector2::Normalized()
+const Vector2 Vector2::Normalized() const
 {
 	float size = Magnitude();
 	return Vector2(x / size, y / size);
 }
 
-VECTOR Vector2::V_Cast()
+const VECTOR Vector2::V_Cast() const
 {
 	return VGet(x, y, 0);
 }

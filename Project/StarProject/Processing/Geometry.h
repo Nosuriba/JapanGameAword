@@ -36,10 +36,10 @@ struct Vector2 {
 
 	void Normalize();
 
-	Vector2 Normalized();
+	const Vector2 Normalized() const;
 
 	// Vector3Å®VECTORÇ÷ïœä∑
-	VECTOR V_Cast();
+	const VECTOR V_Cast() const;
 };
 
 Vector2 operator+(const Vector2& lv, const Vector2 rv);
