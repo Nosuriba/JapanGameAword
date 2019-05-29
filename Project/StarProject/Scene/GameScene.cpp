@@ -125,6 +125,13 @@ void GameScene::Run(const Input & p)
 			continue;
 		}
 
+		// ƒvƒŒƒCƒ„[‚Æ“G
+		if ((_pl->GetInfo().center - _enemies[i]->GetInfo()._pos).Magnitude() < _pl->GetInfo().r + _enemies[i]->GetInfo()._size.width / 2)
+		{
+			if (_enemies[i]->GetInfo()._isAlive)
+				_pl->OnDamage();
+		}
+
 		/// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
 		//for (int p = 0; p < _pl->GetLaser().size(); ++p)
 		auto _p = _enemies[i]->GetInfo()._pos - CC;

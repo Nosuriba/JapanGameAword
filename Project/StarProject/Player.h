@@ -52,6 +52,11 @@ private:
 	std::vector<std::shared_ptr<Particle>> _particle;
 
 	Star _star;
+	int	_life;
+	int	_interval;
+	bool _isAlive;
+	bool _isDie;
+
 	std::array<int, 2> select_idx;
 	std::array<std::list<Laser>,2> _laser;
 
@@ -91,5 +96,6 @@ public:
 	void OnDamage();
 	void LetsGo(const Vector2 p);
 	void SetStar(const Vector2& p, const float& s);
+	const bool CheckDie() const { return _isDie; }
 };
 
