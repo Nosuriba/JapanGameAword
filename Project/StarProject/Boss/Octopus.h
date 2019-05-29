@@ -9,7 +9,6 @@ enum class E_LEG_STATE {
 	PUNCH,
 	CHASE,
 	RE_MOVE,
-	DAMAGE,
 	DETH,
 };
 
