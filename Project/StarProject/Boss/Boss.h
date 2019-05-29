@@ -17,10 +17,34 @@ struct AttackInfo
 	AttackInfo(const Vector2& p, const float& r) :_pos(p), _r(r) {}
 };
 
+struct DamageInfo
+{
+	Vector2 _pos;
+	float _r;
+
+	DamageInfo() :_pos(0, 0), _r(0) {}
+	DamageInfo(const Vector2& p, const float& r) :_pos(p), _r(r) {}
+};
+
+struct ShotInfo
+{
+	Position2 _pos;
+	Vector2 _vel;
+	float _r;
+	ShotInfo() : _pos(0, 0), _vel(0, 0), _r(0) {};
+	ShotInfo(const Position2& p, const Vector2& v, const float& r)
+	{
+		_pos = p;
+		_vel = v;
+		_r	 = r;
+	}
+};
+
 class Boss
 {
 protected:
 	std::list<AttackInfo> at;
+	std::list <DamageInfo> da;
 
 	const std::shared_ptr<Camera>& _camera;
 	const std::shared_ptr<Player>& _player;
@@ -34,6 +58,7 @@ public:
 	virtual void Update() = 0;
 
 	std::list<AttackInfo> GetAttackInfo();
+	std::list<DamageInfo> GetDamageInfo();
 
 	virtual void OnDamage() = 0;
 };
