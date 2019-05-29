@@ -37,7 +37,7 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 		LEG(i).joint.clear();
 		for (int j = 0; j < LEG(i).T; ++j) {
 			LEG(i).joint.emplace_back(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)));
-			at.emplace_back();
+			at.emplace_back(AttackInfo(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)),50));
 		}
 		LEG(i).state = E_LEG_STATE::NORMAL;
 		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * SPEED*(i+1);
