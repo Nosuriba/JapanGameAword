@@ -154,13 +154,8 @@ void GameScene::LoadResource()
 
 	SetUseASyncLoadFlag(true);
 
-	/// 敵の生成(debug用)
-	/*_enemies.push_back(std::make_shared<Fish>(_camera));
-	_enemies.push_back(std::make_shared<Diodon>(_camera));
-	_enemies.push_back(std::make_shared<SeaCucumber>(_camera));
-	_bosses.push_back(std::make_shared<Octopus>(_camera));*/
-
-	_bosses.push_back(std::make_shared<Crab>(_camera,_pl));
+	
+	
 
 	//スクリーン作成
 	firstscreen = MakeScreen(size.x, size.y);
@@ -221,6 +216,21 @@ void GameScene::LoadResource()
 		}
 		if (s.no == 3) {
 			_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
+		}
+		if (s.no == 9) {
+			_bosses.push_back(std::make_shared<Octopus>(_camera, _pl));
+		}
+		if (s.no == 10) {
+			_bosses.push_back(std::make_shared<Crab>(_camera, _pl));
+		}
+		if (s.no == 12) {
+			_enemies.push_back(std::make_shared<Fish>(_camera,_pl));
+		}
+		if (s.no == 13) {
+			_enemies.push_back(std::make_shared<Diodon>(_camera,_pl));
+		}
+		if (s.no == 14) {
+			_enemies.push_back(std::make_shared<SeaCucumber>(_camera,_pl));
 		}
 	}
 
