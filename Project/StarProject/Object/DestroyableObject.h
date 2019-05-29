@@ -15,10 +15,11 @@ private:
 	void BreakUpdate(const Input& p);
 	std::shared_ptr<Camera>& _camera;
 
-	int destroyimg;
 	int destroyactimg[4];
+	int destroylevel2actimg[4];
 
 	int flame;
+	int color;
 
 public:
 	DestroyableObject(std::shared_ptr<Camera>& camera, int x, int y, int level);

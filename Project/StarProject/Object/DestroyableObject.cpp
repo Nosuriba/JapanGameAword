@@ -32,8 +32,8 @@ DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera, int x, int
 
 	flame = 0;
 
-	destroyimg = ResourceManager::GetInstance().LoadImg("../img/destroy.png");
 	LoadDivGraph("../img/destroy.png", 4, 2, 2, 624 / 2, 624 / 2, destroyactimg);
+	LoadDivGraph("../img/destroylevel2.png", 4, 2, 2, 624 / 2, 624 / 2, destroylevel2actimg);
 
 	updater = &DestroyableObject::NormalUpdate;
 }
@@ -45,9 +45,6 @@ DestroyableObject::~DestroyableObject()
 void DestroyableObject::Draw()
 {
 	auto camera = _camera->CameraCorrection();
-
-	/*DxLib::DrawExtendGraph(obj._rect.Left() - camera.x, obj._rect.Top() - camera.y,
-		obj._rect.Right() - camera.x, obj._rect.Bottom() - camera.y, destroyimg, true);*/
 	
 	DxLib::DrawExtendGraph(
 		obj._rect.Left() - camera.x,
