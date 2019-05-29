@@ -30,6 +30,7 @@ protected:
 public:
 	~Boss();
 	virtual void Draw() = 0;
+	virtual void ShadowDraw() = 0;
 	virtual void Update() = 0;
 
 	std::list<AttackInfo> GetAttackInfo();
