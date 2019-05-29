@@ -7,9 +7,8 @@ const int moveInvCnt = 40;
 const int crawlVel   = 1.5f;
 const int decSpeeed  = 0.02f;			// Œ¸‘¬‘¬“x
 
-SeaCucumber::SeaCucumber(std::shared_ptr<Camera>& c, std::shared_ptr<Player>& p) : Enemy(c, p)
+SeaCucumber::SeaCucumber(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) : Enemy(c, p)
 {
-	auto pos	= Vector2(800, 500);
 	auto size	= Size(120, 30);
 
 	_enemy		= EnemyInfo(pos, size);
@@ -82,6 +81,7 @@ void SeaCucumber::MoveUpdate()
 
 void SeaCucumber::CounterUpdate()
 {
+
 }
 
 void SeaCucumber::Draw()
@@ -109,4 +109,9 @@ void SeaCucumber::Update()
 
 void SeaCucumber::OnDamage()
 {
+	if (ALIVE)
+	{
+		ALIVE = false;
+		_updater = &SeaCucumber::CounterUpdate;
+	}
 }

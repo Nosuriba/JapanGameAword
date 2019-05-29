@@ -9,9 +9,8 @@ constexpr int Viewing_angle = 30;		// ‹–ìŠp
 constexpr int points		= 10;		// ’†ŠÔ“_‚ÌŒÂ”
 constexpr float Speed		= 3.0f;		// ˆÚ“®‘¬“x
 
-Fish::Fish(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p) :Enemy(c, p)
+Fish::Fish(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) :Enemy(c, p)
 {
-	auto pos	= Vector2(800, 500);
 	auto size	= Size(150, 50);
 	_enemy		= EnemyInfo(pos, size);
 

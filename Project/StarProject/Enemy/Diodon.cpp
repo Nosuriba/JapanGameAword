@@ -13,9 +13,8 @@ constexpr float MIN_W = 70;
 constexpr float MIN_H = 50;
 constexpr float Boiling_Speed = 5;		//膨らむスピード
 
-Diodon::Diodon(std::shared_ptr<Camera>& c, std::shared_ptr<Player>& p) :Enemy(c, p)
+Diodon::Diodon(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) :Enemy(c, p)
 {
-	auto pos	= Vector2(600, 300);
 	auto size	= Size(MIN_W, MIN_H);
 	_enemy		= EnemyInfo(pos, size);
 

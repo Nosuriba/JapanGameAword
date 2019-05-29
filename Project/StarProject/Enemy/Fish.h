@@ -46,7 +46,7 @@ private:
 	void LookAt(const Vector2& v);
 
 public:
-	Fish(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
+	Fish(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos);
 	~Fish();
 
 	void Update();
