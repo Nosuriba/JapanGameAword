@@ -212,7 +212,7 @@ void GameScene::LoadResource()
 			_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
 		}
 		if (s.no == 2) {
-			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y));
+			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 1));
 		}
 		if (s.no == 3) {
 			_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
