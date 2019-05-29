@@ -72,11 +72,11 @@ private:
 public:
 	Octopus(std::shared_ptr<Camera>& camera);
 	~Octopus();
-	void Damage();
+	void OnDamage();
 	void Draw();
 	void SelectDraw(const Vector2 p, const float s);
 	void Update();
-	BossInfo GetInfo();
+	AttackInfo GetInfo();
 	void CalTrackVel(const Vector2& pos);
 };
 

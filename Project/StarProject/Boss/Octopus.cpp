@@ -184,7 +184,7 @@ void Octopus::Chase(int idx)
 	IkCcd(pos, idx, 12);
 }
 
-void Octopus::Damage()
+void Octopus::OnDamage()
 {
 	if (_damageFlag) {
 		_oct.helth -= 10;
@@ -257,7 +257,7 @@ void Octopus::LegMove(E_Leg & leg, int idx)
 
 void Octopus::NeturalUpdate()
 {
-	/*int j = 0;
+	int j = 0;
 	float distance = 9999;
 	if ((++_timer)% 200==0) {
 		int i = GetRand(_oct.legs.size() - 3)+1;
@@ -305,7 +305,7 @@ void Octopus::NeturalUpdate()
 		if ((_idx == i)&&(LEG(i).state==E_LEG_STATE::NORMAL)) {
 			LEG(i).state = E_LEG_STATE::CHASE;
 		}
-	}*/
+	}
 	//Move();
 	if (!_damageFlag) {
 		if (++_oct.interval > 60) {
@@ -380,6 +380,10 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 			LEG(i).joint[j]=_oct.root[i] + Vector2(co, si)*(range / LEG(i).T*(j + 1));
 		}
 	}
+	/*for (int i = 0; i < _oct.legs.size(); ++i) {
+
+		IkCcd(, i, 12);
+	}*/
 
 	//‘«‚ÌŠÔ‚Ì–Œ‚Ì•`‰æ
 	for (int i = 0; i < _oct.legs.size() - 1; ++i) {
@@ -415,9 +419,9 @@ void Octopus::Update()
 	(this->*_updater)();
 }
 
-BossInfo Octopus::GetInfo()
+AttackInfo Octopus::GetInfo()
 {
-	return BossInfo();
+	return AttackInfo();
 }
 
 void Octopus::CalTrackVel(const Vector2 & pos)

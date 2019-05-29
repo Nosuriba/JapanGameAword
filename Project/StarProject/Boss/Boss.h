@@ -2,11 +2,13 @@
 #include <memory>
 #include <array>
 #include <vector>
+#include <list>
 #include "../Processing/Geometry.h"
 #include "../Particle/Water.h"
 
 
 class Camera;
+class Player;
 
 using sqr_vert = std::array<Vector2, 4>;
 
@@ -40,26 +42,28 @@ struct CrabInfo
 };
 
 
-struct BossInfo
+struct AttackInfo
 {
-	CrabInfo _crab;
+	Vector2 pos;
+	float r;
 };
 
 class Boss
 {
-private:
-
-	std::shared_ptr<Camera>& _camera;
 protected:
-	BossInfo boss;
+	std::list<AttackInfo> at;
 
-	Boss(std::shared_ptr<Camera>& camera);
+	const std::shared_ptr<Camera>& _camera;
+	const std::shared_ptr<Player>& _player;
+
+	Boss(const std::shared_ptr<Camera>& _camera, const std::shared_ptr<Player>& _player);
 
 public:
 	~Boss();
-	virtual void Draw();
-	virtual void Update();
-	virtual BossInfo GetInfo();
-	virtual void CalTrackVel(const Vector2& pos);
+	virtual void Draw() = 0;
+	virtual void Update() = 0;
 
+	std::list<AttackInfo> GetAttackInfo();
+
+	virtual void OnDamage() = 0;
 };
