@@ -11,6 +11,36 @@ enum class AtkType
 	MAX
 };
 
+using sqr_vert = std::array<Vector2, 4>;
+
+struct JointInfo
+{
+	// 関節の中間点
+	std::vector<Vector2> _points;
+	// 制御点
+	Vector2 _ctlPoint;
+	std::vector<Vector2> _center;
+	Vector2 _vel;
+	Size   _size;
+	std::array<sqr_vert, 2> _vert;		// 関節の頂点
+};
+
+struct CrabInfo
+{
+	Position2 _pos;
+	Size _size;
+
+	sqr_vert _vert;					// 蟹本体の頂点
+	std::vector<JointInfo> _legs;	// 足の関節
+	std::vector<JointInfo> _arms;	// 腕の関節
+
+	CrabInfo() : _pos(0, 0), _size(0, 0) {};
+	CrabInfo(const Position2& _pos, const Size& _size)
+	{
+		this->_pos = _pos;
+		this->_size = _size;
+	}
+};
 
 struct Vector3
 {
@@ -25,15 +55,17 @@ struct Vector3
 	}
 };
 
-struct ShotDebug
+struct ShotInfo
 {
 	Position2 _pos;
 	Vector2 _vel;
-	ShotDebug() : _pos(0, 0), _vel(0, 0){};
-	ShotDebug(const Position2& _pos, const Vector2& _vel)
+	Size _size;
+	ShotInfo() : _pos(0, 0), _vel(0, 0), _size(0,0){};
+	ShotInfo(const Position2& p, const Vector2& v, const Size& s)
 	{
-		this->_pos = _pos;
-		this->_vel = _vel;
+		_pos = p;
+		_vel = v;
+		_size = s;
 	}
 };
 
@@ -74,12 +106,12 @@ private:
 
 	void (Crab::*_updater)();
 
-	std::shared_ptr<Camera>& _camera;
 	AtkType _type;
 	Vector2 _plPos;						// ﾌﾟﾚｲﾔｰの座標保存用
 	Vector2 _armPrePos;			
 
-	std::vector<ShotDebug> _shot;		// 仮のｼｮｯﾄ用変数(CrabInfoに持っていく予定)
+	CrabInfo _crab;
+	std::vector<ShotInfo> _shot;		// 仮のｼｮｯﾄ用変数(CrabInfoに持っていく予定)
 
 	std::vector<sqr_vert> _scissors;	// はさみの爪の数
 	std::vector<Vector2> _scisCenter;	
@@ -97,13 +129,13 @@ private:
 	Size lSize;			// 脚の大きさ
 	Size scisSize;		// はさみの大きさ				
 public:
-	Crab(std::shared_ptr<Camera>& camera);
+	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 	~Crab();
-	BossInfo GetInfo() { return boss; };
 	void CalTrackVel(const Vector2& pos);
 	void Draw();
 	void SelectDraw(const Vector2& pos, const float& scale);
 	void DebugDraw(const Vector2& camera);
+	void OnDamage();
 	void Update();
 	
 };
