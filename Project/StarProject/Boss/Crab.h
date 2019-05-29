@@ -21,7 +21,6 @@ struct JointInfo
 	Vector2 _ctlPoint;
 	std::vector<Vector2> _center;
 	Vector2 _vel;
-	Size   _size;
 	std::array<sqr_vert, 2> _vert;		// ä÷êﬂÇÃí∏ì_
 };
 
@@ -35,10 +34,10 @@ struct CrabInfo
 	std::vector<JointInfo> _arms;	// òrÇÃä÷êﬂ
 
 	CrabInfo() : _pos(0, 0), _size(0, 0) {};
-	CrabInfo(const Position2& _pos, const Size& _size)
+	CrabInfo(const Position2& p, const Size& s)
 	{
-		this->_pos = _pos;
-		this->_size = _size;
+		_pos = p;
+		_size = s;
 	}
 };
 
@@ -96,6 +95,8 @@ private:
 
 	bool StopCheck(const Vector2& sPos, const Vector2& ePos, const Vector2& vel);
 
+	void ChangeAtkMode();
+
 	// äOêœÇÃåvéZ
 	Vector3 Cross(const Vector3& va, const Vector3& vb)
 	{
@@ -131,7 +132,7 @@ private:
 public:
 	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 	~Crab();
-	void CalTrackVel(const Vector2& pos);
+	
 	void Draw();
 	void SelectDraw(const Vector2& pos, const float& scale);
 	void DebugDraw(const Vector2& camera);

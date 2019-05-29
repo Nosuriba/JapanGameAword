@@ -5,7 +5,8 @@
 #include <list>
 #include "../Processing/Geometry.h"
 #include "../Particle/Water.h"
-
+#include "../Camera.h"
+#include "../Player.h"
 
 class Camera;
 class Player;
@@ -15,6 +16,7 @@ struct AttackInfo
 	Vector2 _pos;
 	float _r;
 
+	AttackInfo() : _pos(0, 0), _r(0) {};
 	AttackInfo(const Vector2& p, const float& r)
 	{
 		_pos = p;
