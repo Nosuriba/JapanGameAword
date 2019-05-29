@@ -181,12 +181,14 @@ void Diodon::Search()
 	auto p = _player->GetInfo().center;
 	if ((p - POS).Magnitude() < 300)
 	{
-		_anim_frame = 0;
+		if (_updater != &Diodon::SwellUpdate)
+			_anim_frame = 0;
 		_updater	= &Diodon::SwellUpdate;
 	}
 	else
 	{
-		_anim_frame = 0;
+		if (_updater != &Diodon::SwimUpdate)
+			_anim_frame = 0;
 		_updater	= &Diodon::SwimUpdate;
 	}
 }
