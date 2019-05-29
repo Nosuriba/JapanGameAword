@@ -5,33 +5,29 @@ class SeaCucumber :
 	public Enemy
 {
 private:
-	void Crawl();
-	void Escape();
-	void Die();
-
-	void CrawlUpdate();
-	void EscapeUpdate();
-	void DieUpdate();
+	void WaitUpdate();
+	void MoveUpdate();
+	void CounterUpdate();
 	
 	void MovePoint();			// 制御点の移動用
 
 	void (SeaCucumber::*_updater)();
 
-	std::shared_ptr<Camera> _camera;
+	Vector2 _pL;	// 左端
+	Vector2 _pR;	// 右端
 
-	CtlInfo cPoint;
 
 	int moveCnt;			// 移動制御用のｶｳﾝﾄ
+
+	void DebugDraw();
+
 public:
-	SeaCucumber(std::shared_ptr<Camera>& camera);
+	SeaCucumber(std::shared_ptr<Camera>& c, std::shared_ptr<Player>& p);
 	~SeaCucumber();
-	void Draw();
-	void DebugDraw(const Vector2& camera);
+
 	void Update();
-	EnemyInfo GetInfo();
-	shot_vector GetShotInfo();
-	void CalEscapeDir(const Vector2& vec);
-	void ShotDelete(const int& num);
-	void CalTrackVel(const Vector2& pos, bool col);
+	void Draw();
+
+	void OnDamage();
 };
 

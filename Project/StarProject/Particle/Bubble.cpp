@@ -6,12 +6,27 @@ constexpr int ShakeSize = 31;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
 
-Bubble::Bubble(int _x, int _y, int _Enum, bool flag, int _BubbleMax):BubbleMax(_BubbleMax)
+Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, int _BubbleMax):BubbleMax(_BubbleMax)
 {
 	// à¯êîÇÃë„ì¸
+	v_Speed = VanishSpeed;
+	flag = false;
 	x = _x, y = _y;
 	ElementNum = _Enum;
-	isSmall = flag;
+	isSmall = _isSmall;
+	vel = 100;
+	// èâä˙âª
+	Init();
+}
+
+Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, bool _flag,int vs, int _BubbleMax) :BubbleMax(_BubbleMax)
+{
+	// à¯êîÇÃë„ì¸
+	v_Speed = vs;
+	flag = _flag;
+	x = _x, y = _y;
+	ElementNum = _Enum;
+	isSmall = _isSmall;
 	vel = 100;
 	// èâä˙âª
 	Init();
@@ -52,16 +67,17 @@ void Bubble::Create()
 
 				if (i == ElementNum)return;
 
-				particle[i].x = (isSmall?x:(Rand() % screen_x))* Magnification;
+				particle[i].x = (isSmall?x: flag?x:(Rand() % screen_x))* Magnification;
 				particle[i].y = y * Magnification;
 				particle[i].bright = 255;
 
 				auto Theta = (Rand() % 360)*DX_PI_F/180.0;
 				auto vSize = (Rand() % (vel));
-				particle[i].vx = cos(Theta)* (isSmall? vSize/2: vSize * 20);
-				particle[i].vy = sin(Theta)*vSize * 10;
 
-				particle[i].avy = -10;
+				particle[i].vx = cos(Theta)* (isSmall ? vSize / 2 : flag ? vSize: vSize * 20);
+				particle[i].vy = sin(Theta)* (flag ? vSize: vSize * 10);
+
+				particle[i].avy = flag ?0:-10;
 
 				particle[i].radius = (Rand() % 3) + 2;
 			}
@@ -97,16 +113,17 @@ void Bubble::Move()
 		p.x += p.vx;
 		p.y += p.vy;
 
+		p.bright -= v_Speed;
 		// â¡ë¨ïîï™
+		if (flag)continue;
 		p.vy += p.avy;
 		p.vx += (int)(p.x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ç∂âEÇ…óhÇÍÇÈ
 
-		p.bright -= VanishSpeed;
 	}
 	
 #else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
-	auto move = [p_element = p_element,sx= screen_x,sy= screen_y](concurrency::index<1> idx)restrict(amp) {
+	auto move = [p_element = p_element,sx= screen_x,sy= screen_y, v_Speed= v_Speed, flag= flag](concurrency::index<1> idx)restrict(amp) {
 		// ó·äOèàóù
 		if (p_element[idx].bright < VanishBright) {
 			p_element[idx].bright = 0;
@@ -121,11 +138,13 @@ void Bubble::Move()
 		p_element[idx].x += p_element[idx].vx;
 		p_element[idx].y += p_element[idx].vy;
 
+		p_element[idx].bright -= v_Speed;
+
+		if (flag)return;
 		// â¡ë¨ïîï™
 		p_element[idx].vy += p_element[idx].avy;
 		p_element[idx].vx += (int)(p_element[idx].x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ç∂âEÇ…óhÇÍÇÈ
 
-		p_element[idx].bright -= VanishSpeed;
 	};
 
 	// GPUÇ≈ìÆÇ©ÇµÇƒÇÈ
@@ -151,8 +170,8 @@ void Bubble::Draw()
 	{
 		if (p.bright> VanishBright)
 		{
-			isSmall ? SetDrawBlendMode(mode, param): SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
-			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ? 8 : 1)), 0, imgBff, true);
+			isSmall ? SetDrawBlendMode(mode, param): flag? SetDrawBlendMode(DX_BLENDMODE_ALPHA, param):SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
+			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ?  8 : flag ? 0xff/v_Speed/2 : 1)), 0, imgBff, true);
 			continue;
 		}
 	}

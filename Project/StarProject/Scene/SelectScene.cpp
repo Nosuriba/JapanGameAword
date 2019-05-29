@@ -44,7 +44,7 @@ void SelectScene::FadeOut(const Input & p)
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	if (flame >= WAITFRAME) {
-		Game::GetInstance().ChangeScene(new GameScene());
+		Game::GetInstance().ChangeScene(new GameScene(Select));
 	}
 	else {
 		(*FadeBubble).Create();
@@ -141,19 +141,18 @@ void SelectScene::Draw()
 	auto _camera = std::make_shared<Camera>();
 
 	auto pl = std::make_unique<Player>(nullptr);
-	auto oct = std::make_shared<Octopus>(_camera);
-	auto crab = std::make_shared<Crab>(_camera);
-	oct->Update();
+	auto oct = std::make_shared<Octopus>(_camera, nullptr);
+	auto crab = std::make_shared<Crab>(_camera, nullptr);
+
+	// –A‚Ì’†‚ÌDraw
 	oct->SelectDraw (Vector2(size.x / 4 * 3 + 130 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0) - 10), (1 + ((Select != 2) ? addr : addr + 0.5))*0.3f);
 	crab->SelectDraw(Vector2(size.x / 4 * 2 + ((Select != 1) ? addx : 0) - 5, size.y / 2 - ((Select != 1) ? addy : 0) + 20), (1 - ((Select != 1) ? addr : addr - 0.5))*0.58f);
 	pl->SelectDraw  (Vector2(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0)), (1 + ((Select != 0) ? addr : addr + 0.5)) * 100);
 
-
+	// –A‚ÌDraw
 	DrawRotaGraph(size.x / 4 - 100 + ((Select != 0) ? addx : 0), size.y / 2 + ((Select != 0) ? addy : 0), 1 + ((Select != 0) ? addr : addr +0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 2 + ((Select != 1) ? addx : 0), size.y / 2 - ((Select != 1) ? addy : 0), 1 - ((Select != 1) ? addr: addr -0.5), 0, bubble, true);
 	DrawRotaGraph(size.x / 4 * 3 + 100 + ((Select != 2) ? addx : 0), size.y / 2 + ((Select != 2) ? addy : 0), 1 +((Select != 2) ? addr : addr +0.5), 0, bubble, true);
-
-	
 
 	DrawString(size.x / 2 - (float)(GetFontSize()) * 4.0f / 2.0f, size.y / 2 + size.y / 4, "Select", 0xa000f0);
 }
