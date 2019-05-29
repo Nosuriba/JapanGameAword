@@ -102,7 +102,8 @@ private:
 	Vector2 _armPrePos;
 
 	CrabInfo _crab;
-	std::vector<ShotInfo> _shot;		// ‰¼‚Ì¼®¯Ä—p•Ï”(CrabInfo‚É‚Á‚Ä‚¢‚­—\’è)
+	std::vector<ShotInfo> _shot;		// ‰¼‚Ì¼®¯Ä—p•Ï”
+	std::vector<std::shared_ptr<Particle>> _particle;
 
 	std::vector<sqr_vert> _scissors;	// ‚Í‚³‚İ‚Ì’Ü‚Ì”
 	std::vector<Vector2> _scisCenter;
