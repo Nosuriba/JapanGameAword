@@ -114,7 +114,7 @@ void Fish::EscapeUpdate()
 
 void Fish::DieUpdate()
 {
-
+	ALIVE = false;
 }
 
 void Fish::CalBezier()
@@ -273,7 +273,7 @@ void Fish::OnDamage()
 {
 	_target = _player->GetInfo().center;
 
-	if (ALIVE)
+	if (!DAMAGE)
 	{
 		auto v1 = _vel;
 		auto v2 = POS - _target;
@@ -281,7 +281,8 @@ void Fish::OnDamage()
 
 		LookAt(v2);
 
-		ALIVE = false;
+		DAMAGE = true;
+
 		_updater = &Fish::EscapeUpdate;
 	}
 }

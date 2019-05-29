@@ -168,6 +168,42 @@ bool Collision::WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const 
 	return false;
 }
 
+bool Collision::WaterToCircle(const Position2 & _posA1, const Position2 & _posA2, const Position2 & _posB, const float & size)
+{
+	auto r = size;
+
+	auto _vecA = _posA2 - _posA1;
+
+	auto _vecB = _posB - _posA1;
+
+	auto _t = Dot(_vecA.Normalized(), _vecB);
+
+	auto _p = _posA1 + (_vecA.Normalized() * min(max(0, _t), _vecA.Magnitude()));
+
+	if ((_p - _posB).Magnitude() <= r) {
+		return true;
+	}
+	return false;
+}
+
+bool Collision::WaterToCircle(const Position2 & _posA1, const Position2 & _posA2, const Rect & rect)
+{
+	auto r = rect.size.width / 2;
+
+	auto _vecA = _posA2 - _posA1;
+
+	auto _vecB = rect.center - _posA1;
+
+	auto _t = Dot(_vecA.Normalized(), _vecB);
+
+	auto _p = _posA1 + (_vecA.Normalized() * min(max(0, _t), _vecA.Magnitude()));
+
+	if ((_p - rect.center).Magnitude() <= r) {
+		return true;
+	}
+	return false;
+}
+
 bool Collision::CircleToSqr(const Position2 & _posA, const float& _r, const Rect & _rectB)
 {
 	auto termA = ((_rectB.Left() < _posA.x) && (_rectB.Right() > _posA.x) && (_rectB.Top() - _r < _posA.y) && (_rectB.Bottom() + _r > _posA.y));

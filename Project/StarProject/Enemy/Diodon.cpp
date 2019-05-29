@@ -73,7 +73,7 @@ void Diodon::EscapeUpdate()
 
 void Diodon::DieUpdate()
 {
-
+	ALIVE = false;
 }
 
 void Diodon::Move()
@@ -195,9 +195,9 @@ void Diodon::Search()
 
 void Diodon::OnDamage()
 {
-	if (ALIVE)
+	if (!DAMAGE)
 	{
-		ALIVE		= false;
+		DAMAGE		= true;
 		_escapeTime = 0;
 		_anim_frame = 0;
 		_updater	= &Diodon::EscapeUpdate;

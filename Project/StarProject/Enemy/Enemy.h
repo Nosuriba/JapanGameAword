@@ -9,18 +9,21 @@ class Player;
 
 #define POS		_enemy._pos
 #define SIZE	_enemy._size
+#define DAMAGE	_enemy._isDamage
 #define ALIVE	_enemy._isAlive
 #define CC		_camera->CameraCorrection()
 
 struct EnemyInfo {
 	Vector2	_pos;		// ìGÇÃíÜêSì_
 	Size	_size;
+	bool	_isDamage;
 	bool	_isAlive;
 
-	EnemyInfo() :_pos(0, 0), _size(0, 0) { _isAlive = true; }
+	EnemyInfo() :_pos(0, 0), _size(0, 0) { _isDamage = false; _isAlive = true; }
 	EnemyInfo(const Position2& p, const Size& s) {
 		_pos		= p;
 		_size		= s;
+		_isDamage	= false;
 		_isAlive	= true;
 	}
 };
