@@ -46,33 +46,65 @@ void DestroyableObject::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 	
-	DxLib::DrawExtendGraph(
-		obj._rect.Left() - camera.x,
-		obj._rect.Top() - camera.y - (flame),
-		obj._rect.Right() - obj._rect.size.width / 2- camera.x,
-		obj._rect.Bottom() - obj._rect.size.height / 2 - camera.y - (flame) ,
-		destroyactimg[0], true);
+	if (obj._level == 1) {
+		DxLib::DrawExtendGraph(
+			obj._rect.Left() - camera.x,
+			obj._rect.Top() - camera.y - (flame),
+			obj._rect.Right() - obj._rect.size.width / 2 - camera.x,
+			obj._rect.Bottom() - obj._rect.size.height / 2 - camera.y - (flame),
+			destroyactimg[0], true);
 
-	DxLib::DrawExtendGraph(
-		obj._rect.Left() + obj._rect.size.width / 2 - camera.x + (flame),
-		obj._rect.Top() - camera.y,
-		obj._rect.Right() - camera.x + (flame), 
-		obj._rect.Bottom() - obj._rect.size.height / 2 - camera.y, 
-		destroyactimg[1], true);
+		DxLib::DrawExtendGraph(
+			obj._rect.Left() + obj._rect.size.width / 2 - camera.x + (flame),
+			obj._rect.Top() - camera.y,
+			obj._rect.Right() - camera.x + (flame),
+			obj._rect.Bottom() - obj._rect.size.height / 2 - camera.y,
+			destroyactimg[1], true);
 
-	DxLib::DrawExtendGraph(
-		obj._rect.Left() - camera.x - (flame), 
-		obj._rect.Top() - camera.y + obj._rect.size.height / 2,
-		obj._rect.Right() - obj._rect.size.height / 2 -camera.x - (flame),
-		obj._rect.Bottom() - camera.y, 
-		destroyactimg[2], true);
+		DxLib::DrawExtendGraph(
+			obj._rect.Left() - camera.x - (flame),
+			obj._rect.Top() - camera.y + obj._rect.size.height / 2,
+			obj._rect.Right() - obj._rect.size.height / 2 - camera.x - (flame),
+			obj._rect.Bottom() - camera.y,
+			destroyactimg[2], true);
 
-	DxLib::DrawExtendGraph(
-		obj._rect.Left() + obj._rect.size.width / 2 - camera.x,
-		obj._rect.Top() + obj._rect.size.height / 2 - camera.y + (flame),
-		obj._rect.Right() - camera.x, 
-		obj._rect.Bottom() - camera.y + (flame), 
-		destroyactimg[3], true);
+		DxLib::DrawExtendGraph(
+			obj._rect.Left() + obj._rect.size.width / 2 - camera.x,
+			obj._rect.Top() + obj._rect.size.height / 2 - camera.y + (flame),
+			obj._rect.Right() - camera.x,
+			obj._rect.Bottom() - camera.y + (flame),
+			destroyactimg[3], true);
+	}
+	else if (obj._level == 2) {
+		DxLib::DrawExtendGraph(
+			obj._rect.Left() - camera.x,
+			obj._rect.Top() - camera.y - (flame),
+			obj._rect.Right() - obj._rect.size.width / 2 - camera.x,
+			obj._rect.Bottom() - obj._rect.size.height / 2 - camera.y - (flame),
+			destroylevel2actimg[0], true);
+
+		DxLib::DrawExtendGraph(
+			obj._rect.Left() + obj._rect.size.width / 2 - camera.x + (flame),
+			obj._rect.Top() - camera.y,
+			obj._rect.Right() - camera.x + (flame),
+			obj._rect.Bottom() - obj._rect.size.height / 2 - camera.y,
+			destroylevel2actimg[1], true);
+
+		DxLib::DrawExtendGraph(
+			obj._rect.Left() - camera.x - (flame),
+			obj._rect.Top() - camera.y + obj._rect.size.height / 2,
+			obj._rect.Right() - obj._rect.size.height / 2 - camera.x - (flame),
+			obj._rect.Bottom() - camera.y,
+			destroylevel2actimg[2], true);
+
+		DxLib::DrawExtendGraph(
+			obj._rect.Left() + obj._rect.size.width / 2 - camera.x,
+			obj._rect.Top() + obj._rect.size.height / 2 - camera.y + (flame),
+			obj._rect.Right() - camera.x,
+			obj._rect.Bottom() - camera.y + (flame),
+			destroylevel2actimg[3], true);
+	}
+	
 }
 
 void DestroyableObject::Update(const Input& p)
