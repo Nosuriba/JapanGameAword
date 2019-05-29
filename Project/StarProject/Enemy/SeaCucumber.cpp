@@ -16,6 +16,9 @@ SeaCucumber::SeaCucumber(const std::shared_ptr<Camera>& c, const std::shared_ptr
 	_pL = POS + Vector2(-1, 0) * (SIZE.width / 2.0f);
 	_pR = POS + Vector2(1, 0) * (SIZE.width / 2.0f);
 
+	_particle.emplace_back(std::make_shared<Bubble>(_pL.x, _pL.y, 5000, false, true, 5, 3, 0x660099));
+	_particle.emplace_back(std::make_shared<Bubble>(_pR.x, _pR.y, 5000, false, true, 5, 3, 0x660099));
+
 	_updater = &SeaCucumber::WaitUpdate;
 }
 
@@ -26,11 +29,11 @@ SeaCucumber::~SeaCucumber()
 void SeaCucumber::WaitUpdate()
 {
 	++_anim_frame;
-	if (_anim_frame % 100 == 0)
+	if (_anim_frame % 300 == 0)
 	{
 		_anim_frame = 0;
 		_isTurn		= (GetRand(25252) % 2 == 0);
-		_updater	= &SeaCucumber::MoveUpdate;
+		_updater	= &SeaCucumber::WaitUpdate;
 	}
 }
 
@@ -81,7 +84,18 @@ void SeaCucumber::MoveUpdate()
 
 void SeaCucumber::CounterUpdate()
 {
+	for (auto& p : _particle)
+	{
+		_particle[0]->SetRota(180);
+		p->Create();
+	}
 
+	++_anim_frame;
+	if (_anim_frame > 300)
+	{
+		_anim_frame = 0;
+		_updater = &SeaCucumber::WaitUpdate;
+	}
 }
 
 void SeaCucumber::Draw()
@@ -92,6 +106,11 @@ void SeaCucumber::Draw()
 #ifdef _DEBUG
 	DebugDraw();
 #endif
+
+	for (auto& p : _particle)
+	{
+		p->Draw();
+	}
 }
 
 void SeaCucumber::DebugDraw()

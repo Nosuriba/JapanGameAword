@@ -17,10 +17,13 @@ private:
 	int bubble;
 	int background;
 
+	std::vector < std::string >selectStr;
+
 	VERTEX2DSHADER bubble_vertex[4];
 	int firstscreen;
 	int secondscreen;
 
+	int scrollCnt, scrollWait;
 	int shader_time;
 
 	int BGM;

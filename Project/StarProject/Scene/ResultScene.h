@@ -24,7 +24,7 @@ private:
 	void Run(const Input &p);
 
 	bool isEnd = false;
-
+	int StampCnt;
 	int flame;
 	int imgbuff;
 	int ResultCnt;

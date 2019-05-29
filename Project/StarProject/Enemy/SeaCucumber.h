@@ -1,10 +1,13 @@
 #pragma once
 #include "Enemy.h"
+#include "../Particle/Bubble.h"
 
 class SeaCucumber :
 	public Enemy
 {
 private:
+	std::vector<std::shared_ptr<Particle>> _particle;
+
 	void WaitUpdate();
 	void MoveUpdate();
 	void CounterUpdate();

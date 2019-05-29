@@ -15,6 +15,7 @@ Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, int _BubbleMax,int colo
 	ElementNum = _Enum;
 	isSmall = _isSmall;
 	vel = 100;
+	rota = 0;
 	// ‰Šú‰»
 	Init();
 }
@@ -28,6 +29,7 @@ Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, bool _flag,int _vs,int 
 	ElementNum = _Enum;
 	isSmall = _isSmall;
 	vel = 100;
+	rota = 0;
 	// ‰Šú‰»
 	Init();
 }
@@ -77,7 +79,15 @@ void Bubble::Create()
 				particle[i].vx = cos(Theta)* (isSmall ? vSize / 2 : flag ? vSize: vSize * 20);
 				particle[i].vy = sin(Theta)* (flag ? vSize: vSize * 10);
 
-				particle[i].avy = flag ?0:-10;
+				if (flag)
+				{
+					particle[i].avx = cos(rota* DX_PI_F / 180.0)*10;
+					particle[i].avy = sin(rota* DX_PI_F / 180.0)*10;
+				}
+				else
+				{
+					particle[i].avy = -10;
+				}
 
 				particle[i].radius = (Rand() % 3) + 2;
 			}
@@ -115,9 +125,8 @@ void Bubble::Move()
 
 		p.bright -= v_Speed;
 		// ‰Á‘¬•”•ª
-		if (flag)continue;
 		p.vy += p.avy;
-		p.vx += (int)(p.x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ¶‰E‚É—h‚ê‚é
+		p.vx += flag? p.avx :(int)(p.x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ¶‰E‚É—h‚ê‚é
 
 	}
 	
@@ -140,10 +149,9 @@ void Bubble::Move()
 
 		p_element[idx].bright -= v_Speed;
 
-		if (flag)return;
 		// ‰Á‘¬•”•ª
 		p_element[idx].vy += p_element[idx].avy;
-		p_element[idx].vx += (int)(p_element[idx].x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ¶‰E‚É—h‚ê‚é
+		p_element[idx].vx += flag? p_element[idx].avx:(int)(p_element[idx].x / Magnification) % 2 ? ShakeSize : -ShakeSize; // ¶‰E‚É—h‚ê‚é
 
 	};
 
@@ -170,11 +178,12 @@ void Bubble::Draw()
 	{
 		if (p.bright> VanishBright)
 		{
-			isSmall ? SetDrawBlendMode(mode, param): flag? SetDrawBlendMode(mode, param) :SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
+			isSmall ? SetDrawBlendMode(mode, param): SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
 			if (color != -1) 
 			{
  				DrawCircle(p.x / Magnification, p.y / Magnification, ((y - 90) / 2)*(0xff / p.radius - p.bright / p.radius) / ((Magnification)*(isSmall ? 8 : flag ? 0xff / v_Speed / 2 : 1)), color);
 			}
+			flag ? SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) : SetDrawBlendMode(mode, param);
 			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius) / ((Magnification)*(isSmall ? 8 : flag ? 0xff / v_Speed / 2 : 1)), 0, imgBff, true);
 			continue;
 		}
