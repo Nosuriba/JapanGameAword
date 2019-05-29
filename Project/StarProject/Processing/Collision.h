@@ -16,6 +16,8 @@ public:
 	bool TriToSqr(const std::vector<Leg>& _leg, const Position2 &_pos, const Size &_size);
 	bool WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const Rect& _rect);
 	bool WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const float& size ,const Rect& _rect);
+	bool WaterToCircle(const Position2 & _posA1, const Position2 & _posA2, const Position2 & _posB, const float & size);
+	bool WaterToCircle(const Position2 & _posA1, const Position2 & _posA2, const Rect& rect);
 	bool CircleToSqr(const Position2 & _posA, const float &_r, const Rect & _rectB);
 	bool CircleToCircle(const Position2 & _posA, const float & _rA, const std::array<Vector2, 3>& _tri);
 
