@@ -1,202 +1,75 @@
 #include "Diodon.h"
 #include "../Game.h"
 #include "../Camera.h"
+#include "../Player.h"
 
-const float riseSpeed = 0.8f;
-const int bCntMax = 60;			/// 爆破用ｶｳﾝﾄ
-const int swellSize  = 100;
+constexpr	float	Speed = 2.0f;
+constexpr	float	Angle = 1.0f;
+constexpr	int		points = 10;			// 中間点の個数
 
-Diodon::Diodon(std::shared_ptr<Camera>& camera):Enemy(camera),_camera(camera)
+constexpr float MAX_W = 120;
+constexpr float MAX_H = 100;
+constexpr float MIN_W = 70;
+constexpr float MIN_H = 50;
+constexpr float Boiling_Speed = 5;		//膨らむスピード
+
+Diodon::Diodon(std::shared_ptr<Camera>& c, std::shared_ptr<Player>& p) :Enemy(c, p)
 {
-	auto pos  = Vector2(600, 300);
-	auto size = Size(swellSize / 2, swellSize / 2);
-	auto rect = Rect(pos, size);
+	auto pos	= Vector2(600, 300);
+	auto size	= Size(MIN_W, MIN_H);
+	_enemy		= EnemyInfo(pos, size);
 
-	enemy = EnemyInfo(pos, size, rect);
-	enemy._prePos = enemy._pos;
-	_vel  = Vector2();
+	_isTurn		= false;
+	_vel		= _isTurn ? Vector2(1, 0) : Vector2(-1, 0);
 
-	riseCnt = blastCnt = 0;
-	_turnFlag = true;
-	enemy._dieFlag  = false;
-	color = 0x77bbff;
+	_escapeTime = 0;
 
-	/// ｼｮｯﾄを打つ位置の設定
-	for (int i = 0; i < _dirPos.size(); ++i)
-	{
-		if ((i % 4) == 0)
-		{
-			_dirPos[i] = (i == 0 ? Vector2(enemy._pos.x, (float)enemy._rect.Top()) :
-								   Vector2(enemy._pos.x, (float)enemy._rect.Bottom()));
-		}
-		else
-		{
-			auto posX = enemy._pos.x + (enemy._rect.Width()  / 2 - (enemy._rect.Width() * (i / 4)));
-			auto posY = enemy._pos.y + (enemy._rect.Height() / 2 * ((i - 1 + (i / 4 * 2)) % 3)) - enemy._rect.Height() / 2;
-			_dirPos[i] = Vector2(posX, posY);
-		}
-	}
-
-	Swim();
+	_updater = &Diodon::SwimUpdate;
 }
 
 Diodon::~Diodon()
 {
 }
 
-void Diodon::Swim()
-{
-	_updater = &Diodon::SwimUpdate;
-}
-
-void Diodon::Swell()
-{
-	_vel.x = 0;
-	_turnFlag = true;
-	blastCnt = bCntMax;
-	_updater = &Diodon::SwellUpdate;
-}
-
-void Diodon::Shot()
-{
-	Vector2 vec, vel;
-	Size size;
-	Rect rect;
-
-	for (int i = 0; i < _dirPos.size(); ++i)
-	{
-		/// ｻｲｽﾞと矩形の設定
-		size = Size(10, 10);
-		rect = Rect(_dirPos[i], size);
-
-		/// 速度の設定
-		vec = _dirPos[i] - enemy._pos;
-		vec.Normalize();
-		vel = Vector2(2.f * vec.x, 2.f * vec.y);
-
-		shot.push_back(ShotInfo(_dirPos[i], vel, size, rect));
-	}
-
-	/// 直接的なｻｲｽﾞ変更で問題が出れば、処理を変える
-	_vel = Vector2(0, 0);
-	enemy._size = Size(0, 0);
-	
-	_updater = &Diodon::ShotUpdate;
-}
-
-void Diodon::Escape()
-{
-	_updater = &Diodon::EscapeUpdate;
-}
-
-void Diodon::Die()
-{
-	enemy._dieFlag = true;
-	_vel		= Vector2(0, 0);
-	enemy._size = Size(0, 0);
-
-	_updater  = &Diodon::DieUpdate;
-}
-
 void Diodon::SwimUpdate()
 {
+	Move();
+	Search();
 
-	if (_turnFlag)
+	++_anim_frame;
+	if (_anim_frame % 8 == 0)
 	{
-		_vel.x += 0.05f;
-		_turnFlag = (_vel.x < maxSpeed ? true : false);
-	}
-	else
-	{
-		_vel.x -= 0.05f;
-		_turnFlag = (_vel.x < -maxSpeed ? true : false);
+		SIZE.width	= max(MIN_W, SIZE.width		- Boiling_Speed);
+		SIZE.height	= max(MIN_H, SIZE.height	- Boiling_Speed);
 	}
 }
 
 void Diodon::SwellUpdate()
 {
-	auto SizeExpanding = [](const Size& enemy, const Size& swell)
-	{
-		auto size = enemy;
-		/// 幅の拡大
-		if (size.width != swell.width)
-		{
-			size.width = size.width + 1;
-		}
-		/// 高さの拡大
-		if (size.height != swell.height)
-		{
-			size.height = size.height + 1;
-		}
-		return size;
-	};
+	Move();
+	Search();
 
-	
-	if (riseCnt > 180)
+	++_anim_frame;
+	if (_anim_frame % 8 == 0)
 	{
-		if (_turnFlag)
-		{
-			_vel.y += 0.02f;
-			_turnFlag = (_vel.y < riseSpeed ? true : false);
-		}
-		else
-		{
-			_vel.y -= 0.02f;
-			_turnFlag = (_vel.y < -riseSpeed ? true : false);
-		}
-
-		if (enemy._size.width  >= swellSize &&
-			enemy._size.height >= swellSize)
-		{
-			if (blastCnt <= 0)
-			{
-				Shot();
-				_vel = Vector2(0, 0);
-			}
-			blastCnt--;
-		}
-	}
-	else
-	{
-		riseCnt++;
-		_vel.y = -0.5f;
-	}
-	
-	enemy._size = SizeExpanding(enemy._size, Size(swellSize,swellSize));
-}
-
-void Diodon::ShotUpdate()
-{
-	auto debug = shot.size();
-	for (int i = 0; i < shot.size(); ++i)
-	{
-		shot[i]._pos += shot[i]._vel;
-		shot[i]._rect = Rect(shot[i]._pos, shot[i]._size);
-	}
-
-	if (CheckOutScreen())
-	{
-		Die();
+		SIZE.width	= min(MAX_W, SIZE.width		+ Boiling_Speed);
+		SIZE.height	= min(MAX_H, SIZE.height	+ Boiling_Speed);
 	}
 }
 
 void Diodon::EscapeUpdate()
 {
-	if (enemy._size.width > swellSize / 2 && enemy._size.height > swellSize / 2)
+	++_escapeTime;
+	++_anim_frame;
+
+	if (_anim_frame % 5 == 0)
 	{
-		_vel.x *= 1.06f;
-		_vel.y *= 0.9995f;
-		enemy._size.width--;
-		enemy._size.height--;
+		SIZE.width	= min(MAX_W, SIZE.width		+ Boiling_Speed);
+		SIZE.height = min(MAX_H, SIZE.height	+ Boiling_Speed);
 	}
-	/// 画面外に出た時、死亡状態にする
-	if (enemy._pos.x + enemy._size.width / 2  < 0 || 
-		enemy._pos.x - enemy._size.width / 2  > Game::GetInstance().GetScreenSize().x ||
-		enemy._pos.y + enemy._size.height / 2 < 0 ||
-		enemy._pos.y - enemy._size.height / 2 > Game::GetInstance().GetScreenSize().y)
-	{
-		Die();
-	}
+
+	if (_escapeTime > 255)
+		_updater = &Diodon::DieUpdate;
 }
 
 void Diodon::DieUpdate()
@@ -204,124 +77,128 @@ void Diodon::DieUpdate()
 
 }
 
-bool Diodon::CheckOutScreen()
+void Diodon::Move()
 {
-	for (int i = 0; i < shot.size(); ++i)
-	{
-		/// とりあえず、画面外に行くとｼｮｯﾄを消すようにしている
-		if (shot[i]._pos.x < 0 || shot[i]._pos.y < 0 ||
-			shot[i]._pos.x > Game::GetInstance().GetScreenSize().x ||
-			shot[i]._pos.y > Game::GetInstance().GetScreenSize().y)
-		{
-			shot.erase(shot.begin() + i);
-		}
-	}
-	if (shot.size() <= 0)
-	{
-		return true;
-	}
-	return false;
+	Vector2 axis;
+	axis = VCross(_vel.V_Cast(), VGet(0, 0, 1));
+	axis = POS + axis.Normalized() * 150;
+
+	MATRIX rot;
+	rot = MGetRotZ(DX_PI_F / 180.0f * (_isTurn ? Angle : -Angle));
+
+	auto v = _vel.Normalized();
+	_vel = VTransform(v.V_Cast(), rot);
+
+	MATRIX mat;
+
+	mat = MGetTranslate(VScale(axis.V_Cast(), -1));
+	mat = MMult(mat, rot);
+	mat = MMult(mat, MGetTranslate(axis.V_Cast()));
+
+	POS = VTransform(POS.V_Cast(), mat);
 }
 
 void Diodon::Draw()
 {
-	auto camera = _camera->CameraCorrection();
+	auto start	= POS + (_vel.Normalized()		* SIZE.width / 2);
+	auto end	= POS + ((-_vel.Normalized())	* SIZE.width / 2);
 
-	if (_updater == &Diodon::SwellUpdate && riseCnt > 180)
+	//// 中間点の設定
+	std::vector<Vector2> midPoints;
+	midPoints.resize(points);
+	for (int m = 0; m < midPoints.size(); ++m)
+		midPoints[m] = start + (-_vel.Normalized()) * (SIZE.width / points) * (m + 0.5f);
+
+	// 描画
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - _escapeTime);
+
+	DrawCircle(POS.x - CC.x, POS.y - CC.y, SIZE.width / 2, 0xCC9933, true);
+
+	Vector2 p1, p2, p3, p4;
+	for (int i = 1; i < midPoints.size(); ++i)
 	{
-		color = (((blastCnt - 1) / (bCntMax / 4)) % 2 ? 0x666666 : 0x999999);
-	}
-	else
-	{
-		color = (_updater == &Diodon::EscapeUpdate ? 0x444444 : 0x666666);
+		auto t = max(2, SIZE.height / 2 - abs((i % 10) - 5) * 6);
+
+		Vector2 v;
+		v = VCross(_vel.V_Cast(), VGet(0, 0, -1));
+		p1 = midPoints[i - 1] + v.Normalized() * t - CC;
+		p2 = midPoints[i] + v.Normalized() * t - CC;
+
+		v = VCross(VGet(0, 0, -1), _vel.V_Cast());
+		p3 = midPoints[i] + v.Normalized() * t - CC;
+		p4 = midPoints[i - 1] + v.Normalized() * t - CC;
+
+		if (i % 2)
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xCC9933, true);
+		else
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0x550000, true);
+
+		DrawNeedle(midPoints[i - 1], midPoints[i - 1] - POS, SIZE.height / 4);
+		DrawNeedle(p1, p1 - POS, SIZE.height / 4);
+		DrawNeedle(p4, p4 - POS, SIZE.height / 4);
+
+		v = VCross(_vel.V_Cast(), VGet(0, 0, -1));
+		DrawNeedle(midPoints[i - 1] + v.Normalized() * (t / 2) - CC, (midPoints[i - 1] + v.Normalized() * (t / 2) - CC) - POS, SIZE.height / 4);
+		v = VCross(VGet(0, 0, -1), _vel.V_Cast());
+		DrawNeedle(midPoints[i - 1] + v.Normalized() * (t / 2) - CC, (midPoints[i - 1] + v.Normalized() * (t / 2) - CC) - POS, SIZE.height / 4);
 	}
 	
-	DxLib::DrawCircle(enemy._pos.x - camera.x, enemy._pos.y - camera.y, enemy._size.height / 2 - 1,color);
-
-	for (auto itr : shot)
-	{
-		DxLib::DrawCircle(itr._pos.x - camera.x, itr._pos.y - camera.y, itr._size.height / 2 - 1, 0x000000, true);
-	}
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 #ifdef _DEBUG
-	DebugDraw(camera);
+	//DebugDraw();
 #endif
 }
 
-void Diodon::DebugDraw(const Vector2& camera)
+void Diodon::DebugDraw()
 {
-	/// 当たり判定の描画
-	DxLib::DrawBox(enemy._rect.Left() - camera.x, enemy._rect.Top() - camera.y,
-				   enemy._rect.Right() - camera.x, enemy._rect.Bottom() - camera.y, 0xff0000, false);
-	for (auto itr : shot)
-	{
-		DxLib::DrawBox(itr._rect.Left() - camera.x, itr._rect.Top() - camera.y,
-					   itr._rect.Right() - camera.x, itr._rect.Bottom() - camera.y, 0xff0000, false);
-	}
+	// 中心
+	DxLib::DrawCircle(POS.x - CC.x, POS.y - CC.y, 2, 0x000000);
+}
+
+void Diodon::DrawNeedle(const Vector2& p, const Vector2& v, const float r)
+{
+	Vector2 p1, p2, p3, vc;
+
+	p1 = p + v.Normalized() * r;
+
+	vc = VCross(v.V_Cast(), VGet(0, 0, 1));
+	p2 = p + vc.Normalized() * (r / 10);
+
+	vc = VCross(v.V_Cast(), VGet(0, 0, -1));
+	p3 = p + vc.Normalized() * (r / 10);
+
+	DrawTriangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, 0xffffff, true);
 }
 
 void Diodon::Update()
 {
 	(this->*_updater)();
 
-	enemy._prePos = enemy._pos;
-	enemy._pos += _vel;
-	if (_updater == &Diodon::EscapeUpdate || enemy._dieFlag)
+}
+
+void Diodon::Search()
+{
+	auto p = _player->GetInfo().center;
+	if ((p - POS).Magnitude() < 300)
 	{
-		auto size = Size(0, 0);
-		enemy._rect = Rect(enemy._pos, size);
+		_anim_frame = 0;
+		_updater	= &Diodon::SwellUpdate;
 	}
 	else
 	{
-		enemy._rect = Rect(enemy._pos, enemy._size);
+		_anim_frame = 0;
+		_updater	= &Diodon::SwimUpdate;
 	}
+}
 
-	/// ｼｮｯﾄを出す座標の更新
-	for (int i = 0; i < _dirPos.size(); ++i)
+void Diodon::OnDamage()
+{
+	if (ALIVE)
 	{
-		_dirPos[i] += _vel;
+		ALIVE		= false;
+		_escapeTime = 0;
+		_anim_frame = 0;
+		_updater	= &Diodon::EscapeUpdate;
 	}
-}
-
-EnemyInfo Diodon::GetInfo()
-{
-	return enemy;
-}
-
-shot_vector Diodon::GetShotInfo()
-{
-	return shot;
-}
-
-void Diodon::CalEscapeDir(const Vector2 & vec)
-{
-	if (!enemy._dieFlag)
-	{
-		/// 泳いでいる時
-		if (_updater == &Diodon::SwimUpdate)
-		{
-			Swell();
-			return;
-		}
-
-		/// 敵が膨らみきった状態の時
-		if (_updater == &Diodon::SwellUpdate &&
-			enemy._size.width  == swellSize &&
-			enemy._size.height == swellSize)
-		{
-			/// 敵が逃げていく処理の設定を書く
-			_vel = Vector2((maxSpeed / 4) * vec.x, (maxSpeed * 2) * vec.y);
-			Escape();
-		}
-	}
-}
-
-void Diodon::ShotDelete(const int& num)
-{
-	shot.erase(shot.begin() + num);
-}
-
-void Diodon::CalTrackVel(const Vector2 & pos)
-{
-	/// 追従なし
 }

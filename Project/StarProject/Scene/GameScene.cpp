@@ -250,7 +250,7 @@ GameScene::GameScene(const int& stagenum)
 
 	_camera.reset(new Camera());
 
-	_pl.reset(new Player(_camera));
+	_pl.reset(new Player(_camera, Vector2(200, 200)));
 
 	_col.reset(new Collision());
 
@@ -482,51 +482,47 @@ void GameScene::Update(const Input & p)
 
 		for (int i = 0; i < _enemies.size(); ++i)
 		{
-			/// “G‚Ì€–Sˆ—
-			if (_enemies[i]->GetInfo()._dieFlag)
-			{
-				_enemies.erase(_enemies.begin() + i);
-				continue;
-			}
-			
-			/// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
-			//for (int p = 0; p < _pl->GetLaser().size(); ++p)
-			for (int num = 0;num<2;num++)
-			{
-				for (auto l = _laser[num].begin();l!= _laser[num].end(); l++)
-				{
-					if (_col->WaterToSqr((*l).pos,
-						(*l).isEnd ? (*l).pos : ((++l != _laser[num].end()) ? (*l--).pos : (*--l).pos),
-						_enemies[i]->GetInfo()._rect))
-					{
-						auto vec = _enemies[i]->GetInfo()._pos - (*l).pos;
-						vec.Normalize();
+			///// “G‚Ì€–Sˆ—
+			//if (_enemies[i]->GetInfo()._dieFlag)
+			//{
+			//	_enemies.erase(_enemies.begin() + i);
+			//	continue;
+			//}
+			//
+			///// ÌßÚ²Ô°¼®¯Ä‚Æ“G‚Ì“–‚½‚è”»’è
+			////for (int p = 0; p < _pl->GetLaser().size(); ++p)
+			//for (int num = 0;num<2;num++)
+			//{
+			//	for (auto l = _laser[num].begin();l!= _laser[num].end(); l++)
+			//	{
+			//		if (_col->WaterToSqr((*l).pos,
+			//			(*l).isEnd ? (*l).pos : ((++l != _laser[num].end()) ? (*l--).pos : (*--l).pos),
+			//			_enemies[i]->GetInfo()._rect))
+			//		{
+			//			auto vec = _enemies[i]->GetInfo()._pos - (*l).pos;
+			//			vec.Normalize();
 
-						_enemies[i]->CalEscapeDir(vec);
-						break;
-					}
-					if (_col->CircleToCircle(_pl->GetInfo().center, _pl->GetInfo().r, _enemies[i]->GetInfo()._searchVert))
-					{
-						_enemies[i]->CalTrackVel(_pl->GetInfo().center);
-					}
+			//			_enemies[i]->CalEscapeDir(vec);
+			//			break;
+			//		}
+			//		if (_col->CircleToCircle(_pl->GetInfo().center, _pl->GetInfo().r, _enemies[i]->GetInfo()._searchVert))
+			//		{
+			//			_enemies[i]->CalTrackVel(_pl->GetInfo().center);
+			//		}
 
-				}
-			}
+			//	}
+			//}
 
-			/// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
-			for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
-			{
-				if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
-				{
-					_enemies[i]->ShotDelete(s);		/// ÌßÚ²Ô°‚É“–‚½‚Á‚½’e‚ÌF‚ğ•Ï‚¦‚Ä‚¢‚éB
-				}
-			}
+			///// ÌßÚ²Ô°‚Æ“G¼®¯Ä‚Ì“–‚½‚è”»’è
+			//for (int s = 0; s < _enemies[i]->GetShotInfo().size(); ++s)
+			//{
+			//	if (_col->TriToSqr(_pl->GetInfo().legs, _enemies[i]->GetShotInfo()[s]._pos, _enemies[i]->GetShotInfo()[s]._size))
+			//	{
+			//		_enemies[i]->ShotDelete(s);		/// ÌßÚ²Ô°‚É“–‚½‚Á‚½’e‚ÌF‚ğ•Ï‚¦‚Ä‚¢‚éB
+			//	}
+			//}
 		}
 	};
-
-	if (_bosses.size() != 0) {
-		_bosses[0]->CalTrackVel(_pl->GetInfo().center);
-	}
 
 	auto th = [&](std::array<std::list<Laser>,2> _laser, Vector2 camera) {
 		std::lock_guard<std::mutex> _lock(_mutex);

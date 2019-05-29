@@ -5,81 +5,49 @@
 #include <array>
 
 class Camera;
+class Player;
+
+#define POS		_enemy._pos
+#define SIZE	_enemy._size
+#define ALIVE	_enemy._isAlive
+#define CC		_camera->CameraCorrection()
 
 struct EnemyInfo {
-	Position2 _pos;		// 敵の中心点
-	Position2 _prePos;	// 敵の移動前座標
-	Size _size;
-	Rect _rect;
-	std::array<Vector2, 3> _searchVert;
-	bool _dieFlag;		// true:死亡, false:生存
-	
-	EnemyInfo() :_pos(0, 0), _size(0, 0), _rect(_pos, _size){};
-	EnemyInfo(const Position2& _pos, const Size& _size, const Rect& _rect) {
-		this->_pos  = _pos;
-		this->_size = _size;
-		this->_rect = _rect;
+	Vector2	_pos;		// 敵の中心点
+	Size	_size;
+	bool	_isAlive;
+
+	EnemyInfo() :_pos(0, 0), _size(0, 0) { _isAlive = true; }
+	EnemyInfo(const Position2& p, const Size& s) {
+		_pos		= p;
+		_size		= s;
+		_isAlive	= true;
 	}
 };
 
-struct ShotInfo {
-	Position2 _pos;
-	Vector2 _vel;
-	Size _size;
-	Rect _rect;
-
-	ShotInfo() : _pos(0, 0), _vel(0,0),_size(0, 0), _rect(_pos, _size) {};
-	ShotInfo(const Position2& _pos, const Vector2& _vel, const Size& _size, const Rect& _rect)
-	{
-		this->_pos  = _pos;
-		this->_vel = _vel;
-		this->_size = _size;
-		this->_rect = _rect;
-	}
-};
-
-// 制御点用
-struct CtlInfo
-{
-	Vector2 _pos;
-	Vector2 _vel;
-	bool _flag;
-
-	CtlInfo() : _pos(0, 0), _vel(0, 0), _flag(false) {};
-	CtlInfo(const Vector2& pos, const Vector2& vel, bool flag)
-	{
-		this->_pos = pos;
-		this->_vel = vel;
-		this->_flag = flag;
-	}
-};
-
-using shot_vector = std::vector<ShotInfo>;
 
 class Enemy
 {
 private:
-	std::shared_ptr<Camera>& _camera;
 
 protected:
-	EnemyInfo enemy;
-	shot_vector shot;
-	Vector2 _vel;
-	int color;
-	bool _turnFlag;			// true:右方向, false:左方向		
+	const std::shared_ptr<Camera>& _camera;
+	const std::shared_ptr<Player>& _player;
 
-	Enemy(std::shared_ptr<Camera>& camera);
+	EnemyInfo	_enemy;
+	Vector2		_vel;
+	bool		_isTurn;			// true:右方向, false:左方向		
+	int			_anim_frame;
 
-	const float maxSpeed = 3.0f;
+	Enemy(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 
 public:
 	~Enemy();
-	virtual void Draw();
 	virtual void Update();
-	virtual EnemyInfo GetInfo();
-	virtual shot_vector GetShotInfo();
-	virtual void ShotDelete(const int& num);					// ｼｮｯﾄが当たった時削除するためのもの
-	virtual void CalEscapeDir(const Vector2& vec);
-	virtual void CalTrackVel(const Vector2& pos);		// 追尾する速度の計算用
+	virtual void Draw();
+
+	EnemyInfo GetInfo();
+
+	virtual void OnDamage() = 0;
 };
 

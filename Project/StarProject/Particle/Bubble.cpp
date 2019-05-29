@@ -123,7 +123,7 @@ void Bubble::Move()
 	
 #else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
-	auto move = [p_element = p_element,sx= screen_x,sy= screen_y](concurrency::index<1> idx)restrict(amp) {
+	auto move = [p_element = p_element,sx= screen_x,sy= screen_y, v_Speed= v_Speed, flag= flag](concurrency::index<1> idx)restrict(amp) {
 		// ó·äOèàóù
 		if (p_element[idx].bright < VanishBright) {
 			p_element[idx].bright = 0;
@@ -170,7 +170,7 @@ void Bubble::Draw()
 	{
 		if (p.bright> VanishBright)
 		{
-			isSmall ? SetDrawBlendMode(mode, param): flag? SetDrawBlendMode(mode, param):SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
+			isSmall ? SetDrawBlendMode(mode, param): flag? SetDrawBlendMode(DX_BLENDMODE_ALPHA, param):SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
 			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ?  8 : flag ? 0xff/v_Speed/2 : 1)), 0, imgBff, true);
 			continue;
 		}
