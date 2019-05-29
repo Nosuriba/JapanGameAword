@@ -240,6 +240,28 @@ bool Collision::CircleToCircle(const Position2 & _posA, const float & _rA, const
 	return false;
 }
 
+bool Collision::CircleToCircleBoss(const Position2 & _posA, const float & _rA, const Position2 & _posB, const float & _rB)
+{
+	auto vecA = _posA - _posB;
+
+	if (vecA.Magnitude() <= _rA + _rB) {
+		return true;
+	}
+
+	return false;
+}
+
+bool Collision::CircleToCircleEne(const Position2 & _posA, const float & _rA, const Position2 & _posB, const float & _rB)
+{
+	auto vecA = _posA - _posB;
+
+	if (vecA.Magnitude() <= _rA + _rB / 2) {
+		return true;
+	}
+
+	return false;
+}
+
 int Collision::BitSeparate(const int & n)
 {
 	int num = n;
