@@ -95,6 +95,7 @@ private:
 
 	bool StopCheck(const Vector2& sPos, const Vector2& ePos, const Vector2& vel);
 
+	void RegistAtkInfo();
 	void ChangeAtkMode();
 
 	// ŠOÏ‚ÌŒvZ
