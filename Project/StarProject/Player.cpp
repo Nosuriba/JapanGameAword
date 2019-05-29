@@ -346,6 +346,10 @@ void Player::Draw()
 	auto c = _camera->CameraCorrection();
 
 	int count = 0;
+
+	auto b = 100 * ((_interval / 10) % 2);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - b);
+
 	for (auto& leg : _star.legs)
 	{
 		// ヒトデの中心から足の位置までのベジェ曲線
@@ -363,6 +367,7 @@ void Player::Draw()
 		// 足の先端までのライン
 		Vector2 pre = leg.halfway_point[0];
 		float t = _star.r / 2.0f;
+
 		int color = leg.state == LEG_STATE::NORMAL ? 0xff0000 : 0xffff00;
 		for (auto& l : leg.halfway_point)
 		{
@@ -376,12 +381,14 @@ void Player::Draw()
 		DrawLineAA(pre.x - c.x, pre.y - c.y, leg.pos.x - c.x, leg.pos.y - c.y, color, t);//軌跡描画
 	}
 	DxLib::DrawCircle(CENTER.x - c.x, CENTER.y - c.y, _star.r / 4.0f, 0xee0000, true);
+
+
 	//if (count == 0)
 	//	DrawRotaGraph(CENTER.x - c.x, CENTER.y - c.y, 0.5f, 0, _img_STICK, true);
 	for (int i = 0; i < select_idx.size(); ++i)
 		if (select_idx[i] != -1)
-			DrawRectRotaGraph
-			(LEG(select_idx[i]).tip.x - c.x, LEG(select_idx[i]).tip.y - c.y, 22 * i, 0, 22, 55, 0.5f, 0, _img_TRIGGER, true);
+			DrawRectRotaGraph(LEG(select_idx[i]).tip.x - c.x, LEG(select_idx[i]).tip.y - c.y, 22 * i, 0, 22, 55, 0.5f, 0, _img_TRIGGER, true);
+
 	for (int i = 0; i < 2; i++)
 	{
 		for (auto l = _laser[i].begin();l!= _laser[i].end();l++)
@@ -397,6 +404,9 @@ void Player::Draw()
 			DrawLine(s.x, s.y, e.x, e.y, 0x3333ff, (*l).size);
 		}
 	}
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	for (auto& p : _particle)
 		p->Draw();
 }
@@ -514,16 +524,15 @@ void Player::ToCatch(const Vector2 & t)
 
 void Player::OnDamage()
 {
-	if (_interval == 0)
+	if (_interval != 0) return;
+
+	_life--;
+	_interval = 300;
+	if (_life == 0)
 	{
-		_life--;
-		_interval = 180;
-		if (_life == 0)
-		{
-			_isAlive	= false;
-			_anim_frame = 0;
-			_updater	= &Player::Die;
-		}
+		_isAlive	= false;
+		_anim_frame = 0;
+		_updater	= &Player::Die;
 	}
 }
 
