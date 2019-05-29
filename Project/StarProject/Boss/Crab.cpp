@@ -17,8 +17,8 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p) :
 	_armPrePos = Vector2();
 	atkCnt	   = atkMax;
 	_type	   = AtkType::NORMAL;
- 	center = Vector2(Stage::GetInstance().GetStageSize().x / 2,
-					 Stage::GetInstance().GetStageSize().y / 2);
+ 	center	   = Vector2(Stage::GetInstance().GetStageSize().x / 2,
+						 Stage::GetInstance().GetStageSize().y / 2);
 	
 	/// ª≤Ωﬁê›íË
 	_crab._pos  = Vector2(center.x  - (center.x / 2), center.y + (center.y / 2));
