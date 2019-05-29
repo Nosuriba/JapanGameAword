@@ -6,13 +6,13 @@
 
 constexpr int SPEED = 5;
 
-Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Player>& player):Boss(camera,player)
+Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Player>& player,const Vector2& pos):Boss(camera,player)
 {
 	_damageFlag = true;
 	_maxAngle = 30;
 	_wait = 0;
 	_timer = 0;
-	_oct.center = Vector2(1000, 600);
+	_oct.center = pos;
 	_oct.r = 500;
 	_oct.hedPos = _oct.center + Vector2(50, 0);
 	for (int i = 0; i < _oct.eyePos.size(); ++i) {
@@ -37,7 +37,7 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 		LEG(i).joint.clear();
 		for (int j = 0; j < LEG(i).T; ++j) {
 			LEG(i).joint.emplace_back(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)));
-			at.emplace_back();
+			at.emplace_back(AttackInfo(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)),50));
 		}
 		LEG(i).state = E_LEG_STATE::NORMAL;
 		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * SPEED*(i+1);
