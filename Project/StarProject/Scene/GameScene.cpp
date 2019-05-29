@@ -212,7 +212,7 @@ void GameScene::LoadResource()
 			_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
 		}
 		if (s.no == 2) {
-			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y));
+			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 1));
 		}
 		if (s.no == 3) {
 			_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
@@ -222,6 +222,9 @@ void GameScene::LoadResource()
 		}
 		if (s.no == 10) {
 			_bosses.push_back(std::make_shared<Crab>(_camera, _pl));
+		}
+		if (s.no == 11) {
+			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 2));
 		}
 		if (s.no == 12) {
 			_enemies.push_back(std::make_shared<Fish>(_camera, _pl, Vector2(s.x, s.y)));
