@@ -26,6 +26,20 @@ struct DamageInfo
 	DamageInfo(const Vector2& p, const float& r) :_pos(p), _r(r) {}
 };
 
+struct ShotInfo
+{
+	Position2 _pos;
+	Vector2 _vel;
+	Size _size;
+	ShotInfo() : _pos(0, 0), _vel(0, 0), _size(0, 0) {};
+	ShotInfo(const Position2& p, const Vector2& v, const Size& s)
+	{
+		_pos = p;
+		_vel = v;
+		_size = s;
+	}
+};
+
 class Boss
 {
 protected:
