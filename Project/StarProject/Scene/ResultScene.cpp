@@ -51,7 +51,7 @@ void ResultScene::Run(const Input & p)
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
 		ResultData[1][(ResultCnt/40)% (int)R_Data::max] = ResultData[0][(ResultCnt/40) % (int)R_Data::max];
 		ResultCnt = (ResultCnt+40);
-		if (isEnd)
+		if (isEnd&&(StampCnt>=192))
 		{
 			flame = 0;
 			_updater = &ResultScene::FadeOut;
