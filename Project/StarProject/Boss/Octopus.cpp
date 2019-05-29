@@ -29,7 +29,6 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 	_oct.root.resize(8);
 	_oct.legs.resize(8);
 
-	at.clear();
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 	for (int i = 0; i < _oct.legs.size(); ++i) {
 		c = cos(radian / 2 * i - DX_PI_F / 180 * -90);
