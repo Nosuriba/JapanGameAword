@@ -2,8 +2,6 @@
 #include "../Game.h"
 #include "../Stage.h"
 
-const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
-							   Game::GetInstance().GetScreenSize().y / 2);
 const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
 const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ‹t‚Ì‰ñ“]•ûŒü
 const Vector2 eSize = Vector2(250, 150);
@@ -19,9 +17,11 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p) :
 	_armPrePos = Vector2();
 	atkCnt	   = atkMax;
 	_type	   = AtkType::NORMAL;
+ 	center = Vector2(Stage::GetInstance().GetStageSize().x / 2,
+					 Stage::GetInstance().GetStageSize().y / 2);
 	
 	/// »²½Şİ’è
-	_crab._pos  = Vector2(600, 750);
+	_crab._pos  = Vector2(center.x  - (center.x / 2), center.y + (center.y / 2));
 	_crab._size = Size(eSize.x * 1.5, eSize.y * 1.5);
 	lSize	 = Size(100 * 1.5, 20 * 1.5);
 	scisSize = Size(70 * 1.5, lSize.height * 1.5);

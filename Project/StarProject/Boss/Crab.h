@@ -120,6 +120,7 @@ private:
 	std::vector<Vector2> _legMovePos;	
 	std::vector<Vector2> _legPrePos;	
 	std::vector<Vector2> _legAccel;		// ‹r‚Ì‰Á‘¬“x—p
+	Vector2 center;
 
 	int atkCnt;			// UŒ‚‚·‚é‚Ü‚Å‚ÌŠÔŠu
 	int pitchCnt;		// ‰ñ“]‚·‚éŠÔŠu
