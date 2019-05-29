@@ -9,14 +9,6 @@ Enemy::~Enemy()
 {
 }
 
-void Enemy::Draw()
-{
-}
-
-void Enemy::Update()
-{
-}
-
 EnemyInfo Enemy::GetInfo()
 {
 	return _enemy;
