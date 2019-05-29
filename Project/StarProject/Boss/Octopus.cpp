@@ -228,6 +228,11 @@ void Octopus::LegMove(E_Leg & leg, int idx)
 	LegMove(leg, idx);
 }
 
+void Octopus::HitUpd()
+{
+
+}
+
 //void Octopus::Move()
 //{
 //	auto t = _oct.movePos - _targetPos;
@@ -317,6 +322,13 @@ void Octopus::NeturalUpdate()
 	
 }
 
+void Octopus::DebugDraw()
+{
+	for (auto attack : at) {
+		DrawCircle(attack._pos.x, attack._pos.y, attack._r, 0x00ff00, true);
+	}
+}
+
 void Octopus::Draw()
 {
 	for (auto& p : _particle)
@@ -359,6 +371,10 @@ void Octopus::Draw()
 	}
 	
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+#ifdef DEBUG
+	DebugDraw();
+#endif // DEBUG
+
 }
 
 void Octopus::ShadowDraw()
