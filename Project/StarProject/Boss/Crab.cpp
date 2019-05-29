@@ -197,7 +197,7 @@ void Crab::ShotUpdate()
 		if (!(shotCnt % 10))
 		{
 			//auto vec = (_plPos - _crab._pos).Normalized();						/// ÌßÚ²Ô°‚ÌŒü‚«‚ÉŒü‚©‚Á‚Ä•úËó
-			auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// ‚©‚É‚ÌŒü‚¢‚Ä‚é•ûŒü‚ÉŒü‚©‚Á‚Ä•úËó
+		/*	auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// ‚©‚É‚ÌŒü‚¢‚Ä‚é•ûŒü‚ÉŒü‚©‚Á‚Ä•úËó
 			auto lengPos = Vector2(length * vec.x, length * vec.y);
 			auto rand = (GetRand(10) - 5);
 			auto pos = Vector2(10 * rand, 10 * rand) + lengPos;
@@ -209,7 +209,7 @@ void Crab::ShotUpdate()
 			auto vel = Vector2(5.0f * cost, 5.0f * sint);
 			auto size = Size(10, 10);
 
-			_shot.push_back(ShotInfo(_crab._pos, vel, size));
+			_shot.push_back(ShotInfo(_crab._pos, vel, size));*/
 		}
 		shotCnt--;
 	}
@@ -228,6 +228,7 @@ void Crab::DieUpdate()
 
 void Crab::CalVert()
 {
+	//// ‚Í‚³‚İ‚ÌUŒ‚’†A–A‚ğ‚Í‚¢‚Ä‚é‚ÌC³‚ğ‚·‚é
 	at.clear();
 	Vector2 size, sizePos;
 	float theta, cost, sint;
@@ -627,7 +628,7 @@ void Crab::MoveJoint()
 
 void Crab::ShotDelete()
 {
-	for (int i = 0; i < _shot.size(); ++i)
+	/*for (int i = 0; i < _shot.size(); ++i)
 	{
 		if (_shot[i]._pos.x < 0 || _shot[i]._pos.y < 0 ||
 			_shot[i]._pos.x > Game::GetInstance().GetScreenSize().x ||
@@ -635,7 +636,7 @@ void Crab::ShotDelete()
 		{
 			_shot.erase(i + _shot.begin());
 		}
-	}
+	}*/
 }
 
 void Crab::ChangeAtkMode()
@@ -717,10 +718,10 @@ void Crab::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	for (auto shot : _shot)
+	/*for (auto shot : _shot)
 	{
 		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, 10, 0xccffff, true);
-	}
+	}*/
 
 	Vector2 p1, p2, p3, p4;
 	for (auto leg : _crab._legs)
@@ -896,11 +897,11 @@ void Crab::Update()
 		if (_type != AtkType::PITCH)
 		arm._ctlPoint += arm._vel;
 	}
-	/// ¼®¯Ä‚ÌˆÚ“®
+	/*/// ¼®¯Ä‚ÌˆÚ“®
 	for (auto& shot : _shot)
 	{
 		shot._pos += shot._vel;
-	}
+	}*/
 	if (_type == AtkType::NORMAL && atkCnt >= 0)
 	{
 		Rotation();

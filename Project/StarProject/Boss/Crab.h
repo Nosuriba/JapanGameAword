@@ -41,6 +41,20 @@ struct CrabInfo
 	}
 };
 
+//struct ShotInfo
+//{
+//	Position2 _pos;
+//	Vector2 _vel;
+//	Size _size;
+//	ShotInfo() : _pos(0, 0), _vel(0, 0), _size(0, 0) {};
+//	ShotInfo(const Position2& p, const Vector2& v, const Size& s)
+//	{
+//		_pos = p;
+//		_vel = v;
+//		_size = s;
+//	}
+//};
+
 struct Vector3
 {
 	float x, y, z;
@@ -51,20 +65,6 @@ struct Vector3
 		this->x = x; 
 		this->y = y;
 		this->z = z;
-	}
-};
-
-struct ShotInfo
-{
-	Position2 _pos;
-	Vector2 _vel;
-	Size _size;
-	ShotInfo() : _pos(0, 0), _vel(0, 0), _size(0,0){};
-	ShotInfo(const Position2& p, const Vector2& v, const Size& s)
-	{
-		_pos = p;
-		_vel = v;
-		_size = s;
 	}
 };
 
@@ -112,7 +112,7 @@ private:
 	Vector2 _armPrePos;			
 
 	CrabInfo _crab;
-	std::vector<ShotInfo> _shot;		// ‰¼‚Ì¼®¯Ä—p•Ï”(CrabInfo‚É‚Á‚Ä‚¢‚­—\’è)
+	//std::vector<ShotInfo> _shot;		// ‰¼‚Ì¼®¯Ä—p•Ï”(CrabInfo‚É‚Á‚Ä‚¢‚­—\’è)
 
 	std::vector<sqr_vert> _scissors;	// ‚Í‚³‚İ‚Ì’Ü‚Ì”
 	std::vector<Vector2> _scisCenter;	
