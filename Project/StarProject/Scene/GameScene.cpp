@@ -223,6 +223,9 @@ void GameScene::LoadResource()
 		if (s.no == 10) {
 			_bosses.push_back(std::make_shared<Crab>(_camera, _pl));
 		}
+		if (s.no == 11) {
+			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 2));
+		}
 		if (s.no == 12) {
 			_enemies.push_back(std::make_shared<Fish>(_camera/*, _pl, Vector2(s.x, s.y)*/));
 		}

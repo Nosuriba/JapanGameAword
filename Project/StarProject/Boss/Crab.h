@@ -41,19 +41,19 @@ struct CrabInfo
 	}
 };
 
-//struct ShotInfo
-//{
-//	Position2 _pos;
-//	Vector2 _vel;
-//	Size _size;
-//	ShotInfo() : _pos(0, 0), _vel(0, 0), _size(0, 0) {};
-//	ShotInfo(const Position2& p, const Vector2& v, const Size& s)
-//	{
-//		_pos = p;
-//		_vel = v;
-//		_size = s;
-//	}
-//};
+struct ShotInfo
+{
+	Position2 _pos;
+	Vector2 _vel;
+	Size _size;
+	ShotInfo() : _pos(0, 0), _vel(0, 0), _size(0, 0) {};
+	ShotInfo(const Position2& p, const Vector2& v, const Size& s)
+	{
+		_pos = p;
+		_vel = v;
+		_size = s;
+	}
+};
 
 struct Vector3
 {
@@ -62,7 +62,7 @@ struct Vector3
 	Vector3() : x(0), y(0), z(0) {};
 	Vector3(const float& x, const float& y, const float& z)
 	{
-		this->x = x; 
+		this->x = x;
 		this->y = y;
 		this->z = z;
 	}
@@ -87,38 +87,40 @@ private:
 	void DieUpdate();
 
 	void CalVert();		// 矩形の頂点計算
-	void scisRota();	
-	void Rotation();	
+	void scisRota();
+	void Rotation();
 	void MoveLeg();		// 制御点の移動
 	void MoveJoint();	// 関節の移動
 	void ShotDelete();	// ｼｮｯﾄの削除用	
 
 	bool StopCheck(const Vector2& sPos, const Vector2& ePos, const Vector2& vel);
 
+	void RegistAtkInfo();
 	void ChangeAtkMode();
 
 	// 外積の計算
 	Vector3 Cross(const Vector3& va, const Vector3& vb)
 	{
 		return Vector3(va.y * vb.z - va.z * vb.y,
-					   va.z * vb.x - va.x - vb.z,
-					   va.x * vb.y - va.y * va.x);
+			va.z * vb.x - va.x - vb.z,
+			va.x * vb.y - va.y * va.x);
 	}
 
 	void (Crab::*_updater)();
 
 	AtkType _type;
 	Vector2 _plPos;						// ﾌﾟﾚｲﾔｰの座標保存用
-	Vector2 _armPrePos;			
+	Vector2 _armPrePos;
 
 	CrabInfo _crab;
-	//std::vector<ShotInfo> _shot;		// 仮のｼｮｯﾄ用変数(CrabInfoに持っていく予定)
+	std::vector<ShotInfo> _shot;		// 仮のｼｮｯﾄ用変数(CrabInfoに持っていく予定)
 
 	std::vector<sqr_vert> _scissors;	// はさみの爪の数
-	std::vector<Vector2> _scisCenter;	
-	std::vector<Vector2> _legMovePos;	
-	std::vector<Vector2> _legPrePos;	
+	std::vector<Vector2> _scisCenter;
+	std::vector<Vector2> _legMovePos;
+	std::vector<Vector2> _legPrePos;
 	std::vector<Vector2> _legAccel;		// 脚の加速度用
+	Vector2 center;
 
 	int atkCnt;			// 攻撃するまでの間隔
 	int pitchCnt;		// 回転する間隔
@@ -132,12 +134,12 @@ private:
 public:
 	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 	~Crab();
-	
+
 	void Draw();
 	void ShadowDraw();
 	void SelectDraw(const Vector2& pos, const float& scale);
 	void DebugDraw(const Vector2& camera);
 	void OnDamage();
 	void Update();
-	
+
 };
