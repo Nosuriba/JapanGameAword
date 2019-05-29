@@ -21,7 +21,6 @@ struct JointInfo
 	Vector2 _ctlPoint;
 	std::vector<Vector2> _center;
 	Vector2 _vel;
-	Size   _size;
 	std::array<sqr_vert, 2> _vert;		// ŠÖß‚Ì’¸“_
 };
 
@@ -35,12 +34,26 @@ struct CrabInfo
 	std::vector<JointInfo> _arms;	// ˜r‚ÌŠÖß
 
 	CrabInfo() : _pos(0, 0), _size(0, 0) {};
-	CrabInfo(const Position2& _pos, const Size& _size)
+	CrabInfo(const Position2& p, const Size& s)
 	{
-		this->_pos = _pos;
-		this->_size = _size;
+		_pos = p;
+		_size = s;
 	}
 };
+
+//struct ShotInfo
+//{
+//	Position2 _pos;
+//	Vector2 _vel;
+//	Size _size;
+//	ShotInfo() : _pos(0, 0), _vel(0, 0), _size(0, 0) {};
+//	ShotInfo(const Position2& p, const Vector2& v, const Size& s)
+//	{
+//		_pos = p;
+//		_vel = v;
+//		_size = s;
+//	}
+//};
 
 struct Vector3
 {
@@ -52,20 +65,6 @@ struct Vector3
 		this->x = x; 
 		this->y = y;
 		this->z = z;
-	}
-};
-
-struct ShotInfo
-{
-	Position2 _pos;
-	Vector2 _vel;
-	Size _size;
-	ShotInfo() : _pos(0, 0), _vel(0, 0), _size(0,0){};
-	ShotInfo(const Position2& p, const Vector2& v, const Size& s)
-	{
-		_pos = p;
-		_vel = v;
-		_size = s;
 	}
 };
 
@@ -96,6 +95,8 @@ private:
 
 	bool StopCheck(const Vector2& sPos, const Vector2& ePos, const Vector2& vel);
 
+	void ChangeAtkMode();
+
 	// ŠOÏ‚ÌŒvZ
 	Vector3 Cross(const Vector3& va, const Vector3& vb)
 	{
@@ -111,7 +112,7 @@ private:
 	Vector2 _armPrePos;			
 
 	CrabInfo _crab;
-	std::vector<ShotInfo> _shot;		// ‰¼‚Ì¼®¯Ä—p•Ï”(CrabInfo‚É‚Á‚Ä‚¢‚­—\’è)
+	//std::vector<ShotInfo> _shot;		// ‰¼‚Ì¼®¯Ä—p•Ï”(CrabInfo‚É‚Á‚Ä‚¢‚­—\’è)
 
 	std::vector<sqr_vert> _scissors;	// ‚Í‚³‚İ‚Ì’Ü‚Ì”
 	std::vector<Vector2> _scisCenter;	
@@ -131,8 +132,9 @@ private:
 public:
 	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 	~Crab();
-	void CalTrackVel(const Vector2& pos);
+	
 	void Draw();
+	void ShadowDraw();
 	void SelectDraw(const Vector2& pos, const float& scale);
 	void DebugDraw(const Vector2& camera);
 	void OnDamage();

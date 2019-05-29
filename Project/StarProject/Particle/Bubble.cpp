@@ -6,7 +6,7 @@ constexpr int ShakeSize = 31;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
 
-Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, int _BubbleMax):BubbleMax(_BubbleMax)
+Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, int _BubbleMax,int color):BubbleMax(_BubbleMax), color(color)
 {
 	// à¯êîÇÃë„ì¸
 	v_Speed = VanishSpeed;
@@ -19,10 +19,10 @@ Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, int _BubbleMax):BubbleM
 	Init();
 }
 
-Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, bool _flag,int vs, int _BubbleMax) :BubbleMax(_BubbleMax)
+Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, bool _flag,int _vs,int _BubbleMax, int _color):BubbleMax(_BubbleMax), color(_color)
 {
 	// à¯êîÇÃë„ì¸
-	v_Speed = vs;
+	v_Speed = _vs;
 	flag = _flag;
 	x = _x, y = _y;
 	ElementNum = _Enum;
@@ -123,7 +123,7 @@ void Bubble::Move()
 	
 #else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
-	auto move = [p_element = p_element,sx= screen_x,sy= screen_y](concurrency::index<1> idx)restrict(amp) {
+	auto move = [p_element = p_element,sx= screen_x,sy= screen_y, v_Speed= v_Speed, flag= flag](concurrency::index<1> idx)restrict(amp) {
 		// ó·äOèàóù
 		if (p_element[idx].bright < VanishBright) {
 			p_element[idx].bright = 0;
@@ -159,19 +159,23 @@ void Bubble::Draw()
 	// Ç±Ç±Ç≈ìÆÇ©Ç∑
 	Move();
 
-	int mode, param;
+	int mode, param,x,y;
 	GetDrawBlendMode(&mode, &param);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND,0);
 
 	imgBff= ResourceManager::GetInstance().LoadImg("../img/Bubble.png");
-
+	GetGraphSize(imgBff,&x,&y);
 	// ï`âÊïîï™
 	for (auto p : particle)
 	{
 		if (p.bright> VanishBright)
 		{
-			isSmall ? SetDrawBlendMode(mode, param): flag? SetDrawBlendMode(mode, param):SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
-			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius)/ ((Magnification)*(isSmall ?  8 : flag ? 0xff/v_Speed/2 : 1)), 0, imgBff, true);
+			isSmall ? SetDrawBlendMode(mode, param): flag? SetDrawBlendMode(mode, param) :SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
+			if (color != -1) 
+			{
+ 				DrawCircle(p.x / Magnification, p.y / Magnification, ((y - 90) / 2)*(0xff / p.radius - p.bright / p.radius) / ((Magnification)*(isSmall ? 8 : flag ? 0xff / v_Speed / 2 : 1)), color);
+			}
+			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius) / ((Magnification)*(isSmall ? 8 : flag ? 0xff / v_Speed / 2 : 1)), 0, imgBff, true);
 			continue;
 		}
 	}

@@ -1,7 +1,6 @@
 #include "Crab.h"
 #include "../Game.h"
-#include "../Camera.h"
-#include "../Player.h"
+
 
 const Vector2 center = Vector2(Game::GetInstance().GetScreenSize().x / 2,
 							   Game::GetInstance().GetScreenSize().y / 2);
@@ -107,7 +106,7 @@ void Crab::ArmInit()
 		(*arm)._center.resize(2);
 		auto cnt = arm - _crab._arms.begin();
 		auto pos = _crab._pos - (!(cnt % 2) ? Vector2(-_crab._size.width / 4, _crab._size.height / 2)
-												 : Vector2(_crab._size.width / 4, _crab._size.height / 2));
+											: Vector2(_crab._size.width / 4, _crab._size.height / 2));
 		(*arm)._points[0] = pos;
 		auto point = (*arm)._points.begin() + 1;
 		for (; point != (*arm)._points.end(); ++point)
@@ -198,7 +197,7 @@ void Crab::ShotUpdate()
 		if (!(shotCnt % 10))
 		{
 			//auto vec = (_plPos - _crab._pos).Normalized();						/// Ãﬂ⁄≤‘∞ÇÃå¸Ç´Ç…å¸Ç©Ç¡Çƒï˙éÀèÛ
-			auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// Ç©Ç…ÇÃå¸Ç¢ÇƒÇÈï˚å¸Ç…å¸Ç©Ç¡Çƒï˙éÀèÛ
+		/*	auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// Ç©Ç…ÇÃå¸Ç¢ÇƒÇÈï˚å¸Ç…å¸Ç©Ç¡Çƒï˙éÀèÛ
 			auto lengPos = Vector2(length * vec.x, length * vec.y);
 			auto rand = (GetRand(10) - 5);
 			auto pos = Vector2(10 * rand, 10 * rand) + lengPos;
@@ -210,7 +209,7 @@ void Crab::ShotUpdate()
 			auto vel = Vector2(5.0f * cost, 5.0f * sint);
 			auto size = Size(10, 10);
 
-			_shot.push_back(ShotInfo(_crab._pos, vel, size));
+			_shot.push_back(ShotInfo(_crab._pos, vel, size));*/
 		}
 		shotCnt--;
 	}
@@ -229,6 +228,8 @@ void Crab::DieUpdate()
 
 void Crab::CalVert()
 {
+	//// ÇÕÇ≥Ç›ÇÃçUåÇíÜÅAñAÇÇÕÇ¢ÇƒÇÈéûÇÃèCê≥ÇÇ∑ÇÈ
+	at.clear();
 	Vector2 size, sizePos;
 	float theta, cost, sint;
 
@@ -256,6 +257,7 @@ void Crab::CalVert()
 					auto vec = ((*leg)._vert[cnt - 1][2] - (*leg)._vert[cnt - 1][0]).Normalized();
 					(*leg)._center[cnt - 1] = (*leg)._vert[cnt - 1][0] + 
 											   Vector2((lSize.width / 2) * vec.x, (lSize.width / 2) * vec.y);
+					at.push_back(AttackInfo((*leg)._center[cnt - 1], lSize.height / 2));
 				}
 			}
 		}
@@ -285,6 +287,7 @@ void Crab::CalVert()
 				{
 					auto vec = ((*arm)._vert[cnt - 1][2] - (*arm)._vert[cnt - 1][0]).Normalized();
 					(*arm)._center[cnt - 1] = (*arm)._vert[cnt - 1][0] + Vector2(lSize.width * vec.x, lSize.width * vec.y);
+					at.push_back(AttackInfo((*arm)._center[cnt - 1], lSize.height));
 				}
 			}
 		}
@@ -337,8 +340,11 @@ void Crab::CalVert()
 			sint  = sin(theta);
 
 			_scisCenter[sCnt] = (*scis)[0] + Vector2(scisSize.width / 2 * cost, scisSize.width / 2 * sint);
+			at.push_back(AttackInfo(_scisCenter[sCnt], scisSize.height / 2));
 		}
 	}
+
+	at.push_back(AttackInfo(_crab._pos, _crab._size.height / 2));
 }
 
 void Crab::scisRota()
@@ -622,7 +628,7 @@ void Crab::MoveJoint()
 
 void Crab::ShotDelete()
 {
-	for (int i = 0; i < _shot.size(); ++i)
+	/*for (int i = 0; i < _shot.size(); ++i)
 	{
 		if (_shot[i]._pos.x < 0 || _shot[i]._pos.y < 0 ||
 			_shot[i]._pos.x > Game::GetInstance().GetScreenSize().x ||
@@ -630,8 +636,56 @@ void Crab::ShotDelete()
 		{
 			_shot.erase(i + _shot.begin());
 		}
+	}*/
+}
+
+void Crab::ChangeAtkMode()
+{
+	if (_updater == &Crab::NeutralUpdate && atkCnt < 0)
+	{
+		auto mCnt = 0;
+		auto moveFlag = false;
+
+		auto arm = _crab._arms.begin();
+		for (; arm != _crab._arms.end(); ++arm)
+		{
+			auto aCnt = arm - _crab._arms.begin();
+			auto sPoint = _player->GetInfo().center - (*arm)._ctlPoint;
+			auto leng = Vector2(abs((aLength + aLength / 2) * sPoint.Normalized().x),
+				abs((aLength + aLength / 2) * sPoint.Normalized().y));
+			if (abs(sPoint.x) <= leng.x || abs(sPoint.y) <= leng.y)
+			{
+				if (_plPos.x == 0 && _plPos.y == 0)
+				{
+					moveFlag = true;
+					_plPos = _player->GetInfo().center;
+					mCnt = aCnt;
+				}
+				else
+				{
+					auto d = _plPos - (*arm)._ctlPoint;
+					mCnt = (abs(d.x) - abs(sPoint.x) < 0 || abs(d.x) - abs(sPoint.y) ? aCnt : mCnt);
+				}
+			}
+		}
+		if (moveFlag)
+		{
+			Pitch();
+			auto vec = (_plPos - _crab._arms[mCnt]._ctlPoint).Normalized();
+			_crab._arms[mCnt]._vel = Vector2(mVel * vec.x, mVel * vec.y);
+			/// à⁄ìÆëOÇÃêßå‰ì_Çï€ë∂
+			_armPrePos = _crab._arms[mCnt]._ctlPoint;
+			return;
+		}
+		if (_updater == &Crab::NeutralUpdate)
+		{
+			Shot();
+			_plPos = _player->GetInfo().center;
+			shotCnt = shotMax;
+		}
 	}
 }
+
 
 bool Crab::StopCheck(const Vector2 & sPos, const Vector2 & ePos, const Vector2 & vel)
 {
@@ -659,62 +713,15 @@ bool Crab::StopCheck(const Vector2 & sPos, const Vector2 & ePos, const Vector2 &
 	return rtnFlag;
 }
 
-void Crab::CalTrackVel(const Vector2 & pos)
-{
-	if (_updater == &Crab::NeutralUpdate && atkCnt < 0)
-	{
-		auto mCnt	  = 0;
-		auto moveFlag = false;
-
-		auto arm = _crab._arms.begin();
-		for (; arm != _crab._arms.end(); ++arm)
-		{
-			auto aCnt = arm - _crab._arms.begin();
-			auto sPoint = pos - (*arm)._ctlPoint;
-			auto leng = Vector2(abs((aLength + aLength / 2) * sPoint.Normalized().x),
-								abs((aLength + aLength / 2) * sPoint.Normalized().y));
-			if (abs(sPoint.x) <= leng.x || abs(sPoint.y) <= leng.y)
-			{
-				if (_plPos.x == 0 && _plPos.y == 0)
-				{
-					moveFlag = true;
-					_plPos = pos;
-					mCnt = aCnt;
-				}
-				else
-				{
-					auto d = _plPos - (*arm)._ctlPoint;
-					mCnt = (abs(d.x) - abs(sPoint.x) < 0 || abs(d.x) - abs(sPoint.y) ? aCnt : mCnt);
-				}
-			}
-		}
-
-		if (moveFlag)
-		{
-			Pitch();
-			auto vec = (_plPos - _crab._arms[mCnt]._ctlPoint).Normalized();
-			_crab._arms[mCnt]._vel = Vector2(mVel * vec.x, mVel * vec.y);
-			/// à⁄ìÆëOÇÃêßå‰ì_Çï€ë∂
-			_armPrePos = _crab._arms[mCnt]._ctlPoint;			
-			return;
-		}
-		if (_updater == &Crab::NeutralUpdate)
-		{
-			Shot();
-			_plPos = pos;
-			shotCnt = shotMax;
-		}
-	}
-}
 
 void Crab::Draw()
 {
 	auto camera = _camera->CameraCorrection();
 
-	for (auto shot : _shot)
+	/*for (auto shot : _shot)
 	{
 		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, 10, 0xccffff, true);
-	}
+	}*/
 
 	Vector2 p1, p2, p3, p4;
 	for (auto leg : _crab._legs)
@@ -766,6 +773,10 @@ void Crab::Draw()
 #ifdef _DEBUG
 	DebugDraw(camera);
 #endif
+}
+
+void Crab::ShadowDraw()
+{
 }
 
 void Crab::SelectDraw(const Vector2 & pos, const float& scale)
@@ -834,8 +845,6 @@ void Crab::DebugDraw(const Vector2& camera)
 	/// êßå‰ì_ÇÃï`âÊ
 	for (auto leg : _crab._legs)
 	{
-		DrawCircle(leg._center[0].x - camera.x, leg._center[0].y - camera.y, 4, 0x0000ff, true);
-		DrawCircle(leg._center[1].x - camera.x, leg._center[1].y - camera.y, 4, 0x0000ff, true);
 		DrawCircle(leg._ctlPoint.x - camera.x, leg._ctlPoint.y - camera.y, 4, 0xffff00, true);
 	}
 
@@ -843,9 +852,6 @@ void Crab::DebugDraw(const Vector2& camera)
 	for (auto arm : _crab._arms)
 	{
 		DrawCircle(arm._ctlPoint.x - camera.x, arm._ctlPoint.y - camera.y, 4, 0xffff00, true);
-		DrawCircle(arm._center[0].x - camera.x, arm._center[0].y - camera.y, 4, 0x0000ff, true);
-		DrawCircle(arm._center[1].x - camera.x, arm._center[1].y - camera.y, 4, 0x0000ff, true);
-
 		if (arm._vel.x != 0 && arm._vel.y != 0)
 		{
 			if (_type == AtkType::NORMAL)
@@ -869,14 +875,13 @@ void Crab::DebugDraw(const Vector2& camera)
 		DxLib::DrawCircle(_legPrePos[i].x  - camera.x, _legPrePos[i].y  - camera.y, 4, 0x00ff00, true);
 	}
 
-	/// íÜêSì_ÇÃï`âÊ
-	for (int i = 0; i < _scisCenter.size(); ++i)
-	{
-		DxLib::DrawCircle(_scisCenter[i].x - camera.x, _scisCenter[i].y - camera.y, 4, 0x0000ff, true);
-	}
 	/// âÒì]Ç∑ÇÈÇ∆Ç´ÇÃíÜêSì_ÇÃï`âÊ
 	DrawCircle(center.x - camera.x, center.y - camera.y, 10, 0xff0000, true);
-	DrawCircle(_crab._pos.x - camera.x, _crab._pos.y - camera.y, 10, 0xff0000, true);
+
+	for (auto a : at)
+	{
+		DrawCircle(a._pos.x - camera.x, a._pos.y - camera.y, a._r, 0x0000ff, true);
+	}
 }
 
 void Crab::OnDamage()
@@ -886,6 +891,7 @@ void Crab::OnDamage()
 void Crab::Update()
 {
 	(this->*_updater)();
+	ChangeAtkMode();
 
 	ShotDelete();
 
@@ -895,11 +901,11 @@ void Crab::Update()
 		if (_type != AtkType::PITCH)
 		arm._ctlPoint += arm._vel;
 	}
-	/// ºÆØƒÇÃà⁄ìÆ
+	/*/// ºÆØƒÇÃà⁄ìÆ
 	for (auto& shot : _shot)
 	{
 		shot._pos += shot._vel;
-	}
+	}*/
 	if (_type == AtkType::NORMAL && atkCnt >= 0)
 	{
 		Rotation();

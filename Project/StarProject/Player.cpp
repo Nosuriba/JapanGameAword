@@ -199,8 +199,12 @@ void Player::Predation(const Input & in)
 			l.tip = CENTER + v.Normalized() * max(_star.r, v.Magnitude() - 1.5f * _star.level);
 	}
 	++_anim_frame;
-	if(_anim_frame > 90)
+	if (_anim_frame > 90)
+	{
+		++_eatCnt;
+		if (_eatCnt % 5 == 0) LevelUP();
 		_updater = &Player::Normal;
+	}
 }
 
 void Player::Die(const Input & in)
@@ -275,7 +279,7 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 {
 	_star.center	= p;
 	_star.level		= 1;
-	_star.r			= 50.0f * (float)_star.level + 25.0f;
+	_star.r			= 20.0f * (float)_star.level + 40.0f;
 
 	_star.legs.resize(5);
 	auto radian = 2.0f * DX_PI_F / (float)_star.legs.size();
@@ -294,6 +298,8 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 
 	_img_STICK		= ResourceManager::GetInstance().LoadImg("../img/STICK.png");
 	_img_TRIGGER	= ResourceManager::GetInstance().LoadImg("../img/TRIGGER.png");
+
+	_eatCnt = 0;
 
 	_updater = &Player::Normal;
 }
@@ -478,7 +484,7 @@ void Player::LevelUP()
 {
 	_star.level++;
 
-	_star.r = 50.0f * (float)_star.level + 25.0f;
+	_star.r = 20.0f * (float)_star.level + 40.0f;
 
 	for (auto& l : _star.legs)
 	{

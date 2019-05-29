@@ -2,21 +2,17 @@
 
 #include <DxLib.h>
 
-#include "../Camera.h"
-#include "../Game.h"
-#include "../Scene/GameScene.h"
-
 #define LEG(x) _oct.legs[x]
 
 constexpr int SPEED = 5;
 
-Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Player>& player):Boss(camera,player)
+Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Player>& player,const Vector2& pos):Boss(camera,player)
 {
 	_damageFlag = true;
 	_maxAngle = 30;
 	_wait = 0;
 	_timer = 0;
-	_oct.center = Vector2(1000, 600);
+	_oct.center = pos;
 	_oct.r = 500;
 	_oct.hedPos = _oct.center + Vector2(50, 0);
 	for (int i = 0; i < _oct.eyePos.size(); ++i) {
@@ -41,7 +37,7 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 		LEG(i).joint.clear();
 		for (int j = 0; j < LEG(i).T; ++j) {
 			LEG(i).joint.emplace_back(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)));
-			at.emplace_back();
+			at.emplace_back(AttackInfo(_oct.root[i] + Vector2(c, s)*(_oct.r / LEG(i).T*(j + 1)),50));
 		}
 		LEG(i).state = E_LEG_STATE::NORMAL;
 		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * SPEED*(i+1);
@@ -120,7 +116,7 @@ void Octopus::Normal(int idx)
 
 void Octopus::Punch(int idx)
 {
-	auto p = LEG(idx).tip - _targetPos;
+	auto p = LEG(idx).tip - _player->GetInfo().center;
 	auto pos = LEG(idx).tip - p.Normalized() * 10;
 	auto t_vec = pos - _oct.root[idx];
 	auto p_vec = LEG(idx).tip - _oct.root[idx];
@@ -169,10 +165,10 @@ void Octopus::OctInk()
 	auto p = Vector2(c, s);
 	auto pos = _oct.center + p * _oct.r;
 	auto p_vec = pos - _oct.center;
-	auto t_vec = _targetPos - _oct.center;
+	auto t_vec = _player->GetInfo().center - _oct.center;
 	auto dot = Dot(p_vec.Normalized(), t_vec.Normalized());
 	auto rad = acos(dot);
-	if (_targetPos.y > pos.y) {
+	if (_player->GetInfo().center.y > pos.y) {
 		rad = -rad;
 	}
 	_particle[0]->SetPos(_oct.center.x, _oct.center.y);
@@ -183,7 +179,7 @@ void Octopus::OctInk()
 
 void Octopus::Chase(int idx)
 {
-	auto p = LEG(idx).tip - _targetPos;
+	auto p = LEG(idx).tip - _player->GetInfo().center;
 	auto pos = LEG(idx).tip - p.Normalized() * 1;
 	IkCcd(pos, idx, 12);
 }
@@ -280,8 +276,8 @@ void Octopus::NeturalUpdate()
 	}
 
 	for (auto& leg : _oct.legs) {
-		if (((_targetPos - leg.tip).Magnitude() < distance)) {
-			distance = (_targetPos - leg.tip).Magnitude();
+		if (((_player->GetInfo().center - leg.tip).Magnitude() < distance)) {
+			distance = (_player->GetInfo().center - leg.tip).Magnitude();
 			_idx = j;
 		}
 		++j;
@@ -365,6 +361,44 @@ void Octopus::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
+void Octopus::ShadowDraw()
+{
+	auto c = _camera->CameraCorrection();
+	auto s = _camera->GetShadowPos(0.3f);
+
+	//‘«‚ÌŠÔ‚Ì–Œ‚Ì•`‰æ
+	for (int i = 0; i < _oct.legs.size() - 1; ++i) {
+		int j = 1;
+		auto p1 = _oct.root[i];
+		auto p2 = LEG(i).joint[j];
+		auto p3 = LEG((i + 1)).joint[j];
+		auto p4 = _oct.root[(i + 1)];
+		DrawQuadrangle(p1.x - c.x+s.x, p1.y - c.y + s.y, p2.x - c.x + s.x, p2.y - c.y + s.y, 
+					p3.x - c.x + s.x, p3.y - c.y + s.y, p4.x - c.x + s.x, p4.y - c.y + s.y, 0xbb0000, true);
+	}
+	for (int i = 0; i < _oct.legs.size(); ++i) {
+		DrawCircle(_oct.root[i].x - c.x + s.x, _oct.root[i].y - c.y + s.y, 5, 0xfffffff, true);
+	}
+	DrawCircle(_oct.center.x - c.x + s.x, _oct.center.y - c.y + s.y, 5, 0xfffffff, true);
+
+	//‘«‚Ì•`‰æ
+	for (int i = 0; i < _oct.legs.size(); ++i) {
+		int j = 0;
+		auto width = 50;
+		DrawLineAA(_oct.root[i].x - c.x + s.x, _oct.root[i].y - c.y + s.y, LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, 0xcc0000, width);
+		for (j = 0; j < LEG(i).T - 1; ++j) {
+			DrawLineAA(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, LEG(i).joint[j + 1].x - c.x + s.x, LEG(i).joint[j + 1].y - c.y + s.y, 0xcc0000, width -= 4);
+			DrawCircle(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, width / 2, 0xcc0000, true);
+		}
+	}
+	//“ª‚Ì•`‰æ
+	DrawOval(_oct.hedPos.x - c.x + s.x, _oct.hedPos.y - c.y + s.y, 125, 75, 0xee0000, true);
+	for (int i = 0; i < 2; ++i) {
+		DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 8, 0xffa500, true);
+		DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 6, 0x000000, true);
+	}
+}
+
 void Octopus::SelectDraw(const Vector2 p, const float s)
 {
 	_oct.center = p;
@@ -407,8 +441,8 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 		auto width = 50*s;
 		DrawLineAA(_oct.root[i].x, _oct.root[i].y, LEG(i).joint[j].x, LEG(i).joint[j].y, 0xcc0000, width);
 		for (j = 0; j < LEG(i).T - 1; ++j) {
-			DrawLineAA(LEG(i).joint[j].x , LEG(i).joint[j].y , LEG(i).joint[j + 1].x , LEG(i).joint[j + 1].y , 0xcc0000, (width -= 4)*s);
-			DrawCircle(LEG(i).joint[j].x , LEG(i).joint[j].y , width / 2, 0xcc0000, true);
+			DrawLineAA(LEG(i).joint[j].x , LEG(i).joint[j].y , LEG(i).joint[j + 1].x , LEG(i).joint[j + 1].y , 0xcc0000, (width -= 1));
+			DrawCircle(LEG(i).joint[j].x , LEG(i).joint[j].y , (width-=1) / 2, 0xcc0000, true);
 		}
 	}
 	//“ª‚Ì•`‰æ
