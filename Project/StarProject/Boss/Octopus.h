@@ -68,7 +68,7 @@ private:
 	void (Octopus::*_updater)();
 	Oct _oct;
 public:
-	Octopus(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p,const Vector2& pos);
+	Octopus(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos = Vector2(1000, 600));
 	~Octopus();
 	void OnDamage();
 	void Draw();
