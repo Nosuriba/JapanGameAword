@@ -129,7 +129,7 @@ void SeaCucumber::Update()
 
 void SeaCucumber::OnDamage()
 {
-	if (DAMAGE)
+	if (!DAMAGE)
 	{
 		DAMAGE = true;
 		_updater = &SeaCucumber::CounterUpdate;
