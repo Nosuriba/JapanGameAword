@@ -352,8 +352,8 @@ void Octopus::Draw()
 	for (auto& p : _particle)
 		p->Draw(0x000000);
 	auto c = _camera->CameraCorrection();
-	if (!_damageFlag && ((_oct.interval/2) % 10 == 0)) {
-		SetDrawBlendMode(DX_BLENDMODE_ADD, 128/2);
+	if (!_damageFlag && ((_oct.interval/5) % 2 == 0)) {
+		SetDrawBlendMode(DX_BLENDMODE_ADD, 180);
 	}
 
 
@@ -377,14 +377,16 @@ void Octopus::Draw()
 			DrawCircle(LEG(i).joint[j].x - c.x, LEG(i).joint[j].y - c.y, width / 2, 0xcc0000, true);
 		}
 	}
+
 	//“ª‚Ì•`‰æ
 	DrawOval(_oct.hedPos.x - c.x, _oct.hedPos.y - c.y,125, 75, 0xee0000, true);
 	for (int i = 0; i < 2; ++i) {
 		DrawCircle(_oct.eyePos[i].x - c.x, _oct.eyePos[i].y - c.y, 8, 0xffa500, true);
 		DrawCircle(_oct.eyePos[i].x - c.x, _oct.eyePos[i].y - c.y, 6,0x000000, true);
 	}
-	
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	
 #ifdef _DEBUG
 	DebugDraw();
 #endif // DEBUG
