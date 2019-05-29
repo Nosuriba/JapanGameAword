@@ -258,7 +258,7 @@ void Player::SetStar(const Vector2 & p, const float & s)
 	_star.r		= s;
 	MATRIX mat	= MGetTranslate(move.V_Cast());
 
-	CENTER = VTransform(CENTER.V_Cast(), mat);
+	CENTER		= VTransform(CENTER.V_Cast(), mat);
 	for (auto& l : _star.legs)
 	{
 		l.tip = VTransform(l.tip.V_Cast(), mat);
@@ -271,11 +271,11 @@ void Player::SetStar(const Vector2 & p, const float & s)
 	}
 }
 
-Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
+Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 {
-	_star.center = Vector2(500, 300);
-	_star.level = 1;
-	_star.r = 50.0f * (float)_star.level + 25.0f;
+	_star.center	= p;
+	_star.level		= 1;
+	_star.r			= 50.0f * (float)_star.level + 25.0f;
 
 	_star.legs.resize(5);
 	auto radian = 2.0f * DX_PI_F / (float)_star.legs.size();
@@ -292,8 +292,8 @@ Player::Player(const std::shared_ptr<Camera>& c) : _camera(c)
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
 	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
 
-	_img_STICK = ResourceManager::GetInstance().LoadImg("../img/STICK.png");
-	_img_TRIGGER = ResourceManager::GetInstance().LoadImg("../img/TRIGGER.png");
+	_img_STICK		= ResourceManager::GetInstance().LoadImg("../img/STICK.png");
+	_img_TRIGGER	= ResourceManager::GetInstance().LoadImg("../img/TRIGGER.png");
 
 	_updater = &Player::Normal;
 }

@@ -3,23 +3,18 @@
 #include <array>
 #include <vector>
 #include <list>
+#include "../Camera.h"
+#include "../Player.h"
 #include "../Processing/Geometry.h"
 #include "../Particle/Water.h"
-
-
-class Camera;
-class Player;
 
 struct AttackInfo
 {
 	Vector2 _pos;
 	float _r;
 
-	AttackInfo(const Vector2& p, const float& r)
-	{
-		_pos = p;
-		_r = r;
-	}
+	AttackInfo() :_pos(0,0), _r(0) {}
+	AttackInfo(const Vector2& p, const float& r) :_pos(p), _r(r) {}
 };
 
 class Boss

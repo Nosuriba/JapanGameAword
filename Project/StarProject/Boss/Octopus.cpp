@@ -2,10 +2,6 @@
 
 #include <DxLib.h>
 
-#include "../Camera.h"
-#include "../Game.h"
-#include "../Scene/GameScene.h"
-
 #define LEG(x) _oct.legs[x]
 
 constexpr int SPEED = 5;
@@ -120,7 +116,7 @@ void Octopus::Normal(int idx)
 
 void Octopus::Punch(int idx)
 {
-	auto p = LEG(idx).tip - _targetPos;
+	auto p = LEG(idx).tip - _player->GetInfo().center;
 	auto pos = LEG(idx).tip - p.Normalized() * 10;
 	auto t_vec = pos - _oct.root[idx];
 	auto p_vec = LEG(idx).tip - _oct.root[idx];
@@ -169,10 +165,10 @@ void Octopus::OctInk()
 	auto p = Vector2(c, s);
 	auto pos = _oct.center + p * _oct.r;
 	auto p_vec = pos - _oct.center;
-	auto t_vec = _targetPos - _oct.center;
+	auto t_vec = _player->GetInfo().center - _oct.center;
 	auto dot = Dot(p_vec.Normalized(), t_vec.Normalized());
 	auto rad = acos(dot);
-	if (_targetPos.y > pos.y) {
+	if (_player->GetInfo().center.y > pos.y) {
 		rad = -rad;
 	}
 	_particle[0]->SetPos(_oct.center.x, _oct.center.y);
@@ -183,7 +179,7 @@ void Octopus::OctInk()
 
 void Octopus::Chase(int idx)
 {
-	auto p = LEG(idx).tip - _targetPos;
+	auto p = LEG(idx).tip - _player->GetInfo().center;
 	auto pos = LEG(idx).tip - p.Normalized() * 1;
 	IkCcd(pos, idx, 12);
 }
@@ -280,8 +276,8 @@ void Octopus::NeturalUpdate()
 	}
 
 	for (auto& leg : _oct.legs) {
-		if (((_targetPos - leg.tip).Magnitude() < distance)) {
-			distance = (_targetPos - leg.tip).Magnitude();
+		if (((_player->GetInfo().center - leg.tip).Magnitude() < distance)) {
+			distance = (_player->GetInfo().center - leg.tip).Magnitude();
 			_idx = j;
 		}
 		++j;
@@ -407,8 +403,8 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 		auto width = 50*s;
 		DrawLineAA(_oct.root[i].x, _oct.root[i].y, LEG(i).joint[j].x, LEG(i).joint[j].y, 0xcc0000, width);
 		for (j = 0; j < LEG(i).T - 1; ++j) {
-			DrawLineAA(LEG(i).joint[j].x , LEG(i).joint[j].y , LEG(i).joint[j + 1].x , LEG(i).joint[j + 1].y , 0xcc0000, (width -= 4)*s);
-			DrawCircle(LEG(i).joint[j].x , LEG(i).joint[j].y , width / 2, 0xcc0000, true);
+			DrawLineAA(LEG(i).joint[j].x , LEG(i).joint[j].y , LEG(i).joint[j + 1].x , LEG(i).joint[j + 1].y , 0xcc0000, (width -= 1));
+			DrawCircle(LEG(i).joint[j].x , LEG(i).joint[j].y , (width-=1) / 2, 0xcc0000, true);
 		}
 	}
 	//“ª‚Ì•`‰æ
