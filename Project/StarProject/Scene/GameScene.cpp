@@ -112,6 +112,8 @@ void GameScene::Run(const Input & p)
 
 	_pl->Update(p);
 
+	score.bite = _pl->GetEatCnt();
+
 	for (auto &enemy : _enemies)
 	{
 		enemy->Update();
@@ -258,7 +260,6 @@ void GameScene::Run(const Input & p)
 							{
 								_pl->ToCatch(predatry->GetInfo()._pos);
 								predatry->Predatory();
-								score.bite++;
 								//if (score.bite % 5 == 1) {
 								//	_pl->LevelUP();
 								//}
