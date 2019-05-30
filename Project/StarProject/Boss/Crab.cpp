@@ -2,7 +2,6 @@
 #include "../ResourceManager.h"
 #include "../Particle/Particle.h"
 #include "../Particle/Bubble.h"
-#include "../Stage.h"
 
 const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
 const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ‹t‚Ì‰ñ“]•ûŒü
@@ -21,7 +20,7 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
-	_lifeCnt = 10;
+	_lifeCnt = 20;
 	_isAlive = true;
 	inviCnt = 0;
 
@@ -38,6 +37,10 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	SE.die	  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/die.mp3");
 	SE.pitch  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/pitch.mp3");
 	SE.shot   = ResourceManager::GetInstance().LoadSound("../Sound/Crab/shot.mp3");
+	SE.swing  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/swing.mp3");
+	SE.walk   = ResourceManager::GetInstance().LoadSound("../Sound/Crab/walk.mp3");
+
+	BGM		  = ResourceManager::GetInstance().LoadSound("../Sound/boss.mp3");
 
 	BodyInit();
 	LegInit();
@@ -46,10 +49,15 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	MoveJoint();
 	CalVert();
 	Neutral();
+
 }
 
 Crab::~Crab()
 {
+	if (CheckSoundMem(BGM))
+	{
+		StopSoundMem(BGM);
+	}
 }
 
 void Crab::BodyInit()
@@ -140,12 +148,13 @@ void Crab::Neutral()
 void Crab::Pitch()
 {
 	_type = AtkType::MOVE;
+	ChangeVolumeSoundMem(255 * 200 / 180, SE.swing);
+	PlaySoundMem(SE.swing, DX_PLAYTYPE_BACK);
 	_updater = &Crab::PitchUpdate;
 }
 
 void Crab::Shot()
 {
-	shot.clear();
 	_type = AtkType::SHOT;
 	_updater = &Crab::ShotUpdate;
 }
@@ -153,6 +162,8 @@ void Crab::Shot()
 void Crab::Die()
 {
 	_isAlive = false;
+	at.clear();
+	da.clear();
 	shot.clear();
 	_updater = &Crab::DieUpdate;
 }
@@ -207,24 +218,25 @@ void Crab::ShotUpdate()
 {
 	if (shotCnt > 0)
 	{
-		if (!(shotCnt % 9))
+		if (!(shotCnt % 12))
 		{
-			auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// ‚©‚É‚ÌŒü‚¢‚Ä‚é•ûŒü‚ÉŒü‚©‚Á‚Ä•úËó
+			auto c = _camera->CameraCorrection();
+			auto vec = (_player->GetInfo().center - _crab._pos).Normalized();
 			auto lengPos = Vector2(length * vec.x, length * vec.y);
-			auto rand = (GetRand(14) - 7);
+			auto rand = (GetRand(10) - 5);
 			auto pos = Vector2(10 * rand, 10 * rand) + lengPos;
 			/// ƒvƒŒƒCƒ„[‚Ì•ûŒü‚ÉŒü‚©‚Á‚Ä•úËã‚É‘Å‚Â‚æ‚¤İ’è‚ğs‚¤
 			auto theta = atan2f((_crab._pos.y + pos.y) - _crab._pos.y,
-				(_crab._pos.x + pos.x) - _crab._pos.x);
+								(_crab._pos.x + pos.x) - _crab._pos.x);
 			auto cost = cos(theta);
 			auto sint = sin(theta);
 			auto vel = Vector2(5.0f * cost, 5.0f * sint);
 			auto r = 15 * magRate;
 
-			shot.emplace_back(ShotInfo(_crab._pos, vel, r));
-			auto debug = Stage::GetInstance().GetStageSize() / 2;
-			//_particle.emplace_back(std::make_shared<Bubble>(600, 600, 1000, false, true, 5, 3, 0x0000ff));
-			_particle.emplace_back(std::make_shared<Bubble>(debug.x, debug.y, 1000, false, true, 5, 3, 0x000000));
+			shot.emplace_back(ShotInfo(_crab._pos + lengPos / 2, vel, r));
+			auto bPos = _crab._pos + (lengPos / 2);
+			_particle = std::make_shared<Bubble>(bPos.x - c.x, bPos.y - c.y, 1000, false, true, 14, 40, 0xddffff);
+			_particle->Create();
 
 			PlaySoundMem(SE.shot, DX_PLAYTYPE_BACK);
 		}
@@ -479,6 +491,7 @@ void Crab::MoveLeg()
 				_legMovePos[cnt] = (*leg)._points[2] + Vector2((length / 2) * dirVec.x, (length / 2) * dirVec.y);
 				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * dirVec.x,
 									  (mVel + _legAccel[cnt].y) * dirVec.y);
+			
 			}
 
 			if (_legMovePos[cnt].x != 0)
@@ -486,6 +499,7 @@ void Crab::MoveLeg()
 				/// ‹r‚Ì–ß‚·ˆÊ’uİ’è
 				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
 				{
+					PlaySoundMem(SE.walk, DX_PLAYTYPE_BACK);
 					auto vec = ((*leg)._points[2] - (*leg)._points[0]).Normalized();
 					auto lengPos = Vector2((length / 2) * vec.x, (length / 2) * vec.y);
 					_legMovePos[cnt] = Vector2();
@@ -502,6 +516,7 @@ void Crab::MoveLeg()
 				/// ‹r‚ÌˆÚ“®‚·‚éˆÊ’uİ’è
 				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
 				{
+					PlaySoundMem(SE.walk, DX_PLAYTYPE_BACK);
 					_legAccel[cnt] = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
 					_legPrePos[cnt] = Vector2();
 					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * dirVec.x, length * dirVec.y);
@@ -529,6 +544,7 @@ void Crab::MoveLeg()
 				/// ‹r‚Ì–ß‚·ˆÊ’uİ’è
 				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
 				{
+					PlaySoundMem(SE.walk, DX_PLAYTYPE_BACK);
 					auto vec = ((*leg)._points[2] - (*leg)._points[0]).Normalized();
 					auto lengPos = Vector2((length / 2) * vec.x, (length / 2) * vec.y);
 					_legMovePos[cnt] = Vector2();
@@ -545,6 +561,7 @@ void Crab::MoveLeg()
 				/// ‹r‚ÌˆÚ“®‚·‚éˆÊ’uİ’è
 				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
 				{
+					PlaySoundMem(SE.walk, DX_PLAYTYPE_BACK);
 					_legAccel[cnt] = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
 					_legPrePos[cnt] = Vector2();
 					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * -dirVec.x, length * -dirVec.y);
@@ -643,7 +660,6 @@ void Crab::ShotDelete()
 			break;
 		}
 	}
-	
 }
 
 void Crab::RegistAtkInfo()
@@ -685,6 +701,11 @@ void Crab::RegistDamageInfo()
 	{
 		vec = (i % 2 ? -vec : vec);
 		da.emplace_back(DamageInfo(_crab._pos + Vector2(_crab._size.height / 3 * vec.x, _crab._size.height / 3 * vec.y), _crab._size.height / 2));
+	}
+
+	for (auto arm : _crab._arms)
+	{
+		da.emplace_back(DamageInfo(arm._points[2], lSize.width / 2));
 	}
 
 }
@@ -772,11 +793,6 @@ void Crab::Draw()
 		DxLib::DrawCircle(shot._pos.x - c.x, shot._pos.y - c.y, shot._r, 0xccffff, true);
 	}
 
-	for (auto p : _particle)
-	{
-		p->Draw();
-	}
-
 	/// –³“Gó‘Ô‚ÌA“§–¾“x‚ğ’²®‚·‚é
 	if (inviCnt > 0)
 	{
@@ -835,6 +851,12 @@ void Crab::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
+	if (_particle != nullptr)
+	{
+		_particle->Draw();
+	}
+	
+
 #ifdef _DEBUG
 	DebugDraw(c);
 #endif
@@ -848,11 +870,6 @@ void Crab::ShadowDraw()
 	for (auto shot : shot)
 	{
 		DxLib::DrawCircle(shot._pos.x - c.x + s.x, shot._pos.y - c.y + s.y, shot._r, 0xccffff, true);
-	}
-
-	for (auto p : _particle)
-	{
-		p->Draw();
 	}
 
 	Vector2 p1, p2, p3, p4;
@@ -1032,14 +1049,26 @@ void Crab::OnDamage()
 
 }
 
+void Crab::HitBlock()
+{
+	/// ‰½‚à‚µ‚È‚¢
+}
+
 void Crab::Update()
 {
+	///@‚Æ‚è‚ ‚¦‚¸‰¼‚Å—¬‚µ‚Ä‚¢‚é
+	if (!CheckSoundMem(BGM))
+	{
+		ChangeVolumeSoundMem(255 * 200 / 180, BGM);
+		PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
+	}
 	(this->*_updater)();
 	if (_isAlive)
 	{
 		inviCnt = (inviCnt <= 0 ? inviCnt : inviCnt - 1);
 		ChangeAtkMode();
-		ShotDelete();
+		if (!shot.empty()) { ShotDelete(); }
+		
 		/// ˜r‚ÌˆÚ“®
 		for (auto& arm : _crab._arms)
 		{

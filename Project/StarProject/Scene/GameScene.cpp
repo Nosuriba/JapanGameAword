@@ -64,10 +64,6 @@ void GameScene::FadeIn(const Input & p)
 		waitCnt = 0;
 		_updater = &GameScene::Wait;
 	}
-	else
-	{
-		(*FadeBubble).Create();
-	}
 }
 
 void GameScene::FadeOut(const Input & p)
@@ -183,6 +179,14 @@ void GameScene::Run(const Input & p)
 				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
 				if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
 					_pl->OnDamage();
+				}
+				for (auto immortal : _immortalObj) {
+					auto _p = immortal->GetInfo()._pos - CC;
+					if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+
+					if (_col->CircleToSqr(b._pos, b._r, immortal->GetInfo()._rect)) {
+						boss->HitBlock();
+					}
 				}
 			}
 			for (auto b : boss->GetShotInfo()) {
@@ -489,7 +493,7 @@ GameScene::GameScene(const int& stagenum)
 	flame = 0;
 	wait = 0;
 
-	time = 60;
+	time = 120;
 	totaltime = 60;
 
 	waitNum = 3;
@@ -664,6 +668,9 @@ void GameScene::Draw()
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
 
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+	DrawBox(size.x / 2- GetFontSize(), 0, size.x / 2 + GetFontSize(), GetFontSize(), 0x003377,true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
 	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
 
@@ -673,11 +680,14 @@ void GameScene::Draw()
 		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
 	}
 
-	DrawFormatString(GetFontSize() / 2 + GetFontSize() / 4, size.y - GetFontSize(), 0xff8000, "%d", _pl->GetInfo().level);
+	SetFontSize(abs((gameCnt/2)%16-8)+128);
+	DrawFormatString(GetFontSize() / 2 + GetFontSize() / 3, size.y - GetFontSize(), 0xff8000, "%d", _pl->GetInfo().level);
 
 	SetFontSize(64);
 
+	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	DrawString(GetFontSize() / 6, size.y - GetFontSize() - 5, "Lv ", 0xff8000);
+	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
 
 
 
@@ -736,7 +746,7 @@ void GameScene::Draw()
 
 void GameScene::Update(const Input & p)
 {
-	wait++; shader_time++; waitCnt++;
+	wait++,shader_time++,waitCnt++, gameCnt++;
 
 	auto size = Game::GetInstance().GetScreenSize();
 
@@ -748,7 +758,7 @@ void GameScene::Update(const Input & p)
 		
 	//};
 
-	totaltime/* = time - (flame / 60)*/;
+	totaltime = time - (flame / 60);
 
 	_camera->Update(_pl->GetInfo().center);
 

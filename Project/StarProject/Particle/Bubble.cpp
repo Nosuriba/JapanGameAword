@@ -20,7 +20,7 @@ Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, int _BubbleMax,int colo
 	Init();
 }
 
-Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, bool _flag,int _vs,int _BubbleMax, int _color):BubbleMax(_BubbleMax), color(_color)
+Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, bool _flag,int _vs,int _BubbleMax, int _color,const std::shared_ptr<Camera>& c):BubbleMax(_BubbleMax), color(_color),c(c)
 {
 	// ˆø”‚Ì‘ã“ü
 	v_Speed = _vs;
@@ -166,7 +166,7 @@ void Bubble::Draw()
 	if (p_thread.joinable())p_thread.join();
 	// ‚±‚±‚Å“®‚©‚·
 	Move();
-
+	auto cpos = c==nullptr?Vector2():c->CameraCorrection();
 	int mode, param,x,y;
 	GetDrawBlendMode(&mode, &param);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND,0);
@@ -181,10 +181,10 @@ void Bubble::Draw()
 			isSmall ? SetDrawBlendMode(mode, param): SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) ;
 			if (color != -1) 
 			{
- 				DrawCircle(p.x / Magnification, p.y / Magnification, ((y - 90) / 2)*(0xff / p.radius - p.bright / p.radius) / ((Magnification)*(isSmall ? 8 : flag ? 0xff / v_Speed / 2 : 1)), color);
+ 				DrawCircle(p.x / Magnification- cpos.x, p.y / Magnification - cpos.y, ((y - 90) / 2)*(0xff / p.radius - p.bright / p.radius) / ((Magnification)*(isSmall ? 8 : flag ? 0xff / v_Speed / 2 : 1)), color);
 			}
 			flag ? SetDrawBlendMode(DX_BLENDMODE_ALPHA, p.bright) : SetDrawBlendMode(mode, param);
-			DrawRotaGraphF(p.x / Magnification, p.y / Magnification, (0xff / p.radius - p.bright / p.radius) / ((Magnification)*(isSmall ? 8 : flag ? 0xff / v_Speed / 2 : 1)), 0, imgBff, true);
+			DrawRotaGraphF(p.x / Magnification - cpos.x, p.y / Magnification - cpos.y, (0xff / p.radius - p.bright / p.radius) / ((Magnification)*(isSmall ? 8 : flag ? 0xff / v_Speed / 2 : 1)), 0, imgBff, true);
 			continue;
 		}
 	}

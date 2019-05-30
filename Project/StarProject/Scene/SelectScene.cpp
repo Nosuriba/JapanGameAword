@@ -185,13 +185,12 @@ void SelectScene::Draw()
 
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-	DrawBox(0, 6,size.x, GetFontSize() + 5, 0x003377, true);
 	DrawBox(0, size.y-(GetFontSize()+45), size.x, size.y-45, 0x003377, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	DrawString(size.x / 2 - GetFontSize() * 3.1, 5.05, "ステージを選んでね！", 0);
-	DrawString(size.x / 2 - GetFontSize() * 3, 5, "ステージを選んでね！", 0xffdd00);
+	DrawString(size.x / 2 - GetFontSize() * 5.1, 10.05, "ステージを選んでね！", 0);
+	DrawString(size.x / 2 - GetFontSize() * 5, 10, "ステージを選んでね！", 0xff4080);
 	DrawString(scrollCnt+ GetFontSize() * -0.1, size.y - (GetFontSize() + 45.1), ("STAGE" + std::to_string(Select + 1) + selectStr[Select]).c_str(), 0);
-	DrawString(scrollCnt, size.y - (GetFontSize() + 45), ("STAGE"+std::to_string(Select + 1) + selectStr[Select]).c_str(), 0xffdd00);
+	DrawString(scrollCnt, size.y - (GetFontSize() + 45), ("STAGE"+std::to_string(Select + 1) + selectStr[Select]).c_str(), 0x40ff80);
 
 	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
 }

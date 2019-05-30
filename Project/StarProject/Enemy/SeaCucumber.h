@@ -16,7 +16,7 @@ private:
 
 	Vector2 _pL;	// ç∂í[
 	Vector2 _pR;	// âEí[
-
+	const std::shared_ptr<Camera>& _camera;
 	void DebugDraw();
 
 public:

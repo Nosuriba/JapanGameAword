@@ -9,6 +9,7 @@ constexpr int SPEED = 5;
 Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Player>& player,const Vector2& pos):Boss(camera,player)
 {
 	_damageFlag = true;
+	_returnFlag = false;
 	_maxAngle = 30;
 	_wait = 0;
 	_timer = 0;
@@ -80,6 +81,10 @@ void Octopus::IkCcd(Vector2 pos, int idx, int numMaxItaration)
 
 void Octopus::Die()
 {
+	_isDie = true;
+	da.clear();
+	at.clear();
+
 	_updater = &Octopus::DieUpdate;
 }
 
@@ -139,25 +144,26 @@ void Octopus::Punch(int idx)
 			LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
 		}
 	}
-	else if ((LEG(idx).cnt > _oct.r / LEG(idx).T * 6) && (LEG(idx).cnt < _oct.r / LEG(idx).T * 8) && (_oct.r*2 > p_vec.Magnitude())) {
+	else if ((LEG(idx).cnt > _oct.r / LEG(idx).T * 6) && (LEG(idx).cnt < _oct.r / LEG(idx).T * 8) && (_oct.r*2 > p_vec.Magnitude())&&!_returnFlag) {
 		for (int j = 2; j < LEG(idx).T; ++j) {
 			LEG(idx).joint[j] = LEG(idx).joint[j - 1] + p_vec.Normalized()*((LEG(idx).joint[j] - LEG(idx).joint[j - 1]).Magnitude() + j+0.5f);
 		}
 		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
 	}
-	else if ((LEG(idx).cnt > _oct.r / LEG(idx).T * 8)&&(p_vec.Magnitude()>_oct.r)) {
+	else if (((LEG(idx).cnt > _oct.r / LEG(idx).T * 8)&&(p_vec.Magnitude()>_oct.r))||(_returnFlag && (p_vec.Magnitude() > _oct.r))) {
 		for (int j = 2; j < LEG(idx).T; ++j) {
 			LEG(idx).joint[j] = LEG(idx).joint[j - 1] + p_vec.Normalized()*((LEG(idx).joint[j] - LEG(idx).joint[j - 1]).Magnitude() - j);
 		}
 		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
 	}
-	else if((LEG(idx).cnt > _oct.r / LEG(idx).T * 10) && (p_vec.Magnitude() < _oct.r)){
+	else if(((LEG(idx).cnt > _oct.r / LEG(idx).T * 10) && (p_vec.Magnitude() < _oct.r))||(_returnFlag && (p_vec.Magnitude() < _oct.r))){
 		for (int j = 0; j < LEG(idx).T; ++j) {
 			LEG(idx).joint[j] = _oct.root[idx] + p_vec.Normalized()*(_oct.r / LEG(idx).T*(j + 1));
 		}
 		LEG(idx).tip = LEG(idx).joint[LEG(idx).T - 1];
 		LEG(idx).cnt = 0;
 		LEG(idx).state = E_LEG_STATE::RE_MOVE;
+		_returnFlag = false;
 	}
 }
 
@@ -174,6 +180,11 @@ void Octopus::OctInk()
 	if (_player->GetInfo().center.y > pos.y) {
 		rad = -rad;
 	}
+	if (_timer % 5==0) {
+		auto vel = Vector2(t_vec.Normalized().x * 2.0f, t_vec.Normalized().y * 2.0f);
+		shot.emplace_back(ShotInfo(_oct.center, vel, 15));
+	}
+
 	_particle[0]->SetPos(_oct.center.x, _oct.center.y);
 	_particle[0]->SetVelocity(20);
 	_particle[0]->SetRota(rad * 180 / DX_PI_F + 180);
@@ -245,6 +256,21 @@ void Octopus::HitUpd()
 	*damage = DamageInfo(_oct.center, 75);
 	damage++;
 	*damage= DamageInfo(_oct.hedPos, 75);
+	for (auto& sh:shot) {
+		auto vel = sh._vel * 1.025f;
+		auto p = sh._pos + vel;
+		sh = ShotInfo(p, vel, 15);
+	}
+	if (!shot.empty()) {
+		auto sh = shot.end();
+		auto pos = (--sh)->_pos;
+		auto c = _camera->CameraCorrection();
+		auto p = pos - c;
+		auto size = Stage::GetInstance().GetStageSize();
+		if (p.x < 0 || p.x > size.x || p.y < 0 || p.y > size.y) {
+			shot.clear();
+		}
+	}
 }
 
 //void Octopus::Move()
@@ -278,7 +304,7 @@ void Octopus::NeturalUpdate()
 {
 	int j = 0;
 	float distance = 9999;
-	if ((++_timer)% 200==0) {
+	if ((++_timer)% 150==0) {
 		int i = GetRand(_oct.legs.size() - 3)+1;
 		if (LEG(i).state == E_LEG_STATE::NORMAL) {
 			LEG(i).cnt = 0;
@@ -286,7 +312,7 @@ void Octopus::NeturalUpdate()
 		}
 	}
 
-	if ((_timer/100) % 10 == 0) {
+	if ((_timer/100) % 7 == 0) {
 		OctInk();
 	}
 
@@ -344,6 +370,9 @@ void Octopus::DebugDraw()
 	}
 	for (auto damage : da) {
 		DrawCircle(damage._pos.x - c.x, damage._pos.y - c.y, damage._r, 0x0000ff, true);
+	}
+	for (auto sh : shot) {
+		DrawCircle(sh._pos.x - c.x, sh._pos.y - c.y, sh._r, 0x00ffff, true);
 	}
 }
 
@@ -488,6 +517,11 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 void Octopus::Update()
 {
 	(this->*_updater)();
+}
+
+void Octopus::HitBlock()
+{
+	_returnFlag = true;
 }
 
 Octopus::~Octopus()

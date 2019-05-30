@@ -7,7 +7,7 @@ const int moveInvCnt = 40;
 const int crawlVel   = 1.5f;
 const int decSpeeed  = 0.02f;			// Œ¸‘¬‘¬“x
 
-SeaCucumber::SeaCucumber(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) : Enemy(c, p)
+SeaCucumber::SeaCucumber(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) : Enemy(c, p),_camera(c)
 {
 	auto size	= Size(120, 30);
 
@@ -16,8 +16,8 @@ SeaCucumber::SeaCucumber(const std::shared_ptr<Camera>& c, const std::shared_ptr
 	_pL = POS + Vector2(-1, 0) * (SIZE.width / 2.0f);
 	_pR = POS + Vector2(1, 0) * (SIZE.width / 2.0f);
 
-	_particle.emplace_back(std::make_shared<Bubble>(_pL.x, _pL.y, 5000, false, true, 5, 3, 0x660099));
-	_particle.emplace_back(std::make_shared<Bubble>(_pR.x, _pR.y, 5000, false, true, 5, 3, 0x660099));
+	_particle.emplace_back(std::make_shared<Bubble>(_pL.x, _pL.y, 5000, false, true, 5, 3, 0x660099,_camera));
+	_particle.emplace_back(std::make_shared<Bubble>(_pR.x, _pR.y, 5000, false, true, 5, 3, 0x660099,_camera));
 
 	_updater = &SeaCucumber::WaitUpdate;
 }
@@ -87,6 +87,7 @@ void SeaCucumber::MoveUpdate()
 
 void SeaCucumber::CounterUpdate()
 {
+	auto cpos=_camera->CameraCorrection();
 	for (auto& p : _particle)
 	{
 		_particle[0]->SetRota(180);
