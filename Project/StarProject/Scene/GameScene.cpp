@@ -103,7 +103,7 @@ void GameScene::Wait(const Input & p)
 void GameScene::Run(const Input & p)
 {
 	auto& size = Game::GetInstance().GetScreenSize();
-
+	gameCnt++;
 	//_pl->DeleteItr();
 
 	auto& laser = _pl->GetLaser();
@@ -522,7 +522,7 @@ GameScene::GameScene(const int& stagenum)
 	flame = 0;
 	wait = 0;
 
-	time = 120;
+	time = 90;
 	totaltime = 60;
 
 	waitNum = 3;
@@ -530,6 +530,9 @@ GameScene::GameScene(const int& stagenum)
 
 	nlpl = nlCnt = 0;
 	
+	Lvimg  = ResourceManager::GetInstance().LoadImg("../img/Lv.png");
+	Numimg = ResourceManager::GetInstance().LoadImg("../img/数字.png");
+	cgauge = ResourceManager::GetInstance().LoadImg("../img/timegauge.png");
 	shader_time = 0;
 	num = 0;
 
@@ -700,22 +703,22 @@ void GameScene::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
 	DrawBox(size.x / 2- GetFontSize(), 0, size.x / 2 + GetFontSize(), GetFontSize(), 0x003377,true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	DrawFormatString(size.x / 2, GetFontSize() / 2, 0xff00ff, "%d", one);
-	DrawFormatString(size.x / 2 - GetFontSize(), GetFontSize() / 2, 0xff00ff, "%d", ten);
 
-	SetFontSize(128);
-
+	DrawCircle(size.x / 2, 30, 45, 0);
 	if (_updater == &GameScene::Wait && waitNum >= 1) {
-		DrawFormatString(size.x / 2 - GetFontSize() / 2, size.y / 2 - GetFontSize() / 2, 0xff00ff, "%d", waitNum);
+		DrawRectRotaGraph(size.x / 2, size.y / 2, 300 * waitNum, 0, 300, 300, 0.5, 0, Numimg, true);
 	}
-
-	SetFontSize(abs((gameCnt/2)%16-8)+128);
-	DrawFormatString(GetFontSize() / 2 + GetFontSize() / 3, size.y - GetFontSize(), 0xff8000, "%d", _pl->GetInfo().level);
+	else
+	{
+		DrawCircleGauge(size.x / 2, 30, (gameCnt % 60)*1.6666f, cgauge, 0.0);
+	}
+	DrawRectRotaGraph(size.x / 2 - 30, 30, 300 * ten, 0, 300, 300, 0.3f, 0, Numimg, true);
+	DrawRectRotaGraph(size.x / 2 + 30, 30, 300 * one, 0, 300, 300, 0.3f, 0, Numimg, true);
 
 	SetFontSize(64);
-
+	DrawRectRotaGraph(GetFontSize()*2.5, size.y -75,300*_pl->GetInfo().level,0,300,300, abs((((gameCnt/2)%20-10)))*0.01f+0.5f,0,Numimg,true);
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
-	DrawString(GetFontSize() / 6, size.y - GetFontSize() - 5, "Lv ", 0xff8000);
+	DrawGraph(0, size.y - GetFontSize()*1.5,Lvimg,true);
 	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
 	
 
@@ -776,7 +779,7 @@ void GameScene::Draw()
 
 void GameScene::Update(const Input & p)
 {
-	wait++,shader_time++,waitCnt++, gameCnt++;
+	wait++,shader_time++,waitCnt++;
 
 	//auto size = Game::GetInstance().GetScreenSize();
 
