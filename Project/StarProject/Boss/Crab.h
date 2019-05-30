@@ -128,19 +128,23 @@ private:
 	int shotCnt;
 	int inviCnt;		// –³“GŠÔ
 	int _lifeCnt;
-
-	bool _isAlive;		// 
+	int blendCnt = 255;		// “§–¾“x’²®—p
+	Vector2 quake = Vector2();		// —h‚ê‚éŠÔ
 
 	float length;
 	float aLength;
 	Size lSize;			// ‹r‚Ì‘å‚«‚³
-	Size scisSize;		// ‚Í‚³‚İ‚Ì‘å‚«‚³				
+	Size scisSize;		// ‚Í‚³‚İ‚Ì‘å‚«‚³	
+
+	int bossScreen;
+
 public:
 	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos = Vector2(0,0));
 	~Crab();
 
 	void Draw();
 	void ShadowDraw();
+	int GetDrawHandle();
 	void SelectDraw(const Vector2& pos, const float& scale);
 	void DebugDraw(const Vector2& camera);
 	void OnDamage();

@@ -16,12 +16,15 @@ const int shotMax  = 240;
 
 Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) : Boss(c, p)
 {
+	int sizex, sizey;
+	GetDrawScreenSize(&sizex, &sizey);
+
 	_plPos = Vector2();
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
-	_lifeCnt = 20;
-	_isAlive = true;
+	_lifeCnt = 2;
+	_isDie = false;
 	inviCnt = 0;
 
 	center = pos;
@@ -41,6 +44,8 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	SE.walk   = ResourceManager::GetInstance().LoadSound("../Sound/Crab/walk.mp3");
 
 	BGM		  = ResourceManager::GetInstance().LoadSound("../Sound/boss.mp3");
+
+	bossScreen = MakeScreen(sizex, sizey, true);
 
 	BodyInit();
 	LegInit();
@@ -161,7 +166,8 @@ void Crab::Shot()
 
 void Crab::Die()
 {
-	_isAlive = false;
+	SetDrawValidGraphCreateFlag(true);
+	quake	 =Vector2(10.f, 10.f);
 	at.clear();
 	da.clear();
 	shot.clear();
@@ -253,6 +259,15 @@ void Crab::ShotUpdate()
 
 void Crab::DieUpdate()
 {
+	blendCnt--;
+
+	quake *= 0.9995;
+	//quake = (quake.x <= 0.05 ? Vector2() : Vector2(quake.x * 0.9995, quake.y * 0.9995));
+
+	if (blendCnt <= 0)
+	{
+		_isDie = true;
+	}
 }
 
 void Crab::CalVert()
@@ -788,6 +803,7 @@ void Crab::Draw()
 {
 	auto c = _camera->CameraCorrection();
 
+
 	for (auto shot : shot)
 	{
 		DxLib::DrawCircle(shot._pos.x - c.x, shot._pos.y - c.y, shot._r, 0xccffff, true);
@@ -802,13 +818,25 @@ void Crab::Draw()
 		}
 	}
 
+	if (_updater == &Crab::DieUpdate)
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, blendCnt);
+
+		quake.x = (GetRand(1) ? quake.x : -quake.x);
+		quake.y = (GetRand(1) ? quake.y : -quake.y);
+	}
+
+	SetDrawScreen(bossScreen);
+
+	ClearDrawScreen();
+
 	Vector2 p1, p2, p3, p4;
 	for (auto leg : _crab._legs)
 	{
 		for (int i = 0; i < leg._points.size() - 1; ++i)
 		{
-			p1 = leg._vert[i][0] - c; p2 = leg._vert[i][1] - c;
-			p3 = leg._vert[i][2] - c; p4 = leg._vert[i][3] - c;
+			p1 = leg._vert[i][0] - c + quake; p2 = leg._vert[i][1] - c + quake;
+			p3 = leg._vert[i][2] - c + quake; p4 = leg._vert[i][3] - c + quake;
 			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
@@ -817,11 +845,11 @@ void Crab::Draw()
 	for (; scis != _scissors.end(); ++scis)
 	{
 		auto sCnt = scis - _scissors.begin();
-		p1 = (*scis)[0] - c; p2 = (*scis)[1] - c;
-		p3 = (*scis)[2] - c; p4 = (*scis)[3] - c;
+		p1 = (*scis)[0] - c + quake; p2 = (*scis)[1] - c + quake;
+		p3 = (*scis)[2] - c + quake; p4 = (*scis)[3] - c + quake;
 
 		auto vec = (p1 - p4).Normalized();
-		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - c;
+		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - c + quake;
 
 		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000 , true);
 		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
@@ -831,14 +859,14 @@ void Crab::Draw()
 	{
 		for (int i = 0; i < arm._points.size() - 1; ++i)
 		{
-			p1 = arm._vert[i][0] - c; p2 = arm._vert[i][1] - c;
-			p3 = arm._vert[i][2] - c; p4 = arm._vert[i][3] - c;
+			p1 = arm._vert[i][0] - c + quake; p2 = arm._vert[i][1] - c + quake;
+			p3 = arm._vert[i][2] - c + quake; p4 = arm._vert[i][3] - c + quake;
 			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
 	/// ŠI–{‘Ì‚Ì•`‰æ
-	p1 = _crab._vert[0] - c; p2 = _crab._vert[1] - c;
-	p3 = _crab._vert[2] - c; p4 = _crab._vert[3] - c;
+	p1 = _crab._vert[0] - c + quake; p2 = _crab._vert[1] - c + quake;
+	p3 = _crab._vert[2] - c + quake; p4 = _crab._vert[3] - c + quake;
 	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 
 	auto vec = (p2 - p1).Normalized();
@@ -848,6 +876,14 @@ void Crab::Draw()
 	/// –Ú‚Ì•`‰æ
 	DxLib::DrawCircle(rEyePos.x, rEyePos.y, 5 * magRate, 0x000000, true);
 	DxLib::DrawCircle(lEyePos.x, lEyePos.y, 5 * magRate, 0x000000, true);
+
+	if (_updater == &Crab::DieUpdate)
+	{
+		int sizex, sizey;
+		GetDrawScreenSize(&sizex, &sizey);
+		SetDrawBlendMode(DX_BLENDMODE_MUL, 50);
+		DrawBox(0, 0, sizex, sizey, 0xff0000, true);
+	}
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
@@ -915,6 +951,11 @@ void Crab::ShadowDraw()
 	auto rEyePos = p1 + Vector2((_crab._size.width / 3) * vec.x, (_crab._size.width / 3) * vec.y);
 	auto lEyePos = p2 + Vector2((_crab._size.width / 3) * (-vec.x), (_crab._size.width / 3) * (-vec.y));
 
+}
+
+int Crab::GetDrawHandle()
+{
+	return bossScreen;
 }
 
 void Crab::SelectDraw(const Vector2 & pos, const float& scale)
@@ -1063,7 +1104,7 @@ void Crab::Update()
 		PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
 	}
 	(this->*_updater)();
-	if (_isAlive)
+	if (_updater != &Crab::DieUpdate)
 	{
 		inviCnt = (inviCnt <= 0 ? inviCnt : inviCnt - 1);
 		ChangeAtkMode();
