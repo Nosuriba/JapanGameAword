@@ -156,18 +156,27 @@ void GameScene::Run(const Input & p)
 		}
 
 		for (auto boss : _bosses) {
-			for (auto itr : boss->GetDamageInfo()) {
-				auto _p = itr._pos - CC;
+			//ﾌﾟﾚｲﾔｰｼｮｯﾄとボス
+			for (auto b : boss->GetDamageInfo()) {
+				auto _p = b._pos - CC;
 				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
 				for (int j = 0; j < 2; ++j) {
 					for (auto l = laser[j].begin(); l != laser[j].end(); l++) {
 						if (_col->WaterToCircle(
 							(*l).pos, (*l).isEnd ? (*l).pos : ((++l != laser[j].end()) ? (*l--).pos : (*--l).pos),
-							itr._pos, itr._r))
+							b._pos, b._r))
 						{
 							boss->OnDamage();
 						}
 					}
+				}
+			}
+			//ﾌﾟﾚｲﾔｰとボス
+			for (auto b : boss->GetAttackInfo()) {
+				auto _p = b._pos - CC;
+				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+				if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
+					_pl->OnDamage();
 				}
 			}
 		}
@@ -491,6 +500,12 @@ GameScene::~GameScene()
 	if (__eneCol.joinable()) {
 		__eneCol.join();
 	}*/
+
+	DeleteGraph(firstscreen);
+	DeleteGraph(secondscreen);
+	DeleteGraph(thirdscreen);
+	DeleteGraph(_4thscreen);
+	DeleteGraph(uiscreen);
 }
 
 void GameScene::nlDraw()

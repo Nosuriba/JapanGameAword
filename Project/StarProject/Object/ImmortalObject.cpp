@@ -19,6 +19,9 @@ ImmortalObject::ImmortalObject(std::shared_ptr<Camera>& camera, int x, int y):Ob
 
 ImmortalObject::~ImmortalObject()
 {
+	for (auto& gh : immortalimg) {
+		DeleteGraph(gh);
+	}
 }
 
 void ImmortalObject::Draw()

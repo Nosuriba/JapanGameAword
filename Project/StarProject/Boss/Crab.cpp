@@ -1,4 +1,5 @@
 #include "Crab.h"
+#include "../ResourceManager.h"
 #include "../Particle/Particle.h"
 #include "../Particle/Bubble.h"
 #include "../Stage.h"
@@ -20,7 +21,7 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
-	_lifeCnt = 10;
+	_lifeCnt = 2;
 	_isAlive = true;
 
 	center = pos;
@@ -31,6 +32,11 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	scisSize	= Size(70 * magRate, lSize.height * magRate);
 	length		= lSize.width * magRate;
 	aLength		= (lSize.width + (60 * magRate)) * magRate;
+
+	SE.damage = ResourceManager::GetInstance().LoadSound("../Sound/Crab/damage.mp3");
+	SE.die	  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/die.mp3");
+	SE.pitch  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/pitch.mp3");
+	SE.shot   = ResourceManager::GetInstance().LoadSound("../Sound/Crab/shot.mp3");
 
 	BodyInit();
 	LegInit();
@@ -199,7 +205,7 @@ void Crab::ShotUpdate()
 {
 	if (shotCnt > 0)
 	{
-		if (!(shotCnt % 5))
+		if (!(shotCnt % 8))
 		{
 			auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// ‚©‚É‚ÌŒü‚¢‚Ä‚é•ûŒü‚ÉŒü‚©‚Á‚Ä•úËó
 			auto lengPos = Vector2(length * vec.x, length * vec.y);
@@ -217,6 +223,8 @@ void Crab::ShotUpdate()
 			auto debug = Stage::GetInstance().GetStageSize() / 2;
 			//_particle.emplace_back(std::make_shared<Bubble>(600, 600, 1000, false, true, 5, 3, 0x0000ff));
 			_particle.emplace_back(std::make_shared<Bubble>(debug.x, debug.y, 1000, false, true, 5, 3, 0x000000));
+
+			PlaySoundMem(SE.shot, DX_PLAYTYPE_BACK);
 		}
 		shotCnt--;
 	}
@@ -367,6 +375,10 @@ void Crab::scisRota()
 				if (pitchCnt <= pitchMax / 2)
 				{
 					rot = (sCnt % aSize ? rotDir : revRotDir);
+				}
+				else
+				{
+					PlaySoundMem(SE.pitch, DX_PLAYTYPE_BACK);
 				}
 				auto mat = MGetTranslate((-center).V_Cast());
 				mat = MMult(mat, MGetRotAxis(rot, rotVel * 5));
@@ -946,8 +958,11 @@ void Crab::OnDamage()
 		if (_lifeCnt == 0)
 		{
 			Die();
+			ChangeVolumeSoundMem((255 * 120) / 100, SE.die);
+			PlaySoundMem(SE.die, DX_PLAYTYPE_BACK);
 			return;
 		}
+		PlaySoundMem(SE.damage, DX_PLAYTYPE_BACK);
 		inviCnt = inviMax;
 	}
 
