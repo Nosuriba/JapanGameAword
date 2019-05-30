@@ -385,7 +385,6 @@ void GameScene::LoadResource()
 	_4thscreen		= MakeScreen(size.x,		size.y);
 	uiscreen		= MakeScreen(size.x,		size.y, true);
 
-
 	//当たり範囲の指定のための領域
 	for (int i = 0; i < 4; i++) {
 
@@ -688,8 +687,7 @@ void GameScene::Draw()
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	DrawString(GetFontSize() / 6, size.y - GetFontSize() - 5, "Lv ", 0xff8000);
 	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
-
-
+	
 
 
 	//バック描画
