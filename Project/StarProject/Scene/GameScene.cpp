@@ -482,7 +482,7 @@ GameScene::GameScene(const int& stagenum)
 	waitNum = 3;
 	waitCnt = 0;
 
-	nlCnt = 0;
+	nlpl = nlCnt = 0;
 	
 	shader_time = 0;
 	num = 0;
@@ -510,11 +510,15 @@ GameScene::~GameScene()
 
 void GameScene::nlDraw()
 {
-	auto nlpl = std::make_unique<Player>(nullptr);
+	auto pl = std::make_unique<Player>(nullptr);
 	auto size = Game::GetInstance().GetScreenSize();
 	std::string str = "NowLoading";
 	int lpsize = 100;
-	nlCnt++;
+	if (nlCnt&& (nlpl == 0))
+	{
+		nlpl = MakeScreen(lpsize * 2, lpsize * 2, true);
+		GetDrawScreenGraph(600 - lpsize, 400 - lpsize, 600 + lpsize, 400 + lpsize, nlpl);
+	}
 	ClearDrawScreen();
 	SetDrawScreen(DX_SCREEN_BACK);
 	for (int i = 0;i < (nlCnt/30)%4;i++)
@@ -522,10 +526,15 @@ void GameScene::nlDraw()
 		str += ".";
 	}
 	DrawString(size.x-GetFontSize()*8, size.y-GetFontSize(), str.c_str(), 0x00ffff);
-	nlpl->SelectDraw({600, 400}, lpsize);
-	auto pl = MakeScreen(lpsize, lpsize,true);
-	GetDrawScreenGraph(600- lpsize,400- lpsize, 600 + lpsize, 400 + lpsize,pl);
-	DrawRotaGraph(100,100,1,nlCnt,pl,true);
+	if (nlpl==0)
+	{
+		pl->SelectDraw({ 600, 400 }, lpsize);
+	}
+	else if (nlpl!=-1)
+	{		
+		DrawRotaGraph(size.x - GetFontSize() * 8 - lpsize * 1.5, size.y - lpsize, 1, nlCnt / 10, nlpl, true);
+	}
+	nlCnt++;
 	(*FadeBubble).Draw();
 }
 

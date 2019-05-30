@@ -101,7 +101,7 @@ private:
 	int waitNum;
 	int waitCnt;
 
-	int nlCnt;
+	int nlCnt,nlpl;
 
 	int num;
 
