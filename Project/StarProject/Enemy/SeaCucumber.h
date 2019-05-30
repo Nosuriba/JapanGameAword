@@ -25,6 +25,7 @@ public:
 
 	void Update();
 	void Draw();
+	void Shadow();
 
 	void OnDamage();
 
