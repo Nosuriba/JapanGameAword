@@ -13,6 +13,16 @@ enum class AtkType
 	MAX
 };
 
+struct CrabSE
+{
+	int damage;
+	int die;
+	int pitch;
+	int shot;
+	int walk;
+	int swing;
+};
+
 using sqr_vert = std::array<Vector2, 4>;
 
 struct JointInfo
@@ -98,6 +108,7 @@ private:
 	void (Crab::*_updater)();
 
 	AtkType _type;
+	CrabSE SE;
 	Vector2 _plPos;						// Ãﬂ⁄≤‘∞ÇÃç¿ïWï€ë∂óp
 	Vector2 _armPrePos;
 
