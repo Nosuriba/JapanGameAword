@@ -9,6 +9,11 @@ Boss::~Boss()
 {
 }
 
+bool Boss::GetDieFlag()
+{
+	return _isDie;
+}
+
 std::list<AttackInfo> Boss::GetAttackInfo()
 {
 	return at;
