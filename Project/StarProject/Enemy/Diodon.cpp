@@ -145,7 +145,7 @@ void Diodon::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 #ifdef _DEBUG
-	//DebugDraw();
+	DebugDraw();
 #endif
 }
 
@@ -153,6 +153,9 @@ void Diodon::DebugDraw()
 {
 	// ’†S
 	DxLib::DrawCircle(POS.x - CC.x, POS.y - CC.y, 2, 0x000000);
+
+	for (auto& d : _damage)
+		DrawCircle(d.pos.x, d.pos.y, d.r, 0xff00ff, true);
 }
 
 void Diodon::DrawNeedle(const Vector2& p, const Vector2& v, const float r)
@@ -174,6 +177,8 @@ void Diodon::Update()
 {
 	(this->*_updater)();
 
+	CreateDamagePoints();
+	CreateAttackPoints();
 }
 
 void Diodon::Search()
@@ -202,4 +207,18 @@ void Diodon::OnDamage()
 		_anim_frame = 0;
 		_updater	= &Diodon::EscapeUpdate;
 	}
+}
+
+void Diodon::CreateDamagePoints()
+{
+	_damage.clear();
+
+	_damage.emplace_back(POS, SIZE.width / 2);
+}
+
+void Diodon::CreateAttackPoints()
+{
+	_attack.clear();
+
+	_attack.emplace_back(POS, SIZE.width / 2);
 }

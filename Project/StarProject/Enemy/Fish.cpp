@@ -27,6 +27,7 @@ Fish::Fish(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	cPoints.emplace_back(POS - _vel.Normalized() * (SIZE.width / 4.0f), true);
 
 	midPoints.resize(points);
+	CalBezier();
 
 	_updater = &Fish::SwimUpdate;
 }
@@ -107,7 +108,6 @@ void Fish::EscapeUpdate()
 		cp._pos += (_vel.Normalized() * Speed * 2);
 
 	++_escapeTime;
-	/// 画面外に出た時、死亡状態にする
 	if (_escapeTime > 255)
 		_updater = &Fish::DieUpdate;
 }
@@ -135,13 +135,16 @@ void Fish::CalBezier()
 		midPoints[m].y = (a * a * a * start.y) + (3 * a * a * b * cPoints[0]._pos.y) +
 						 (3 * a * b * b * cPoints[1]._pos.y) + (b * b * b * end.y);
 	}
+
+	CreateDamagePoints(); 
+	CreateAttackPoints();
 }
 
 void Fish::LookAt(const Vector2& v)
 {
 	MATRIX rot;
-	rot = MGetRotVec2(_vel.V_Cast(), v.V_Cast());
-	_vel = VTransform(_vel.V_Cast(), rot);
+	rot		= MGetRotVec2(_vel.V_Cast(), v.V_Cast());
+	_vel	= VTransform(_vel.V_Cast(), rot);
 
 	MATRIX mat;
 
@@ -159,8 +162,6 @@ void Fish::LookAt(const Vector2& v)
 
 void Fish::Draw()
 {
-	CalBezier();
-
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - _escapeTime);
 
 	/// ﾍﾞｼﾞｪ曲線を用いての描画
@@ -198,7 +199,7 @@ void Fish::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 #ifdef _DEBUG
-	//DebugDraw();
+	DebugDraw();
 #endif
 
 }
@@ -223,6 +224,9 @@ void Fish::DebugDraw()
 		auto vp = start + (-_vel.Normalized()) * Dot((-_vel.Normalized()), (p._pos - start));
 		DrawCircle(vp.x - CC.x, vp.y - CC.y, 5, 0x0000ff);
 	}
+
+	for (auto& d : _damage)
+		DrawCircle(d.pos.x, d.pos.y, d.r, 0xff00ff, true);
 }
 
 void Fish::Update()
@@ -247,6 +251,8 @@ void Fish::Update()
 			cp._pos = p + (cp._pos - p).Normalized() * 30.0f;
 		}
 	}
+
+	CalBezier();
 }
 
 void Fish::Search()
@@ -285,4 +291,22 @@ void Fish::OnDamage()
 
 		_updater = &Fish::EscapeUpdate;
 	}
+}
+
+void Fish::CreateDamagePoints()
+{
+	_damage.clear();
+
+	_damage.emplace_back(POS, SIZE.height / 3);
+	_damage.emplace_back(midPoints[midPoints.size() / 4], SIZE.height / 3);
+	_damage.emplace_back(midPoints[midPoints.size() - midPoints.size() / 4], SIZE.height / 4);
+}
+
+void Fish::CreateAttackPoints()
+{
+	_attack.clear();
+
+	_attack.emplace_back(POS, SIZE.height / 3);
+	_attack.emplace_back(midPoints[midPoints.size() / 4], SIZE.height / 3);
+	_attack.emplace_back(midPoints[midPoints.size() - midPoints.size() / 4], SIZE.height / 4);
 }
