@@ -177,6 +177,13 @@ void GameScene::Run(const Input & p)
 					_pl->OnDamage();
 				}
 			}
+			for (auto b : boss->GetShotInfo()) {
+				auto _p = b._pos - CC;
+				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+				if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
+					_pl->OnDamage();
+				}
+			}
 		}
 	//}
 	

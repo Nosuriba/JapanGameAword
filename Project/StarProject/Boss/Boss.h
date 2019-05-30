@@ -45,6 +45,7 @@ class Boss
 protected:
 	std::list<AttackInfo> at;
 	std::list <DamageInfo> da;
+	std::list <ShotInfo> shot;
 
 	const std::shared_ptr<Camera>& _camera;
 	const std::shared_ptr<Player>& _player;
@@ -59,6 +60,7 @@ public:
 
 	std::list<AttackInfo> GetAttackInfo();
 	std::list<DamageInfo> GetDamageInfo();
+	std::list<ShotInfo> GetShotInfo();
 
 	virtual void OnDamage() = 0;
 };
