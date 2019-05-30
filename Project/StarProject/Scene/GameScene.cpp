@@ -64,6 +64,10 @@ void GameScene::FadeIn(const Input & p)
 		waitCnt = 0;
 		_updater = &GameScene::Wait;
 	}
+	else
+	{
+		(*FadeBubble).Create();
+	}
 }
 
 void GameScene::FadeOut(const Input & p)
@@ -521,6 +525,7 @@ void GameScene::nlDraw()
 	auto size = Game::GetInstance().GetScreenSize();
 	std::string str = "NowLoading";
 	int lpsize = 100;
+	pl->SelectDraw({ 600, 400 }, lpsize);
 	if (nlCnt&& (nlpl == 0))
 	{
 		nlpl = MakeScreen(lpsize * 2, lpsize * 2, true);
@@ -532,17 +537,12 @@ void GameScene::nlDraw()
 	{
 		str += ".";
 	}
+
 	DrawString(size.x-GetFontSize()*8, size.y-GetFontSize(), str.c_str(), 0x00ffff);
-	if (nlpl==0)
-	{
-		pl->SelectDraw({ 600, 400 }, lpsize);
-	}
-	else if (nlpl!=-1)
-	{		
-		DrawRotaGraph(size.x - GetFontSize() * 8 - lpsize * 1.5, size.y - lpsize, 1, nlCnt / 10, nlpl, true);
-	}
+
+	if (nlpl!=-1)DrawRotaGraph(size.x - GetFontSize() * 8 - lpsize * 1.4, size.y - lpsize, 1, (nlCnt / 30) % 360, nlpl, true);
+
 	nlCnt++;
-	(*FadeBubble).Draw();
 }
 
 void GameScene::Draw()
