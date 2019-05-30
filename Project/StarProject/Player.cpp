@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Processing/Input.h"
 #include "ResourceManager.h"
+#include "Shot.h"
 
 #define CENTER _star.center
 #define LEG(x) _star.legs[x]
@@ -76,12 +77,12 @@ void Player::Normal(const Input & in)
 		if (in.ReleaseTrigger(TRIGGER::LEFT))
 		{
 			if (_laser[0].size())
-				(--_laser[0].end())->End();
+				_laser[0].back()->End();
 		}
 		if (in.ReleaseTrigger(TRIGGER::RIGHT))
 		{
 			if (_laser[1].size())
-				(--_laser[1].end())->End();
+				_laser[1].back()->End();
 		}
 
 		if (i == select_idx[0])
@@ -93,7 +94,7 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 				
-				_laser[0].emplace_back(LEG(i).pos, v.Normalized());
+				_laser[0].emplace_back(std::make_shared<Shot>(LEG(i).pos, v.Normalized()));
 
 				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[0]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
@@ -119,7 +120,7 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 
-				_laser[1].emplace_back(LEG(i).pos, v.Normalized());
+				_laser[1].emplace_back(std::make_shared<Shot>(LEG(i).pos, v.Normalized()));
 
 				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
 				_particle[1]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
@@ -318,13 +319,11 @@ void Player::Update(const Input& in)
 {
 	for (int i=0;i<2;i++)
 	{
+		_laser[i].remove_if([](std::shared_ptr<Shot> s) { return s->HitCheck() || s->CntCheck() > 50; });
 		for (auto& l : _laser[i])
 		{
-			l.pos += l.vel;
-			l.vel += l.vel.Normalized();
-			++l.count;
+			l->Update();
 		}
-		_laser[i].remove_if([](Laser l) { return l.count > 75 || l.isHit; });
 	}
 
 	(this->*_updater)(in);
@@ -377,17 +376,12 @@ void Player::Draw()
 
 	for (int i = 0; i < 2; i++)
 	{
-		for (auto l = _laser[i].begin();l!= _laser[i].end();l++)
+		for (auto l = _laser[i].begin(); l != _laser[i].end(); l++)
 		{
-			auto start = (*l).pos - c;
-			auto end = (*l).pos + ((*l).vel.Normalized() * (*l).size) - c;
+			auto s = (*l)->GetPos();
+			auto e = (*l)->EndCheck() ? s : (std::next(l) != _laser[i].end()) ? (*std::next(l))->GetPos() : s;
 
-			DrawLine(start.x, start.y, end.x, end.y, 0x000000, 10);
-
-			auto s = (*l).pos - c;
-			auto e = (*l).isEnd?s:((++l != _laser[i].end()) ? (*l--).pos : (*--l).pos)-c;
-
-			DrawLine(s.x, s.y, e.x, e.y, 0x3333ff, (*l).size);
+			DrawLine(s.x - c.x, s.y - c.y, e.x - c.x, e.y - c.y, 0x3333ff, 4);
 		}
 	}
 
