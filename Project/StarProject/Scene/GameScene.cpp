@@ -104,7 +104,7 @@ void GameScene::Run(const Input & p)
 {
 	auto& size = Game::GetInstance().GetScreenSize();
 
-	auto& laser = _pl->GetLaser();
+	auto laser = _pl->GetLaser();
 
 	_pl->Update(p);
 
@@ -282,17 +282,22 @@ void GameScene::Run(const Input & p)
 					auto _p = immortal->GetInfo()._pos - CC;
 					if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
 
-					//if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - CC.x &&
+					if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - CC.x &&
 
-					//	immortal->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right&&
+						immortal->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right&&
 
-					//	_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - CC.y &&
+						_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - CC.y &&
 
-					//	immortal->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
+						immortal->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
 
-					//	auto e = (*l).isEnd ? (*l).pos : ((++l != laser[i].end()) ? (*l--).pos : (*--l).pos);
-					//		
-					//}
+						auto e = (*l).isEnd ? (*l).pos : ((++l != laser[i].end()) ? (*l--).pos : (*--l).pos);
+						if (_col->WaterToSqr((*l).pos,
+							e, (e - (*l).pos).Magnitude(),
+							immortal->GetInfo()._rect))
+						{
+							laser[i].erase(l);
+						}
+					}
 				}
 			//}
 		}
@@ -749,7 +754,7 @@ void GameScene::Update(const Input & p)
 
 	auto size = Game::GetInstance().GetScreenSize();
 
-	auto& laser = _pl->GetLaser(); 
+	auto laser = _pl->GetLaser(); 
 	//const auto camera = _camera->CameraCorrection();
 
 
