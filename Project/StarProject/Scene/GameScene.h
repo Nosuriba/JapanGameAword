@@ -66,10 +66,6 @@ private:
 	std::vector<std::shared_ptr<Enemy>> _enemies;		/// ‰¼‚Ì•`‰æ
 	std::vector<std::shared_ptr<Boss>> _bosses;
 
-	std::shared_ptr<DestroyableObject> _destroy;
-	std::shared_ptr<PredatoryObject> _predatory;
-	std::shared_ptr<ImmortalObject> _immortal;
-
 	std::vector<std::shared_ptr<DestroyableObject>> _destroyObj;
 	std::vector<std::shared_ptr<PredatoryObject>> _predatoryObj;
 	std::vector<std::shared_ptr<ImmortalObject>> _immortalObj;

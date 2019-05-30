@@ -716,7 +716,7 @@ void GameScene::Update(const Input & p)
 		predatry->Update();
 	}
 	for (auto destroy : _destroyObj) {
-		destroy->Update(p);
+		destroy->Update();
 	}
 
 	(this->*_updater)(p);
