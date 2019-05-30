@@ -492,7 +492,7 @@ GameScene::GameScene(const int& stagenum)
 	flame = 0;
 	wait = 0;
 
-	time = 60;
+	time = 120;
 	totaltime = 60;
 
 	waitNum = 3;
@@ -757,7 +757,7 @@ void GameScene::Update(const Input & p)
 		
 	//};
 
-	totaltime/* = time - (flame / 60)*/;
+	totaltime = time - (flame / 60);
 
 	_camera->Update(_pl->GetInfo().center);
 
