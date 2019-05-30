@@ -48,6 +48,8 @@ protected:
 	std::list <DamageInfo> da;
 	std::list <ShotInfo> shot;
 
+	bool _isDie = false;
+
 	const std::shared_ptr<Camera>& _camera;
 	const std::shared_ptr<Player>& _player;
 
@@ -58,6 +60,8 @@ public:
 	virtual void Draw() = 0;
 	virtual void ShadowDraw() = 0;
 	virtual void Update() = 0;
+
+	bool GetDieFlag();
 
 	std::list<AttackInfo> GetAttackInfo();
 	std::list<DamageInfo> GetDamageInfo();

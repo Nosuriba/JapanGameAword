@@ -2,7 +2,6 @@
 #include "../ResourceManager.h"
 #include "../Particle/Particle.h"
 #include "../Particle/Bubble.h"
-#include "../Stage.h"
 
 const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
 const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ‹t‚Ì‰ñ“]•ûŒü
@@ -145,7 +144,7 @@ void Crab::Pitch()
 
 void Crab::Shot()
 {
-	shot.clear();
+	/*shot.clear();*/
 	_type = AtkType::SHOT;
 	_updater = &Crab::ShotUpdate;
 }
@@ -209,22 +208,23 @@ void Crab::ShotUpdate()
 	{
 		if (!(shotCnt % 9))
 		{
+			auto c = _camera->CameraCorrection();
 			auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// ‚©‚É‚ÌŒü‚¢‚Ä‚é•ûŒü‚ÉŒü‚©‚Á‚Ä•úËó
 			auto lengPos = Vector2(length * vec.x, length * vec.y);
 			auto rand = (GetRand(14) - 7);
 			auto pos = Vector2(10 * rand, 10 * rand) + lengPos;
 			/// ƒvƒŒƒCƒ„[‚Ì•ûŒü‚ÉŒü‚©‚Á‚Ä•úËã‚É‘Å‚Â‚æ‚¤İ’è‚ğs‚¤
 			auto theta = atan2f((_crab._pos.y + pos.y) - _crab._pos.y,
-				(_crab._pos.x + pos.x) - _crab._pos.x);
+								(_crab._pos.x + pos.x) - _crab._pos.x);
 			auto cost = cos(theta);
 			auto sint = sin(theta);
 			auto vel = Vector2(5.0f * cost, 5.0f * sint);
 			auto r = 15 * magRate;
 
-			shot.emplace_back(ShotInfo(_crab._pos, vel, r));
-			auto debug = Stage::GetInstance().GetStageSize() / 2;
-			//_particle.emplace_back(std::make_shared<Bubble>(600, 600, 1000, false, true, 5, 3, 0x0000ff));
-			_particle.emplace_back(std::make_shared<Bubble>(debug.x, debug.y, 1000, false, true, 5, 3, 0x000000));
+			shot.emplace_back(ShotInfo(_crab._pos + lengPos / 2, vel, r));
+			auto bPos = _crab._pos + (lengPos / 2);
+			_particle = std::make_shared<Bubble>(bPos.x - c.x, bPos.y - c.y, 1000, false, true, 14, 40, 0xddffff);
+			_particle->Create();
 
 			PlaySoundMem(SE.shot, DX_PLAYTYPE_BACK);
 		}
@@ -643,7 +643,6 @@ void Crab::ShotDelete()
 			break;
 		}
 	}
-	
 }
 
 void Crab::RegistAtkInfo()
@@ -772,11 +771,6 @@ void Crab::Draw()
 		DxLib::DrawCircle(shot._pos.x - c.x, shot._pos.y - c.y, shot._r, 0xccffff, true);
 	}
 
-	for (auto p : _particle)
-	{
-		p->Draw();
-	}
-
 	/// –³“Gó‘Ô‚ÌA“§–¾“x‚ğ’²®‚·‚é
 	if (inviCnt > 0)
 	{
@@ -835,6 +829,12 @@ void Crab::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
+	if (_particle != nullptr)
+	{
+		_particle->Draw();
+	}
+	
+
 #ifdef _DEBUG
 	DebugDraw(c);
 #endif
@@ -848,11 +848,6 @@ void Crab::ShadowDraw()
 	for (auto shot : shot)
 	{
 		DxLib::DrawCircle(shot._pos.x - c.x + s.x, shot._pos.y - c.y + s.y, shot._r, 0xccffff, true);
-	}
-
-	for (auto p : _particle)
-	{
-		p->Draw();
 	}
 
 	Vector2 p1, p2, p3, p4;
@@ -1039,7 +1034,8 @@ void Crab::Update()
 	{
 		inviCnt = (inviCnt <= 0 ? inviCnt : inviCnt - 1);
 		ChangeAtkMode();
-		ShotDelete();
+		if (!shot.empty()) { ShotDelete(); }
+		
 		/// ˜r‚ÌˆÚ“®
 		for (auto& arm : _crab._arms)
 		{
