@@ -36,6 +36,7 @@ void GameScene::LoadStageUpdate(const Input & p)
 		_camera->SetRange(Vector2(_stage.GetStageSize().x, _stage.GetStageSize().y));
 		_updater = &GameScene::LoadResourceUpdate;
 	}
+	nlDraw();
 }
 
 void GameScene::LoadResourceUpdate(const Input & p)
@@ -46,6 +47,7 @@ void GameScene::LoadResourceUpdate(const Input & p)
 		wait = 0;
 		_updater = &GameScene::FadeIn;
 	}
+	nlDraw();
 }
 
 void GameScene::FadeIn(const Input & p)
@@ -61,6 +63,10 @@ void GameScene::FadeIn(const Input & p)
 	if (wait >= WAITFRAME) {
 		waitCnt = 0;
 		_updater = &GameScene::Wait;
+	}
+	else
+	{
+		(*FadeBubble).Create();
 	}
 }
 
@@ -171,6 +177,13 @@ void GameScene::Run(const Input & p)
 			}
 			//ﾌﾟﾚｲﾔｰとボス
 			for (auto b : boss->GetAttackInfo()) {
+				auto _p = b._pos - CC;
+				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+				if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
+					_pl->OnDamage();
+				}
+			}
+			for (auto b : boss->GetShotInfo()) {
 				auto _p = b._pos - CC;
 				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
 				if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
@@ -360,9 +373,6 @@ void GameScene::LoadResource()
 
 	SetUseASyncLoadFlag(true);
 
-	
-	
-
 	//スクリーン作成
 	firstscreen		= MakeScreen(size.x,		size.y);
 	secondscreen	= MakeScreen(size.x - 1,	size.y - 1);
@@ -483,6 +493,8 @@ GameScene::GameScene(const int& stagenum)
 	waitNum = 3;
 	waitCnt = 0;
 
+	nlpl = nlCnt = 0;
+	
 	shader_time = 0;
 	num = 0;
 
@@ -505,6 +517,32 @@ GameScene::~GameScene()
 	DeleteGraph(thirdscreen);
 	DeleteGraph(_4thscreen);
 	DeleteGraph(uiscreen);
+}
+
+void GameScene::nlDraw()
+{
+	auto pl = std::make_unique<Player>(nullptr);
+	auto size = Game::GetInstance().GetScreenSize();
+	std::string str = "NowLoading";
+	int lpsize = 100;
+	pl->SelectDraw({ 600, 400 }, lpsize);
+	if (nlCnt&& (nlpl == 0))
+	{
+		nlpl = MakeScreen(lpsize * 2, lpsize * 2, true);
+		GetDrawScreenGraph(600 - lpsize, 400 - lpsize, 600 + lpsize, 400 + lpsize, nlpl);
+	}
+	ClearDrawScreen();
+	SetDrawScreen(DX_SCREEN_BACK);
+	for (int i = 0;i < (nlCnt/30)%4;i++)
+	{
+		str += ".";
+	}
+
+	DrawString(size.x-GetFontSize()*8, size.y-GetFontSize(), str.c_str(), 0x00ffff);
+
+	if (nlpl!=-1)DrawRotaGraph(size.x - GetFontSize() * 8 - lpsize * 1.4, size.y - lpsize, 1, (nlCnt / 30) % 360, nlpl, true);
+
+	nlCnt++;
 }
 
 void GameScene::Draw()
