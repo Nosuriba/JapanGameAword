@@ -75,6 +75,7 @@ public:
 	void OnDamage();
 	void Draw();
 	void ShadowDraw();
+	int GetDrawHandle();
 	void SelectDraw(const Vector2 p, const float s);
 	void Update();
 	void HitBlock();
