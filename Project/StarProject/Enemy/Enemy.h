@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <array>
+#include <list>
 
 class Camera;
 class Player;
@@ -28,7 +29,6 @@ struct EnemyInfo {
 	}
 };
 
-
 class Enemy
 {
 private:
@@ -42,6 +42,9 @@ protected:
 	bool		_isTurn;			// true:右方向, false:左方向		
 	int			_anim_frame;
 
+	std::list<DamageRec> _damage;
+	std::list<DamageRec> _attack;
+
 	Enemy(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p);
 
 public:
@@ -49,8 +52,14 @@ public:
 	virtual void Update() = 0;
 	virtual void Draw() = 0;
 
-	EnemyInfo GetInfo();
+	const EnemyInfo GetInfo() const { return _enemy; }
+	const std::list<DamageRec> GetDamaRec() const { return _damage; };
+	const std::list<DamageRec> GetAttaRec() const { return _attack; };
 
 	virtual void OnDamage() = 0;
+	// ダメージ判定用
+	virtual void CreateDamagePoints() = 0;
+	// 攻撃判定用
+	virtual void CreateAttackPoints() = 0;
 };
 
