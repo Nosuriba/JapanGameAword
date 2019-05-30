@@ -20,7 +20,7 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
-	_lifeCnt = 2;
+	_lifeCnt = 20;
 	_isDie = false;
 	inviCnt = 0;
 
