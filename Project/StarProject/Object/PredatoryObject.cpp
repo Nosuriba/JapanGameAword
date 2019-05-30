@@ -1,11 +1,10 @@
 #include "PredatoryObject.h"
-#include "../Camera.h"
-#include <DxLib.h>
+
 #include "../ResourceManager.h"
 
 const int offset(60);
 
-PredatoryObject::PredatoryObject(std::shared_ptr<Camera>& camera, int x, int y):Obstacle(camera),_camera(camera)
+PredatoryObject::PredatoryObject(const std::shared_ptr<Camera>& camera, int x, int y):Obstacle(camera)
 {
 	auto pos = Position2(x,y);
 	auto size = Size(32 + offset,32 + offset);

@@ -36,6 +36,7 @@ void GameScene::LoadStageUpdate(const Input & p)
 		_camera->SetRange(Vector2(_stage.GetStageSize().x, _stage.GetStageSize().y));
 		_updater = &GameScene::LoadResourceUpdate;
 	}
+	nlDraw();
 }
 
 void GameScene::LoadResourceUpdate(const Input & p)
@@ -46,6 +47,7 @@ void GameScene::LoadResourceUpdate(const Input & p)
 		wait = 0;
 		_updater = &GameScene::FadeIn;
 	}
+	nlDraw();
 }
 
 void GameScene::FadeIn(const Input & p)
@@ -61,6 +63,10 @@ void GameScene::FadeIn(const Input & p)
 	if (wait >= WAITFRAME) {
 		waitCnt = 0;
 		_updater = &GameScene::Wait;
+	}
+	else
+	{
+		(*FadeBubble).Create();
 	}
 }
 
@@ -105,6 +111,8 @@ void GameScene::Run(const Input & p)
 	auto& laser = _pl->GetLaser();
 
 	_pl->Update(p);
+
+	score.bite = _pl->GetEatCnt();
 
 	for (auto &enemy : _enemies)
 	{
@@ -252,7 +260,6 @@ void GameScene::Run(const Input & p)
 							{
 								_pl->ToCatch(predatry->GetInfo()._pos);
 								predatry->Predatory();
-								score.bite++;
 								//if (score.bite % 5 == 1) {
 								//	_pl->LevelUP();
 								//}
@@ -366,9 +373,6 @@ void GameScene::LoadResource()
 	auto& size = Game::GetInstance().GetScreenSize();
 
 	SetUseASyncLoadFlag(true);
-
-	
-	
 
 	//ÉXÉNÉäÅ[ÉìçÏê¨
 	firstscreen		= MakeScreen(size.x,		size.y);
@@ -490,6 +494,8 @@ GameScene::GameScene(const int& stagenum)
 	waitNum = 3;
 	waitCnt = 0;
 
+	nlpl = nlCnt = 0;
+	
 	shader_time = 0;
 	num = 0;
 
@@ -512,6 +518,32 @@ GameScene::~GameScene()
 	DeleteGraph(thirdscreen);
 	DeleteGraph(_4thscreen);
 	DeleteGraph(uiscreen);
+}
+
+void GameScene::nlDraw()
+{
+	auto pl = std::make_unique<Player>(nullptr);
+	auto size = Game::GetInstance().GetScreenSize();
+	std::string str = "NowLoading";
+	int lpsize = 100;
+	pl->SelectDraw({ 600, 400 }, lpsize);
+	if (nlCnt&& (nlpl == 0))
+	{
+		nlpl = MakeScreen(lpsize * 2, lpsize * 2, true);
+		GetDrawScreenGraph(600 - lpsize, 400 - lpsize, 600 + lpsize, 400 + lpsize, nlpl);
+	}
+	ClearDrawScreen();
+	SetDrawScreen(DX_SCREEN_BACK);
+	for (int i = 0;i < (nlCnt/30)%4;i++)
+	{
+		str += ".";
+	}
+
+	DrawString(size.x-GetFontSize()*8, size.y-GetFontSize(), str.c_str(), 0x00ffff);
+
+	if (nlpl!=-1)DrawRotaGraph(size.x - GetFontSize() * 8 - lpsize * 1.4, size.y - lpsize, 1, (nlCnt / 30) % 360, nlpl, true);
+
+	nlCnt++;
 }
 
 void GameScene::Draw()
@@ -723,7 +755,7 @@ void GameScene::Update(const Input & p)
 		predatry->Update();
 	}
 	for (auto destroy : _destroyObj) {
-		destroy->Update(p);
+		destroy->Update();
 	}
 
 	(this->*_updater)(p);

@@ -97,5 +97,6 @@ public:
 	void LetsGo(const Vector2 p);
 	void SetStar(const Vector2& p, const float& s);
 	const bool CheckDie() const { return _isDie; }
+	const int GetEatCnt() const { return _eatCnt; }
 };
 
