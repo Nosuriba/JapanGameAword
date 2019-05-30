@@ -112,8 +112,7 @@ private:
 	Vector2 _plPos;						// ﾌﾟﾚｲﾔｰの座標保存用
 	Vector2 _armPrePos;
 
-	CrabInfo _crab;
-	std::vector<ShotInfo> _shot;		// 仮のｼｮｯﾄ用変数
+	CrabInfo _crab;		// 仮のｼｮｯﾄ用変数
 	std::vector<std::shared_ptr<Particle>> _particle;
 
 	std::vector<sqr_vert> _scissors;	// はさみの爪の数

@@ -145,15 +145,15 @@ void Crab::Pitch()
 
 void Crab::Shot()
 {
+	shot.clear();
 	_type = AtkType::SHOT;
-	_shot.clear();
 	_updater = &Crab::ShotUpdate;
 }
 
 void Crab::Die()
 {
 	_isAlive = false;
-	_shot.clear();
+	shot.clear();
 	_updater = &Crab::DieUpdate;
 }
 
@@ -207,7 +207,7 @@ void Crab::ShotUpdate()
 {
 	if (shotCnt > 0)
 	{
-		if (!(shotCnt % 8))
+		if (!(shotCnt % 9))
 		{
 			auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// Ç©Ç…ÇÃå¸Ç¢ÇƒÇÈï˚å¸Ç…å¸Ç©Ç¡Çƒï˙éÀèÛ
 			auto lengPos = Vector2(length * vec.x, length * vec.y);
@@ -221,7 +221,7 @@ void Crab::ShotUpdate()
 			auto vel = Vector2(5.0f * cost, 5.0f * sint);
 			auto r = 15 * magRate;
 
-			_shot.emplace_back(ShotInfo(_crab._pos, vel, r));
+			shot.emplace_back(ShotInfo(_crab._pos, vel, r));
 			auto debug = Stage::GetInstance().GetStageSize() / 2;
 			//_particle.emplace_back(std::make_shared<Bubble>(600, 600, 1000, false, true, 5, 3, 0x0000ff));
 			_particle.emplace_back(std::make_shared<Bubble>(debug.x, debug.y, 1000, false, true, 5, 3, 0x000000));
@@ -632,15 +632,18 @@ void Crab::MoveJoint()
 
 void Crab::ShotDelete()
 {
-	for (int i = 0; i < _shot.size(); ++i)
+	auto s = shot.begin();
+	for (; s != shot.end(); ++s)
 	{
-		if (_shot[i]._pos.x < 0 || _shot[i]._pos.y < 0 ||
-			_shot[i]._pos.x > Stage::GetInstance().GetStageSize().x ||
-			_shot[i]._pos.y > Stage::GetInstance().GetStageSize().y)
+		if ((*s)._pos.x < 0 || (*s)._pos.y < 0 ||
+			(*s)._pos.x > Stage::GetInstance().GetStageSize().x ||
+			(*s)._pos.y > Stage::GetInstance().GetStageSize().y)
 		{
-			_shot.erase(i + _shot.begin());
+			shot.erase(s);
+			break;
 		}
 	}
+	
 }
 
 void Crab::RegistAtkInfo()
@@ -664,11 +667,7 @@ void Crab::RegistAtkInfo()
 			at.emplace_back(AttackInfo((*point), size));
 		}
 	}
-	for (auto shot : _shot)
-	{
-		at.emplace_back(AttackInfo(shot._pos, shot._r));
-	}
-
+	
 	auto vec = (_crab._vert[1] - _crab._vert[0]).Normalized();
 	for (int i = 0; i < 2; ++i)
 	{
@@ -768,7 +767,7 @@ void Crab::Draw()
 {
 	auto c = _camera->CameraCorrection();
 
-	for (auto shot : _shot)
+	for (auto shot : shot)
 	{
 		DxLib::DrawCircle(shot._pos.x - c.x, shot._pos.y - c.y, shot._r, 0xccffff, true);
 	}
@@ -846,7 +845,7 @@ void Crab::ShadowDraw()
 	auto c = _camera->CameraCorrection();
 	auto s = _camera->GetShadowPos(0.3f);
 
-	for (auto shot : _shot)
+	for (auto shot : shot)
 	{
 		DxLib::DrawCircle(shot._pos.x - c.x + s.x, shot._pos.y - c.y + s.y, shot._r, 0xccffff, true);
 	}
@@ -1001,12 +1000,17 @@ void Crab::DebugDraw(const Vector2& camera)
 
 	for (auto a : at)
 	{
-		DrawCircle(a._pos.x - camera.x, a._pos.y - camera.y, a._r, 0xaacc00, true);
+		DrawCircle(a._pos.x - camera.x, a._pos.y - camera.y, a._r, 0x55dd00, true);
 	}
 
 	for (auto d : da)
 	{
 		DrawCircle(d._pos.x - camera.x, d._pos.y - camera.y, d._r, 0x0000dd);
+	}
+
+	for (auto s : shot)
+	{
+		DrawCircle(s._pos.x - camera.x, s._pos.y - camera.y, s._r, 0x55dd00);
 	}
 }
 
@@ -1043,7 +1047,7 @@ void Crab::Update()
 				arm._ctlPoint += arm._vel;
 		}
 		/// ºÆØƒÇÃà⁄ìÆ
-		for (auto& shot : _shot)
+		for (auto& shot : shot)
 		{
 			shot._pos += shot._vel;
 		}
