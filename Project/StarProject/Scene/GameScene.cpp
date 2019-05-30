@@ -36,6 +36,7 @@ void GameScene::LoadStageUpdate(const Input & p)
 		_camera->SetRange(Vector2(_stage.GetStageSize().x, _stage.GetStageSize().y));
 		_updater = &GameScene::LoadResourceUpdate;
 	}
+	nlDraw();
 }
 
 void GameScene::LoadResourceUpdate(const Input & p)
@@ -46,6 +47,7 @@ void GameScene::LoadResourceUpdate(const Input & p)
 		wait = 0;
 		_updater = &GameScene::FadeIn;
 	}
+	nlDraw();
 }
 
 void GameScene::FadeIn(const Input & p)
@@ -351,9 +353,6 @@ void GameScene::LoadResource()
 
 	SetUseASyncLoadFlag(true);
 
-	
-	
-
 	//ÉXÉNÉäÅ[ÉìçÏê¨
 	firstscreen		= MakeScreen(size.x,		size.y);
 	secondscreen	= MakeScreen(size.x - 1,	size.y - 1);
@@ -474,6 +473,8 @@ GameScene::GameScene(const int& stagenum)
 	waitNum = 3;
 	waitCnt = 0;
 
+	nlCnt = 0;
+	
 	shader_time = 0;
 	num = 0;
 
@@ -490,6 +491,27 @@ GameScene::~GameScene()
 	if (__eneCol.joinable()) {
 		__eneCol.join();
 	}*/
+}
+
+void GameScene::nlDraw()
+{
+	auto nlpl = std::make_unique<Player>(nullptr);
+	auto size = Game::GetInstance().GetScreenSize();
+	std::string str = "NowLoading";
+	int lpsize = 100;
+	nlCnt++;
+	ClearDrawScreen();
+	SetDrawScreen(DX_SCREEN_BACK);
+	for (int i = 0;i < (nlCnt/30)%4;i++)
+	{
+		str += ".";
+	}
+	DrawString(size.x-GetFontSize()*8, size.y-GetFontSize(), str.c_str(), 0x00ffff);
+	nlpl->SelectDraw({600, 400}, lpsize);
+	auto pl = MakeScreen(lpsize, lpsize,true);
+	GetDrawScreenGraph(600- lpsize,400- lpsize, 600 + lpsize, 400 + lpsize,pl);
+	DrawRotaGraph(100,100,1,nlCnt,pl,true);
+	(*FadeBubble).Draw();
 }
 
 void GameScene::Draw()
