@@ -19,7 +19,6 @@
 #include "../Object/ImmortalObject.h"
 #include "../Stage.h"
 
-
 #include <iostream>
 #include <algorithm>
 
@@ -104,7 +103,9 @@ void GameScene::Run(const Input & p)
 {
 	auto& size = Game::GetInstance().GetScreenSize();
 
-	auto laser = _pl->GetLaser();
+	//_pl->DeleteItr();
+
+	auto& laser = _pl->GetLaser();
 
 	_pl->Update(p);
 
@@ -202,8 +203,7 @@ void GameScene::Run(const Input & p)
 
 	for (int i = 0; i < 2; i++)
 	{
-		for (auto l = laser[i].begin(); l != laser[i].end(); l++) {
-
+		for (auto l = laser[i].begin(); l != laser[i].end();l++) {
 			//if (num % 4 == 1) {
 				//破壊可能オブジェクト
 				for (auto destroy : _destroyObj) {
@@ -219,7 +219,7 @@ void GameScene::Run(const Input & p)
 
 						destroy->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
 
-						auto e = (*l).isEnd ? (*l).pos : ((++l != laser[i].end()) ? (*l--).pos : (*--l).pos);
+						auto e = (*l).isEnd ? (*l).pos : ((std::next(l) != laser[i].end()) ? (*l).pos : (*l).pos);
 
 						if (_pl->GetInfo().level >= destroy->GetInfo()._level && !destroy->GetInfo()._hitflag) {
 							if (_col->WaterToSqr((*l).pos,
@@ -250,7 +250,7 @@ void GameScene::Run(const Input & p)
 
 						predatry->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
 
-						auto e = (*l).isEnd ? (*l).pos : ((++l != laser[i].end()) ? (*l--).pos : (*--l).pos);
+						auto e = (*l).isEnd ? (*l).pos : ((std::next(l) != laser[i].end()) ? (*l).pos : (*l).pos);
 						if (_col->WaterToSqr((*l).pos,
 							e, (e - (*l).pos).Magnitude(),
 							predatry->GetInfo()._rect))
@@ -277,29 +277,46 @@ void GameScene::Run(const Input & p)
 
 			//if (num % 4 == 3) {
 				//破壊不可オブジェクト
-				for (auto immortal : _immortalObj) {
+				//for (auto immortal : _immortalObj) {
 
-					auto _p = immortal->GetInfo()._pos - CC;
-					if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+				//	auto _p = immortal->GetInfo()._pos - CC;
+				//	if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
 
-					if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - CC.x &&
+				//	if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - CC.x &&
 
-						immortal->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right&&
+				//		immortal->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right&&
 
-						_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - CC.y &&
+				//		_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - CC.y &&
 
-						immortal->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
-
-						auto e = (*l).isEnd ? (*l).pos : ((++l != laser[i].end()) ? (*l--).pos : (*--l).pos);
-						if (_col->WaterToSqr((*l).pos,
-							e, (e - (*l).pos).Magnitude(),
-							immortal->GetInfo()._rect))
-						{
-							laser[i].erase(l);
-						}
-					}
-				}
-			//}
+				//		immortal->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
+				//		if (laser[i].end() != l) {
+				//			Vector2 e;
+				//			if ((*l).isEnd) {
+				//				e = (*l).pos;
+				//			}
+				//			else {
+				//				if ((std::next(l) != laser[i].end())) {
+				//					e= (*l).pos;
+				//				}
+				//				else {
+				//					e= (*l).pos;
+				//				}
+				//			}
+				//			//auto e = (*l).isEnd ? (*l).pos : ((++l != laser[i].end()) ? (*l--).pos : (*--l).pos);
+				//			if (_col->WaterToSqr((*l).pos,
+				//				e, (e - (*l).pos).Magnitude(),
+				//				immortal->GetInfo()._rect))
+				//			{
+				//				l = laser[i].erase(l);
+				//				flag = false;
+				//			}
+				//		}
+				//	}
+				//}
+			////}
+			//	if (flag) {
+			//		l++;
+			//	}
 		}
 	}
 
@@ -433,38 +450,37 @@ void GameScene::LoadResource()
 
 	//オブジェクトの生成
 	auto _stagedata = _stage.GetStageData();
-	//for (auto& s : _stagedata) {
-	//	if (s.no == 1) {
-	//		_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
-	//	}
-	//	if (s.no == 2) {
-	//		_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 1));
-	//	}
-	//	if (s.no == 3) {
-	//		_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
-	//	}
-	//	if (s.no == 9) {
-	//		_bosses.push_back(std::make_shared<Octopus>(_camera, _pl, Vector2(s.x, s.y)));
-	//	}
-	//	if (s.no == 10) {
-	//		_bosses.push_back(std::make_shared<Crab>(_camera, _pl, Vector2(Stage::GetInstance().GetStageSize().x / 2,
-	//																	   Stage::GetInstance().GetStageSize().y / 2)));
-	//	}
-	//	if (s.no == 11) {
-	//		_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 2));
-	//	}
-	//	if (s.no == 12) {
-	//		_enemies.push_back(std::make_shared<Fish>(_camera, _pl, Vector2(s.x, s.y)));
-	//	}
-	//	if (s.no == 13) {
-	//		_enemies.push_back(std::make_shared<Diodon>(_camera,_pl, Vector2(s.x, s.y)));
-	//	}
-	//	if (s.no == 14) {
-	//		_enemies.push_back(std::make_shared<SeaCucumber>(_camera,_pl, Vector2(s.x, s.y)));
-	//	}
-	//}
+	for (auto& s : _stagedata) {
+		if (s.no == 1) {
+			_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
+		}
+		if (s.no == 2) {
+			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 1));
+		}
+		if (s.no == 3) {
+			_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
+		}
+		if (s.no == 9) {
+			_bosses.push_back(std::make_shared<Octopus>(_camera, _pl, Vector2(s.x, s.y)));
+		}
+		if (s.no == 10) {
+			_bosses.push_back(std::make_shared<Crab>(_camera, _pl, Vector2(Stage::GetInstance().GetStageSize().x / 2,
+																		   Stage::GetInstance().GetStageSize().y / 2)));
+		}
+		if (s.no == 11) {
+			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 2));
+		}
+		if (s.no == 12) {
+			_enemies.push_back(std::make_shared<Fish>(_camera, _pl, Vector2(s.x, s.y)));
+		}
+		if (s.no == 13) {
+			_enemies.push_back(std::make_shared<Diodon>(_camera,_pl, Vector2(s.x, s.y)));
+		}
+		if (s.no == 14) {
+			_enemies.push_back(std::make_shared<SeaCucumber>(_camera,_pl, Vector2(s.x, s.y)));
+		}
+	}
 
-	_enemies.push_back(std::make_shared<SeaCucumber>(_camera, _pl, Vector2(500, 500)));
 	//score初期化
 	score = ScoreInfo(0, 0, 0, 0);
 
@@ -753,9 +769,9 @@ void GameScene::Update(const Input & p)
 {
 	wait++,shader_time++,waitCnt++, gameCnt++;
 
-	auto size = Game::GetInstance().GetScreenSize();
+	//auto size = Game::GetInstance().GetScreenSize();
 
-	auto laser = _pl->GetLaser(); 
+	//auto laser = _pl->GetLaser(); 
 	//const auto camera = _camera->CameraCorrection();
 
 
