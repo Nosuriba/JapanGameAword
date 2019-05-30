@@ -39,6 +39,7 @@ class Octopus :
 	public Boss
 {
 private:
+	bool _returnFlag;
 	bool _damageFlag;
 	int _wait;
 	int _maxAngle;
@@ -76,5 +77,6 @@ public:
 	void ShadowDraw();
 	void SelectDraw(const Vector2 p, const float s);
 	void Update();
+	void HitBlock();
 };
 

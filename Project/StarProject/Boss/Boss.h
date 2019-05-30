@@ -68,4 +68,6 @@ public:
 	std::list<ShotInfo> GetShotInfo();
 
 	virtual void OnDamage() = 0;
+	virtual void HitBlock() = 0;
+
 };

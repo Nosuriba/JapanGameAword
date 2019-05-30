@@ -8,8 +8,3 @@ Enemy::Enemy(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p)
 Enemy::~Enemy()
 {
 }
-
-EnemyInfo Enemy::GetInfo()
-{
-	return _enemy;
-}

@@ -77,7 +77,7 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	
-	ResultStr = { "たおしたてき　:%3d x 100" ,"たべたかず　　:%3d x 100" , "こわしたかず　:%3d x 10","のこりタイム　:%3d x 1000","","　　総合点　　:%6d", };
+	ResultStr = { "たおしたてき　:%02d x 100" ,"たべたかず　　:%02d x 100" , "こわしたかず　:%02d x 10","のこりタイム　:%02d x 1000","","　　総合点　　:%6d", };
 
 	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	ResultCnt = 0;

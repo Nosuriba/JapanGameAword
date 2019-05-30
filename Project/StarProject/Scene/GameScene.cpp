@@ -180,6 +180,14 @@ void GameScene::Run(const Input & p)
 				if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
 					_pl->OnDamage();
 				}
+				for (auto immortal : _immortalObj) {
+					auto _p = immortal->GetInfo()._pos - CC;
+					if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+
+					if (_col->CircleToSqr(b._pos, b._r, immortal->GetInfo()._rect)) {
+						boss->HitBlock();
+					}
+				}
 			}
 			for (auto b : boss->GetShotInfo()) {
 				auto _p = b._pos - CC;
@@ -420,37 +428,38 @@ void GameScene::LoadResource()
 
 	//オブジェクトの生成
 	auto _stagedata = _stage.GetStageData();
-	for (auto& s : _stagedata) {
-		if (s.no == 1) {
-			_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
-		}
-		if (s.no == 2) {
-			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 1));
-		}
-		if (s.no == 3) {
-			_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
-		}
-		if (s.no == 9) {
-			_bosses.push_back(std::make_shared<Octopus>(_camera, _pl, Vector2(s.x, s.y)));
-		}
-		if (s.no == 10) {
-			_bosses.push_back(std::make_shared<Crab>(_camera, _pl, Vector2(Stage::GetInstance().GetStageSize().x / 2,
-																		   Stage::GetInstance().GetStageSize().y / 2)));
-		}
-		if (s.no == 11) {
-			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 2));
-		}
-		if (s.no == 12) {
-			_enemies.push_back(std::make_shared<Fish>(_camera, _pl, Vector2(s.x, s.y)));
-		}
-		if (s.no == 13) {
-			_enemies.push_back(std::make_shared<Diodon>(_camera,_pl, Vector2(s.x, s.y)));
-		}
-		if (s.no == 14) {
-			_enemies.push_back(std::make_shared<SeaCucumber>(_camera,_pl, Vector2(s.x, s.y)));
-		}
-	}
+	//for (auto& s : _stagedata) {
+	//	if (s.no == 1) {
+	//		_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, s.x, s.y));
+	//	}
+	//	if (s.no == 2) {
+	//		_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 1));
+	//	}
+	//	if (s.no == 3) {
+	//		_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
+	//	}
+	//	if (s.no == 9) {
+	//		_bosses.push_back(std::make_shared<Octopus>(_camera, _pl, Vector2(s.x, s.y)));
+	//	}
+	//	if (s.no == 10) {
+	//		_bosses.push_back(std::make_shared<Crab>(_camera, _pl, Vector2(Stage::GetInstance().GetStageSize().x / 2,
+	//																	   Stage::GetInstance().GetStageSize().y / 2)));
+	//	}
+	//	if (s.no == 11) {
+	//		_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 2));
+	//	}
+	//	if (s.no == 12) {
+	//		_enemies.push_back(std::make_shared<Fish>(_camera, _pl, Vector2(s.x, s.y)));
+	//	}
+	//	if (s.no == 13) {
+	//		_enemies.push_back(std::make_shared<Diodon>(_camera,_pl, Vector2(s.x, s.y)));
+	//	}
+	//	if (s.no == 14) {
+	//		_enemies.push_back(std::make_shared<SeaCucumber>(_camera,_pl, Vector2(s.x, s.y)));
+	//	}
+	//}
 
+	_enemies.push_back(std::make_shared<SeaCucumber>(_camera, _pl, Vector2(500, 500)));
 	//score初期化
 	score = ScoreInfo(0, 0, 0, 0);
 
@@ -484,7 +493,7 @@ GameScene::GameScene(const int& stagenum)
 	flame = 0;
 	wait = 0;
 
-	time = 60;
+	time = 120;
 	totaltime = 60;
 
 	waitNum = 3;
@@ -749,7 +758,7 @@ void GameScene::Update(const Input & p)
 		
 	//};
 
-	totaltime/* = time - (flame / 60)*/;
+	totaltime = time - (flame / 60);
 
 	_camera->Update(_pl->GetInfo().center);
 

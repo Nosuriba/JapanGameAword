@@ -1,5 +1,6 @@
 #pragma once
 #include "Particle.h"
+#include "../Camera.h"
 
 class Bubble :
 	public Particle
@@ -9,10 +10,11 @@ private:
 	bool isSmall,flag;
 	int imgBff;
 	int v_Speed;
+	const std::shared_ptr<Camera>c;
 	const int BubbleMax, color;
 public:
 	Bubble(int _x, int _y, int _Enum, bool _isSmall = false, int BubbleMax = 100, int color = -1);
-	Bubble(int _x, int _y, int _Enum, bool _isSmall = false, bool flag = false,int vs = 1,int BubbleMax = 100, int color = -1);
+	Bubble(int _x, int _y, int _Enum, bool _isSmall = false, bool flag = false,int vs = 1,int BubbleMax = 100, int color = -1, const std::shared_ptr<Camera>& c=nullptr);
 	~Bubble();
 
 	void Init();

@@ -109,10 +109,11 @@ private:
 
 	AtkType _type;
 	CrabSE SE;
+	int BGM;
 	Vector2 _plPos;						// ÌßÚ²Ô°‚ÌÀ•W•Û‘¶—p
 	Vector2 _armPrePos;
 
-	CrabInfo _crab;		// ‰¼‚Ì¼®¯Ä—p•Ï”
+	CrabInfo _crab;
 	std::shared_ptr<Particle> _particle;
 
 	std::vector<sqr_vert> _scissors;	// ‚Í‚³‚İ‚Ì’Ü‚Ì”
@@ -143,6 +144,7 @@ public:
 	void SelectDraw(const Vector2& pos, const float& scale);
 	void DebugDraw(const Vector2& camera);
 	void OnDamage();
+	void HitBlock();
 	void Update();
 
 };

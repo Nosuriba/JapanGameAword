@@ -7,7 +7,7 @@ const int moveInvCnt = 40;
 const int crawlVel   = 1.5f;
 const int decSpeeed  = 0.02f;			// Œ¸‘¬‘¬“x
 
-SeaCucumber::SeaCucumber(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) : Enemy(c, p)
+SeaCucumber::SeaCucumber(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) : Enemy(c, p),_camera(c)
 {
 	auto size	= Size(120, 30);
 
@@ -16,8 +16,8 @@ SeaCucumber::SeaCucumber(const std::shared_ptr<Camera>& c, const std::shared_ptr
 	_pL = POS + Vector2(-1, 0) * (SIZE.width / 2.0f);
 	_pR = POS + Vector2(1, 0) * (SIZE.width / 2.0f);
 
-	_particle.emplace_back(std::make_shared<Bubble>(_pL.x, _pL.y, 5000, false, true, 5, 3, 0x660099));
-	_particle.emplace_back(std::make_shared<Bubble>(_pR.x, _pR.y, 5000, false, true, 5, 3, 0x660099));
+	_particle.emplace_back(std::make_shared<Bubble>(_pL.x, _pL.y, 5000, false, true, 5, 3, 0x660099,_camera));
+	_particle.emplace_back(std::make_shared<Bubble>(_pR.x, _pR.y, 5000, false, true, 5, 3, 0x660099,_camera));
 
 	_updater = &SeaCucumber::WaitUpdate;
 }
@@ -87,6 +87,7 @@ void SeaCucumber::MoveUpdate()
 
 void SeaCucumber::CounterUpdate()
 {
+	auto cpos=_camera->CameraCorrection();
 	for (auto& p : _particle)
 	{
 		_particle[0]->SetRota(180);
@@ -123,11 +124,17 @@ void SeaCucumber::DebugDraw()
 	DrawCircle(POS.x - CC.x, POS.y - CC.y, 4, 0x000000, true);
 	DrawCircle(_pL.x - CC.x, _pL.y - CC.y, 4, 0xff0000, true);
 	DrawCircle(_pR.x - CC.x, _pR.y - CC.y, 4, 0x0000ff, true);
+
+	for (auto& d : _damage)
+		DrawCircle(d.pos.x, d.pos.y, d.r, 0xff00ff, true);
 }
 
 void SeaCucumber::Update()
 {
 	(this->*_updater)();
+
+	CreateDamagePoints();
+	CreateAttackPoints();
 }
 
 void SeaCucumber::OnDamage()
@@ -138,4 +145,26 @@ void SeaCucumber::OnDamage()
 		_anim_frame = 0;
 		_updater	= &SeaCucumber::CounterUpdate;
 	}
+}
+
+void SeaCucumber::CreateDamagePoints()
+{
+	_damage.clear();
+
+	_damage.emplace_back(POS, SIZE.height / 2);
+	_damage.emplace_back((POS + _pL) / 2, SIZE.height / 3);
+	_damage.emplace_back((POS + _pR) / 2, SIZE.height / 3);
+	_damage.emplace_back(Vector2(_pL.x + SIZE.width / 10, _pL.y), SIZE.height / 4);
+	_damage.emplace_back(Vector2(_pR.x - SIZE.width / 10, _pL.y), SIZE.height / 4);
+}
+
+void SeaCucumber::CreateAttackPoints()
+{
+	_attack.clear();
+
+	_attack.emplace_back(POS, SIZE.height / 2);
+	_attack.emplace_back((POS + _pL) / 2, SIZE.height / 3);
+	_attack.emplace_back((POS + _pR) / 2, SIZE.height / 3);
+	_attack.emplace_back(Vector2(_pL.x + SIZE.width / 10, _pL.y), SIZE.height / 4);
+	_attack.emplace_back(Vector2(_pR.x - SIZE.width / 10, _pL.y), SIZE.height / 4);
 }

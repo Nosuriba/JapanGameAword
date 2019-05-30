@@ -20,7 +20,7 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
-	_lifeCnt = 10;
+	_lifeCnt = 20;
 	_isAlive = true;
 	inviCnt = 0;
 
@@ -37,6 +37,10 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	SE.die	  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/die.mp3");
 	SE.pitch  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/pitch.mp3");
 	SE.shot   = ResourceManager::GetInstance().LoadSound("../Sound/Crab/shot.mp3");
+	SE.swing  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/swing.mp3");
+	SE.walk   = ResourceManager::GetInstance().LoadSound("../Sound/Crab/walk.mp3");
+
+	BGM		  = ResourceManager::GetInstance().LoadSound("../Sound/boss.mp3");
 
 	BodyInit();
 	LegInit();
@@ -45,10 +49,15 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	MoveJoint();
 	CalVert();
 	Neutral();
+
 }
 
 Crab::~Crab()
 {
+	if (CheckSoundMem(BGM))
+	{
+		StopSoundMem(BGM);
+	}
 }
 
 void Crab::BodyInit()
@@ -139,12 +148,13 @@ void Crab::Neutral()
 void Crab::Pitch()
 {
 	_type = AtkType::MOVE;
+	ChangeVolumeSoundMem(255 * 200 / 180, SE.swing);
+	PlaySoundMem(SE.swing, DX_PLAYTYPE_BACK);
 	_updater = &Crab::PitchUpdate;
 }
 
 void Crab::Shot()
 {
-	/*shot.clear();*/
 	_type = AtkType::SHOT;
 	_updater = &Crab::ShotUpdate;
 }
@@ -152,6 +162,8 @@ void Crab::Shot()
 void Crab::Die()
 {
 	_isAlive = false;
+	at.clear();
+	da.clear();
 	shot.clear();
 	_updater = &Crab::DieUpdate;
 }
@@ -206,12 +218,12 @@ void Crab::ShotUpdate()
 {
 	if (shotCnt > 0)
 	{
-		if (!(shotCnt % 9))
+		if (!(shotCnt % 12))
 		{
 			auto c = _camera->CameraCorrection();
-			auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// かにの向いてる方向に向かって放射状
+			auto vec = (_player->GetInfo().center - _crab._pos).Normalized();
 			auto lengPos = Vector2(length * vec.x, length * vec.y);
-			auto rand = (GetRand(14) - 7);
+			auto rand = (GetRand(10) - 5);
 			auto pos = Vector2(10 * rand, 10 * rand) + lengPos;
 			/// プレイヤーの方向に向かって放射上に打つよう設定を行う
 			auto theta = atan2f((_crab._pos.y + pos.y) - _crab._pos.y,
@@ -479,6 +491,7 @@ void Crab::MoveLeg()
 				_legMovePos[cnt] = (*leg)._points[2] + Vector2((length / 2) * dirVec.x, (length / 2) * dirVec.y);
 				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * dirVec.x,
 									  (mVel + _legAccel[cnt].y) * dirVec.y);
+			
 			}
 
 			if (_legMovePos[cnt].x != 0)
@@ -486,6 +499,7 @@ void Crab::MoveLeg()
 				/// 脚の戻す位置設定
 				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
 				{
+					PlaySoundMem(SE.walk, DX_PLAYTYPE_BACK);
 					auto vec = ((*leg)._points[2] - (*leg)._points[0]).Normalized();
 					auto lengPos = Vector2((length / 2) * vec.x, (length / 2) * vec.y);
 					_legMovePos[cnt] = Vector2();
@@ -502,6 +516,7 @@ void Crab::MoveLeg()
 				/// 脚の移動する位置設定
 				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
 				{
+					PlaySoundMem(SE.walk, DX_PLAYTYPE_BACK);
 					_legAccel[cnt] = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
 					_legPrePos[cnt] = Vector2();
 					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * dirVec.x, length * dirVec.y);
@@ -529,6 +544,7 @@ void Crab::MoveLeg()
 				/// 脚の戻す位置設定
 				if (StopCheck((*leg)._ctlPoint, _legMovePos[cnt], (*leg)._vel))
 				{
+					PlaySoundMem(SE.walk, DX_PLAYTYPE_BACK);
 					auto vec = ((*leg)._points[2] - (*leg)._points[0]).Normalized();
 					auto lengPos = Vector2((length / 2) * vec.x, (length / 2) * vec.y);
 					_legMovePos[cnt] = Vector2();
@@ -545,6 +561,7 @@ void Crab::MoveLeg()
 				/// 脚の移動する位置設定
 				if (StopCheck((*leg)._ctlPoint, _legPrePos[cnt], (*leg)._vel))
 				{
+					PlaySoundMem(SE.walk, DX_PLAYTYPE_BACK);
 					_legAccel[cnt] = Vector2((mVel / 10) * rand, (mVel / 10) * rand);
 					_legPrePos[cnt] = Vector2();
 					_legMovePos[cnt] = (*leg)._ctlPoint + Vector2(length * -dirVec.x, length * -dirVec.y);
@@ -684,6 +701,11 @@ void Crab::RegistDamageInfo()
 	{
 		vec = (i % 2 ? -vec : vec);
 		da.emplace_back(DamageInfo(_crab._pos + Vector2(_crab._size.height / 3 * vec.x, _crab._size.height / 3 * vec.y), _crab._size.height / 2));
+	}
+
+	for (auto arm : _crab._arms)
+	{
+		da.emplace_back(DamageInfo(arm._points[2], lSize.width / 2));
 	}
 
 }
@@ -1027,8 +1049,19 @@ void Crab::OnDamage()
 
 }
 
+void Crab::HitBlock()
+{
+	/// 何もしない
+}
+
 void Crab::Update()
 {
+	///　とりあえず仮で流している
+	if (!CheckSoundMem(BGM))
+	{
+		ChangeVolumeSoundMem(255 * 200 / 180, BGM);
+		PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
+	}
 	(this->*_updater)();
 	if (_isAlive)
 	{
