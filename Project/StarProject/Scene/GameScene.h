@@ -127,7 +127,7 @@ private:
 	//UI
 	LevelUIInfo leveluiInfo;
 
-	int guage;
+	int guage,Lvimg,Numimg;
 
 public:
 	GameScene(const int& stagenum);
