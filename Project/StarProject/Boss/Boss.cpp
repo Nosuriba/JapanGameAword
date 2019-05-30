@@ -19,4 +19,9 @@ std::list<DamageInfo> Boss::GetDamageInfo()
 	return da;
 }
 
+std::list<ShotInfo> Boss::GetShotInfo()
+{
+	return shot;
+}
+
 
