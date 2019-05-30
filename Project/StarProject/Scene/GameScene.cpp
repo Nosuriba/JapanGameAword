@@ -180,6 +180,14 @@ void GameScene::Run(const Input & p)
 				if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
 					_pl->OnDamage();
 				}
+				for (auto immortal : _immortalObj) {
+					auto _p = immortal->GetInfo()._pos - CC;
+					if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+
+					if (_col->CircleToSqr(b._pos, b._r, immortal->GetInfo()._rect)) {
+						boss->HitBlock();
+					}
+				}
 			}
 			for (auto b : boss->GetShotInfo()) {
 				auto _p = b._pos - CC;
