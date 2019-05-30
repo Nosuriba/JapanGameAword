@@ -33,7 +33,7 @@ void SeaCucumber::WaitUpdate()
 	{
 		_anim_frame = 0;
 		_isTurn		= (GetRand(25252) % 2 == 0);
-		_updater	= &SeaCucumber::CounterUpdate;
+		_updater	= &SeaCucumber::MoveUpdate;
 	}
 }
 
@@ -116,6 +116,12 @@ void SeaCucumber::Draw()
 	{
 		p->Draw();
 	}
+}
+
+void SeaCucumber::Shadow()
+{
+	/// “G‚Ì•`‰æ
+	DxLib::DrawOval(POS.x - CC.x, POS.y - CC.y, SIZE.width / 2, SIZE.height / 2, 0, true);
 }
 
 void SeaCucumber::DebugDraw()

@@ -23,7 +23,7 @@ Diodon::Diodon(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& 
 
 	_escapeTime = 0;
 
-	_updater = &Diodon::SwimUpdate;
+	_updater = &Diodon::EscapeUpdate;
 }
 
 Diodon::~Diodon()
@@ -109,7 +109,7 @@ void Diodon::Draw()
 		midPoints[m] = start + (-_vel.Normalized()) * (SIZE.width / points) * (m + 0.5f);
 
 	// •`‰æ
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - _escapeTime);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, max(255 - _escapeTime, 0));
 
 	DrawCircle(POS.x - CC.x, POS.y - CC.y, SIZE.width / 2, 0xCC9933, true);
 
@@ -142,11 +142,22 @@ void Diodon::Draw()
 		DrawNeedle(midPoints[i - 1] + v.Normalized() * (t / 2), (midPoints[i - 1] + v.Normalized() * (t / 2)) - POS, SIZE.height / 4);
 	}
 	
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 #ifdef _DEBUG
 	DebugDraw();
 #endif
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+}
+
+void Diodon::Shadow()
+{
+	// •`‰æ
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, max(255 - _escapeTime, 0));
+
+	DrawCircle(POS.x - CC.x + SS(3).x, POS.y - CC.y + SS(3).y, SIZE.width / 2, 0xCC9933, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void Diodon::DebugDraw()

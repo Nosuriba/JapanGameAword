@@ -13,6 +13,7 @@ class Player;
 #define DAMAGE	_enemy._isDamage
 #define ALIVE	_enemy._isAlive
 #define CC		_camera->CameraCorrection()
+#define SS(x) 	_camera->GetShadowPos(x)
 
 struct EnemyInfo {
 	Vector2	_pos;		// “G‚Ì’†S“_
@@ -49,8 +50,9 @@ protected:
 
 public:
 	~Enemy();
-	virtual void Update() = 0;
-	virtual void Draw() = 0;
+	virtual void Update()	= 0;
+	virtual void Draw()		= 0;
+	virtual void Shadow()	= 0;
 
 	const EnemyInfo GetInfo() const { return _enemy; }
 	const std::list<DamageRec> GetDamaRec() const { return _damage; };

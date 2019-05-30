@@ -229,6 +229,31 @@ void Fish::DebugDraw()
 		DrawCircle(d.pos.x, d.pos.y, d.r, 0xff00ff, true);
 }
 
+void Fish::Shadow()
+{
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - _escapeTime);
+
+	// ÍŞ¼Şª‹Èü‚ğ—p‚¢‚Ä‚Ì•`‰æ
+	Vector2 p1, p2, p3, p4;
+	for (int i = 1; i < midPoints.size(); ++i)
+	{
+		auto t = abs(((i + 6) % 10) - 5) * 4 + 2;
+
+		Vector2 v;
+		v = VCross(_vel.V_Cast(), VGet(0, 0, -1));
+		p1 = midPoints[i - 1]	+ v.Normalized() * t - CC + SS(3);
+		p2 = midPoints[i]		+ v.Normalized() * t - CC + SS(3);
+
+		v = VCross(VGet(0, 0, -1), _vel.V_Cast());
+		p3 = midPoints[i]		+ v.Normalized() * t - CC + SS(3);
+		p4 = midPoints[i - 1]	+ v.Normalized() * t - CC + SS(3);
+
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0x808080, true);
+	}
+
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+}
+
 void Fish::Update()
 {
 	(this->*_updater)();
