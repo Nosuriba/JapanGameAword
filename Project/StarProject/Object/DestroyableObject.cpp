@@ -40,6 +40,12 @@ DestroyableObject::DestroyableObject(std::shared_ptr<Camera>& camera, int x, int
 
 DestroyableObject::~DestroyableObject()
 {
+	for (auto& gh : destroyactimg) {
+		DeleteGraph(gh);
+	}
+	for (auto& gh : destroylevel2actimg) {
+		DeleteGraph(gh);
+	}
 }
 
 void DestroyableObject::Draw()
