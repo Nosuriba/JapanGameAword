@@ -16,14 +16,11 @@ const int shotMax  = 240;
 
 Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos) : Boss(c, p)
 {
-	int sizex, sizey;
-	GetDrawScreenSize(&sizex, &sizey);
-
 	_plPos = Vector2();
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
-	_lifeCnt = 2;
+	_lifeCnt = 20;
 	_isDie = false;
 	inviCnt = 0;
 
@@ -44,8 +41,6 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	SE.walk   = ResourceManager::GetInstance().LoadSound("../Sound/Crab/walk.mp3");
 
 	BGM		  = ResourceManager::GetInstance().LoadSound("../Sound/boss.mp3");
-
-	bossScreen = MakeScreen(sizex, sizey, true);
 
 	BodyInit();
 	LegInit();
@@ -826,10 +821,6 @@ void Crab::Draw()
 		quake.y = (GetRand(1) ? quake.y : -quake.y);
 	}
 
-	SetDrawScreen(bossScreen);
-
-	ClearDrawScreen();
-
 	Vector2 p1, p2, p3, p4;
 	for (auto leg : _crab._legs)
 	{
@@ -876,14 +867,6 @@ void Crab::Draw()
 	/// –Ú‚Ì•`‰æ
 	DxLib::DrawCircle(rEyePos.x, rEyePos.y, 5 * magRate, 0x000000, true);
 	DxLib::DrawCircle(lEyePos.x, lEyePos.y, 5 * magRate, 0x000000, true);
-
-	if (_updater == &Crab::DieUpdate)
-	{
-		int sizex, sizey;
-		GetDrawScreenSize(&sizex, &sizey);
-		SetDrawBlendMode(DX_BLENDMODE_MUL, 50);
-		DrawBox(0, 0, sizex, sizey, 0xff0000, true);
-	}
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
@@ -951,11 +934,6 @@ void Crab::ShadowDraw()
 	auto rEyePos = p1 + Vector2((_crab._size.width / 3) * vec.x, (_crab._size.width / 3) * vec.y);
 	auto lEyePos = p2 + Vector2((_crab._size.width / 3) * (-vec.x), (_crab._size.width / 3) * (-vec.y));
 
-}
-
-int Crab::GetDrawHandle()
-{
-	return bossScreen;
 }
 
 void Crab::SelectDraw(const Vector2 & pos, const float& scale)
