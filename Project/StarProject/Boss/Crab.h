@@ -136,15 +136,12 @@ private:
 	Size lSize;			// ‹r‚Ì‘å‚«‚³
 	Size scisSize;		// ‚Í‚³‚Ý‚Ì‘å‚«‚³	
 
-	int bossScreen;
-
 public:
 	Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos = Vector2(0,0));
 	~Crab();
 
 	void Draw();
 	void ShadowDraw();
-	int GetDrawHandle();
 	void SelectDraw(const Vector2& pos, const float& scale);
 	void DebugDraw(const Vector2& camera);
 	void OnDamage();

@@ -33,7 +33,7 @@ void SeaCucumber::WaitUpdate()
 	{
 		_anim_frame = 0;
 		_isTurn		= (GetRand(25252) % 2 == 0);
-		_updater	= &SeaCucumber::CounterUpdate;
+		_updater	= &SeaCucumber::MoveUpdate;
 	}
 }
 
@@ -118,6 +118,12 @@ void SeaCucumber::Draw()
 	}
 }
 
+void SeaCucumber::Shadow()
+{
+	/// ìGÇÃï`âÊ
+	DxLib::DrawOval(POS.x - CC.x, POS.y - CC.y, SIZE.width / 2, SIZE.height / 2, 0, true);
+}
+
 void SeaCucumber::DebugDraw()
 { 
 	// ìGÇÃíÜêSì_ï`âÊ
@@ -126,9 +132,9 @@ void SeaCucumber::DebugDraw()
 	DrawCircle(_pR.x - CC.x, _pR.y - CC.y, 4, 0x0000ff, true);
 
 	for (auto& d : _damage)
-		DrawCircle(d.pos.x, d.pos.y, d.r, 0xff00ff, true);
+		DrawCircle(d.pos.x - CC.x, d.pos.y - CC.y, d.r, 0xff00ff, true);
 	for (auto& a : _attack)
-		DrawCircle(a.pos.x, a.pos.y, a.r, 0xff00ff, true);
+		DrawCircle(a.pos.x - CC.x, a.pos.y - CC.y, a.r, 0xff00ff, true);
 }
 
 void SeaCucumber::Update()

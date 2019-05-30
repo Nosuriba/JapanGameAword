@@ -748,6 +748,7 @@ void GameScene::Draw()
 		boss->Draw();
 	}
 
+
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
 	DrawExtendGraph(0 - shader_offset, 0 - shader_offset, size.x + shader_offset, size.y + shader_offset, thirdscreen, true);
@@ -759,8 +760,6 @@ void GameScene::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	DrawGraph(0, 0, uiscreen, true);
-
-	
 }
 
 void GameScene::Update(const Input & p)
