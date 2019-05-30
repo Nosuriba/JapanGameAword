@@ -56,8 +56,7 @@ public:
 
 	void OnDamage();
 
-	//////////// ‚¢‚ç‚È‚¢Žq //////////////
-
-	//////////////////////////////////////
+	void CreateDamagePoints();
+	void CreateAttackPoints();
 };
 

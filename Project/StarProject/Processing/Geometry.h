@@ -84,3 +84,11 @@ struct Rect {
 	const int Width()const { return size.width; }
 	const int Height()const { return size.height; }
 };
+
+struct DamageRec
+{
+	Vector2 pos;
+	float	r;
+
+	DamageRec(const Vector2& p, const float inr) :pos(p), r(inr) {}
+};

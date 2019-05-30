@@ -27,5 +27,7 @@ public:
 	void Draw();
 
 	void OnDamage();
-};
 
+	void CreateDamagePoints();
+	void CreateAttackPoints();
+};

@@ -20,7 +20,7 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
-	_lifeCnt = 10;
+	_lifeCnt = 20;
 	_isAlive = true;
 	inviCnt = 0;
 
@@ -54,6 +54,10 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 
 Crab::~Crab()
 {
+	if (CheckSoundMem(BGM))
+	{
+		StopSoundMem(BGM);
+	}
 }
 
 void Crab::BodyInit()
@@ -158,6 +162,8 @@ void Crab::Shot()
 void Crab::Die()
 {
 	_isAlive = false;
+	at.clear();
+	da.clear();
 	shot.clear();
 	_updater = &Crab::DieUpdate;
 }
@@ -1053,7 +1059,7 @@ void Crab::Update()
 	///@‚Æ‚è‚ ‚¦‚¸‰¼‚Å—¬‚µ‚Ä‚¢‚é
 	if (!CheckSoundMem(BGM))
 	{
-		ChangeVolumeSoundMem(255 * 10 / 180, BGM);
+		ChangeVolumeSoundMem(255 * 200 / 180, BGM);
 		PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
 	}
 	(this->*_updater)();
