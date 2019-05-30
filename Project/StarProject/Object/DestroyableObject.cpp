@@ -135,7 +135,7 @@ void DestroyableObject::Draw()
 			obj._rect.Top() - camera.y - (flame),
 			obj._rect.Right() - obj._rect.size.width / 2 - camera.x,
 			obj._rect.Bottom() - obj._rect.size.height / 2 - camera.y - (flame),
-			0, 0, 312, 312, _img1, true
+			0, 0, 312, 312, _img2, true
 		);
 
 		//DxLib::DrawExtendGraph(
@@ -151,7 +151,7 @@ void DestroyableObject::Draw()
 			obj._rect.Top() - camera.y,
 			obj._rect.Right() - camera.x + (flame),
 			obj._rect.Bottom() - obj._rect.size.height / 2 - camera.y,
-			312, 0, 312, 312, _img1, true
+			312, 0, 312, 312, _img2, true
 		);
 
 		//DxLib::DrawExtendGraph(
@@ -167,7 +167,7 @@ void DestroyableObject::Draw()
 			obj._rect.Top() - camera.y + obj._rect.size.height / 2,
 			obj._rect.Right() - obj._rect.size.height / 2 - camera.x - (flame),
 			obj._rect.Bottom() - camera.y,
-			0, 312, 312, 312, _img1, true
+			0, 312, 312, 312, _img2, true
 		);
 
 		//DxLib::DrawExtendGraph(
@@ -183,7 +183,7 @@ void DestroyableObject::Draw()
 			obj._rect.Top() + obj._rect.size.height / 2 - camera.y + (flame),
 			obj._rect.Right() - camera.x,
 			obj._rect.Bottom() - camera.y + (flame),
-			312, 312, 312, 312, _img1, true
+			312, 312, 312, 312, _img2, true
 		);
 	}
 }
