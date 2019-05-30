@@ -14,6 +14,14 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 	_maxAngle = 30;
 	_wait = 0;
 	_timer = 0;
+
+	SE.damage = ResourceManager::GetInstance().LoadSound("../Sound/damage.mp3");
+	SE.die = ResourceManager::GetInstance().LoadSound("../Sound/die.mp3");
+	SE.shot = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/shot.mp3");
+	SE.swing = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/swing.mp3");
+	SE.pitch = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/punch.mp3");
+
+
 	BGM = ResourceManager::GetInstance().LoadSound("../Sound/boss.mp3");
 
 	_oct.center = pos;
@@ -98,6 +106,7 @@ void Octopus::DieUpdate()
 
 void Octopus::Normal(int idx)
 {
+
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 	auto rad = radian / 2 * idx - DX_PI_F / 180 * -90;
 
@@ -172,6 +181,7 @@ void Octopus::Punch(int idx)
 
 void Octopus::OctInk()
 {
+	PlaySoundMem(SE.shot, DX_PLAYTYPE_BACK);
 	auto c = cos( DX_PI_F / 180 * 180);
 	auto s = sin(DX_PI_F / 180 * 0);
 	auto p = Vector2(c, s);
@@ -203,6 +213,7 @@ void Octopus::Chase(int idx)
 
 void Octopus::OnDamage()
 {
+	PlaySoundMem(SE.damage, DX_PLAYTYPE_BACK);
 	if (_damageFlag) {
 		_oct.helth -= 10;
 		_damageFlag = false;
