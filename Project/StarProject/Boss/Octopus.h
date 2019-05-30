@@ -45,6 +45,7 @@ private:
 	int _maxAngle;
 	int _idx;
 	int _timer;
+	int BGM;
 	Vector2 _targetPos;
 	Vector2 _vec;
 

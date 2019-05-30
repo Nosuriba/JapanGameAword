@@ -1,4 +1,5 @@
 #include "Octopus.h"
+#include "../ResourceManager.h"
 
 #include <DxLib.h>
 
@@ -13,6 +14,8 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 	_maxAngle = 30;
 	_wait = 0;
 	_timer = 0;
+	BGM = ResourceManager::GetInstance().LoadSound("../Sound/boss.mp3");
+
 	_oct.center = pos;
 	da.emplace_back(DamageInfo(_oct.center, 75));
 	_oct.r = 500;
@@ -521,6 +524,11 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 
 void Octopus::Update()
 {
+	if (!CheckSoundMem(BGM))
+	{
+		ChangeVolumeSoundMem(255 * 200 / 180, BGM);
+		PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
+	}
 	(this->*_updater)();
 }
 
@@ -531,4 +539,8 @@ void Octopus::HitBlock()
 
 Octopus::~Octopus()
 {
+	if (CheckSoundMem(BGM))
+	{
+		StopSoundMem(BGM);
+	}
 }
