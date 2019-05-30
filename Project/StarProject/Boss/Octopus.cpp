@@ -80,6 +80,7 @@ void Octopus::IkCcd(Vector2 pos, int idx, int numMaxItaration)
 
 void Octopus::Die()
 {
+	_isDie = true;
 	_updater = &Octopus::DieUpdate;
 }
 
