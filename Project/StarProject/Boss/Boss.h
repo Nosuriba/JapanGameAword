@@ -41,12 +41,24 @@ struct ShotInfo
 	}
 };
 
+struct BossSE
+{
+	int damage;
+	int die;
+	int pitch;
+	int shot;
+	int walk;
+	int swing;
+};
+
 class Boss
 {
 protected:
 	std::list<AttackInfo> at;
 	std::list <DamageInfo> da;
 	std::list <ShotInfo> shot;
+	BossSE SE;
+	int BGM;
 
 	bool _isDie = false;
 
