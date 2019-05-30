@@ -174,6 +174,11 @@ void Octopus::OctInk()
 	if (_player->GetInfo().center.y > pos.y) {
 		rad = -rad;
 	}
+	if (_timer % 5==0) {
+		auto vel = Vector2(t_vec.Normalized().x * 2.0f, t_vec.Normalized().y * 2.0f);
+		shot.emplace_back(ShotInfo(_oct.center, vel, 15));
+	}
+
 	_particle[0]->SetPos(_oct.center.x, _oct.center.y);
 	_particle[0]->SetVelocity(20);
 	_particle[0]->SetRota(rad * 180 / DX_PI_F + 180);
@@ -245,6 +250,11 @@ void Octopus::HitUpd()
 	*damage = DamageInfo(_oct.center, 75);
 	damage++;
 	*damage= DamageInfo(_oct.hedPos, 75);
+	for (auto& sh:shot) {
+		auto vel = sh._vel * 1.0f;
+		auto p = sh._pos + vel;
+		sh = ShotInfo(p, vel, 15);
+	}
 }
 
 //void Octopus::Move()
@@ -344,6 +354,9 @@ void Octopus::DebugDraw()
 	}
 	for (auto damage : da) {
 		DrawCircle(damage._pos.x - c.x, damage._pos.y - c.y, damage._r, 0x0000ff, true);
+	}
+	for (auto sh : shot) {
+		DrawCircle(sh._pos.x - c.x, sh._pos.y - c.y, sh._r, 0x00ffff, true);
 	}
 }
 
