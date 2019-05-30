@@ -53,6 +53,7 @@ public:
 
 	void Draw();
 	void DebugDraw();
+	void Shadow();
 
 	void OnDamage();
 

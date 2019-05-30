@@ -392,7 +392,7 @@ void Player::Draw()
 	}
 
 	for (auto& d : _damage)
-		DrawCircle(d.pos.x, d.pos.y, d.r, 0xff00ff, true);
+		DrawCircle(d.pos.x -c.x, d.pos.y - c.y, d.r, 0xff00ff, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 

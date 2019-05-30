@@ -460,11 +460,6 @@ void Octopus::ShadowDraw()
 	}
 }
 
-int Octopus::GetDrawHandle()
-{
-	return 0;
-}
-
 void Octopus::SelectDraw(const Vector2 p, const float s)
 {
 	_oct.center = p;
