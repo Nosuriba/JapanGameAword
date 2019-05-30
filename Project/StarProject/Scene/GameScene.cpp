@@ -103,7 +103,7 @@ void GameScene::Wait(const Input & p)
 void GameScene::Run(const Input & p)
 {
 	auto& size = Game::GetInstance().GetScreenSize();
-
+	gameCnt++;
 	//_pl->DeleteItr();
 
 	auto& laser = _pl->GetLaser();
@@ -532,7 +532,7 @@ GameScene::GameScene(const int& stagenum)
 	
 	Lvimg  = ResourceManager::GetInstance().LoadImg("../img/Lv.png");
 	Numimg = ResourceManager::GetInstance().LoadImg("../img/”Žš.png");
-
+	cgauge = ResourceManager::GetInstance().LoadImg("../img/timegauge.png");
 	shader_time = 0;
 	num = 0;
 
@@ -704,15 +704,16 @@ void GameScene::Draw()
 	DrawBox(size.x / 2- GetFontSize(), 0, size.x / 2 + GetFontSize(), GetFontSize(), 0x003377,true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	DrawCircle(size.x/2, 30,45,0);
-	DrawRectRotaGraph(size.x / 2-20, 30, 300 * ten, 0, 300, 300, 0.2, 0, Numimg, true);
-	DrawRectRotaGraph(size.x / 2+20, 30, 300 * one, 0, 300, 300, 0.2, 0, Numimg, true);
-
-	SetFontSize(128);
-
+	DrawCircle(size.x / 2, 30, 45, 0);
 	if (_updater == &GameScene::Wait && waitNum >= 1) {
 		DrawRectRotaGraph(size.x / 2, size.y / 2, 300 * waitNum, 0, 300, 300, 0.5, 0, Numimg, true);
 	}
+	else
+	{
+		DrawCircleGauge(size.x / 2, 30, (gameCnt % 60)*1.6666f, cgauge, 0.0);
+	}
+	DrawRectRotaGraph(size.x / 2 - 30, 30, 300 * ten, 0, 300, 300, 0.3f, 0, Numimg, true);
+	DrawRectRotaGraph(size.x / 2 + 30, 30, 300 * one, 0, 300, 300, 0.3f, 0, Numimg, true);
 
 	SetFontSize(64);
 	DrawRectRotaGraph(GetFontSize()*2.5, size.y -75,300*_pl->GetInfo().level,0,300,300, abs((((gameCnt/2)%20-10)))*0.01f+0.5f,0,Numimg,true);
@@ -778,7 +779,7 @@ void GameScene::Draw()
 
 void GameScene::Update(const Input & p)
 {
-	wait++,shader_time++,waitCnt++, gameCnt++;
+	wait++,shader_time++,waitCnt++;
 
 	//auto size = Game::GetInstance().GetScreenSize();
 
