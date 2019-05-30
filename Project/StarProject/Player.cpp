@@ -474,25 +474,6 @@ Star Player::GetInfo()
 	return _star;
 }
 
-const std::vector<Vector2> Player::GetShot()
-{
-	std::vector<Vector2> v;
-	v.clear();
-	for (auto& l : _star.legs)
-	{
-		if (l.state == LEG_STATE::SHOT)
-		{
-			v.push_back(l.tip - _star.center);
-		}
-		else
-		{
-			v.push_back(Vector2(0, 0));
-		}
-	}
-
-	return v;
-}
-
 const std::array<std::list<Laser>,2> Player::GetLaser()
 {
 	return _laser;
@@ -530,6 +511,7 @@ void Player::OnDamage()
 	_interval = 300;
 	if (_life == 0)
 	{
+		select_idx = { -1,-1 };
 		_isAlive	= false;
 		_anim_frame = 0;
 		_updater	= &Player::Die;

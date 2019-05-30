@@ -158,7 +158,7 @@ void ResultScene::Draw()
 			{
 				DrawBox(0, size.y / 10 * 8.5f, size.x, size.y, 0x000000, true);
 				ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (abs(ResultCnt % 512 - 255)));
+				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (abs(ResultCnt % 512 - 255)*2));
 				SetFontSize(96);
 				DrawString((size.x - (float)(GetFontSize()) *3.f) / 2.0f, size.y / 10 * 8.7f, "A", 0x33ff33);
 				SetFontSize(64);
@@ -167,9 +167,9 @@ void ResultScene::Draw()
 				SetDrawBlendMode(mode, palam);
 			}
 
-			SetFontSize(StampCnt);
-			DrawCircle((size.x + (float)(192 * 4.5f)) / 2, (size.y - (float)(192)) / 10 * 9, 96, 0xff3333, 0, 10);
-			DrawRotaString((size.x + (float)(GetFontSize()*3.6f)) / 2+ GetFontSize() / 2, (size.y - (float)(GetFontSize())) / 10 * 7.35f+ GetFontSize() / 2,1,1,
+			SetFontSize(582-StampCnt*2);
+			DrawCircle((size.x + (float)(194 * 4.5f)) / 2, (size.y - (float)(194)) / 10 * 9, GetFontSize()-96, 0xff3333, 0, 10);
+			DrawRotaString((size.x + (float)(194 *3.6f)) / 2+ 194 / 2, (size.y - (float)(194)) / 10 * 7.35f+ 194 / 2,1,1,
 				GetFontSize()/2-2.78f, GetFontSize()/2-0.1f,(StampCnt*2 %360)*DX_PI_F/180,
 				0xff3333, 0xff3333,false,s[ResultData[0][(int)R_Data::total] / 20000].c_str());
 			SetFontSize(64);
