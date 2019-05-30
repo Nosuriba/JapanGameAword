@@ -59,7 +59,6 @@ public:
 	~Boss();
 	virtual void Draw() = 0;
 	virtual void ShadowDraw() = 0;
-	virtual int  GetDrawHandle() = 0;
 	virtual void Update() = 0;
 
 	bool GetDieFlag();
