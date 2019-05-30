@@ -2,7 +2,6 @@
 #include "../ResourceManager.h"
 #include "../Particle/Particle.h"
 #include "../Particle/Bubble.h"
-#include "../Stage.h"
 
 const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
 const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ‹t‚Ì‰ñ“]•ûŒü
@@ -224,8 +223,8 @@ void Crab::ShotUpdate()
 
 			shot.emplace_back(ShotInfo(_crab._pos + lengPos / 2, vel, r));
 			auto bPos = _crab._pos + (lengPos / 2);
-			_particle.emplace_back(std::make_shared<Bubble>(bPos.x - c.x, bPos.y - c.y, 1000, false, true, 14, 40, 0xddffff));
-			_particle[_particle.size() - 1]->Create();
+			_particle = std::make_shared<Bubble>(bPos.x - c.x, bPos.y - c.y, 1000, false, true, 14, 40, 0xddffff);
+			_particle->Create();
 
 			PlaySoundMem(SE.shot, DX_PLAYTYPE_BACK);
 		}
@@ -830,11 +829,11 @@ void Crab::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	for (auto p : _particle)
+	if (_particle != nullptr)
 	{
-		p->Draw();
+		_particle->Draw();
 	}
-
+	
 
 #ifdef _DEBUG
 	DebugDraw(c);
@@ -849,11 +848,6 @@ void Crab::ShadowDraw()
 	for (auto shot : shot)
 	{
 		DxLib::DrawCircle(shot._pos.x - c.x + s.x, shot._pos.y - c.y + s.y, shot._r, 0xccffff, true);
-	}
-
-	for (auto p : _particle)
-	{
-		p->Draw();
 	}
 
 	Vector2 p1, p2, p3, p4;
