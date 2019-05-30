@@ -97,6 +97,7 @@ private:
 	int waitNum;
 	int waitCnt;
 
+	int gameCnt;
 	int nlCnt,nlpl;
 
 	int num;
