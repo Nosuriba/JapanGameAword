@@ -5,6 +5,7 @@
 #include <list>
 #include "../Camera.h"
 #include "../Player.h"
+#include "../Stage.h"
 #include "../Processing/Geometry.h"
 #include "../Particle/Water.h"
 
