@@ -226,7 +226,7 @@ void Fish::DebugDraw()
 	}
 
 	for (auto& d : _damage)
-		DrawCircle(d.pos.x, d.pos.y, d.r, 0xff00ff, true);
+		DrawCircle(d.pos.x - CC.x, d.pos.y - CC.y, d.r, 0xff00ff, true);
 }
 
 void Fish::Shadow()

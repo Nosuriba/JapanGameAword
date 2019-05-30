@@ -18,7 +18,7 @@ class Obstacle;
 class DestroyableObject;
 class PredatoryObject;
 class ImmortalObject;
-
+class GoalObject;
 
 struct ScoreInfo {
 	int enemy;
@@ -70,6 +70,7 @@ private:
 	std::vector<std::shared_ptr<DestroyableObject>> _destroyObj;
 	std::vector<std::shared_ptr<PredatoryObject>> _predatoryObj;
 	std::vector<std::shared_ptr<ImmortalObject>> _immortalObj;
+	std::vector<std::shared_ptr<GoalObject>> _goalObject;
 
 	//ÉXÉNÉäÅ[Éì
 	int firstscreen;

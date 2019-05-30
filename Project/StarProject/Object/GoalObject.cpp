@@ -10,7 +10,7 @@ GoalObject::GoalObject(const std::shared_ptr<Camera>& camera, int x, int y):Obst
 	auto rect = Rect(pos, size);
 
 	obj = ObjectInfo(pos, size, rect, 0, false, false);
-	goalimg = ResourceManager::GetInstance().LoadImg("Goal.png");
+	goalimg = ResourceManager::GetInstance().LoadImg("../img/Goal.png");
 }
 
 GoalObject::~GoalObject()
@@ -27,4 +27,13 @@ void GoalObject::Draw()
 		obj._rect.Right() - camera.x,
 		obj._rect.Bottom() - camera.y,
 		goalimg, true);
+}
+
+void GoalObject::Update()
+{
+}
+
+ObjectInfo GoalObject::GetInfo()
+{
+	return obj;
 }
