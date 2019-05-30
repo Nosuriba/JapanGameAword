@@ -148,7 +148,7 @@ void Crab::Neutral()
 void Crab::Pitch()
 {
 	_type = AtkType::MOVE;
-	ChangeVolumeSoundMem(255 * 200 / 180, SE.swing);
+	ChangeVolumeSoundMem(255 * 800 / 180, SE.swing);
 	PlaySoundMem(SE.swing, DX_PLAYTYPE_BACK);
 	_updater = &Crab::PitchUpdate;
 }
@@ -402,6 +402,7 @@ void Crab::scisRota()
 				}
 				else
 				{
+					ChangeVolumeSoundMem(255 * 300 / 180, SE.pitch);
 					PlaySoundMem(SE.pitch, DX_PLAYTYPE_BACK);
 				}
 				auto mat = MGetTranslate((-center).V_Cast());
