@@ -17,6 +17,7 @@
 #include "../Object/DestroyableObject.h"
 #include "../Object/PredatoryObject.h"
 #include "../Object/ImmortalObject.h"
+#include "../Object/GoalObject.h"
 #include "../Stage.h"
 
 #include <iostream>
@@ -122,204 +123,195 @@ void GameScene::Run(const Input & p)
 	}
 
 	num++;
-/*
-	if (num % 4 == 0) {*/
-		for (int i = 0; i < _enemies.size(); ++i)
+	for (int i = 0; i < _enemies.size(); ++i)
+	{
+		/// 敵の死亡処理
+		if (!_enemies[i]->GetInfo()._isAlive)
 		{
-			/// 敵の死亡処理
-			if (!_enemies[i]->GetInfo()._isAlive)
-			{
-				_enemies.erase(_enemies.begin() + i);
-				continue;
-			}
+			_enemies.erase(_enemies.begin() + i);
+			continue;
+		}
 
-			// プレイヤーと敵
-			if ((_pl->GetInfo().center - _enemies[i]->GetInfo()._pos).Magnitude() < _pl->GetInfo().r + _enemies[i]->GetInfo()._size.width / 2)
-			{
-				if (_enemies[i]->GetInfo()._isAlive)
-					_pl->OnDamage();
-			}
+		// プレイヤーと敵
+		if ((_pl->GetInfo().center - _enemies[i]->GetInfo()._pos).Magnitude() < _pl->GetInfo().r + _enemies[i]->GetInfo()._size.width / 2)
+		{
+			if (_enemies[i]->GetInfo()._isAlive)
+				_pl->OnDamage();
+		}
 
-			/// ﾌﾟﾚｲﾔｰｼｮｯﾄと敵の当たり判定
-			//for (int p = 0; p < _pl->GetLaser().size(); ++p)
-			auto _p = _enemies[i]->GetInfo()._pos - CC;
-			if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
-			for (int j = 0; j < 2; j++)
+		/// ﾌﾟﾚｲﾔｰｼｮｯﾄと敵の当たり判定
+		//for (int p = 0; p < _pl->GetLaser().size(); ++p)
+		auto _p = _enemies[i]->GetInfo()._pos - CC;
+		if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+		for (int j = 0; j < 2; j++)
+		{
+			for (auto l = laser[j].begin(); l != laser[j].end(); l++)
 			{
-				for (auto l = laser[j].begin(); l != laser[j].end(); l++)
+				if (_col->WaterToCircle(
+					(*l).pos, (*l).isEnd ? (*l).pos : ((++l != laser[j].end()) ? (*l--).pos : (*--l).pos),
+					_enemies[i]->GetInfo()._pos, _enemies[i]->GetInfo()._size.height))
 				{
+					_enemies[i]->OnDamage();
+				}
+			}
+		}
+	}
+
+	for (auto boss : _bosses) {
+		//ﾌﾟﾚｲﾔｰｼｮｯﾄとボス
+		for (auto b : boss->GetDamageInfo()) {
+			auto _p = b._pos - CC;
+			if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+			for (int j = 0; j < 2; ++j) {
+				for (auto l = laser[j].begin(); l != laser[j].end(); l++) {
 					if (_col->WaterToCircle(
 						(*l).pos, (*l).isEnd ? (*l).pos : ((++l != laser[j].end()) ? (*l--).pos : (*--l).pos),
-						_enemies[i]->GetInfo()._pos, _enemies[i]->GetInfo()._size.height))
+						b._pos, b._r))
 					{
-						_enemies[i]->OnDamage();
+						boss->OnDamage();
 					}
 				}
 			}
 		}
-
-		for (auto boss : _bosses) {
-			//ﾌﾟﾚｲﾔｰｼｮｯﾄとボス
-			for (auto b : boss->GetDamageInfo()) {
-				auto _p = b._pos - CC;
-				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
-				for (int j = 0; j < 2; ++j) {
-					for (auto l = laser[j].begin(); l != laser[j].end(); l++) {
-						if (_col->WaterToCircle(
-							(*l).pos, (*l).isEnd ? (*l).pos : ((++l != laser[j].end()) ? (*l--).pos : (*--l).pos),
-							b._pos, b._r))
-						{
-							boss->OnDamage();
-						}
-					}
-				}
+		//ﾌﾟﾚｲﾔｰとボス
+		for (auto b : boss->GetAttackInfo()) {
+			auto _p = b._pos - CC;
+			if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+			if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
+				_pl->OnDamage();
 			}
-			//ﾌﾟﾚｲﾔｰとボス
-			for (auto b : boss->GetAttackInfo()) {
-				auto _p = b._pos - CC;
+			for (auto immortal : _immortalObj) {
+				auto _p = immortal->GetInfo()._pos - CC;
 				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
-				if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
-					_pl->OnDamage();
-				}
-				for (auto immortal : _immortalObj) {
-					auto _p = immortal->GetInfo()._pos - CC;
-					if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
 
-					if (_col->CircleToSqr(b._pos, b._r, immortal->GetInfo()._rect)) {
-						boss->HitBlock();
-					}
-				}
-			}
-			for (auto b : boss->GetShotInfo()) {
-				auto _p = b._pos - CC;
-				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
-				if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
-					_pl->OnDamage();
+				if (_col->CircleToSqr(b._pos, b._r, immortal->GetInfo()._rect)) {
+					boss->HitBlock();
 				}
 			}
 		}
-	//}
+		for (auto b : boss->GetShotInfo()) {
+			auto _p = b._pos - CC;
+			if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+			if (_col->CircleToCircleBoss(_pl->GetInfo().center, _pl->GetInfo().r, b._pos, b._r)) {
+				_pl->OnDamage();
+			}
+		}
+	}
 	
 
 	for (int i = 0; i < 2; i++)
 	{
 		for (auto l = laser[i].begin(); l != laser[i].end();l++) {
-			//if (num % 4 == 1) {
-				//破壊可能オブジェクト
-				for (auto destroy : _destroyObj) {
+			//破壊可能オブジェクト
+			for (auto destroy : _destroyObj) {
 
-					auto _p = destroy->GetInfo()._pos - CC;
-					if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+				auto _p = destroy->GetInfo()._pos - CC;
+				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
 
-					if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - CC.x &&
+				if (_cutAreaScreen[num % 4].left <= destroy->GetInfo()._pos.x - CC.x &&
 
-						destroy->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right &&
+					destroy->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right &&
 
-						_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - CC.y &&
+					_cutAreaScreen[num % 4].top <= destroy->GetInfo()._pos.y - CC.y &&
 
-						destroy->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
+					destroy->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
 
-						auto e = (*l).isEnd ? (*l).pos : ((std::next(l) != laser[i].end()) ? (*l).pos : (*l).pos);
+					auto e = (*l).isEnd ? (*l).pos : ((std::next(l) != laser[i].end()) ? (*l).pos : (*l).pos);
 
-						if (_pl->GetInfo().level >= destroy->GetInfo()._level && !destroy->GetInfo()._hitflag) {
-							if (_col->WaterToSqr((*l).pos,
-								e, (e - (*l).pos).Magnitude(),
-								destroy->GetInfo()._rect))
-							{
-								destroy->Break();
-								//(*l).Hit();
-							}
-						}
-					}
-				}
-			//}
-			
-
-			//if (num % 4 == 2) {
-				//捕食対象
-				for (auto predatry : _predatoryObj) {
-
-					auto _p = predatry->GetInfo()._pos - CC;
-					if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
-
-					if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - CC.x &&
-
-						predatry->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right &&
-
-						_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - CC.y &&
-
-						predatry->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
-
-						auto e = (*l).isEnd ? (*l).pos : ((std::next(l) != laser[i].end()) ? (*l).pos : (*l).pos);
+					if (_pl->GetInfo().level >= destroy->GetInfo()._level && !destroy->GetInfo()._hitflag) {
 						if (_col->WaterToSqr((*l).pos,
 							e, (e - (*l).pos).Magnitude(),
-							predatry->GetInfo()._rect))
+							destroy->GetInfo()._rect))
 						{
-							predatry->Break();
-						}
-
-						if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
-
-							if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
-							{
-								_pl->ToCatch(predatry->GetInfo()._pos);
-								predatry->Predatory();
-								//if (score.bite % 5 == 1) {
-								//	_pl->LevelUP();
-								//}
-							}
-
+							destroy->Break();
+							//(*l).Hit();
 						}
 					}
 				}
-			//}
+			}
+			
+			//捕食対象
+			for (auto predatry : _predatoryObj) {
+
+				auto _p = predatry->GetInfo()._pos - CC;
+				if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+
+				if (_cutAreaScreen[num % 4].left <= predatry->GetInfo()._pos.x - CC.x &&
+
+					predatry->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right &&
+
+					_cutAreaScreen[num % 4].top <= predatry->GetInfo()._pos.y - CC.y &&
+
+					predatry->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
+
+					auto e = (*l).isEnd ? (*l).pos : ((std::next(l) != laser[i].end()) ? (*l).pos : (*l).pos);
+					if (_col->WaterToSqr((*l).pos,
+						e, (e - (*l).pos).Magnitude(),
+						predatry->GetInfo()._rect))
+					{
+						predatry->Break();
+					}
+
+					if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, predatry->GetInfo()._rect)) {
+
+						if (_col->TriToSqr(_pl->GetInfo().legs, predatry->GetInfo()._pos, predatry->GetInfo()._size))
+						{
+							_pl->ToCatch(predatry->GetInfo()._pos);
+							predatry->Predatory();
+							//if (score.bite % 5 == 1) {
+							//	_pl->LevelUP();
+							//}
+						}
+
+					}
+				}
+			}
 
 
-			//if (num % 4 == 3) {
-				//破壊不可オブジェクト
-				//for (auto immortal : _immortalObj) {
+			//破壊不可オブジェクト
+			//for (auto immortal : _immortalObj) {
 
-				//	auto _p = immortal->GetInfo()._pos - CC;
-				//	if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+			//	auto _p = immortal->GetInfo()._pos - CC;
+			//	if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
 
-				//	if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - CC.x &&
+			//	if (_cutAreaScreen[num % 4].left <= immortal->GetInfo()._pos.x - CC.x &&
 
-				//		immortal->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right&&
+			//		immortal->GetInfo()._pos.x - CC.x <= _cutAreaScreen[num % 4].right&&
 
-				//		_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - CC.y &&
+			//		_cutAreaScreen[num % 4].top <= immortal->GetInfo()._pos.y - CC.y &&
 
-				//		immortal->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
-				//		if (laser[i].end() != l) {
-				//			Vector2 e;
-				//			if ((*l).isEnd) {
-				//				e = (*l).pos;
-				//			}
-				//			else {
-				//				if ((std::next(l) != laser[i].end())) {
-				//					e= (*l).pos;
-				//				}
-				//				else {
-				//					e= (*l).pos;
-				//				}
-				//			}
-				//			//auto e = (*l).isEnd ? (*l).pos : ((++l != laser[i].end()) ? (*l--).pos : (*--l).pos);
-				//			if (_col->WaterToSqr((*l).pos,
-				//				e, (e - (*l).pos).Magnitude(),
-				//				immortal->GetInfo()._rect))
-				//			{
-				//				l = laser[i].erase(l);
-				//				flag = false;
-				//			}
-				//		}
-				//	}
-				//}
-			////}
+			//		immortal->GetInfo()._pos.y - CC.y <= _cutAreaScreen[num % 4].bottom) {
+			//		if (laser[i].end() != l) {
+			//			Vector2 e;
+			//			if ((*l).isEnd) {
+			//				e = (*l).pos;
+			//			}
+			//			else {
+			//				if ((std::next(l) != laser[i].end())) {
+			//					e= (*l).pos;
+			//				}
+			//				else {
+			//					e= (*l).pos;
+			//				}
+			//			}
+			//			//auto e = (*l).isEnd ? (*l).pos : ((++l != laser[i].end()) ? (*l--).pos : (*--l).pos);
+			//			if (_col->WaterToSqr((*l).pos,
+			//				e, (e - (*l).pos).Magnitude(),
+			//				immortal->GetInfo()._rect))
+			//			{
+			//				l = laser[i].erase(l);
+			//				flag = false;
+			//			}
+			//		}
+			//	}
+
 			//	if (flag) {
 			//		l++;
 			//	}
 		}
 	}
 
+	//破壊可能オブジェクトとプレイヤー
 	for (auto destroy : _destroyObj) {
 		auto _p = destroy->GetInfo()._pos - CC;
 		if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
@@ -328,12 +320,26 @@ void GameScene::Run(const Input & p)
 			_pl->SetStar(_col->Pushback(_pl->GetInfo(), destroy->GetInfo()._rect), _pl->GetInfo().r);
 		}
 	}
+
+	//破壊不可オブジェクトとプレイヤー
 	for (auto immortal : _immortalObj) {
 		auto _p = immortal->GetInfo()._pos - CC;
 		if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
 
 		if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, immortal->GetInfo()._rect)) {
 			_pl->SetStar(_col->Pushback(_pl->GetInfo(), immortal->GetInfo()._rect), _pl->GetInfo().r);
+		}
+	}
+
+	//ゴールオブジェクトとプレイヤー
+	for (auto goal : _goalObject) {
+		auto _p = goal->GetInfo()._pos - CC;
+
+		if (_p.x < 0 || _p.x > size.x || _p.y < 0 || _p.y > size.y) continue;
+
+		if (_col->CircleToSqr(_pl->GetInfo().center, _pl->GetInfo().r, goal->GetInfo()._rect)) {
+			wait = 0;
+			_updater = &GameScene::FadeOut;
 		}
 	}
 
@@ -458,6 +464,9 @@ void GameScene::LoadResource()
 		}
 		if (s.no == 3) {
 			_predatoryObj.emplace_back(std::make_shared<PredatoryObject>(_camera, s.x, s.y));
+		}
+		if (s.no == 8) {
+			_goalObject.emplace_back(std::make_shared<GoalObject>(_camera, s.x, s.y));
 		}
 		if (s.no == 9) {
 			_bosses.push_back(std::make_shared<Octopus>(_camera, _pl, Vector2(s.x, s.y)));
@@ -738,6 +747,10 @@ void GameScene::Draw()
 		predatory->Draw();
 	}
 
+	for (auto &goal : _goalObject) {
+		goal->Draw();
+	}
+
 	for (auto &enemy : _enemies)
 	{
 		enemy->Draw();
@@ -747,7 +760,6 @@ void GameScene::Draw()
 	{
 		boss->Draw();
 	}
-
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 100);
 
