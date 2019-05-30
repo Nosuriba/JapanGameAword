@@ -58,6 +58,7 @@ private:
 	void Wait(const Input &p);
 	void Run(const Input& p);
 	void BossScene(const Input& p);
+	void nlDraw();
 
 	std::shared_ptr<Player> _pl;
 	std::shared_ptr<Collision> _col;
@@ -99,6 +100,8 @@ private:
 
 	int waitNum;
 	int waitCnt;
+
+	int nlCnt,nlpl;
 
 	int num;
 
