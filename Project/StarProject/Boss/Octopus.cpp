@@ -251,9 +251,19 @@ void Octopus::HitUpd()
 	damage++;
 	*damage= DamageInfo(_oct.hedPos, 75);
 	for (auto& sh:shot) {
-		auto vel = sh._vel * 1.0f;
+		auto vel = sh._vel * 1.025f;
 		auto p = sh._pos + vel;
 		sh = ShotInfo(p, vel, 15);
+	}
+	if (!shot.empty()) {
+		auto sh = shot.end();
+		auto pos = (--sh)->_pos;
+		auto c = _camera->CameraCorrection();
+		auto p = pos - c;
+		auto size = Stage::GetInstance().GetStageSize();
+		if (p.x < 0 || p.x > size.x || p.y < 0 || p.y > size.y) {
+			shot.clear();
+		}
 	}
 }
 
