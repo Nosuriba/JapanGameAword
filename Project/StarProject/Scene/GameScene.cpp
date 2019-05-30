@@ -322,6 +322,11 @@ void GameScene::Run(const Input & p)
 		wait = 0;
 		_updater = &GameScene::FadeOut;
 	}
+	if (_pl->CheckDie())
+	{
+		wait = 0;
+		_updater = &GameScene::FadeOut;
+	}
 }
 
 void GameScene::BossScene(const Input & p)

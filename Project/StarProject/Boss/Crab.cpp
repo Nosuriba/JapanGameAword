@@ -6,7 +6,7 @@
 const VECTOR rotDir = { 0,0,1.f };								// ‰ñ“]•ûŒü
 const VECTOR revRotDir = { -rotDir.x, -rotDir.y, -rotDir.z };	// ‹t‚Ì‰ñ“]•ûŒü
 const Vector2 eSize = Vector2(250, 150);
-const double magRate = 1.3;						// Šg‘å—¦
+const double magRate = 1.4;						// Šg‘å—¦
 const float rotVel = DX_PI_F / 540.f;
 const float mVel   = 3.f;
 const int atkMax   = 120;
@@ -20,6 +20,7 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
+	_lifeCnt = 10;
 	_isAlive = true;
 
 	center = pos;
@@ -144,6 +145,7 @@ void Crab::Shot()
 void Crab::Die()
 {
 	_isAlive = false;
+	_shot.clear();
 	_updater = &Crab::DieUpdate;
 }
 
@@ -197,11 +199,11 @@ void Crab::ShotUpdate()
 {
 	if (shotCnt > 0)
 	{
-		if (!(shotCnt % 10))
+		if (!(shotCnt % 5))
 		{
 			auto vec = (_crab._vert[0] - _crab._vert[3]).Normalized();		/// ‚©‚É‚ÌŒü‚¢‚Ä‚é•ûŒü‚ÉŒü‚©‚Á‚Ä•úËó
 			auto lengPos = Vector2(length * vec.x, length * vec.y);
-			auto rand = (GetRand(10) - 5);
+			auto rand = (GetRand(14) - 7);
 			auto pos = Vector2(10 * rand, 10 * rand) + lengPos;
 			/// ƒvƒŒƒCƒ„[‚Ì•ûŒü‚ÉŒü‚©‚Á‚Ä•úËã‚É‘Å‚Â‚æ‚¤İ’è‚ğs‚¤
 			auto theta = atan2f((_crab._pos.y + pos.y) - _crab._pos.y,
@@ -649,6 +651,13 @@ void Crab::RegistAtkInfo()
 	{
 		at.emplace_back(AttackInfo(shot._pos, shot._r));
 	}
+
+	auto vec = (_crab._vert[1] - _crab._vert[0]).Normalized();
+	for (int i = 0; i < 2; ++i)
+	{
+		vec = (i % 2 ? -vec : vec);
+		at.emplace_back(AttackInfo(_crab._pos + Vector2(_crab._size.height / 3 * vec.x, _crab._size.height / 3 * vec.y), _crab._size.height / 2));
+	}
 }
 
 void Crab::RegistDamageInfo()
@@ -755,16 +764,9 @@ void Crab::Draw()
 	/// –³“Gó‘Ô‚ÌA“§–¾“x‚ğ’²®‚·‚é
 	if (inviCnt > 0)
 	{
-		if (inviCnt <= inviMax / 2)
+		if ((inviCnt / 10) % 2)
 		{
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-		}
-		else
-		{
-			if ((inviCnt / 10) % 2)
-			{
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-			}
+			SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
 		}
 	}
 	
@@ -940,8 +942,8 @@ void Crab::OnDamage()
 {
 	if (inviCnt <= 0)
 	{
-		lifeCnt--;
-		if (lifeCnt == 0)
+		_lifeCnt--;
+		if (_lifeCnt == 0)
 		{
 			Die();
 			return;
