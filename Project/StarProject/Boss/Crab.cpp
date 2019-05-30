@@ -21,8 +21,9 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
-	_lifeCnt = 2;
+	_lifeCnt = 10;
 	_isAlive = true;
+	inviCnt = 0;
 
 	center = pos;
 	/// ｻｲｽﾞ設定
@@ -145,6 +146,7 @@ void Crab::Pitch()
 void Crab::Shot()
 {
 	_type = AtkType::SHOT;
+	_shot.clear();
 	_updater = &Crab::ShotUpdate;
 }
 
@@ -654,9 +656,12 @@ void Crab::RegistAtkInfo()
 	}
 	for (auto arm : _crab._arms)
 	{
-		for (auto point : arm._points)
+		auto point = arm._points.begin();
+		for (; point != arm._points.end(); ++point)
 		{
-			at.emplace_back(AttackInfo(point, lSize.width / 2));
+			auto cnt = point - arm._points.begin();
+			auto size = (cnt == 1 ? lSize.width / 4 : lSize.width / 2);
+			at.emplace_back(AttackInfo((*point), size));
 		}
 	}
 	for (auto shot : _shot)
@@ -761,11 +766,11 @@ bool Crab::StopCheck(const Vector2 & sPos, const Vector2 & ePos, const Vector2 &
 
 void Crab::Draw()
 {
-	auto camera = _camera->CameraCorrection();
+	auto c = _camera->CameraCorrection();
 
 	for (auto shot : _shot)
 	{
-		DxLib::DrawCircle(shot._pos.x - camera.x, shot._pos.y - camera.y, shot._r, 0xccffff, true);
+		DxLib::DrawCircle(shot._pos.x - c.x, shot._pos.y - c.y, shot._r, 0xccffff, true);
 	}
 
 	for (auto p : _particle)
@@ -781,15 +786,14 @@ void Crab::Draw()
 			SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
 		}
 	}
-	
-	///　ここからダメージを食らった時の描画をする
+
 	Vector2 p1, p2, p3, p4;
 	for (auto leg : _crab._legs)
 	{
 		for (int i = 0; i < leg._points.size() - 1; ++i)
 		{
-			p1 = leg._vert[i][0] - camera; p2 = leg._vert[i][1] - camera;
-			p3 = leg._vert[i][2] - camera; p4 = leg._vert[i][3] - camera;
+			p1 = leg._vert[i][0] - c; p2 = leg._vert[i][1] - c;
+			p3 = leg._vert[i][2] - c; p4 = leg._vert[i][3] - c;
 			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
@@ -798,11 +802,11 @@ void Crab::Draw()
 	for (; scis != _scissors.end(); ++scis)
 	{
 		auto sCnt = scis - _scissors.begin();
-		p1 = (*scis)[0] - camera; p2 = (*scis)[1] - camera;
-		p3 = (*scis)[2] - camera; p4 = (*scis)[3] - camera;
+		p1 = (*scis)[0] - c; p2 = (*scis)[1] - c;
+		p3 = (*scis)[2] - c; p4 = (*scis)[3] - c;
 
 		auto vec = (p1 - p4).Normalized();
-		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - camera;
+		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - c;
 
 		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000 , true);
 		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
@@ -812,14 +816,14 @@ void Crab::Draw()
 	{
 		for (int i = 0; i < arm._points.size() - 1; ++i)
 		{
-			p1 = arm._vert[i][0] - camera; p2 = arm._vert[i][1] - camera;
-			p3 = arm._vert[i][2] - camera; p4 = arm._vert[i][3] - camera;
+			p1 = arm._vert[i][0] - c; p2 = arm._vert[i][1] - c;
+			p3 = arm._vert[i][2] - c; p4 = arm._vert[i][3] - c;
 			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
 	/// 蟹本体の描画
-	p1 = _crab._vert[0] - camera; p2 = _crab._vert[1] - camera;
-	p3 = _crab._vert[2] - camera; p4 = _crab._vert[3] - camera;
+	p1 = _crab._vert[0] - c; p2 = _crab._vert[1] - c;
+	p3 = _crab._vert[2] - c; p4 = _crab._vert[3] - c;
 	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 
 	auto vec = (p2 - p1).Normalized();
@@ -833,12 +837,68 @@ void Crab::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 #ifdef _DEBUG
-	DebugDraw(camera);
+	DebugDraw(c);
 #endif
 }
 
 void Crab::ShadowDraw()
 {
+	auto c = _camera->CameraCorrection();
+	auto s = _camera->GetShadowPos(0.3f);
+
+	for (auto shot : _shot)
+	{
+		DxLib::DrawCircle(shot._pos.x - c.x + s.x, shot._pos.y - c.y + s.y, shot._r, 0xccffff, true);
+	}
+
+	for (auto p : _particle)
+	{
+		p->Draw();
+	}
+
+	Vector2 p1, p2, p3, p4;
+	for (auto leg : _crab._legs)
+	{
+		for (int i = 0; i < leg._points.size() - 1; ++i)
+		{
+			p1 = leg._vert[i][0] - c + s; p2 = leg._vert[i][1] - c + s;
+			p3 = leg._vert[i][2] - c + s; p4 = leg._vert[i][3] - c + s;
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+		}
+	}
+
+	auto scis = _scissors.begin();
+	for (; scis != _scissors.end(); ++scis)
+	{
+		auto sCnt = scis - _scissors.begin();
+		p1 = (*scis)[0] - c + s; p2 = (*scis)[1] - c + s;
+		p3 = (*scis)[2] - c + s; p4 = (*scis)[3] - c + s;
+
+		auto vec = (p1 - p4).Normalized();
+		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - c + s;
+
+		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
+	}
+
+	for (auto arm : _crab._arms)
+	{
+		for (int i = 0; i < arm._points.size() - 1; ++i)
+		{
+			p1 = arm._vert[i][0] - c + s; p2 = arm._vert[i][1] - c + s;
+			p3 = arm._vert[i][2] - c + s; p4 = arm._vert[i][3] - c + s;
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+		}
+	}
+	/// 蟹本体の描画
+	p1 = _crab._vert[0] - c + s; p2 = _crab._vert[1] - c + s;
+	p3 = _crab._vert[2] - c + s; p4 = _crab._vert[3] - c + s;
+	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+
+	auto vec = (p2 - p1).Normalized();
+	auto rEyePos = p1 + Vector2((_crab._size.width / 3) * vec.x, (_crab._size.width / 3) * vec.y);
+	auto lEyePos = p2 + Vector2((_crab._size.width / 3) * (-vec.x), (_crab._size.width / 3) * (-vec.y));
+
 }
 
 void Crab::SelectDraw(const Vector2 & pos, const float& scale)
