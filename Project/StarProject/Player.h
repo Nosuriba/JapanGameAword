@@ -16,7 +16,8 @@ enum class LEG_STATE {
 	HOLD
 };
 
-struct Leg {
+struct Leg 
+{
 	Vector2 tip;		// 足の先端座標
 	Vector2 pos;		// 足の位置
 	Vector2 vel;		// 速度
@@ -25,14 +26,16 @@ struct Leg {
 	LEG_STATE state;	// 足の状態
 };
 
-struct Star {
+struct Star 
+{
 	int level;				// レベル
 	float r;				// 足の長さ
 	Vector2 center;			// 中心
 	std::vector<Leg> legs;	// 足
 };
 
-struct Laser {
+struct Laser 
+{
 	int count;
 	Vector2 pos;
 	Vector2 vel;
@@ -43,6 +46,11 @@ struct Laser {
 	Laser(Vector2 p, Vector2 v,bool isEnd = false) : pos(p), vel(v) ,isEnd(isEnd){ count = 0; size = 5; isHit = false;}
 	void Hit() { isHit = true; }
 	void End() { isEnd = true; }
+};
+
+struct PlayerDamageInfo {
+	Vector2 pos;
+	float	r;
 };
 
 class Player
@@ -89,13 +97,16 @@ public:
 	void SelectDraw(const Vector2 p, const float s);
 
 	Star GetInfo();
-	const std::vector<Vector2> GetShot();
 	const std::array<std::list<Laser>, 2> GetLaser();
+
 	void LevelUP();
 	void ToCatch(const Vector2& t);
+
 	void OnDamage();
+
 	void LetsGo(const Vector2 p);
 	void SetStar(const Vector2& p, const float& s);
+
 	const bool CheckDie() const { return _isDie; }
 	const int GetEatCnt() const { return _eatCnt; }
 };
