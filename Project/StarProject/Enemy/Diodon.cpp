@@ -23,7 +23,7 @@ Diodon::Diodon(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& 
 
 	_escapeTime = 0;
 
-	_updater = &Diodon::EscapeUpdate;
+	_updater = &Diodon::SwimUpdate;
 }
 
 Diodon::~Diodon()

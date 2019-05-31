@@ -1,11 +1,11 @@
 #pragma once
 #include "Scene.h"
-#include <memory>
 
-#include <vector>
 #include <DxLib.h>
-#include <thread>
-#include <mutex>
+
+#include <memory>
+#include <vector>
+#include <list>
 
 class Input;
 class Player;
@@ -66,13 +66,13 @@ private:
 	std::shared_ptr<Collision> _col;
 	std::shared_ptr<Camera> _camera;
 
-	std::vector<std::shared_ptr<Enemy>> _enemies;		/// 仮の描画
-	std::vector<std::shared_ptr<Boss>> _bosses;
+	std::list<std::shared_ptr<Enemy>>	_enemies;
+	std::list<std::shared_ptr<Boss>>	_bosses;
 
-	std::vector<std::shared_ptr<DestroyableObject>> _destroyObj;
-	std::vector<std::shared_ptr<PredatoryObject>> _predatoryObj;
-	std::vector<std::shared_ptr<ImmortalObject>> _immortalObj;
-	std::vector<std::shared_ptr<GoalObject>> _goalObject;
+	std::list<std::shared_ptr<DestroyableObject>>	_destroyObj;
+	std::list<std::shared_ptr<PredatoryObject>>		_predatoryObj;
+	std::vector<std::shared_ptr<ImmortalObject>>	_immortalObj;
+	std::vector<std::shared_ptr<GoalObject>>		_goalObject;
 
 	//スクリーン
 	int firstscreen;
@@ -90,14 +90,19 @@ private:
 	int sea;
 	int sea_effect;
 	int beach;
+	int gameclear;
+	int gameover;
 
+
+	//カウント系
 	int flame;
 	int time;
 	int totaltime;
 
-	int wait;
+	
+	int wait;//ふぁで
 
-	int waitNum;
+	int waitNum;//ゲーム開始までのカウント
 	int waitCnt;
 
 	int gameCnt;
@@ -113,16 +118,6 @@ private:
 	//当たり用スクリーンのサイズの保管
 	std::vector<CutScreenInfo> _cutAreaScreen;
 	CutScreenInfo cutscr;
-
-	//スレッド
-	std::thread _cutCol;
-	std::thread __eneCol;
-
-	std::mutex _mutex;
-
-	bool bosssceneflag;
-
-	void StageLock();
 
 	int stageNum;
 

@@ -48,6 +48,9 @@ private:
 	Vector2 _targetPos;
 	Vector2 _vec;
 
+	int extend;
+	int setup;
+
 	std::vector<std::shared_ptr<Particle>> _particle;
 
 	void IkCcd(Vector2 pos,int idx,int numMaxItaration);
