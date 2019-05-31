@@ -462,13 +462,29 @@ void GameScene::Run(const Input & p)
 	}
 
 #endif // _DEBUG
+
+	//‘Ì—Í‚Ì‚â‚Â
 	int c = 0;
+	bool regeneFlag = false;
 	for (auto hart = _Harts.begin(); hart != _Harts.end(); hart++)
 	{
 		(*hart)->UpDate();
 		if (_pl->GetLife() < ++c)
 		{
 			(*hart)->Break();
+		}
+		else if (_pl->GetLife() > c)
+		{
+			regeneFlag = true;
+			_Harts.clear();
+			break;
+		}
+	}
+	if (regeneFlag)
+	{
+		for (int i = 0;i< _pl->GetLife();i++)
+		{
+			_Harts.push_back(std::make_unique<Hart>(Vector2(size.x / 2 + 120 + i * 45, 5), i));
 		}
 	}
 }
