@@ -610,7 +610,7 @@ GameScene::GameScene(const int& stagenum)
 
 	for (int i = 0; i < 3; i++)
 	{
-		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,650),i));
+		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,670),i));
 	}
 
 	_updater = &GameScene::LoadStageUpdate;
@@ -788,8 +788,8 @@ void GameScene::Draw()
 	DrawRectRotaGraph(size.x / 2 - 30, 50, 300 * ten, 0, 300, 300, 0.3f, 0, Numimg, true);
 	DrawRectRotaGraph(size.x / 2 + 30, 50, 300 * one, 0, 300, 300, 0.3f, 0, Numimg, true);
 
-	DrawRectRotaGraph(GetFontSize()*2.5, size.y -75,300*_pl->GetInfo().level,0,300,300, abs((((gameCnt/2)%20-10)))*0.01f+0.5f,0,Numimg,true);
-	DrawGraph(0, size.y - GetFontSize()*1.5,Lvimg,true);
+	DrawRectRotaGraph(GetFontSize()*2.2, size.y -75,300*_pl->GetInfo().level,0,300,300, abs((((gameCnt/2)%20-10)))*0.01f+0.5f,0,Numimg,true);
+	DrawGraph(GetFontSize()/2, size.y - GetFontSize(),Lvimg,true);
 
 	for (auto hart:_Harts)
 	{
