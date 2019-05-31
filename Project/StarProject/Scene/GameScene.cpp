@@ -637,7 +637,7 @@ GameScene::GameScene(const int& stagenum)
 	fadewait = 0;
 
 	time		= 90;
-	totaltime	= 60;
+	totaltime	= 90;
 
 	waitNum = 3;
 	waitCnt = 0;
