@@ -130,6 +130,14 @@ void GameScene::Run(const Input & p)
 		boss->Update();
 	}
 
+	for (auto predatry : _predatoryObj) {
+		predatry->Update();
+	}
+
+	for (auto destroy : _destroyObj) {
+		destroy->Update();
+	}
+
 	gameCnt++;
 	score.bite = _pl->GetEatCnt();
 
@@ -185,7 +193,7 @@ void GameScene::Run(const Input & p)
 		{
 			for (auto& pr : pRec)
 			{
-				if (_col->CircleToCircleBoss(pr.pos, pr.r, er.pos, er.r))
+				if (_col->CircleToCircle(pr.pos, pr.r, er.pos, er.r))
 				{
 					_pl->OnDamage();
 					break;
@@ -227,7 +235,7 @@ void GameScene::Run(const Input & p)
 		{
 			for (auto& pr : pRec)
 			{
-				if (_col->CircleToCircleBoss(pr.pos, pr.r, br._pos, br._r))
+				if (_col->CircleToCircle(pr.pos, pr.r, br._pos, br._r))
 				{
 					_pl->OnDamage();
 				}
@@ -249,7 +257,7 @@ void GameScene::Run(const Input & p)
 		{
 			for (auto& pr : pRec)
 			{
-				if (_col->CircleToCircleBoss(pr.pos, pr.r, bs._pos, bs._r))
+				if (_col->CircleToCircle(pr.pos, pr.r, bs._pos, bs._r))
 				{
 					_pl->OnDamage();
 				}
@@ -605,13 +613,6 @@ GameScene::GameScene(const int& stagenum)
 
 GameScene::~GameScene()
 {
-	/*if (_cutCol.joinable()) {
-		_cutCol.join();
-	}
-	if (__eneCol.joinable()) {
-		__eneCol.join();
-	}*/
-
 	DeleteGraph(firstscreen);
 	DeleteGraph(secondscreen);
 	DeleteGraph(thirdscreen);
@@ -849,26 +850,9 @@ void GameScene::Update(const Input & p)
 {
 	wait++,shader_time++,waitCnt++;
 
-	//auto size = Game::GetInstance().GetScreenSize();
-
-	//auto laser = _pl->GetLaser(); 
-	//const auto camera = _camera->CameraCorrection();
-
-
-	//auto th = [&](std::array<std::list<Laser>,2> _laser, Vector2 camera) {
-		
-	//};
-
 	totaltime = time - (flame / 60);
 
 	_camera->Update(_pl->GetInfo().center);
-
-	for (auto predatry : _predatoryObj) {
-		predatry->Update();
-	}
-	for (auto destroy : _destroyObj) {
-		destroy->Update();
-	}
 
 	(this->*_updater)(p);
 

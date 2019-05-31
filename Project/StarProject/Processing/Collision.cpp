@@ -100,39 +100,6 @@ bool Collision::TriToSqr(const std::vector<Leg>& _leg, const Position2 &_pos, co
 	return false;
 }
 
-//bool Collision::WaterToSqr(const Position2 & _posA, const Vector2 & _vec, const Rect& _rectB)
-//{
-//	//_posA = player,_vec = laser,_rectB = enemy;
-//
-//	const int r = 30;
-//
-//	auto _vecA = _vec;
-//
-//	auto _vecB = _rectB.center - _posA;
-//
-//	auto _t = Dot(_vecA.Normalized(), _vecB);
-//
-//	auto _p = _posA + (_vecA.Normalized() * max(0,_t));
-//
-//
-//	auto termA = ((_rectB.Left() < _p.x) && (_rectB.Right() > _p.x) && (_rectB.Top() - r < _p.y) && (_rectB.Bottom() + r > _p.y));
-//
-//	auto termB = ((_rectB.Top() < _p.y) && (_rectB.Bottom() > _p.y) && (_rectB.Right() - r < _p.x) && (_rectB.Left() + r > _p.x));
-//
-//	auto termC = ((_rectB.Left() - _p.x)*(_rectB.Left() - _p.x) + (_rectB.Top() - _p.y)*(_rectB.Top() - _p.y) < r*r);
-//
-//	auto termD = ((_rectB.Right() - _p.x)*(_rectB.Right() - _p.x) + (_rectB.Top() - _p.y)*(_rectB.Top() - _p.y) < r*r);
-//
-//	auto termE = ((_rectB.Right() - _p.x)*(_rectB.Right() - _p.x) + (_rectB.Bottom() - _p.y)*(_rectB.Bottom() - _p.y) < r*r);
-//
-//	auto termF = ((_rectB.Left() - _p.x)*(_rectB.Left() - _p.x) + (_rectB.Bottom() - _p.y)*(_rectB.Bottom() - _p.y) < r*r);
-//
-//	if (termA || termB || termC || termD || termE || termF) {
-//		return true;
-//	}
-//	return false;
-//}
-
 bool Collision::WaterToSqr(const Position2 & _posA1, const Position2 & _posA2, const Rect & _rectB)
 {
 	const int r = 30;
@@ -242,22 +209,11 @@ bool Collision::CircleToCircle(const Position2 & _posA, const float & _rA, const
 	return false;
 }
 
-bool Collision::CircleToCircleBoss(const Position2 & _posA, const float & _rA, const Position2 & _posB, const float & _rB)
+bool Collision::CircleToCircle(const Position2 & _posA, const float & _rA, const Position2 & _posB, const float & _rB)
 {
 	auto vecA = _posA - _posB;
 
 	if (vecA.Magnitude() <= _rA + _rB) {
-		return true;
-	}
-
-	return false;
-}
-
-bool Collision::CircleToCircleEne(const Position2 & _posA, const float & _rA, const Position2 & _posB, const float & _rB)
-{
-	auto vecA = _posA - _posB;
-
-	if (vecA.Magnitude() <= _rA + _rB / 2) {
 		return true;
 	}
 

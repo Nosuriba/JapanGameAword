@@ -6,8 +6,6 @@
 #include <memory>
 #include <vector>
 #include <list>
-#include <thread>
-#include <mutex>
 
 class Input;
 class Player;
@@ -115,12 +113,6 @@ private:
 	//当たり用スクリーンのサイズの保管
 	std::vector<CutScreenInfo> _cutAreaScreen;
 	CutScreenInfo cutscr;
-
-	//スレッド
-	std::thread _cutCol;
-	std::thread __eneCol;
-
-	std::mutex _mutex;
 
 	bool bosssceneflag;
 
