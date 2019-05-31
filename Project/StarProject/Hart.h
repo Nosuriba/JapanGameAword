@@ -11,7 +11,7 @@ private:
 	Vector2 _pos;
 	int _breakCnt,_toJamp,_Cnt;
 	bool _isbreak;
-	int imgBuff[4];
+	int imgBuff[25];
 	int img;
 public:
 	Hart(Vector2 pos = {0,0});
