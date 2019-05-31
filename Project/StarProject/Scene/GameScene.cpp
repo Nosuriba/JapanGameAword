@@ -608,7 +608,7 @@ GameScene::GameScene(const int& stagenum)
 	cgauge = ResourceManager::GetInstance().LoadImg("../img/timegauge.png");
 	shader_time = 0;
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < _pl->GetLife(); i++)
 	{
 		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,670),i));
 	}
@@ -788,13 +788,11 @@ void GameScene::Draw()
 	DrawRectRotaGraph(size.x / 2 - 30, 50, 300 * ten, 0, 300, 300, 0.3f, 0, Numimg, true);
 	DrawRectRotaGraph(size.x / 2 + 30, 50, 300 * one, 0, 300, 300, 0.3f, 0, Numimg, true);
 
-	DrawRectRotaGraph(GetFontSize()*2.2, size.y -75,300*_pl->GetInfo().level,0,300,300, abs((((gameCnt/2)%20-10)))*0.01f+0.5f,0,Numimg,true);
-	DrawGraph(GetFontSize()/2, size.y - GetFontSize(),Lvimg,true);
+	DrawRectRotaGraph(GetFontSize()*3, 30,300*_pl->GetInfo().level,0,300,300,abs((gameCnt%30-15))*0.005f+0.2f,0,Numimg,true);
+	DrawGraph(GetFontSize(), 0,Lvimg,true);
 
-	for (auto hart:_Harts)
-	{
-		hart->Draw();
-	}
+	/// HP‚ÌDraw
+	for (auto hart:_Harts)hart->Draw();
 
 
 	//ƒoƒbƒN•`‰æ
