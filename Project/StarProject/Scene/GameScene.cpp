@@ -88,7 +88,7 @@ void GameScene::FadeOut(const Input & p)
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	if (fadewait >= WAITFRAME) {
-		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,totaltime));
+		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,score.time));
 	}
 	else {
 		(*FadeBubble).Create();
@@ -456,7 +456,8 @@ void GameScene::Run(const Input & p)
 	Draw();
 
 	flame++;
-
+	totaltime = time - (flame / 60);
+	score.time = totaltime;
 	if (totaltime == 0) {
 		clearflag = false;
 		_updater = &GameScene::CutinUpdate;
@@ -464,7 +465,7 @@ void GameScene::Run(const Input & p)
 	if (_pl->CheckDie())
 	{
 		clearflag = false;
-		totaltime == 0;
+		score.time = 0;
 		_updater = &GameScene::CutinUpdate;
 	}
 
@@ -897,9 +898,6 @@ void GameScene::Draw()
 void GameScene::Update(const Input & p)
 {
 	fadewait++,shader_time++,waitCnt++;
-
-	totaltime = time - (flame / 60);
-
 	
 	(this->*_updater)(p);
 
