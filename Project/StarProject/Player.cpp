@@ -180,12 +180,25 @@ void Player::Predation(const Input & in)
 
 		if (_anim_frame < 30)
 			l.tip = CENTER + v.Normalized() * min((_star.r * 1.5f), v.Magnitude() + 2.0f * _star.level);
-		else if(_anim_frame < 60)
-			l.tip = CENTER + v.Normalized() * max(_star.r, v.Magnitude() - 1.5f * _star.level);
+		else 
+			if (_anim_frame < 60)
+			{
+				if (!CheckSoundMem(eatSE))
+				{
+					PlaySoundMem(eatSE, DX_PLAYTYPE_BACK);
+				}
+				l.tip = CENTER + v.Normalized() * max(_star.r, v.Magnitude() - 1.5f * _star.level);
+			}
 		else if (_anim_frame < 75)
 			l.tip = CENTER + v.Normalized() * min((_star.r * 1.5f), v.Magnitude() + 1.5f * _star.level);
 		else 
+		{
+			if (!CheckSoundMem(eatSE)) 
+			{
+				PlaySoundMem(eatSE, DX_PLAYTYPE_BACK);
+			}
 			l.tip = CENTER + v.Normalized() * max(_star.r, v.Magnitude() - 1.5f * _star.level);
+		}
 	}
 	++_anim_frame;
 	if (_anim_frame > 90)
@@ -298,6 +311,8 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 	_interval	= 0;
 
 	damageSE = ResourceManager::GetInstance().LoadSound("../Sound/damage.mp3");
+	dieSE = ResourceManager::GetInstance().LoadSound("../Sound/Player/p_die.mp3");
+	eatSE = ResourceManager::GetInstance().LoadSound("../Sound/Player/bite1.mp3");
 
 	_updater = &Player::Normal;
 }
@@ -515,6 +530,7 @@ void Player::OnDamage()
 	_interval = 300;
 	if (_life == 0)
 	{
+		PlaySoundMem(dieSE, DX_PLAYTYPE_BACK);
 		select_idx = { -1,-1 };
 		_isAlive	= false;
 		_anim_frame = 0;
