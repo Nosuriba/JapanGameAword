@@ -20,6 +20,7 @@
 #include "../Object/ImmortalObject.h"
 #include "../Object/GoalObject.h"
 #include "../Stage.h"
+#include "../Hart.h"
 
 #include <iostream>
 #include <algorithm>
@@ -104,7 +105,6 @@ void GameScene::Wait(const Input & p)
 void GameScene::Run(const Input & p)
 {
 	//////////////////////// 削除 ///////////////////////////////
-
 	// 敵
 	_enemies.remove_if([](std::shared_ptr<Enemy>& e) {return !e->GetInfo()._isAlive; });
 	
@@ -430,6 +430,15 @@ void GameScene::Run(const Input & p)
 	}
 
 #endif // _DEBUG
+	int c = 0;
+	for (auto hart = _Harts.begin(); hart != _Harts.end(); hart++)
+	{
+		(*hart)->UpDate();
+		if (_pl->GetLife() < ++c)
+		{
+			(*hart)->Break();
+		}
+	}
 }
 
 void GameScene::BossScene(const Input & p)
@@ -584,6 +593,11 @@ GameScene::GameScene(const int& stagenum)
 	shader_time = 0;
 	num = 0;
 
+	for (int i = 0; i < 3; i++)
+	{
+		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,660),i));
+	}
+
 	bosssceneflag = false;
 
 	_updater = &GameScene::LoadStageUpdate;
@@ -675,9 +689,14 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	for (auto itr : _enemies)
+	for (auto &enemy : _enemies)
 	{
-		itr->Draw();
+		enemy->Shadow();
+	}
+
+	for (auto &boss : _bosses)
+	{
+		boss->ShadowDraw();
 	}
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
@@ -763,12 +782,13 @@ void GameScene::Draw()
 	DrawRectRotaGraph(size.x / 2 - 30, 30, 300 * ten, 0, 300, 300, 0.3f, 0, Numimg, true);
 	DrawRectRotaGraph(size.x / 2 + 30, 30, 300 * one, 0, 300, 300, 0.3f, 0, Numimg, true);
 
-	SetFontSize(64);
 	DrawRectRotaGraph(GetFontSize()*2.5, size.y -75,300*_pl->GetInfo().level,0,300,300, abs((((gameCnt/2)%20-10)))*0.01f+0.5f,0,Numimg,true);
-	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	DrawGraph(0, size.y - GetFontSize()*1.5,Lvimg,true);
-	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
-	
+
+	for (auto hart:_Harts)
+	{
+		hart->Draw();
+	}
 
 
 	//バック描画
@@ -777,14 +797,6 @@ void GameScene::Draw()
 	ClearDrawScreen();
 
 	DrawGraph(0, 0, firstscreen, true);
-
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
-
-	DrawGraph(0, 0, secondscreen, true);
-
-	SetDrawBlendMode(mode, palam);
-
-	_pl->Draw();
 
 	for (auto &immortal : _immortalObj) {
 		immortal->Draw();
@@ -801,6 +813,14 @@ void GameScene::Draw()
 	for (auto &goal : _goalObject) {
 		goal->Draw();
 	}
+
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
+
+	DrawGraph(0, 0, secondscreen, true);
+
+	SetDrawBlendMode(mode, palam);
+
+	_pl->Draw();
 
 	for (auto &enemy : _enemies)
 	{

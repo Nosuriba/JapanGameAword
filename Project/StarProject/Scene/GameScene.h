@@ -15,6 +15,7 @@ class Enemy;
 class Boss;
 class Collision;
 class Camera;
+class Hart;
 
 class Obstacle;
 class DestroyableObject;
@@ -62,6 +63,7 @@ private:
 	void BossScene(const Input& p);
 	void nlDraw();
 
+	std::vector <std::shared_ptr<Hart>> _Harts;
 	std::shared_ptr<Player> _pl;
 	std::shared_ptr<Collision> _col;
 	std::shared_ptr<Camera> _camera;
