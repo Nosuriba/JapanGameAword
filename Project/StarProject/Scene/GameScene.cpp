@@ -120,9 +120,14 @@ void GameScene::Run(const Input & p)
 	}
 	//////////////////////// 削除 ///////////////////////////////
 	// 敵
+	for (auto& e : _enemies)
+		if (!e->GetInfo()._isAlive) score.enemy++;
 	_enemies.remove_if([](std::shared_ptr<Enemy>& e) {return !e->GetInfo()._isAlive; });
 	
 	// 破壊可能オブジェクト
+	for (auto& d : _destroyObj)
+		if (d->GetInfo()._breakflag) score.breakobj++;
+
 	_destroyObj.remove_if([](std::shared_ptr<DestroyableObject>& d) {return d->GetInfo()._breakflag; });
 
 	//捕食可能オブジェクト
@@ -459,6 +464,7 @@ void GameScene::Run(const Input & p)
 	if (_pl->CheckDie())
 	{
 		clearflag = false;
+		totaltime == 0;
 		_updater = &GameScene::CutinUpdate;
 	}
 
