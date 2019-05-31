@@ -893,7 +893,7 @@ void Crab::ShadowDraw()
 		DxLib::DrawCircle(shot._pos.x - c.x + s.x, shot._pos.y - c.y + s.y, shot._r, 0xccffff, true);
 	}
 
-	if (!((inviCnt / 5) % 2))
+	if (!((inviCnt / 5) % 2) && _updater != &Crab::DieUpdate)
 	{
 		Vector2 p1, p2, p3, p4;
 		for (auto leg : _crab._legs)
