@@ -2,7 +2,7 @@
 
 #include "../ResourceManager.h"
 
-const int offset = 60;
+const int offset = 15;
 
 void DestroyableObject::NormalUpdate()
 {
@@ -20,7 +20,7 @@ void DestroyableObject::BreakUpdate()
 DestroyableObject::DestroyableObject(const std::shared_ptr<Camera>& camera, int x, int y, int level):Obstacle(camera)
 {
 	auto pos = Position2(x,y);
-	auto size = Size(32 + offset,32 + offset);
+	auto size = Size(32, 32);
 	auto rect = Rect(pos, size);
 	auto _level = level;
 
@@ -45,34 +45,34 @@ void DestroyableObject::Draw()
 	{
 		// ç∂è„
 		DrawRectExtendGraph(
-			obj._rect.Left() - camera.x,
-			obj._rect.Top() - camera.y - (flame),
-			obj._rect.Right() - obj._rect.size.width / 2 - camera.x,
-			obj._rect.Bottom() - obj._rect.size.height / 2 - camera.y - (flame),
+			obj._rect.Left()	- camera.x - offset,
+			obj._rect.Top()		- camera.y - (flame) - offset,
+			obj._rect.Right()	- obj._rect.size.width / 2	- camera.x,
+			obj._rect.Bottom()	- obj._rect.size.height / 2 - camera.y - (flame),
 			0, 0, 312, 312, _imgs[obj._level - 1], true
 		);
 		// âEè„
 		DrawRectExtendGraph(
-			obj._rect.Left()	+ obj._rect.size.width / 2	- camera.x + (flame),
-			obj._rect.Top()		- camera.y,
-			obj._rect.Right()	- camera.x + (flame),
+			obj._rect.Left()	+ obj._rect.size.width / 2 - camera.x + (flame),
+			obj._rect.Top()		- camera.y - offset,
+			obj._rect.Right()	- camera.x + (flame) + offset,
 			obj._rect.Bottom()	- obj._rect.size.height / 2 - camera.y,
 			312, 0, 312, 312, _imgs[obj._level - 1], true
 		);
 		// ç∂â∫
 		DrawRectExtendGraph(
-			obj._rect.Left()	- camera.x - (flame),
+			obj._rect.Left()	- camera.x - (flame) - offset,
 			obj._rect.Top()		- camera.y + obj._rect.size.height / 2,
 			obj._rect.Right()	- obj._rect.size.height / 2 - camera.x - (flame),
-			obj._rect.Bottom()	- camera.y,
+			obj._rect.Bottom()	- camera.y + offset,
 			0, 312, 312, 312, _imgs[obj._level - 1], true
 		);
 		// âEâ∫
 		DrawRectExtendGraph(
-			obj._rect.Left() + obj._rect.size.width / 2 - camera.x,
-			obj._rect.Top() + obj._rect.size.height / 2 - camera.y + (flame),
-			obj._rect.Right() - camera.x,
-			obj._rect.Bottom() - camera.y + (flame),
+			obj._rect.Left()	+ obj._rect.size.width / 2 - camera.x,
+			obj._rect.Top()		+ obj._rect.size.height / 2 - camera.y + (flame),
+			obj._rect.Right()	- camera.x + offset,
+			obj._rect.Bottom()	- camera.y + (flame) + offset,
 			312, 312, 312, 312, _imgs[obj._level - 1], true
 		);
 	}

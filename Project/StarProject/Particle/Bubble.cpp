@@ -1,5 +1,6 @@
 #include "Bubble.h"
 #include "../ResourceManager.h"
+#include "../Camera.h"
 
 constexpr int Magnification = 100;
 constexpr int ShakeSize = 31;
@@ -174,7 +175,7 @@ void Bubble::Draw()
 	imgBff= ResourceManager::GetInstance().LoadImg("../img/Bubble.png");
 	GetGraphSize(imgBff,&x,&y);
 	// •`‰æ•”•ª
-	for (auto p : particle)
+	for (auto &p : particle)
 	{
 		if (p.bright> VanishBright)
 		{

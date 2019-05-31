@@ -93,7 +93,7 @@ private:
 	int beach;
 	int gameclear;
 	int gameover;
-
+	bool clearflag;
 
 	//ƒJƒEƒ“ƒgŒn
 	int fadewait;
@@ -125,7 +125,7 @@ private:
 	//UI
 	LevelUIInfo leveluiInfo;
 
-	int guage,Lvimg,Numimg,cgauge;
+	int guage,Lvimg,lvnumimg,timeimg,cgauge;
 
 public:
 	GameScene(const int& stagenum);
