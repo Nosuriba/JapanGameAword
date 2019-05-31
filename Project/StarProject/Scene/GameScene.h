@@ -93,7 +93,7 @@ private:
 	int beach;
 	int gameclear;
 	int gameover;
-
+	bool clearflag;
 
 	//ƒJƒEƒ“ƒgŒn
 	int fadewait;

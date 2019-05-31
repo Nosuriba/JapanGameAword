@@ -75,7 +75,12 @@ void GameScene::FadeOut(const Input & p)
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	Draw();
-	DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+	if (clearflag) {
+		DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+	}
+	else {
+		DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameover, true);
+	}
 	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(fadewait) / WAITFRAME);
 	DrawBox(0, 0, s.x, s.y, 0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -407,6 +412,7 @@ void GameScene::Run(const Input & p)
 		{
 			if (_col->CircleToSqr(pr.pos, pr.r, goal->GetInfo()._rect))
 			{
+				clearflag = true;
 				_updater = &GameScene::CutinUpdate;
 			}
 		}
@@ -414,7 +420,12 @@ void GameScene::Run(const Input & p)
 
 	///////////////////////////////////////////////////////////////
 
-
+	for (auto boss : _bosses) {
+		if (boss->GetDieFlag()) {
+			clearflag = true;
+			_updater = &GameScene::CutinUpdate;
+		}
+	}
 	Draw();
 
 	flame++;
@@ -452,8 +463,12 @@ void GameScene::CutinUpdate(const Input & p)
 {
 	Draw();
 	cutinCnt += 10;
-
-	DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+	if (clearflag) {
+		DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+	}
+	else {
+		DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameover, true);
+	}
 
 	if (cutinCnt >= size.x / 2) {
 		fadewait = 0;
@@ -561,7 +576,6 @@ void GameScene::LoadResource()
 	leveluiInfo.backCircle_r	= 250;
 
 	SetUseASyncLoadFlag(false);
-
 }
 
 GameScene::GameScene(const int& stagenum)
@@ -584,6 +598,8 @@ GameScene::GameScene(const int& stagenum)
 	waitCnt = 0;
 
 	nlpl = nlCnt = 0;
+
+	clearflag = false;
 
 	cutinCnt = 0;
 	
