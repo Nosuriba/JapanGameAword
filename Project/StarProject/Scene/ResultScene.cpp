@@ -171,7 +171,7 @@ void ResultScene::Draw()
 			DrawCircle((size.x + (float)(194 * 4.5f)) / 2, (size.y - (float)(194)) / 10 * 9, GetFontSize()-96, 0xff3333, 0, 10);
 			DrawRotaString((size.x + (float)(194 *3.6f)) / 2+ 194 / 2, (size.y - (float)(194)) / 10 * 7.35f+ 194 / 2,1,1,
 				GetFontSize()/2-2.78f, GetFontSize()/2-0.1f,(StampCnt*2 %360)*DX_PI_F/180,
-				0xff3333, 0xff3333,false,s[ResultData[0][(int)R_Data::total] / 20000].c_str());
+				0xff3333, 0xff3333,false,s[ResultData[0][(int)R_Data::total] / 25000].c_str());
 		}
 		else
 		{

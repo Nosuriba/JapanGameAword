@@ -553,7 +553,7 @@ GameScene::GameScene(const int& stagenum)
 
 	for (int i = 0; i < 3; i++)
 	{
-		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,660),i));
+		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,650),i));
 	}
 
 	bosssceneflag = false;
