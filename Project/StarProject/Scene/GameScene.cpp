@@ -28,6 +28,7 @@
 #define CC _camera->CameraCorrection()
 
 const int shader_offset = 50;
+const auto size = Game::GetInstance().GetScreenSize();
 
 void GameScene::LoadStageUpdate(const Input & p)
 {
@@ -46,7 +47,7 @@ void GameScene::LoadResourceUpdate(const Input & p)
 	int i = GetASyncLoadNum();
 	if (GetASyncLoadNum() == 0)
 	{
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeIn;
 	}
 	nlDraw();
@@ -58,11 +59,11 @@ void GameScene::FadeIn(const Input & p)
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	Draw();
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(wait) / WAITFRAME);
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(fadewait) / WAITFRAME);
 	DrawBox(0, 0, s.x, s.y, 0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	if (wait >= WAITFRAME) {
+	if (fadewait >= WAITFRAME) {
 		waitCnt = 0;
 		_updater = &GameScene::Wait;
 	}
@@ -74,11 +75,12 @@ void GameScene::FadeOut(const Input & p)
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	Draw();
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(wait) / WAITFRAME);
+	DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(fadewait) / WAITFRAME);
 	DrawBox(0, 0, s.x, s.y, 0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	if (wait >= WAITFRAME) {
+	if (fadewait >= WAITFRAME) {
 		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,totaltime));
 	}
 	else {
@@ -405,8 +407,7 @@ void GameScene::Run(const Input & p)
 		{
 			if (_col->CircleToSqr(pr.pos, pr.r, goal->GetInfo()._rect))
 			{
-				wait = 0;
-				_updater = &GameScene::FadeOut;
+				_updater = &GameScene::CutinUpdate;
 			}
 		}
 	}
@@ -419,19 +420,19 @@ void GameScene::Run(const Input & p)
 	flame++;
 
 	if (totaltime == 0) {
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeOut;
 	}
 	if (_pl->CheckDie())
 	{
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeOut;
 	}
 
 #ifdef _DEBUG
 
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeOut;
 	}
 
@@ -444,6 +445,19 @@ void GameScene::Run(const Input & p)
 		{
 			(*hart)->Break();
 		}
+	}
+}
+
+void GameScene::CutinUpdate(const Input & p)
+{
+	Draw();
+	cutinCnt += 10;
+
+	DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+
+	if (cutinCnt >= size.x / 2) {
+		fadewait = 0;
+		_updater = &GameScene::FadeOut;
 	}
 }
 
@@ -478,6 +492,8 @@ void GameScene::LoadResource()
 	sea_effect = manager.LoadImg("../img/sea2.png");
 	guage = manager.LoadImg("../img/maru.png"); 
 	beach = manager.LoadImg("../img/砂浜.png");
+	gameclear = manager.LoadImg("../img/gameclear.png");
+	gameover = manager.LoadImg("../img/gameover.png");
 
 	//波のシェーダー頂点
 	for (int i = 0; i < 4; i++)
@@ -559,7 +575,7 @@ GameScene::GameScene(const int& stagenum)
 	_col.reset(new Collision());
 
 	flame	= 0;
-	wait	= 0;
+	fadewait = 0;
 
 	time		= 90;
 	totaltime	= 60;
@@ -568,12 +584,13 @@ GameScene::GameScene(const int& stagenum)
 	waitCnt = 0;
 
 	nlpl = nlCnt = 0;
+
+	cutinCnt = 0;
 	
 	Lvimg  = ResourceManager::GetInstance().LoadImg("../img/Lv.png");
 	Numimg = ResourceManager::GetInstance().LoadImg("../img/数字.png");
 	cgauge = ResourceManager::GetInstance().LoadImg("../img/timegauge.png");
 	shader_time = 0;
-	num = 0;
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -820,7 +837,7 @@ void GameScene::Draw()
 
 void GameScene::Update(const Input & p)
 {
-	wait++,shader_time++,waitCnt++;
+	fadewait++,shader_time++,waitCnt++;
 
 	totaltime = time - (flame / 60);
 

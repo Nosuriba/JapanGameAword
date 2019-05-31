@@ -58,8 +58,9 @@ private:
 	void FadeOut(const Input& p);
 	void Wait(const Input &p);
 	void Run(const Input& p);
-	void BossScene(const Input& p);
+	void CutinUpdate(const Input& p);
 	void nlDraw();
+	void LoadResource();
 
 	std::vector <std::shared_ptr<Hart>> _Harts;
 	std::shared_ptr<Player> _pl;
@@ -95,12 +96,7 @@ private:
 
 
 	//カウント系
-	int flame;
-	int time;
-	int totaltime;
-
-	
-	int wait;//ふぁで
+	int fadewait;
 
 	int waitNum;//ゲーム開始までのカウント
 	int waitCnt;
@@ -108,9 +104,14 @@ private:
 	int gameCnt;
 	int nlCnt,nlpl;
 
-	int num;
+	//カットイン
+	int cutinCnt;
 
-	void LoadResource();
+	//時間
+	int time;
+	int totaltime;
+	int flame;
+
 
 	//UI等
 	ScoreInfo score;
