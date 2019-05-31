@@ -6,8 +6,6 @@
 #include <memory>
 #include <vector>
 #include <list>
-#include <thread>
-#include <mutex>
 
 class Input;
 class Player;
@@ -60,8 +58,9 @@ private:
 	void FadeOut(const Input& p);
 	void Wait(const Input &p);
 	void Run(const Input& p);
-	void BossScene(const Input& p);
+	void CutinUpdate(const Input& p);
 	void nlDraw();
+	void LoadResource();
 
 	std::vector <std::shared_ptr<Hart>> _Harts;
 	std::shared_ptr<Player> _pl;
@@ -92,22 +91,27 @@ private:
 	int sea;
 	int sea_effect;
 	int beach;
+	int gameclear;
+	int gameover;
 
-	int flame;
-	int time;
-	int totaltime;
 
-	int wait;
+	//カウント系
+	int fadewait;
 
-	int waitNum;
+	int waitNum;//ゲーム開始までのカウント
 	int waitCnt;
 
 	int gameCnt;
 	int nlCnt,nlpl;
 
-	int num;
+	//カットイン
+	int cutinCnt;
 
-	void LoadResource();
+	//時間
+	int time;
+	int totaltime;
+	int flame;
+
 
 	//UI等
 	ScoreInfo score;
@@ -115,16 +119,6 @@ private:
 	//当たり用スクリーンのサイズの保管
 	std::vector<CutScreenInfo> _cutAreaScreen;
 	CutScreenInfo cutscr;
-
-	//スレッド
-	std::thread _cutCol;
-	std::thread __eneCol;
-
-	std::mutex _mutex;
-
-	bool bosssceneflag;
-
-	void StageLock();
 
 	int stageNum;
 

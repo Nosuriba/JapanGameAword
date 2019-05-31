@@ -28,6 +28,7 @@
 #define CC _camera->CameraCorrection()
 
 const int shader_offset = 50;
+const auto size = Game::GetInstance().GetScreenSize();
 
 void GameScene::LoadStageUpdate(const Input & p)
 {
@@ -46,7 +47,7 @@ void GameScene::LoadResourceUpdate(const Input & p)
 	int i = GetASyncLoadNum();
 	if (GetASyncLoadNum() == 0)
 	{
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeIn;
 	}
 	nlDraw();
@@ -58,11 +59,11 @@ void GameScene::FadeIn(const Input & p)
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	Draw();
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(wait) / WAITFRAME);
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(fadewait) / WAITFRAME);
 	DrawBox(0, 0, s.x, s.y, 0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	if (wait >= WAITFRAME) {
+	if (fadewait >= WAITFRAME) {
 		waitCnt = 0;
 		_updater = &GameScene::Wait;
 	}
@@ -74,11 +75,12 @@ void GameScene::FadeOut(const Input & p)
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	Draw();
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(wait) / WAITFRAME);
+	DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(fadewait) / WAITFRAME);
 	DrawBox(0, 0, s.x, s.y, 0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	if (wait >= WAITFRAME) {
+	if (fadewait >= WAITFRAME) {
 		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,totaltime));
 	}
 	else {
@@ -95,10 +97,8 @@ void GameScene::Wait(const Input & p)
 	if (waitNum == 0) {
 		_updater = &GameScene::Run;
 	}
-	else {
-		if ((waitCnt % 60) == 0) {
-			waitNum--;
-		}
+	else if ((waitCnt % 60) == 0) {
+		waitNum--;
 	}
 }
 
@@ -128,6 +128,14 @@ void GameScene::Run(const Input & p)
 	for (auto &boss : _bosses)
 	{
 		boss->Update();
+	}
+
+	for (auto predatry : _predatoryObj) {
+		predatry->Update();
+	}
+
+	for (auto destroy : _destroyObj) {
+		destroy->Update();
 	}
 
 	gameCnt++;
@@ -185,7 +193,7 @@ void GameScene::Run(const Input & p)
 		{
 			for (auto& pr : pRec)
 			{
-				if (_col->CircleToCircleBoss(pr.pos, pr.r, er.pos, er.r))
+				if (_col->CircleToCircle(pr.pos, pr.r, er.pos, er.r))
 				{
 					_pl->OnDamage();
 					break;
@@ -227,7 +235,7 @@ void GameScene::Run(const Input & p)
 		{
 			for (auto& pr : pRec)
 			{
-				if (_col->CircleToCircleBoss(pr.pos, pr.r, br._pos, br._r))
+				if (_col->CircleToCircle(pr.pos, pr.r, br._pos, br._r))
 				{
 					_pl->OnDamage();
 				}
@@ -249,7 +257,7 @@ void GameScene::Run(const Input & p)
 		{
 			for (auto& pr : pRec)
 			{
-				if (_col->CircleToCircleBoss(pr.pos, pr.r, bs._pos, bs._r))
+				if (_col->CircleToCircle(pr.pos, pr.r, bs._pos, bs._r))
 				{
 					_pl->OnDamage();
 				}
@@ -399,8 +407,7 @@ void GameScene::Run(const Input & p)
 		{
 			if (_col->CircleToSqr(pr.pos, pr.r, goal->GetInfo()._rect))
 			{
-				wait = 0;
-				_updater = &GameScene::FadeOut;
+				_updater = &GameScene::CutinUpdate;
 			}
 		}
 	}
@@ -413,19 +420,19 @@ void GameScene::Run(const Input & p)
 	flame++;
 
 	if (totaltime == 0) {
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeOut;
 	}
 	if (_pl->CheckDie())
 	{
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeOut;
 	}
 
 #ifdef _DEBUG
 
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeOut;
 	}
 
@@ -441,18 +448,16 @@ void GameScene::Run(const Input & p)
 	}
 }
 
-void GameScene::BossScene(const Input & p)
+void GameScene::CutinUpdate(const Input & p)
 {
-	auto& size = Game::GetInstance().GetScreenSize();
-
 	Draw();
-	_pl->Update(p);
+	cutinCnt += 10;
 
-	if ((_pl->GetInfo().center.x >= size.x * 3 + _pl->GetInfo().r * 3) &&
-		(_pl->GetInfo().center.y >= size.y)) {
-		bosssceneflag = true;
-		StageLock();
-		_updater = &GameScene::Run;
+	DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+
+	if (cutinCnt >= size.x / 2) {
+		fadewait = 0;
+		_updater = &GameScene::FadeOut;
 	}
 }
 
@@ -487,6 +492,8 @@ void GameScene::LoadResource()
 	sea_effect = manager.LoadImg("../img/sea2.png");
 	guage = manager.LoadImg("../img/maru.png"); 
 	beach = manager.LoadImg("../img/砂浜.png");
+	gameclear = manager.LoadImg("../img/gameclear.png");
+	gameover = manager.LoadImg("../img/gameover.png");
 
 	//波のシェーダー頂点
 	for (int i = 0; i < 4; i++)
@@ -557,15 +564,6 @@ void GameScene::LoadResource()
 
 }
 
-void GameScene::StageLock()
-{
-	auto& size = Game::GetInstance().GetScreenSize();
-
-	for (int i = 0; i < _camera->GetRange().y / 32; i++) {
-		_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, size.x * 3, i * 32 + 16));
-	}
-}
-
 GameScene::GameScene(const int& stagenum)
 {
 	stageNum = stagenum;
@@ -577,7 +575,7 @@ GameScene::GameScene(const int& stagenum)
 	_col.reset(new Collision());
 
 	flame	= 0;
-	wait	= 0;
+	fadewait = 0;
 
 	time		= 90;
 	totaltime	= 60;
@@ -586,32 +584,24 @@ GameScene::GameScene(const int& stagenum)
 	waitCnt = 0;
 
 	nlpl = nlCnt = 0;
+
+	cutinCnt = 0;
 	
 	Lvimg  = ResourceManager::GetInstance().LoadImg("../img/Lv.png");
 	Numimg = ResourceManager::GetInstance().LoadImg("../img/数字.png");
 	cgauge = ResourceManager::GetInstance().LoadImg("../img/timegauge.png");
 	shader_time = 0;
-	num = 0;
 
 	for (int i = 0; i < 3; i++)
 	{
-		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,660),i));
+		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,650),i));
 	}
-
-	bosssceneflag = false;
 
 	_updater = &GameScene::LoadStageUpdate;
 }
 
 GameScene::~GameScene()
 {
-	/*if (_cutCol.joinable()) {
-		_cutCol.join();
-	}
-	if (__eneCol.joinable()) {
-		__eneCol.join();
-	}*/
-
 	DeleteGraph(firstscreen);
 	DeleteGraph(secondscreen);
 	DeleteGraph(thirdscreen);
@@ -847,28 +837,11 @@ void GameScene::Draw()
 
 void GameScene::Update(const Input & p)
 {
-	wait++,shader_time++,waitCnt++;
-
-	//auto size = Game::GetInstance().GetScreenSize();
-
-	//auto laser = _pl->GetLaser(); 
-	//const auto camera = _camera->CameraCorrection();
-
-
-	//auto th = [&](std::array<std::list<Laser>,2> _laser, Vector2 camera) {
-		
-	//};
+	fadewait++,shader_time++,waitCnt++;
 
 	totaltime = time - (flame / 60);
 
 	_camera->Update(_pl->GetInfo().center);
-
-	for (auto predatry : _predatoryObj) {
-		predatry->Update();
-	}
-	for (auto destroy : _destroyObj) {
-		destroy->Update();
-	}
 
 	(this->*_updater)(p);
 
