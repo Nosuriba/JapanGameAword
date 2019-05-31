@@ -647,9 +647,14 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
-	for (auto itr : _enemies)
+	for (auto &enemy : _enemies)
 	{
-		itr->Draw();
+		enemy->Shadow();
+	}
+
+	for (auto &boss : _bosses)
+	{
+		boss->ShadowDraw();
 	}
 
 	//シェーダで使うテクスチャは先ほど作った描画可能画像
@@ -751,14 +756,6 @@ void GameScene::Draw()
 
 	DrawGraph(0, 0, firstscreen, true);
 
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
-
-	DrawGraph(0, 0, secondscreen, true);
-
-	SetDrawBlendMode(mode, palam);
-
-	_pl->Draw();
-
 	for (auto &immortal : _immortalObj) {
 		immortal->Draw();
 	}
@@ -774,6 +771,14 @@ void GameScene::Draw()
 	for (auto &goal : _goalObject) {
 		goal->Draw();
 	}
+
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
+
+	DrawGraph(0, 0, secondscreen, true);
+
+	SetDrawBlendMode(mode, palam);
+
+	_pl->Draw();
 
 	for (auto &enemy : _enemies)
 	{
