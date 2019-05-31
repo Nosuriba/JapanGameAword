@@ -363,7 +363,7 @@ void Octopus::NeturalUpdate()
 		}
 	}
 
-	if ((_timer/100) % 7 == 0) {
+	if ((_timer/100) % 8 == 0) {
 		OctInk();
 	}
 
