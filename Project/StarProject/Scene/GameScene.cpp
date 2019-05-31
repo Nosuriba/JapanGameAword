@@ -28,6 +28,7 @@
 #define CC _camera->CameraCorrection()
 
 const int shader_offset = 50;
+const auto size = Game::GetInstance().GetScreenSize();
 
 void GameScene::LoadStageUpdate(const Input & p)
 {
@@ -48,7 +49,7 @@ void GameScene::LoadResourceUpdate(const Input & p)
 	int i = GetASyncLoadNum();
 	if (GetASyncLoadNum() == 0)
 	{
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeIn;
 	}
 	nlDraw();
@@ -60,11 +61,11 @@ void GameScene::FadeIn(const Input & p)
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	Draw();
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(wait) / WAITFRAME);
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 - 255 * (float)(fadewait) / WAITFRAME);
 	DrawBox(0, 0, s.x, s.y, 0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	if (wait >= WAITFRAME) {
+	if (fadewait >= WAITFRAME) {
 		waitCnt = 0;
 		_updater = &GameScene::Wait;
 	}
@@ -76,11 +77,17 @@ void GameScene::FadeOut(const Input & p)
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	Draw();
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(wait) / WAITFRAME);
+	if (clearflag) {
+		DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+	}
+	else {
+		DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameover, true);
+	}
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 255 * (float)(fadewait) / WAITFRAME);
 	DrawBox(0, 0, s.x, s.y, 0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	if (wait >= WAITFRAME) {
+	if (fadewait >= WAITFRAME) {
 		Game::GetInstance().ChangeScene(new ResultScene(score.enemy,score.bite,score.breakobj,totaltime));
 	}
 	else {
@@ -415,14 +422,20 @@ void GameScene::Run(const Input & p)
 		{
 			if (_col->CircleToSqr(pr.pos, pr.r, goal->GetInfo()._rect))
 			{
-				wait = 0;
-				_updater = &GameScene::FadeOut;
+				clearflag = true;
+				_updater = &GameScene::CutinUpdate;
 			}
 		}
 	}
 
 	///////////////////////////////////////////////////////////////
 
+	for (auto boss : _bosses) {
+		if (boss->GetDieFlag()) {
+			clearflag = true;
+			_updater = &GameScene::CutinUpdate;
+		}
+	}
 	_camera->SetFocus(_pl->GetInfo().center);
 
 	Draw();
@@ -430,19 +443,19 @@ void GameScene::Run(const Input & p)
 	flame++;
 
 	if (totaltime == 0) {
-		wait = 0;
-		_updater = &GameScene::FadeOut;
+		clearflag = false;
+		_updater = &GameScene::CutinUpdate;
 	}
 	if (_pl->CheckDie())
 	{
-		wait = 0;
-		_updater = &GameScene::FadeOut;
+		clearflag = false;
+		_updater = &GameScene::CutinUpdate;
 	}
 
 #ifdef _DEBUG
 
 	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
-		wait = 0;
+		fadewait = 0;
 		_updater = &GameScene::FadeOut;
 	}
 
@@ -455,6 +468,23 @@ void GameScene::Run(const Input & p)
 		{
 			(*hart)->Break();
 		}
+	}
+}
+
+void GameScene::CutinUpdate(const Input & p)
+{
+	Draw();
+	cutinCnt += 10;
+	if (clearflag) {
+		DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameclear, true);
+	}
+	else {
+		DrawRotaGraph(size.x - cutinCnt, size.y / 2, 1, 0, gameover, true);
+	}
+
+	if (cutinCnt >= size.x / 2) {
+		fadewait = 0;
+		_updater = &GameScene::FadeOut;
 	}
 }
 
@@ -489,6 +519,8 @@ void GameScene::LoadResource()
 	sea_effect	= manager.LoadImg("../img/sea2.png");
 	guage		= manager.LoadImg("../img/maru.png"); 
 	beach		= manager.LoadImg("../img/砂浜.png");
+	gameclear = manager.LoadImg("../img/gameclear.png");
+	gameover = manager.LoadImg("../img/gameover.png");
 
 	//波のシェーダー頂点
 	for (int i = 0; i < 4; i++)
@@ -556,7 +588,6 @@ void GameScene::LoadResource()
 	leveluiInfo.backCircle_r	= 250;
 
 	SetUseASyncLoadFlag(false);
-
 }
 
 GameScene::GameScene(const int& stagenum)
@@ -568,7 +599,7 @@ GameScene::GameScene(const int& stagenum)
 	_col	= std::make_shared<Collision>();
 
 	flame	= 0;
-	wait	= 0;
+	fadewait = 0;
 
 	time		= 90;
 	totaltime	= 60;
@@ -577,16 +608,20 @@ GameScene::GameScene(const int& stagenum)
 	waitCnt = 0;
 
 	nlpl = nlCnt = 0;
+
+	clearflag = false;
+
+	cutinCnt = 0;
 	
 	Lvimg  = ResourceManager::GetInstance().LoadImg("../img/Lv.png");
-	Numimg = ResourceManager::GetInstance().LoadImg("../img/数字.png");
+	timeimg = ResourceManager::GetInstance().LoadImg("../img/数字.png");
+	lvnumimg = ResourceManager::GetInstance().LoadImg("../img/数字2.png");
 	cgauge = ResourceManager::GetInstance().LoadImg("../img/timegauge.png");
 	shader_time = 0;
-	num = 0;
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < _pl->GetLife(); i++)
 	{
-		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,660),i));
+		_Harts.push_back(std::make_unique<Hart>(Vector2(size.x/2+120+i*45,0),i));
 	}
 
 	_updater = &GameScene::LoadStageUpdate;
@@ -738,39 +773,35 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 150);
 
-	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.backCircle_r, 0x777777,true);
+	//DrawCircle(size.x / 2, 50, leveluiInfo.backCircle_r, 0x777777,true);
 
-	DrawCircleGauge(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, score.bite % 5 * 5 , guage, 0.0);
+	DrawBox(0, 0, size.x, 75,0, true);
+	DrawCircle(size.x / 2, 50, 82, 0x003377, true);
+	DrawCircleGauge(size.x / 2, 50, score.bite % 5 * 20 , guage, 0.0);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.circle_r, 0x00cccc, true);
+	//DrawCircle(size.x / 2, 50, leveluiInfo.circle_r, 0x00cccc, true);
 
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
 
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-	DrawBox(size.x / 2- GetFontSize(), 0, size.x / 2 + GetFontSize(), GetFontSize(), 0x003377,true);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-
-	DrawCircle(size.x / 2, 30, 45, 0);
+	DrawCircle(size.x / 2, 50, 45, 0);
 	if (_updater == &GameScene::Wait && waitNum >= 1) {
-		DrawRectRotaGraph(size.x / 2, size.y / 2, 300 * waitNum, 0, 300, 300, 0.5, 0, Numimg, true);
+		DrawRectRotaGraph(size.x / 2, size.y / 2, 300 * waitNum, 0, 300, 300, 0.5, 0, lvnumimg, true);
 	}
 	else
 	{
-		DrawCircleGauge(size.x / 2, 30, (gameCnt % 60)*1.6666f, cgauge, 0.0);
+		DrawCircleGauge(size.x / 2, 50, (gameCnt % 60)*1.6666f, cgauge, 0.0);
 	}
-	DrawRectRotaGraph(size.x / 2 - 30, 30, 300 * ten, 0, 300, 300, 0.3f, 0, Numimg, true);
-	DrawRectRotaGraph(size.x / 2 + 30, 30, 300 * one, 0, 300, 300, 0.3f, 0, Numimg, true);
+	DrawRectRotaGraph(size.x / 2 - 30, 50, 300 * ten, 0, 300, 300, 0.3f, 0, timeimg, true);
+	DrawRectRotaGraph(size.x / 2 + 30, 50, 300 * one, 0, 300, 300, 0.3f, 0, timeimg, true);
 
-	DrawRectRotaGraph(GetFontSize()*2.5, size.y -75,300*_pl->GetInfo().level,0,300,300, abs((((gameCnt/2)%20-10)))*0.01f+0.5f,0,Numimg,true);
-	DrawGraph(0, size.y - GetFontSize()*1.5,Lvimg,true);
+	DrawRectRotaGraph(GetFontSize()*3, 30,300*_pl->GetInfo().level,0,300,300,abs((gameCnt%30-15))*0.005f+0.2f,0, lvnumimg,true);
+	DrawGraph(GetFontSize(), 0,Lvimg,true);
 
-	for (auto hart:_Harts)
-	{
-		hart->Draw();
-	}
+	/// HPのDraw
+	for (auto hart:_Harts)hart->Draw();
 
 
 	//バック描画
@@ -829,7 +860,7 @@ void GameScene::Draw()
 
 void GameScene::Update(const Input & p)
 {
-	wait++,shader_time++,waitCnt++;
+	fadewait++,shader_time++,waitCnt++;
 
 	totaltime = time - (flame / 60);
 

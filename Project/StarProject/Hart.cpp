@@ -44,10 +44,10 @@ void Hart::UpDate()
 	Size s;
 	GetDrawScreenSize(&s.width, &s.height);
 	_Cnt++;
-	_vec.y += 4*_g;
+	_vec.y += 3;
 	if (_Cnt>(60+num)&&(!_isbreak))
 	{
-		_vec.y = -10;
+		_vec.y = -12;
 		_Cnt = num;
 	}
 	for (int n = 0; n < 25; n++)

@@ -53,7 +53,6 @@ class Player
 {
 private:
 	const std::shared_ptr<Camera>& _camera;
-	std::vector<std::shared_ptr<Particle>> _particle;
 
 	Star	_star;
 	int		_life;

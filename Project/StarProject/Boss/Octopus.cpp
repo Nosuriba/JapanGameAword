@@ -9,12 +9,15 @@ constexpr int SPEED = 5;
 
 Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Player>& player,const Vector2& pos):Boss(camera,player)
 {
+	///変数初期化
 	_damageFlag = true;
 	_returnFlag = false;
 	_maxAngle = 30;
-	_wait = 0;
 	_timer = 0;
+	_idx = 0;
 
+
+	///音関係
 	SE.damage = ResourceManager::GetInstance().LoadSound("../Sound/damage.mp3");
 	SE.die = ResourceManager::GetInstance().LoadSound("../Sound/die.mp3");
 	SE.shot = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/shot.mp3");
@@ -25,6 +28,7 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 
 	BGM = ResourceManager::GetInstance().LoadSound("../Sound/boss.mp3");
 
+	///タコの初期化
 	_oct.center = pos;
 	da.emplace_back(DamageInfo(_oct.center, 75));
 	_oct.r = 500;
@@ -59,12 +63,14 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 		LEG(i).angle = (_maxAngle - _maxAngle / 2 - _maxAngle / 4) * SPEED*(i+1);
 		LEG(i).cnt = 0;
 	}
+
+	///パーティクル初期化
 	_particle.emplace_back(std::make_shared<Water>(_oct.center.x, _oct.center.y, 5000, _camera));
 
-	_idx = 0;
 	_updater = &Octopus::NeturalUpdate;
 }
 
+///Inverse Kinematics(逆運動学)角度制限なし
 void Octopus::IkCcd(Vector2 pos, int idx, int numMaxItaration)
 {
 	for (int it = 0; it < numMaxItaration; ++it) {
@@ -91,6 +97,7 @@ void Octopus::IkCcd(Vector2 pos, int idx, int numMaxItaration)
 	}
 }
 
+///死亡処理
 void Octopus::Die()
 {
 	quake = Vector2(10.f, 10.f);
@@ -102,19 +109,7 @@ void Octopus::Die()
 	_updater = &Octopus::DieUpdate;
 }
 
-void Octopus::DieUpdate()
-{
-	blendCnt--;
-
-	quake *= 0.9995;
-	//quake = (quake.x <= 0.05 ? Vector2() : Vector2(quake.x * 0.9995, quake.y * 0.9995));
-
-	if (blendCnt <= 0)
-	{
-		_isDie = true;
-	}
-}
-
+///通常時の足の動き
 void Octopus::Normal(int idx)
 {
 	if (!CheckSoundMem(SE.swing)) {
@@ -148,6 +143,24 @@ void Octopus::Normal(int idx)
 	LEG(idx).tip = LEG(idx).joint[LEG(idx).T-1];
 }
 
+///足が遅れてついてくる
+void Octopus::LegMove(E_Leg & leg, int idx)
+{
+	if (idx == leg.T) {
+		return;
+	}
+	for (int j = idx; j < leg.T; ++j) {				//第二関節から回転
+		auto mat = MGetTranslate((-leg.joint[idx]).V_Cast());
+		mat = MMult(mat, leg.mat);
+		mat = MMult(mat, MGetTranslate(leg.joint[idx].V_Cast()));
+		leg.joint[j] = VTransform(leg.joint[j].V_Cast(), mat);
+	}
+	leg.tip = leg.joint[leg.T - 1];
+	++idx;
+	LegMove(leg, idx);
+}
+
+///パンチ攻撃
 void Octopus::Punch(int idx)
 {
 	auto p = LEG(idx).tip - _player->GetInfo().center;
@@ -202,6 +215,7 @@ void Octopus::Punch(int idx)
 	}
 }
 
+///タコ墨発射！
 void Octopus::OctInk()
 {
 	if (!CheckSoundMem(SE.shot)){
@@ -229,6 +243,7 @@ void Octopus::OctInk()
 	_particle[0]->Create();
 }
 
+///ﾌﾟﾚｲﾔｰに一番近い足が追跡(IK)
 void Octopus::Chase(int idx)
 {
 	auto p = LEG(idx).tip - _player->GetInfo().center;
@@ -236,6 +251,7 @@ void Octopus::Chase(int idx)
 	IkCcd(pos, idx, 12);
 }
 
+///ダメージ処理
 void Octopus::OnDamage()
 {
 	if (_damageFlag) {
@@ -245,6 +261,7 @@ void Octopus::OnDamage()
 	}
 }
 
+///足を元の位置に戻す
 void Octopus::ReMove(int idx)
 {
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
@@ -265,22 +282,14 @@ void Octopus::ReMove(int idx)
 	}
 }
 
-void Octopus::LegMove(E_Leg & leg, int idx)
+///ブロック衝突時
+void Octopus::HitBlock()
 {
-	if (idx == leg.T) {
-		return;
-	}
-	for (int j = idx; j < leg.T; ++j) {				//第二関節から回転
-		auto mat = MGetTranslate((-leg.joint[idx]).V_Cast());
-		mat = MMult(mat, leg.mat);
-		mat = MMult(mat, MGetTranslate(leg.joint[idx].V_Cast()));
-		leg.joint[j] = VTransform(leg.joint[j].V_Cast(), mat);
-	}
-	leg.tip = leg.joint[leg.T - 1];
-	++idx;
-	LegMove(leg, idx);
+	PlaySoundMem(SE.pitch, DX_PLAYTYPE_BACK);
+	_returnFlag = true;
 }
 
+///当たり判定更新
 void Octopus::HitUpd()
 {
 	auto attack = at.begin();
@@ -339,6 +348,7 @@ void Octopus::HitUpd()
 //	}
 //}
 
+///戦闘時の更新
 void Octopus::NeturalUpdate()
 {
 	int j = 0;
@@ -402,6 +412,24 @@ void Octopus::NeturalUpdate()
 	
 }
 
+///死亡時の更新
+void Octopus::DieUpdate()
+{
+	blendCnt--;
+
+	quake *= 0.9995;
+	//quake = (quake.x <= 0.05 ? Vector2() : Vector2(quake.x * 0.9995, quake.y * 0.9995));
+
+	if (blendCnt <= 0)
+	{
+		_isDie = true;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////描画関係///////////////////////////////////////////////
+
+///デバッグ用
 void Octopus::DebugDraw()
 {
 	auto c = _camera->CameraCorrection();
@@ -415,6 +443,7 @@ void Octopus::DebugDraw()
 		DrawCircle(sh._pos.x - c.x, sh._pos.y - c.y, sh._r, 0x00ffff, true);
 	}
 }
+
 
 void Octopus::Draw()
 {
@@ -435,6 +464,7 @@ void Octopus::Draw()
 		c = c + quake;
 	}
 
+	
 	
 	//足の間の膜の描画
 	for (int i = 0; i < _oct.legs.size()-1; ++i) {
@@ -463,6 +493,8 @@ void Octopus::Draw()
 		DrawCircle(_oct.eyePos[i].x - c.x, _oct.eyePos[i].y - c.y, 8, 0xffa500, true);
 		DrawCircle(_oct.eyePos[i].x - c.x, _oct.eyePos[i].y - c.y, 6,0x000000, true);
 	}
+
+	
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	
@@ -472,44 +504,43 @@ void Octopus::Draw()
 
 }
 
+///影
 void Octopus::ShadowDraw()
 {
 	auto c = _camera->CameraCorrection();
 	auto s = _camera->GetShadowPos(0.3f);
 
-	//足の間の膜の描画
-	for (int i = 0; i < _oct.legs.size() - 1; ++i) {
-		int j = 1;
-		auto p1 = _oct.root[i];
-		auto p2 = LEG(i).joint[j];
-		auto p3 = LEG((i + 1)).joint[j];
-		auto p4 = _oct.root[(i + 1)];
-		DrawQuadrangle(p1.x - c.x+s.x, p1.y - c.y + s.y, p2.x - c.x + s.x, p2.y - c.y + s.y, 
-					p3.x - c.x + s.x, p3.y - c.y + s.y, p4.x - c.x + s.x, p4.y - c.y + s.y, 0xbb0000, true);
-	}
-	for (int i = 0; i < _oct.legs.size(); ++i) {
-		DrawCircle(_oct.root[i].x - c.x + s.x, _oct.root[i].y - c.y + s.y, 5, 0xfffffff, true);
-	}
-	DrawCircle(_oct.center.x - c.x + s.x, _oct.center.y - c.y + s.y, 5, 0xfffffff, true);
-
-	//足の描画
-	for (int i = 0; i < _oct.legs.size(); ++i) {
-		int j = 0;
-		auto width = 50;
-		DrawLineAA(_oct.root[i].x - c.x + s.x, _oct.root[i].y - c.y + s.y, LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, 0xcc0000, width);
-		for (j = 0; j < LEG(i).T - 1; ++j) {
-			DrawLineAA(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, LEG(i).joint[j + 1].x - c.x + s.x, LEG(i).joint[j + 1].y - c.y + s.y, 0xcc0000, width -= 4);
-			DrawCircle(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, width / 2, 0xcc0000, true);
+	if (_damageFlag) {
+		//足の間の膜の描画
+		for (int i = 0; i < _oct.legs.size() - 1; ++i) {
+			int j = 1;
+			auto p1 = _oct.root[i];
+			auto p2 = LEG(i).joint[j];
+			auto p3 = LEG((i + 1)).joint[j];
+			auto p4 = _oct.root[(i + 1)];
+			DrawQuadrangle(p1.x - c.x + s.x, p1.y - c.y + s.y, p2.x - c.x + s.x, p2.y - c.y + s.y,
+				p3.x - c.x + s.x, p3.y - c.y + s.y, p4.x - c.x + s.x, p4.y - c.y + s.y, 0xffffff, true);
 		}
-	}
-	//頭の描画
-	DrawOval(_oct.hedPos.x - c.x + s.x, _oct.hedPos.y - c.y + s.y, 125, 75, 0xee0000, true);
-	for (int i = 0; i < 2; ++i) {
-		DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 8, 0xffa500, true);
-		DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 6, 0x000000, true);
+		//足の描画
+		for (int i = 0; i < _oct.legs.size(); ++i) {
+			int j = 0;
+			auto width = 50;
+			DrawLineAA(_oct.root[i].x - c.x + s.x, _oct.root[i].y - c.y + s.y, LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, 0xffffff, width);
+			for (j = 0; j < LEG(i).T - 1; ++j) {
+				DrawLineAA(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, LEG(i).joint[j + 1].x - c.x + s.x, LEG(i).joint[j + 1].y - c.y + s.y, 0xffffff, width -= 4);
+				DrawCircle(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, width / 2, 0xffffff, true);
+			}
+		}
+		//頭の描画
+		DrawOval(_oct.hedPos.x - c.x + s.x, _oct.hedPos.y - c.y + s.y, 125, 75, 0xffffff, true);
+		for (int i = 0; i < 2; ++i) {
+			DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 8, 0xffffff, true);
+			DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 6, 0xffffff, true);
+		}
 	}
 }
 
+///セレクトシーン用
 void Octopus::SelectDraw(const Vector2 p, const float s)
 {
 	_oct.center = p;
@@ -530,10 +561,6 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 			LEG(i).joint[j]=_oct.root[i] + Vector2(co, si)*(range / LEG(i).T*(j + 1));
 		}
 	}
-	/*for (int i = 0; i < _oct.legs.size(); ++i) {
-
-		IkCcd(, i, 12);
-	}*/
 
 	//足の間の膜の描画
 	for (int i = 0; i < _oct.legs.size() - 1; ++i) {
@@ -564,6 +591,9 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
+
+///更新
 void Octopus::Update()
 {
 	if (!CheckSoundMem(BGM)){
@@ -573,11 +603,6 @@ void Octopus::Update()
 	(this->*_updater)();
 }
 
-void Octopus::HitBlock()
-{
-	PlaySoundMem(SE.pitch, DX_PLAYTYPE_BACK);
-	_returnFlag = true;
-}
 
 Octopus::~Octopus()
 {

@@ -5,11 +5,11 @@
 
 
 enum class E_LEG_STATE {
-	NORMAL,
-	PUNCH,
-	CHASE,
-	RE_MOVE,
-	DETH,
+	NORMAL,			//通常
+	PUNCH,			//パンチ
+	CHASE,			//追いかける
+	RE_MOVE,		//元に戻る
+	DETH,			//死
 };
 
 struct E_Leg {
@@ -39,14 +39,11 @@ class Octopus :
 	public Boss
 {
 private:
-	bool _returnFlag;
-	bool _damageFlag;
-	int _wait;
-	int _maxAngle;
-	int _idx;
-	int _timer;
-	Vector2 _targetPos;
-	Vector2 _vec;
+	bool _returnFlag;		//パンチ用のフラグ
+	bool _damageFlag;		//ダメージフラグ
+	int _maxAngle;			//通常時の足の最大回転角
+	int _idx;				//攻撃を行う足のｲﾝﾃﾞｯｸｽ番号
+	int _timer;				//足の攻撃切り替え用
 
 	int extend;
 	int setup;
@@ -55,19 +52,20 @@ private:
 
 	void IkCcd(Vector2 pos,int idx,int numMaxItaration);
 
-	void Die();
-	void DieUpdate();
-	void Normal(int idx);
-	void Punch(int idx);
-	void OctInk();
-	void Chase(int idx);
-	void ReMove(int idx);
+	void Die();					//死亡処理
+	void DieUpdate();			//死亡時の更新
+	void Normal(int idx);		//通常状態
+	void Punch(int idx);		//パンチ
+	void OctInk();				//タコ墨
+	void Chase(int idx);		//追跡
+	void ReMove(int idx);		//元に戻す
 
-	void LegMove(E_Leg& leg, int idx);
+	void LegMove(E_Leg& leg, int idx);	//遅れてついてくる
 	//void Move();
-	void HitUpd();
+	void HitUpd();				//当たり判定更新
 
-	void NeturalUpdate();
+	void NeturalUpdate();		//戦闘時の更新
+
 	void DebugDraw();
 
 	void (Octopus::*_updater)();
@@ -75,11 +73,11 @@ private:
 public:
 	Octopus(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos = Vector2(1000, 600));
 	~Octopus();
-	void OnDamage();
+	void OnDamage();			//ダメージ処理
 	void Draw();
 	void ShadowDraw();
 	void SelectDraw(const Vector2 p, const float s);
 	void Update();
-	void HitBlock();
+	void HitBlock();			//ブロック衝突
 };
 
