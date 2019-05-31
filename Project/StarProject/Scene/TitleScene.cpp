@@ -109,9 +109,9 @@ void TitleScene::Draw()
 
 	DxLib::DrawExtendGraph(0, 0, size.x, size.y, titleback, true);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 172);
-	DrawBox((size.x- titlex)/2, (size.y + titley) / 2 - titley - titley / 2, (size.x+ titlex)/2, (size.y - titley) - titley / 8, 0x003377, true);
+	//DrawBox((size.x- titlex)/2, (size.y + titley) / 2 - titley - titley / 2, (size.x+ titlex)/2, (size.y - titley) - titley / 8, 0x003377, true);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255);
-	DxLib::DrawRotaGraph((size.x) / 2, (size.y) / 2 - titley /2, 1, 0, title, true);
+	DxLib::DrawRotaGraph((size.x) / 2 - 35, (size.y) / 2 - titley /2, 1, 0, title, true);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 172);
 	if (colorflame >= 252) {
 		blendcolor = -1;
