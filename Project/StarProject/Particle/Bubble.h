@@ -1,7 +1,6 @@
 #pragma once
 #include "Particle.h"
-#include "../Camera.h"
-
+class Camera;
 class Bubble :
 	public Particle
 {
