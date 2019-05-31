@@ -294,8 +294,10 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 	_eatCnt		= 0;
 	_isAlive	= true;
 	_isDie		= false;
-	_life		= 30;
+	_life		= 10;
 	_interval	= 0;
+
+	damageSE = ResourceManager::GetInstance().LoadSound("../Sound/damage.mp3");
 
 	_updater = &Player::Normal;
 }
@@ -506,6 +508,8 @@ void Player::ToCatch(const Vector2 & t)
 void Player::OnDamage()
 {
 	if (_interval != 0) return;
+
+	PlaySoundMem(damageSE, DX_PLAYTYPE_BACK);
 
 	_life--;
 	_interval = 300;

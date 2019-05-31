@@ -623,7 +623,7 @@ GameScene::GameScene(const int& stagenum)
 
 	for (int i = 0; i < _pl->GetLife(); i++)
 	{
-		_Harts.push_back(std::make_unique<Hart>(Vector2(size.x/2+120+i*45,0),i));
+		_Harts.push_back(std::make_unique<Hart>(Vector2(size.x/2+120+i*45,5),i));
 	}
 
 	_updater = &GameScene::LoadStageUpdate;
@@ -773,17 +773,13 @@ void GameScene::Draw()
 
 	ClearDrawScreen();
 
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 120);
+	DrawBox(0, 5, size.x, 75,0, true);
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 150);
-
-	//DrawCircle(size.x / 2, 50, leveluiInfo.backCircle_r, 0x777777,true);
-
-	DrawBox(0, 0, size.x, 75,0, true);
 	DrawCircle(size.x / 2, 50, 82, 0x003377, true);
 	DrawCircleGauge(size.x / 2, 50, score.bite % 5 * 20 , guage, 0.0);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-
-	//DrawCircle(size.x / 2, 50, leveluiInfo.circle_r, 0x00cccc, true);
 
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;

@@ -60,6 +60,8 @@ private:
 	bool	_isAlive;
 	bool	_isDie;
 
+	int damageSE;
+
 	std::array<int, 2>				select_idx;
 	std::array<std::list<std::shared_ptr<Shot>>, 2>	_laser;
 	std::list<DamageRec>			_damage;
