@@ -132,13 +132,13 @@ void Bubble::Move()
 	
 #else
 	concurrency::array_view<Element>p_element(ElementNum, particle);
-	auto move = [p_element = p_element,sx= screen_x,sy= screen_y, v_Speed= v_Speed, flag= flag](concurrency::index<1> idx)restrict(amp) {
+	auto move = [p_element = p_element,sx= screen_x,sy= screen_y, v_Speed= v_Speed, flag= flag, cpos = cpos](concurrency::index<1> idx)restrict(amp) {
 		// ó·äOèàóù
 		if (p_element[idx].bright < VanishBright) {
 			p_element[idx].bright = 0;
 			return;
 		}
-		if ((p_element[idx].x / 100 < -p_element[idx].bright) || (p_element[idx].x / 100 > sx + p_element[idx].bright) || (p_element[idx].y / 100 > sy + p_element[idx].bright) || (p_element[idx].y / 100 < -p_element[idx].bright)) {
+		if ((p_element[idx].x / 100 < -p_element[idx].bright) || (p_element[idx].x / 100 > sx + cpos.x + p_element[idx].bright) || (p_element[idx].y / 100 > sy + cpos.y + p_element[idx].bright) || (p_element[idx].y / 100 < -p_element[idx].bright)) {
 			p_element[idx].bright = 0;
 			return;
 		}
