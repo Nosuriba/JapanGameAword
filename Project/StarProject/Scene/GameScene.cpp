@@ -37,6 +37,8 @@ void GameScene::LoadStageUpdate(const Input & p)
 	if(_stage.LoadCheck()) {
 		LoadResource();
 		_camera->SetRange(Vector2(_stage.GetStageSize().x, _stage.GetStageSize().y));
+		_camera->SetFocus(_pl->GetInfo().center);
+
 		_updater = &GameScene::LoadResourceUpdate;
 	}
 	nlDraw();
@@ -356,7 +358,11 @@ void GameScene::Run(const Input & p)
 		{
 			if (_col->CircleToSqr(pr.pos, pr.r, destroy->GetInfo()._rect))
 			{
-				_pl->SetStar(_col->Pushback(_pl->GetInfo(), destroy->GetInfo()._rect), _pl->GetInfo().r);
+				_pl->PushBack(_col->Pushback(_pl->GetInfo(), destroy->GetInfo()._rect));
+			}
+			if (_col->CircleToSqr(pr.pos, pr.r, destroy->GetInfo()._rect))
+			{
+				_pl->PushBack(_col->Pushback(_pl->GetInfo(), destroy->GetInfo()._rect));
 			}
 		}
 	}
@@ -395,7 +401,11 @@ void GameScene::Run(const Input & p)
 		{
 			if (_col->CircleToSqr(pr.pos, pr.r, immortal->GetInfo()._rect))
 			{
-				_pl->SetStar(_col->Pushback(_pl->GetInfo(), immortal->GetInfo()._rect), _pl->GetInfo().r);
+				_pl->PushBack(_col->Pushback(_pl->GetInfo(), immortal->GetInfo()._rect));
+			}
+			if (_col->CircleToSqr(pr.pos, pr.r, immortal->GetInfo()._rect))
+			{
+				_pl->PushBack(_col->Pushback(_pl->GetInfo(), immortal->GetInfo()._rect));
 			}
 		}
 	}
@@ -426,6 +436,8 @@ void GameScene::Run(const Input & p)
 			_updater = &GameScene::CutinUpdate;
 		}
 	}
+	_camera->SetFocus(_pl->GetInfo().center);
+
 	Draw();
 
 	flame++;
@@ -503,10 +515,10 @@ void GameScene::LoadResource()
 
 	//âÊëúÇÃì«Ç›çûÇ›
 	auto& manager = ResourceManager::GetInstance();
-	sea = manager.LoadImg("../img/sea.png");
-	sea_effect = manager.LoadImg("../img/sea2.png");
-	guage = manager.LoadImg("../img/maru.png"); 
-	beach = manager.LoadImg("../img/çªïl.png");
+	sea			= manager.LoadImg("../img/sea.png");
+	sea_effect	= manager.LoadImg("../img/sea2.png");
+	guage		= manager.LoadImg("../img/maru.png"); 
+	beach		= manager.LoadImg("../img/çªïl.png");
 	gameclear = manager.LoadImg("../img/gameclear.png");
 	gameover = manager.LoadImg("../img/gameover.png");
 
@@ -551,8 +563,8 @@ void GameScene::LoadResource()
 			_bosses.push_back(std::make_shared<Octopus>(_camera, _pl, Vector2(s.x, s.y)));
 		}
 		if (s.no == 10) {
-			_bosses.push_back(std::make_shared<Crab>(_camera, _pl, Vector2(Stage::GetInstance().GetStageSize().x / 2,
-																		   Stage::GetInstance().GetStageSize().y / 2)));
+			_bosses.push_back(std::make_shared<Crab>(
+				_camera, _pl, Vector2(Stage::GetInstance().GetStageSize().x / 2,  Stage::GetInstance().GetStageSize().y / 2)));
 		}
 		if (s.no == 11) {
 			_destroyObj.emplace_back(std::make_shared<DestroyableObject>(_camera, s.x, s.y, 2));
@@ -582,11 +594,9 @@ GameScene::GameScene(const int& stagenum)
 {
 	stageNum = stagenum;
 
-	_camera.reset(new Camera());
-
-	_pl.reset(new Player(_camera, Vector2(200, 200)));
-
-	_col.reset(new Collision());
+	_camera = std::make_shared<Camera>();
+	_pl		= std::make_shared<Player>(_camera, Vector2(200, 200));
+	_col	= std::make_shared<Collision>();
 
 	flame	= 0;
 	fadewait = 0;
@@ -849,8 +859,6 @@ void GameScene::Update(const Input & p)
 	fadewait++,shader_time++,waitCnt++;
 
 	totaltime = time - (flame / 60);
-
-	_camera->Update(_pl->GetInfo().center);
 
 	(this->*_updater)(p);
 

@@ -11,9 +11,10 @@ Camera::~Camera()
 {
 }
 
-void Camera::Update(const Vector2& p)
+void Camera::SetFocus(const Vector2 & p)
 {
 	auto size = Game::GetInstance().GetScreenSize();
+
 	_pos = p;
 	if (_pos.x < size.x / 2) _pos.x = size.x / 2;
 	if (_pos.y < size.y / 2) _pos.y = size.y / 2;
@@ -21,10 +22,6 @@ void Camera::Update(const Vector2& p)
 	if (_pos.y > _range.y - size.y / 2) _pos.y = _range.y - size.y / 2;
 
 	_correction = Vector2((_pos.x - size.x / 2), (_pos.y - size.y / 2));
-}
-
-void Camera::Draw()
-{
 }
 
 const Vector2 Camera::CameraCorrection() const
