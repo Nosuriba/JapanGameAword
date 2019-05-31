@@ -20,7 +20,8 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 	SE.shot = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/shot.mp3");
 	SE.swing = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/swing.mp3");
 	SE.pitch = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/punch.mp3");
-
+	extend = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/extend.mp3");
+	setup = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/setup.mp3");
 
 	BGM = ResourceManager::GetInstance().LoadSound("../Sound/boss.mp3");
 
@@ -92,21 +93,34 @@ void Octopus::IkCcd(Vector2 pos, int idx, int numMaxItaration)
 
 void Octopus::Die()
 {
-	_isDie = true;
+	quake = Vector2(10.f, 10.f);
 	da.clear();
 	at.clear();
-
+	shot.clear();
+	ChangeVolumeSoundMem((255 * 120) / 100, SE.die);
+	PlaySoundMem(SE.die, DX_PLAYTYPE_BACK);
 	_updater = &Octopus::DieUpdate;
 }
 
 void Octopus::DieUpdate()
 {
+	blendCnt--;
 
+	quake *= 0.9995;
+	//quake = (quake.x <= 0.05 ? Vector2() : Vector2(quake.x * 0.9995, quake.y * 0.9995));
+
+	if (blendCnt <= 0)
+	{
+		_isDie = true;
+	}
 }
 
 void Octopus::Normal(int idx)
 {
-
+	if (!CheckSoundMem(SE.swing)) {
+		ChangeVolumeSoundMem((255 * 90) / 100, SE.swing);
+		PlaySoundMem(SE.swing, DX_PLAYTYPE_BACK);
+	}
 	auto radian = 2.0f * DX_PI_F / (float)_oct.legs.size();
 	auto rad = radian / 2 * idx - DX_PI_F / 180 * -90;
 
@@ -157,6 +171,10 @@ void Octopus::Punch(int idx)
 		}
 	}
 	else if ((LEG(idx).cnt > _oct.r / LEG(idx).T * 6) && (LEG(idx).cnt < _oct.r / LEG(idx).T * 8) && (_oct.r*2 > p_vec.Magnitude())&&!_returnFlag) {
+		if (!CheckSoundMem(extend)) {
+			ChangeVolumeSoundMem((255 * 100) / 100, extend);
+			PlaySoundMem(extend, DX_PLAYTYPE_BACK);
+		}
 		for (int j = 2; j < LEG(idx).T; ++j) {
 			LEG(idx).joint[j] = LEG(idx).joint[j - 1] + p_vec.Normalized()*((LEG(idx).joint[j] - LEG(idx).joint[j - 1]).Magnitude() + j+0.5f);
 		}
@@ -177,11 +195,18 @@ void Octopus::Punch(int idx)
 		LEG(idx).state = E_LEG_STATE::RE_MOVE;
 		_returnFlag = false;
 	}
+	if ((LEG(idx).cnt == _oct.r / LEG(idx).T * 6))
+	{
+		ChangeVolumeSoundMem((255 * 100) / 100, setup);
+		PlaySoundMem(setup, DX_PLAYTYPE_BACK);
+	}
 }
 
 void Octopus::OctInk()
 {
-	PlaySoundMem(SE.shot, DX_PLAYTYPE_BACK);
+	if (!CheckSoundMem(SE.shot)){
+		PlaySoundMem(SE.shot, DX_PLAYTYPE_BACK);
+	}
 	auto c = cos( DX_PI_F / 180 * 180);
 	auto s = sin(DX_PI_F / 180 * 0);
 	auto p = Vector2(c, s);
@@ -213,8 +238,8 @@ void Octopus::Chase(int idx)
 
 void Octopus::OnDamage()
 {
-	PlaySoundMem(SE.damage, DX_PLAYTYPE_BACK);
 	if (_damageFlag) {
+		PlaySoundMem(SE.damage, DX_PLAYTYPE_BACK);
 		_oct.helth -= 10;
 		_damageFlag = false;
 	}
@@ -317,6 +342,8 @@ void Octopus::HitUpd()
 void Octopus::NeturalUpdate()
 {
 	int j = 0;
+	HitUpd();
+
 	float distance = 9999;
 	if ((++_timer)% 150==0) {
 		int i = GetRand(_oct.legs.size() - 3)+1;
@@ -372,7 +399,6 @@ void Octopus::NeturalUpdate()
 			_oct.interval = 0;
 		}
 	}
-	HitUpd();
 	
 }
 
@@ -399,7 +425,17 @@ void Octopus::Draw()
 		SetDrawBlendMode(DX_BLENDMODE_ADD, 180);
 	}
 
+	if (_updater == &Octopus::DieUpdate)
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, blendCnt);
 
+		quake.x = (GetRand(1) ? quake.x : -quake.x);
+		quake.y = (GetRand(1) ? quake.y : -quake.y);
+
+		c = c + quake;
+	}
+
+	
 	//‘«‚ÌŠÔ‚Ì–Œ‚Ì•`‰æ
 	for (int i = 0; i < _oct.legs.size()-1; ++i) {
 		int j = 1;
@@ -530,8 +566,7 @@ void Octopus::SelectDraw(const Vector2 p, const float s)
 
 void Octopus::Update()
 {
-	if (!CheckSoundMem(BGM))
-	{
+	if (!CheckSoundMem(BGM)){
 		ChangeVolumeSoundMem(255 * 200 / 180, BGM);
 		PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
 	}
@@ -540,13 +575,13 @@ void Octopus::Update()
 
 void Octopus::HitBlock()
 {
+	PlaySoundMem(SE.pitch, DX_PLAYTYPE_BACK);
 	_returnFlag = true;
 }
 
 Octopus::~Octopus()
 {
-	if (CheckSoundMem(BGM))
-	{
+	if (CheckSoundMem(BGM)){
 		StopSoundMem(BGM);
 	}
 }

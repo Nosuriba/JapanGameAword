@@ -118,8 +118,6 @@ private:
 	int shotCnt;
 	int inviCnt;		// –³“GŠÔ
 	int _lifeCnt;
-	int blendCnt = 255;		// “§–¾“x’²®—p
-	Vector2 quake = Vector2();		// —h‚ê‚éŠÔ
 
 	float length;
 	float aLength;

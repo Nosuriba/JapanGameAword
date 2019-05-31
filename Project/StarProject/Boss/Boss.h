@@ -59,6 +59,8 @@ protected:
 	std::list <ShotInfo> shot;
 	BossSE SE;
 	int BGM;
+	int blendCnt = 255;		// “§–¾“x’²®—p
+	Vector2 quake = Vector2();		// —h‚ê‚éŠÔ
 
 	bool _isDie = false;
 
