@@ -604,13 +604,14 @@ GameScene::GameScene(const int& stagenum)
 	cutinCnt = 0;
 	
 	Lvimg  = ResourceManager::GetInstance().LoadImg("../img/Lv.png");
-	Numimg = ResourceManager::GetInstance().LoadImg("../img/”š.png");
+	timeimg = ResourceManager::GetInstance().LoadImg("../img/”š.png");
+	lvnumimg = ResourceManager::GetInstance().LoadImg("../img/”š2.png");
 	cgauge = ResourceManager::GetInstance().LoadImg("../img/timegauge.png");
 	shader_time = 0;
 
 	for (int i = 0; i < _pl->GetLife(); i++)
 	{
-		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,670),i));
+		_Harts.push_back(std::make_unique<Hart>(Vector2(size.x/2+120+i*45,0),i));
 	}
 
 	_updater = &GameScene::LoadStageUpdate;
@@ -762,33 +763,30 @@ void GameScene::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 150);
 
-	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.backCircle_r, 0x777777,true);
+	//DrawCircle(size.x / 2, 50, leveluiInfo.backCircle_r, 0x777777,true);
 
-	DrawCircleGauge(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, score.bite % 5 * 5 , guage, 0.0);
+	DrawCircle(size.x / 2, 50, 84, 0x003377, true);
+	DrawCircleGauge(size.x / 2, 50, score.bite % 5 * 20 , guage, 0.0);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	DrawCircle(leveluiInfo.circlePos.x, leveluiInfo.circlePos.y, leveluiInfo.circle_r, 0x00cccc, true);
+	//DrawCircle(size.x / 2, 50, leveluiInfo.circle_r, 0x00cccc, true);
 
 	auto one = totaltime % 10;
 	auto ten = totaltime / 10;
 
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 192);
-	DrawCircle(size.x / 2, 50, GetFontSize(), 0x003377,true);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-
 	DrawCircle(size.x / 2, 50, 45, 0);
 	if (_updater == &GameScene::Wait && waitNum >= 1) {
-		DrawRectRotaGraph(size.x / 2, size.y / 2, 300 * waitNum, 0, 300, 300, 0.5, 0, Numimg, true);
+		DrawRectRotaGraph(size.x / 2, size.y / 2, 300 * waitNum, 0, 300, 300, 0.5, 0, lvnumimg, true);
 	}
 	else
 	{
 		DrawCircleGauge(size.x / 2, 50, (gameCnt % 60)*1.6666f, cgauge, 0.0);
 	}
-	DrawRectRotaGraph(size.x / 2 - 30, 50, 300 * ten, 0, 300, 300, 0.3f, 0, Numimg, true);
-	DrawRectRotaGraph(size.x / 2 + 30, 50, 300 * one, 0, 300, 300, 0.3f, 0, Numimg, true);
+	DrawRectRotaGraph(size.x / 2 - 30, 50, 300 * ten, 0, 300, 300, 0.3f, 0, timeimg, true);
+	DrawRectRotaGraph(size.x / 2 + 30, 50, 300 * one, 0, 300, 300, 0.3f, 0, timeimg, true);
 
-	DrawRectRotaGraph(GetFontSize()*3, 30,300*_pl->GetInfo().level,0,300,300,abs((gameCnt%30-15))*0.005f+0.2f,0,Numimg,true);
+	DrawRectRotaGraph(GetFontSize()*3, 30,300*_pl->GetInfo().level,0,300,300,abs((gameCnt%30-15))*0.005f+0.2f,0, lvnumimg,true);
 	DrawGraph(GetFontSize(), 0,Lvimg,true);
 
 	/// HP‚ÌDraw
