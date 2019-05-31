@@ -431,13 +431,13 @@ void GameScene::Run(const Input & p)
 	flame++;
 
 	if (totaltime == 0) {
-		fadewait = 0;
-		_updater = &GameScene::FadeOut;
+		clearflag = false;
+		_updater = &GameScene::CutinUpdate;
 	}
 	if (_pl->CheckDie())
 	{
-		fadewait = 0;
-		_updater = &GameScene::FadeOut;
+		clearflag = false;
+		_updater = &GameScene::CutinUpdate;
 	}
 
 #ifdef _DEBUG
