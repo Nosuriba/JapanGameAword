@@ -94,11 +94,7 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 				
-				_laser[0].emplace_back(std::make_shared<Shot>(LEG(i).pos, v.Normalized()));
-
-				_particle[0]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
-				_particle[0]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
-				_particle[0]->Create();
+				_laser[0].emplace_back(std::make_shared<Shot>(LEG(i).pos, v.Normalized(),_camera));
 
 			}
 			if (in.Push(BUTTON::LB))
@@ -120,11 +116,8 @@ void Player::Normal(const Input & in)
 				auto v = LEG(i).pos - LEG(i).halfway_point[LEG(i).T / 2];
 				LEG(i).vel += (-(v).Normalized() * SPEED * (float)_star.level);
 
-				_laser[1].emplace_back(std::make_shared<Shot>(LEG(i).pos, v.Normalized()));
+				_laser[1].emplace_back(std::make_shared<Shot>(LEG(i).pos, v.Normalized(), _camera));
 
-				_particle[1]->SetPos(LEG(i).pos.x, LEG(i).pos.y);
-				_particle[1]->SetRota(atan2(v.Normalized().y, v.Normalized().x) * 180.0f / DX_PI_F);
-				_particle[1]->Create();
 
 			}
 			if (in.Push(BUTTON::RB))
@@ -295,9 +288,6 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 
 	CreateBezier();
 
-	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
-	_particle.emplace_back(std::make_shared<Water>(CENTER.x, CENTER.y, 5000, _camera));
-
 	_img_STICK		= ResourceManager::GetInstance().LoadImg("../img/STICK.png");
 	_img_TRIGGER	= ResourceManager::GetInstance().LoadImg("../img/TRIGGER.png");
 
@@ -381,7 +371,8 @@ void Player::Draw()
 			auto s = (*l)->GetPos();
 			auto e = (*l)->EndCheck() ? s : (std::next(l) != _laser[i].end()) ? (*std::next(l))->GetPos() : s;
 
-			DrawLine(s.x - c.x, s.y - c.y, e.x - c.x, e.y - c.y, 0x3333ff, 4);
+			DrawLine(s.x - c.x, s.y - c.y, e.x - c.x, e.y - c.y, 0x4040ff, 5);
+			(*l)->Draw();
 		}
 	}
 
@@ -392,8 +383,6 @@ void Player::Draw()
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	for (auto& p : _particle)
-		p->Draw();
 }
 
 void Player::ShadowDraw()
