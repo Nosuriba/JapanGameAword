@@ -205,7 +205,7 @@ void Player::Predation(const Input & in)
 	if (_anim_frame > 90)
 	{
 		++_eatCnt;
-		_life = min(MAX_LIFE, ++_life);
+		_life = min(MAX_LIFE, _life + 1);
 		if (_eatCnt % 5 == 0) LevelUP();
 		_updater = &Player::Normal;
 	}
@@ -518,6 +518,9 @@ void Player::ToCatch(const Vector2 & t)
 	{
 		_target = t;
 		_anim_frame = 0;
+		for (auto& l : _star.legs)
+			l.vel = Vector2();
+		select_idx = { -1,-1 };
 		_updater = &Player::Predation;
 	}
 }
