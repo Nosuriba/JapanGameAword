@@ -890,7 +890,7 @@ void Crab::ShadowDraw()
 	
 	for (auto shot : shot)
 	{
-		DxLib::DrawCircle(shot._pos.x - c.x + s.x, shot._pos.y - c.y + s.y, shot._r, 0xccffff, true);
+		DxLib::DrawCircle(shot._pos.x - c.x + s.x, shot._pos.y - c.y + s.y, shot._r, 0xffffff, true);
 	}
 
 	if (!((inviCnt / 5) % 2) && _updater != &Crab::DieUpdate)
@@ -902,7 +902,7 @@ void Crab::ShadowDraw()
 			{
 				p1 = leg._vert[i][0] - c + s; p2 = leg._vert[i][1] - c + s;
 				p3 = leg._vert[i][2] - c + s; p4 = leg._vert[i][3] - c + s;
-				DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+				DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xffffff, true);
 			}
 		}
 
@@ -916,8 +916,8 @@ void Crab::ShadowDraw()
 			auto vec = (p1 - p4).Normalized();
 			auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - c + s;
 
-			DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
-			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
+			DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xffffff, true);
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xffffff, true);
 		}
 
 		for (auto arm : _crab._arms)
@@ -926,13 +926,13 @@ void Crab::ShadowDraw()
 			{
 				p1 = arm._vert[i][0] - c + s; p2 = arm._vert[i][1] - c + s;
 				p3 = arm._vert[i][2] - c + s; p4 = arm._vert[i][3] - c + s;
-				DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+				DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xffffff, true);
 			}
 		}
 		/// ŠI–{‘Ì‚Ì•`‰æ
 		p1 = _crab._vert[0] - c + s; p2 = _crab._vert[1] - c + s;
 		p3 = _crab._vert[2] - c + s; p4 = _crab._vert[3] - c + s;
-		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xffffff, true);
 
 		auto vec = (p2 - p1).Normalized();
 		auto rEyePos = p1 + Vector2((_crab._size.width / 3) * vec.x, (_crab._size.width / 3) * vec.y);
