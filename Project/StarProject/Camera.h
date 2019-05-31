@@ -13,8 +13,7 @@ public:
 	Camera();
 	~Camera();
 
-	void Update(const Vector2&);
-	void Draw();
+	void SetFocus(const Vector2& p);
 
 	// ï\é¶ï‚ê≥
 	const Vector2 CameraCorrection() const;

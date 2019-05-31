@@ -294,7 +294,7 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 	_eatCnt		= 0;
 	_isAlive	= true;
 	_isDie		= false;
-	_life		= 30;
+	_life		= 10;
 	_interval	= 0;
 
 	_updater = &Player::Normal;
@@ -516,6 +516,25 @@ void Player::OnDamage()
 		_anim_frame = 0;
 		_updater	= &Player::Die;
 	}
+}
+
+void Player::PushBack(const Vector2 & v)
+{
+	MATRIX mat = MGetTranslate(v.V_Cast());
+
+	CENTER = VTransform(CENTER.V_Cast(), mat);
+	for (auto& l : _star.legs)
+	{
+		l.tip = VTransform(l.tip.V_Cast(), mat);
+		l.pos = VTransform(l.pos.V_Cast(), mat);
+
+		auto v = l.tip - CENTER;
+		v.Normalize();
+		l.tip = CENTER + v * _star.r;
+		l.pos = CENTER + v * _star.r;
+	}
+
+	CreateBezier();
 }
 
 void Player::LetsGo(const Vector2 p)

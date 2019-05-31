@@ -99,11 +99,11 @@ public:
 	void SelectDraw(const Vector2 p, const float s);
 
 	// ステータスを返す
-	Star GetInfo() const									{ return _star; }
+	Star GetInfo() const { return _star; }
 	// 水鉄砲のステータスを返す
 	const std::array<std::list<std::shared_ptr<Shot>>, 2> GetLaser() const	{ return _laser; }
 	// 当たり矩形を返す
-	const std::list<DamageRec> GetDamageRec() const			{ return _damage; }
+	const std::list<DamageRec> GetDamageRec() const	{ return _damage; }
 
 	// レベルアップ
 	void LevelUP();
@@ -112,6 +112,8 @@ public:
 
 	// ダメージ
 	void OnDamage();
+	// 押し戻し
+	void PushBack(const Vector2& v);
 
 	// 指定座標に移動
 	void LetsGo(const Vector2 p);

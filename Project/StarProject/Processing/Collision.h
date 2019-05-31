@@ -26,5 +26,6 @@ public:
 	int CalCulation(const Rect& rect);
 	Vector2 GetParentCal(const int& spaceNum, const int& rb);
 	Vector2 Pushback(const Star& star, const Rect& rect);
+	Vector2 Pushback(const Vector2& pos, const float r, const Rect& rect);
 };
 
