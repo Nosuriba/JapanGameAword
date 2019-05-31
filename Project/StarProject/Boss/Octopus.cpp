@@ -465,6 +465,7 @@ void Octopus::Draw()
 	}
 
 	
+	
 	//‘«‚ÌŠÔ‚Ì–Œ‚Ì•`‰æ
 	for (int i = 0; i < _oct.legs.size()-1; ++i) {
 		int j = 1;
@@ -492,6 +493,8 @@ void Octopus::Draw()
 		DrawCircle(_oct.eyePos[i].x - c.x, _oct.eyePos[i].y - c.y, 8, 0xffa500, true);
 		DrawCircle(_oct.eyePos[i].x - c.x, _oct.eyePos[i].y - c.y, 6,0x000000, true);
 	}
+
+	
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	
@@ -507,36 +510,33 @@ void Octopus::ShadowDraw()
 	auto c = _camera->CameraCorrection();
 	auto s = _camera->GetShadowPos(0.3f);
 
-	//‘«‚ÌŠÔ‚Ì–Œ‚Ì•`‰æ
-	for (int i = 0; i < _oct.legs.size() - 1; ++i) {
-		int j = 1;
-		auto p1 = _oct.root[i];
-		auto p2 = LEG(i).joint[j];
-		auto p3 = LEG((i + 1)).joint[j];
-		auto p4 = _oct.root[(i + 1)];
-		DrawQuadrangle(p1.x - c.x+s.x, p1.y - c.y + s.y, p2.x - c.x + s.x, p2.y - c.y + s.y, 
-					p3.x - c.x + s.x, p3.y - c.y + s.y, p4.x - c.x + s.x, p4.y - c.y + s.y, 0xbb0000, true);
-	}
-	for (int i = 0; i < _oct.legs.size(); ++i) {
-		DrawCircle(_oct.root[i].x - c.x + s.x, _oct.root[i].y - c.y + s.y, 5, 0xfffffff, true);
-	}
-	DrawCircle(_oct.center.x - c.x + s.x, _oct.center.y - c.y + s.y, 5, 0xfffffff, true);
-
-	//‘«‚Ì•`‰æ
-	for (int i = 0; i < _oct.legs.size(); ++i) {
-		int j = 0;
-		auto width = 50;
-		DrawLineAA(_oct.root[i].x - c.x + s.x, _oct.root[i].y - c.y + s.y, LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, 0xcc0000, width);
-		for (j = 0; j < LEG(i).T - 1; ++j) {
-			DrawLineAA(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, LEG(i).joint[j + 1].x - c.x + s.x, LEG(i).joint[j + 1].y - c.y + s.y, 0xcc0000, width -= 4);
-			DrawCircle(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, width / 2, 0xcc0000, true);
+	if (_damageFlag) {
+		//‘«‚ÌŠÔ‚Ì–Œ‚Ì•`‰æ
+		for (int i = 0; i < _oct.legs.size() - 1; ++i) {
+			int j = 1;
+			auto p1 = _oct.root[i];
+			auto p2 = LEG(i).joint[j];
+			auto p3 = LEG((i + 1)).joint[j];
+			auto p4 = _oct.root[(i + 1)];
+			DrawQuadrangle(p1.x - c.x + s.x, p1.y - c.y + s.y, p2.x - c.x + s.x, p2.y - c.y + s.y,
+				p3.x - c.x + s.x, p3.y - c.y + s.y, p4.x - c.x + s.x, p4.y - c.y + s.y, 0xffffff, true);
 		}
-	}
-	//“ª‚Ì•`‰æ
-	DrawOval(_oct.hedPos.x - c.x + s.x, _oct.hedPos.y - c.y + s.y, 125, 75, 0xee0000, true);
-	for (int i = 0; i < 2; ++i) {
-		DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 8, 0xffa500, true);
-		DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 6, 0x000000, true);
+		//‘«‚Ì•`‰æ
+		for (int i = 0; i < _oct.legs.size(); ++i) {
+			int j = 0;
+			auto width = 50;
+			DrawLineAA(_oct.root[i].x - c.x + s.x, _oct.root[i].y - c.y + s.y, LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, 0xffffff, width);
+			for (j = 0; j < LEG(i).T - 1; ++j) {
+				DrawLineAA(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, LEG(i).joint[j + 1].x - c.x + s.x, LEG(i).joint[j + 1].y - c.y + s.y, 0xffffff, width -= 4);
+				DrawCircle(LEG(i).joint[j].x - c.x + s.x, LEG(i).joint[j].y - c.y + s.y, width / 2, 0xffffff, true);
+			}
+		}
+		//“ª‚Ì•`‰æ
+		DrawOval(_oct.hedPos.x - c.x + s.x, _oct.hedPos.y - c.y + s.y, 125, 75, 0xffffff, true);
+		for (int i = 0; i < 2; ++i) {
+			DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 8, 0xffffff, true);
+			DrawCircle(_oct.eyePos[i].x - c.x + s.x, _oct.eyePos[i].y - c.y + s.y, 6, 0xffffff, true);
+		}
 	}
 }
 
