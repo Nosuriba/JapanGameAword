@@ -90,14 +90,19 @@ private:
 	int sea;
 	int sea_effect;
 	int beach;
+	int gameclear;
+	int gameover;
 
+
+	//カウント系
 	int flame;
 	int time;
 	int totaltime;
 
-	int wait;
+	
+	int wait;//ふぁで
 
-	int waitNum;
+	int waitNum;//ゲーム開始までのカウント
 	int waitCnt;
 
 	int gameCnt;
@@ -113,10 +118,6 @@ private:
 	//当たり用スクリーンのサイズの保管
 	std::vector<CutScreenInfo> _cutAreaScreen;
 	CutScreenInfo cutscr;
-
-	bool bosssceneflag;
-
-	void StageLock();
 
 	int stageNum;
 

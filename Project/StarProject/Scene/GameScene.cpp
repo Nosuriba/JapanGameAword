@@ -95,10 +95,8 @@ void GameScene::Wait(const Input & p)
 	if (waitNum == 0) {
 		_updater = &GameScene::Run;
 	}
-	else {
-		if ((waitCnt % 60) == 0) {
-			waitNum--;
-		}
+	else if ((waitCnt % 60) == 0) {
+		waitNum--;
 	}
 }
 
@@ -449,21 +447,6 @@ void GameScene::Run(const Input & p)
 	}
 }
 
-void GameScene::BossScene(const Input & p)
-{
-	auto& size = Game::GetInstance().GetScreenSize();
-
-	Draw();
-	_pl->Update(p);
-
-	if ((_pl->GetInfo().center.x >= size.x * 3 + _pl->GetInfo().r * 3) &&
-		(_pl->GetInfo().center.y >= size.y)) {
-		bosssceneflag = true;
-		StageLock();
-		_updater = &GameScene::Run;
-	}
-}
-
 void GameScene::LoadResource()
 {
 	auto &_stage = Stage::GetInstance();
@@ -565,15 +548,6 @@ void GameScene::LoadResource()
 
 }
 
-void GameScene::StageLock()
-{
-	auto& size = Game::GetInstance().GetScreenSize();
-
-	for (int i = 0; i < _camera->GetRange().y / 32; i++) {
-		_immortalObj.emplace_back(std::make_shared<ImmortalObject>(_camera, size.x * 3, i * 32 + 16));
-	}
-}
-
 GameScene::GameScene(const int& stagenum)
 {
 	stageNum = stagenum;
@@ -605,8 +579,6 @@ GameScene::GameScene(const int& stagenum)
 	{
 		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,660),i));
 	}
-
-	bosssceneflag = false;
 
 	_updater = &GameScene::LoadStageUpdate;
 }
