@@ -1,10 +1,11 @@
 #include "Shot.h"
-
+#include "Particle/Water.h"
 constexpr float _shotSpeed = 3.0f;
 
 
 Shot::Shot(const Vector2& p, const Vector2& v) :_pos(p), _vel(v), _isHit(false), _isEnd(false), _count(0)
 {
+	particle = std::make_unique<Water>();
 }
 
 Shot::~Shot()

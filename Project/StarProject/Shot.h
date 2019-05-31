@@ -1,9 +1,11 @@
 #pragma once
 #include "Processing/Geometry.h"
-
+class Particle;
 class Shot
 {
 private:
+	std::unique_ptr<Particle> particle;
+
 	Vector2 _pos;
 	Vector2 _vel;
 
