@@ -7,10 +7,9 @@ constexpr int ShakeSize = 31;
 constexpr int VanishSpeed = 1;
 constexpr int VanishBright = 10;
 
-Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, int _BubbleMax,int color):BubbleMax(_BubbleMax), color(color)
+Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, int _BubbleMax,int color):BubbleMax(_BubbleMax), color(color),v_Speed(VanishSpeed)
 {
 	// à¯êîÇÃë„ì¸
-	v_Speed = VanishSpeed;
 	flag = false;
 	x = _x, y = _y;
 	ElementNum = _Enum;
@@ -21,10 +20,9 @@ Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, int _BubbleMax,int colo
 	Init();
 }
 
-Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, bool _flag,int _vs,int _BubbleMax, int _color,const std::shared_ptr<Camera>& c):BubbleMax(_BubbleMax), color(_color),c(c)
+Bubble::Bubble(int _x, int _y, int _Enum, bool _isSmall, bool _flag,int _vs,int _BubbleMax, int _color,const std::shared_ptr<Camera>& c):BubbleMax(_BubbleMax), color(_color),c(c), v_Speed(_vs)
 {
 	// à¯êîÇÃë„ì¸
-	v_Speed = _vs;
 	flag = _flag;
 	x = _x, y = _y;
 	ElementNum = _Enum;
@@ -106,6 +104,7 @@ void Bubble::Move()
 {
 	// Ω⁄ØƒﬁÇ™ëñÇ¡ÇƒÇ¢ÇΩÇÁçáó¨Ç≥ÇπÇÈ
 	if (p_thread.joinable())p_thread.join();
+	auto cpos = c == nullptr ? Vector2() : c->CameraCorrection();
 #ifdef _DEBUG
 	for (auto &p : particle)
 	{
@@ -114,7 +113,7 @@ void Bubble::Move()
 			p.bright = 0;
 			continue;
 		}
-		if ((p.x / 100 < -p.bright) || (p.x / 100 > screen_x + p.bright) || (p.y / 100 > screen_y + p.bright) || (p.y / 100 < -p.bright)) {
+		if ((p.x / 100 < -p.bright) || (p.x / 100 > screen_x+ cpos.x + p.bright) || (p.y / 100 > screen_y+cpos.y + p.bright) || (p.y / 100 < -p.bright)) {
 			p.bright = 0;
 			continue;
 		}

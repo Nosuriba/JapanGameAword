@@ -37,7 +37,6 @@ void GameScene::LoadStageUpdate(const Input & p)
 	if(_stage.LoadCheck()) {
 		LoadResource();
 		_camera->SetRange(Vector2(_stage.GetStageSize().x, _stage.GetStageSize().y));
-		_camera->SetFocus(_pl->GetInfo().center);
 
 		_updater = &GameScene::LoadResourceUpdate;
 	}
@@ -124,6 +123,8 @@ void GameScene::Run(const Input & p)
 	/////////////////////////////////////////////////////////////
 
 	//////////////////////// XV ///////////////////////////////
+
+	_camera->Update();
 
 	_pl->Update(p);
 
@@ -436,6 +437,7 @@ void GameScene::Run(const Input & p)
 			_updater = &GameScene::CutinUpdate;
 		}
 	}
+
 	_camera->SetFocus(_pl->GetInfo().center);
 
 	Draw();
