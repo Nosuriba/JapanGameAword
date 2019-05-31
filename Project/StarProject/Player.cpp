@@ -294,7 +294,7 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 	_eatCnt		= 0;
 	_isAlive	= true;
 	_isDie		= false;
-	_life		= 3;
+	_life		= 30;
 	_interval	= 0;
 
 	_updater = &Player::Normal;
