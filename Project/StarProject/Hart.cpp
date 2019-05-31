@@ -11,19 +11,15 @@ int Hart::Rand(int Max)
 
 Hart::Hart(Vector2 pos,int Num):_g(0.98f), num(Num), pieceSize(10)
 {
-	int buff[25];
-	LoadDivGraph("../img/hart.png", 25, 5, 5, pieceSize, pieceSize, buff, true);
-
+	img = ResourceManager::GetInstance().LoadImg("../img/hart.png");
 	for (int n = 0; n < 25; n++)
 	{
 		auto Theta = Rand(360)*DX_PI_F / 180;
-		_piece[n].imgBuff = buff[n];
 		_piece[n]._devec = Vector2(cos(Theta)*(Rand(5)+1), sin(Theta)*(Rand(5)+1));
 		_piece[n]._pos = (pos + Vector2(pieceSize*(n%5), pieceSize * (n / 5)));
 		_piece[n]._ground_y = _piece[n]._pos.y;
 	}
-
-	
+	_Cnt;
 	_breakCnt=0,_Cnt = 0;
 	_isbreak = false, _isdel = false;
 	_vec = Vector2();
@@ -33,10 +29,7 @@ Hart::Hart(Vector2 pos,int Num):_g(0.98f), num(Num), pieceSize(10)
 
 Hart::~Hart()
 {
-	for (int num = 0; num < 25; num++)
-	{
-		DeleteGraph(_piece[num].imgBuff);
-	}
+
 }
 
 void Hart::UpDate()
@@ -81,7 +74,7 @@ void Hart::Draw()
 {
 	for (auto n = 0; n < 25; n++)
 	{
-		DrawRotaGraph(_piece[n]._pos.x+ pieceSize/2, _piece[n]._pos.y+ pieceSize/2,
-			1, _isbreak? _Cnt:0,_piece[n].imgBuff, true);
+		DrawRectRotaGraph(_piece[n]._pos.x + pieceSize / 2, _piece[n]._pos.y + pieceSize / 2,
+			n%5*10,n/5*10,10,10,1, _isbreak ? _Cnt : 0,img,true);
 	}
 }
