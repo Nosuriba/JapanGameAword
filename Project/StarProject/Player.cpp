@@ -529,6 +529,25 @@ void Player::OnDamage()
 	}
 }
 
+void Player::PushBack(const Vector2 & v)
+{
+	MATRIX mat = MGetTranslate(v.V_Cast());
+
+	CENTER = VTransform(CENTER.V_Cast(), mat);
+	for (auto& l : _star.legs)
+	{
+		l.tip = VTransform(l.tip.V_Cast(), mat);
+		l.pos = VTransform(l.pos.V_Cast(), mat);
+
+		auto v = l.tip - CENTER;
+		v.Normalize();
+		l.tip = CENTER + v * _star.r;
+		l.pos = CENTER + v * _star.r;
+	}
+
+	CreateBezier();
+}
+
 void Player::LetsGo(const Vector2 p)
 {
 	_goal = p;

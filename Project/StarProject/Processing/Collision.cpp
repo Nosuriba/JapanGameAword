@@ -306,9 +306,17 @@ Vector2 Collision::GetParentCal(const int& spaceNum, const int& rb)
 
 Vector2 Collision::Pushback(const Star& star, const Rect& rect)
 {
-	auto VecA = star.center - rect.center;
+	auto v = star.center - rect.center;
 
-	auto pushback = abs(VecA.Magnitude() - (star.r + rect.size.width / 2));
+	auto b = min(max((star.r + rect.size.width / 2) - v.Magnitude(), 0), star.r);
 
-	return star.center + VecA.Normalized() * pushback;
+	return v.Normalized() * b;
+}
+
+Vector2 Collision::Pushback(const Vector2 & pos, const float r, const Rect & rect)
+{
+	auto v = pos - rect.center;
+	auto b = (r + rect.size.width / 2) - v.Magnitude();
+	
+	return v.Normalized() * b;
 }

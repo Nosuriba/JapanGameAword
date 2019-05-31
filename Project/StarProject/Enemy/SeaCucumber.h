@@ -16,8 +16,11 @@ private:
 
 	Vector2 _pL;	// ç∂í[
 	Vector2 _pR;	// âEí[
-	const std::shared_ptr<Camera>& _camera;
+
 	void DebugDraw();
+
+	void CreateDamagePoints();
+	void CreateAttackPoints();
 
 public:
 	SeaCucumber(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, const Vector2& pos);
@@ -28,7 +31,4 @@ public:
 	void Shadow();
 
 	void OnDamage();
-
-	void CreateDamagePoints();
-	void CreateAttackPoints();
 };
