@@ -2,7 +2,7 @@
 
 #include "../ResourceManager.h"
 
-const int offset(60);
+const int offset(20);
 
 PredatoryObject::PredatoryObject(const std::shared_ptr<Camera>& camera, int x, int y):Obstacle(camera)
 {
