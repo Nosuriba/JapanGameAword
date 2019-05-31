@@ -8,6 +8,7 @@
 
 class Camera;
 class Input;
+class Shot;
 
 enum class LEG_STATE {
 	NORMAL,
@@ -34,19 +35,19 @@ struct Star
 	std::vector<Leg> legs;	// 足
 };
 
-struct Laser 
-{
-	int count;
-	Vector2 pos;
-	Vector2 vel;
-	float size;
-	bool isHit;
-	bool isEnd;
-
-	Laser(Vector2 p, Vector2 v,bool isEnd = false) : pos(p), vel(v) ,isEnd(isEnd){ count = 0; size = 5; isHit = false;}
-	void Hit() { isHit = true; }
-	void End() { isEnd = true; }
-};
+//struct Laser 
+//{
+//	int count;
+//	Vector2 pos;
+//	Vector2 vel;
+//	float size;
+//	bool isHit;
+//	bool isEnd;
+//
+//	Laser(Vector2 p, Vector2 v,bool isEnd = false) : pos(p), vel(v) ,isEnd(isEnd){ count = 0; size = 5; isHit = false;}
+//	void Hit() { isHit = true; }
+//	void End() { isEnd = true; }
+//};
 
 class Player
 {
@@ -61,7 +62,7 @@ private:
 	bool	_isDie;
 
 	std::array<int, 2>				select_idx;
-	std::array<std::list<Laser>,2>	_laser;
+	std::array<std::list<std::shared_ptr<Shot>>, 2>	_laser;
 	std::list<DamageRec>			_damage;
 
 	int _anim_frame;
@@ -101,7 +102,7 @@ public:
 	// ステータスを返す
 	Star GetInfo() const									{ return _star; }
 	// 水鉄砲のステータスを返す
-	const std::array<std::list<Laser>, 2> GetLaser() const	{ return _laser; }
+	const std::array<std::list<std::shared_ptr<Shot>>, 2> GetLaser() const	{ return _laser; }
 	// 当たり矩形を返す
 	const std::list<DamageRec> GetDamageRec() const			{ return _damage; }
 
@@ -122,5 +123,7 @@ public:
 	const bool CheckDie() const { return _isDie; }
 	// 捕食回数
 	const int GetEatCnt() const { return _eatCnt; }
+	// ライフ
+	const int GetLife() const { return _life; }
 };
 
