@@ -21,6 +21,10 @@ void Vector2::Normalize()
 const Vector2 Vector2::Normalized() const
 {
 	float size = Magnitude();
+
+	if (size == 0) 
+		return Vector2();
+
 	return Vector2(x / size, y / size);
 }
 
