@@ -518,6 +518,9 @@ void Player::ToCatch(const Vector2 & t)
 	{
 		_target = t;
 		_anim_frame = 0;
+		for (auto& l : _star.legs)
+			l.vel = Vector2();
+		select_idx = { -1,-1 };
 		_updater = &Player::Predation;
 	}
 }
