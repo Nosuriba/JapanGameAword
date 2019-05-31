@@ -12,6 +12,8 @@ PredatoryObject::PredatoryObject(const std::shared_ptr<Camera>& camera, int x, i
 
 	obj = ObjectInfo(pos, size, rect, 0, false, false);
 
+	SE = ResourceManager::GetInstance().LoadSound("shell.mp3");
+
 	predatoryimg = ResourceManager::GetInstance().LoadImg("../img/predatory.png");
 }
 
@@ -54,6 +56,7 @@ void PredatoryObject::Update()
 
 void PredatoryObject::Break()
 {
+	PlaySoundMem(SE, DX_PLAYTYPE_BACK);
 	obj._breakflag = true;
 }
 

@@ -27,7 +27,7 @@ DestroyableObject::DestroyableObject(const std::shared_ptr<Camera>& camera, int 
 	obj = ObjectInfo(pos, size, rect, _level, false ,false);
 
 	flame = 0;
-	breakSE = ResourceManager::GetInstance().LoadSound("../Sound/sango.mp3");
+	breakSE = ResourceManager::GetInstance().LoadSound("sango.mp3");
 	_imgs[0] = ResourceManager::GetInstance().LoadImg("../img/destroy.png");
 	_imgs[1] = ResourceManager::GetInstance().LoadImg("../img/destroylevel2.png");
 

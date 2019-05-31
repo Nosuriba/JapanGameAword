@@ -66,6 +66,7 @@ void GameScene::FadeIn(const Input & p)
 
 	if (fadewait >= WAITFRAME) {
 		waitCnt = 0;
+		PlaySoundMem(cntDown, DX_PLAYTYPE_BACK);
 		_updater = &GameScene::Wait;
 	}
 }
@@ -99,17 +100,24 @@ void GameScene::Wait(const Input & p)
 	auto& size = Game::GetInstance().GetScreenSize();
 
 	Draw();
+
 	
 	if (waitNum == 0) {
 		_updater = &GameScene::Run;
 	}
 	else if ((waitCnt % 60) == 0) {
+		PlaySoundMem(cntDown, DX_PLAYTYPE_BACK);
 		waitNum--;
 	}
 }
 
 void GameScene::Run(const Input & p)
 {
+	if (stageNum == 0) {
+		if (!CheckSoundMem(BGM)) {
+			PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
+		}
+	}
 	//////////////////////// çÌèú ///////////////////////////////
 	// ìG
 	for (auto& e : _enemies)
@@ -645,6 +653,9 @@ GameScene::GameScene(const int& stagenum)
 	cgauge = ResourceManager::GetInstance().LoadImg("../img/timegauge.png");
 	shader_time = 0;
 
+	BGM = ResourceManager::GetInstance().LoadSound("åéåıí±.mp3");
+	cntDown = ResourceManager::GetInstance().LoadSound("System/cntDown.mp3");
+
 	for (int i = 0; i < _pl->GetLife(); i++)
 	{
 		_Harts.push_back(std::make_unique<Hart>(Vector2(size.x/2+120+i*45,5),i));
@@ -660,6 +671,9 @@ GameScene::~GameScene()
 	DeleteGraph(thirdscreen);
 	DeleteGraph(_4thscreen);
 	DeleteGraph(uiscreen);
+	if (CheckSoundMem(BGM)) {
+		StopSoundMem(BGM);
+	}
 }
 
 void GameScene::nlDraw()
@@ -886,6 +900,7 @@ void GameScene::Update(const Input & p)
 
 	totaltime = time - (flame / 60);
 
+	
 	(this->*_updater)(p);
 
 	(*FadeBubble).Draw();

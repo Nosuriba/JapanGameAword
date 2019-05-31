@@ -10,6 +10,8 @@ private:
 	int title;
 	int titleback;
 
+	int BGM;
+
 	void (TitleScene::*_updater)(const Input& p);
 	void FadeIn(const Input& p);
 	void FadeOut(const Input& p);

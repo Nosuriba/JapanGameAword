@@ -154,6 +154,9 @@ void SeaCucumber::Update()
 void SeaCucumber::OnDamage()
 {
 	_anim_frame = 0;
+	if (!CheckSoundMem(damageSE)) {
+		PlaySoundMem(damageSE, DX_PLAYTYPE_BACK);
+	}
 	_updater	= &SeaCucumber::CounterUpdate;
 }
 

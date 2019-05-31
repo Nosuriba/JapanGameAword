@@ -42,6 +42,7 @@ protected:
 	Vector2		_vel;
 	bool		_isTurn;			// true:‰E•ûŒü, false:¶•ûŒü		
 	int			_anim_frame;
+	int damageSE;
 
 	std::list<DamageRec> _damage;
 	std::list<DamageRec> _attack;

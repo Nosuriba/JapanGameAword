@@ -40,6 +40,9 @@ void ResultScene::FadeOut(const Input & p)
 void ResultScene::Wait(const Input & p)
 {
 	Draw();
+	if (!CheckSoundMem(BGM)) {
+		PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
+	}
 	_updater = &ResultScene::Run;
 }
 
@@ -80,6 +83,8 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 	ResultStr = { "たおしたてき　:%02d x 100" ,"たべたかず　　:%02d x 100" , "こわしたかず　:%02d x 10","のこりタイム　:%02d x 1000","","　　総合点　　:%6d", };
 
 	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
+	BGM = ResourceManager::GetInstance().LoadSound("System/result.mp3");
+	SE= ResourceManager::GetInstance().LoadSound("System/stamp.mp3");
 	ResultCnt = 0;
 
 	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::enemy]		= enemy		)*100;
@@ -91,11 +96,15 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 
 ResultScene::~ResultScene()
 {
+	if (CheckSoundMem(BGM)) {
+		StopSoundMem(BGM);
+	}
 }
 
 void ResultScene::Update(const Input & p)
 {
 	flame++;
+	
 	(this->*_updater)(p);
 
 	(*FadeBubble).Draw();
@@ -153,9 +162,13 @@ void ResultScene::Draw()
 			if (192 > StampCnt)
 			{
 				StampCnt+=3;
+				if (192<= StampCnt) {
+					PlaySoundMem(SE, DX_PLAYTYPE_BACK);
+				}
 			}
 			else
 			{
+				
 				DrawBox(0, size.y / 10 * 8.5f, size.x, size.y, 0x000000, true);
 				ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
 				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (abs(ResultCnt % 512 - 255)*2));

@@ -122,6 +122,9 @@ private:
 
 	int stageNum;
 
+	int BGM;
+	int cntDown;
+
 	//UI
 	LevelUIInfo leveluiInfo;
 
