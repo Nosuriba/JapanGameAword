@@ -20,6 +20,7 @@
 #include "../Object/ImmortalObject.h"
 #include "../Object/GoalObject.h"
 #include "../Stage.h"
+#include "../Hart.h"
 
 #include <iostream>
 #include <algorithm>
@@ -106,7 +107,6 @@ void GameScene::Run(const Input & p)
 	auto& size = Game::GetInstance().GetScreenSize();
 	gameCnt++;
 	//_pl->DeleteItr();
-
 	auto& laser = _pl->GetLaser();
 
 	_pl->Update(p);
@@ -387,6 +387,16 @@ void GameScene::Run(const Input & p)
 		wait = 0;
 		_updater = &GameScene::FadeOut;
 	}
+
+	int c = 0;
+	for (auto hart = _Harts.begin(); hart != _Harts.end(); hart++)
+	{
+		(*hart)->UpDate();
+		if (_pl->GetLife() < ++c)
+		{
+			(*hart)->Break();
+		}
+	}
 }
 
 void GameScene::BossScene(const Input & p)
@@ -540,6 +550,11 @@ GameScene::GameScene(const int& stagenum)
 	cgauge = ResourceManager::GetInstance().LoadImg("../img/timegauge.png");
 	shader_time = 0;
 	num = 0;
+
+	for (int i = 0; i < 3; i++)
+	{
+		_Harts.push_back(std::make_unique<Hart>(Vector2(10+i*45,660),i));
+	}
 
 	bosssceneflag = false;
 
@@ -720,12 +735,13 @@ void GameScene::Draw()
 	DrawRectRotaGraph(size.x / 2 - 30, 30, 300 * ten, 0, 300, 300, 0.3f, 0, Numimg, true);
 	DrawRectRotaGraph(size.x / 2 + 30, 30, 300 * one, 0, 300, 300, 0.3f, 0, Numimg, true);
 
-	SetFontSize(64);
 	DrawRectRotaGraph(GetFontSize()*2.5, size.y -75,300*_pl->GetInfo().level,0,300,300, abs((((gameCnt/2)%20-10)))*0.01f+0.5f,0,Numimg,true);
-	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	DrawGraph(0, size.y - GetFontSize()*1.5,Lvimg,true);
-	ChangeFont("Rainy Days", DX_CHARSET_DEFAULT);
-	
+
+	for (auto hart:_Harts)
+	{
+		hart->Draw();
+	}
 
 
 	//バック描画
