@@ -79,6 +79,10 @@ void SeaCucumber::MoveUpdate()
 			POS = _pR + v.Normalized() * (SIZE.width / 2.0f);
 		}
 	}
+
+	_particle[0]->SetPos(_pL.x,_pL.y);
+	_particle[1]->SetPos(_pR.x, _pR.y);
+
 	++_anim_frame;
 	if (_anim_frame > 40)
 	{
