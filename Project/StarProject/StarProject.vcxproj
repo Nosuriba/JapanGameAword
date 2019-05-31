@@ -132,6 +132,7 @@
     <ClCompile Include="Enemy\Fish.cpp" />
     <ClCompile Include="Enemy\SeaCucumber.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Hart.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object\DestroyableObject.cpp" />
     <ClCompile Include="Object\GoalObject.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="Enemy\Fish.h" />
     <ClInclude Include="Enemy\SeaCucumber.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Hart.h" />
     <ClInclude Include="Object\DestroyableObject.h" />
     <ClInclude Include="Object\GoalObject.h" />
     <ClInclude Include="Object\ImmortalObject.h" />

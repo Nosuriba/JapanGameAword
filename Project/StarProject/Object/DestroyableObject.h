@@ -1,5 +1,6 @@
 #pragma once
 #include "Obstacle.h"
+#include <array>
 
 class DestroyableObject :
 	public Obstacle
@@ -14,6 +15,7 @@ private:
 
 	int _img1;
 	int _img2;
+	std::array<int, 2> _imgs;
 
 	int flame;
 	int color;

@@ -1,58 +1,87 @@
 #include "Hart.h"
 #include "ResourceManager.h"
-int Hart::Num = 0;
+#include<random>
 
-Hart::Hart(Vector2 pos):_g(0.98), num(++Num)
+int Hart::Rand(int Max)
 {
-	_pos = pos;
-	_ground_y = _pos.y;
-	_breakCnt=0, _toJamp=0,_Cnt = 0;
-	_isbreak = false;
+	std::random_device rd;
+	std::mt19937 Rand(rd());
+	return Rand()%Max;
+}
+
+Hart::Hart(Vector2 pos,int Num):_g(0.98f), num(Num), pieceSize(10)
+{
+	int buff[25];
+	LoadDivGraph("../img/hart.png", 25, 5, 5, pieceSize, pieceSize, buff, true);
+
+	for (int n = 0; n < 25; n++)
+	{
+		auto Theta = Rand(360)*DX_PI_F / 180;
+		_piece[n].imgBuff = buff[n];
+		_piece[n]._devec = Vector2(cos(Theta)*(Rand(5)+1), sin(Theta)*(Rand(5)+1));
+		_piece[n]._pos = (pos + Vector2(pieceSize*(n%5), pieceSize * (n / 5)));
+		_piece[n]._ground_y = _piece[n]._pos.y;
+	}
+
+	
+	_breakCnt=0,_Cnt = 0;
+	_isbreak = false, _isdel = false;
 	_vec = Vector2();
-	LoadDivGraph("../img/hart.png",25,5,5,10,10, imgBuff,true);
-	img = ResourceManager::GetInstance().LoadImg("../img/hart.png");
+
 }
 
 
 Hart::~Hart()
 {
-	for (auto &i :imgBuff)
+	for (int num = 0; num < 25; num++)
 	{
-		DeleteGraph(i);
+		DeleteGraph(_piece[num].imgBuff);
 	}
 }
 
 void Hart::UpDate()
 {
+	Size s;
+	GetDrawScreenSize(&s.width, &s.height);
 	_Cnt++;
-	if (_Cnt>(60+num*60))
+	_vec.y += 4*_g;
+	if (_Cnt>(60+num)&&(!_isbreak))
 	{
-		_vec.y = 25;
+		_vec.y = -10;
+		_Cnt = num;
 	}
-
-	_pos.y += _vec.y;
-
-	if (_isbreak)
+	for (int n = 0; n < 25; n++)
 	{
-		_pos += _vec;
-	}
-	else
-	{
-		if (_pos.y > _ground_y)
+		if (_isbreak)
 		{
-			_pos.y = _ground_y;
+			if (_Cnt > (60 + num))
+			{
+				_isdel = true;
+			}
+			if ((((_piece[n]._pos - Vector2(s.width+pieceSize, s.height+pieceSize)).Magnitude()))&&
+				(((_piece[n]._pos - Vector2()).Magnitude())))
+			{
+				_piece[n]._pos += _piece[n]._devec;
+				_piece[n]._devec.y += _g;
+			}
+		}
+		else
+		{
+			_piece[n]._pos.y += _vec.y;
+			if (_piece[n]._pos.y > _piece[n]._ground_y)
+			{
+				_piece[n]._pos.y = _piece[n]._ground_y;
+				_vec.y = 0;
+			}
 		}
 	}
 }
 
 void Hart::Draw()
 {
-	//DrawGraph(_pos.x, _pos.y,img, true);
-	for (auto y = 0; y < 5; y++)
+	for (auto n = 0; n < 25; n++)
 	{
-		for (auto i = 0; i < 5; i++)
-		{
-			DrawGraph(_pos.x + i * 10, _pos.y + i * 10, imgBuff[y*5+i], true);
-		}
+		DrawRotaGraph(_piece[n]._pos.x+ pieceSize/2, _piece[n]._pos.y+ pieceSize/2,
+			1, _isbreak? _Cnt:0,_piece[n].imgBuff, true);
 	}
 }

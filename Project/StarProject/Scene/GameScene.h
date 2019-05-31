@@ -1,9 +1,11 @@
 #pragma once
 #include "Scene.h"
-#include <memory>
 
-#include <vector>
 #include <DxLib.h>
+
+#include <memory>
+#include <vector>
+#include <list>
 #include <thread>
 #include <mutex>
 
@@ -13,6 +15,7 @@ class Enemy;
 class Boss;
 class Collision;
 class Camera;
+class Hart;
 
 class Obstacle;
 class DestroyableObject;
@@ -60,17 +63,18 @@ private:
 	void BossScene(const Input& p);
 	void nlDraw();
 
+	std::vector <std::shared_ptr<Hart>> _Harts;
 	std::shared_ptr<Player> _pl;
 	std::shared_ptr<Collision> _col;
 	std::shared_ptr<Camera> _camera;
 
-	std::vector<std::shared_ptr<Enemy>> _enemies;		/// âºÇÃï`âÊ
-	std::vector<std::shared_ptr<Boss>> _bosses;
+	std::list<std::shared_ptr<Enemy>>	_enemies;
+	std::list<std::shared_ptr<Boss>>	_bosses;
 
-	std::vector<std::shared_ptr<DestroyableObject>> _destroyObj;
-	std::vector<std::shared_ptr<PredatoryObject>> _predatoryObj;
-	std::vector<std::shared_ptr<ImmortalObject>> _immortalObj;
-	std::vector<std::shared_ptr<GoalObject>> _goalObject;
+	std::list<std::shared_ptr<DestroyableObject>>	_destroyObj;
+	std::list<std::shared_ptr<PredatoryObject>>		_predatoryObj;
+	std::vector<std::shared_ptr<ImmortalObject>>	_immortalObj;
+	std::vector<std::shared_ptr<GoalObject>>		_goalObject;
 
 	//ÉXÉNÉäÅ[Éì
 	int firstscreen;
