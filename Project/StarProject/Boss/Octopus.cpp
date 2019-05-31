@@ -19,7 +19,7 @@ Octopus::Octopus(const std::shared_ptr<Camera>& camera, const std::shared_ptr<Pl
 
 	///‰¹ŠÖŒW
 	SE.damage = ResourceManager::GetInstance().LoadSound("../Sound/damage.mp3");
-	SE.die = ResourceManager::GetInstance().LoadSound("../Sound/die.mp3");
+	SE.die = ResourceManager::GetInstance().LoadSound("../Sound/die2.mp3");
 	SE.shot = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/shot.mp3");
 	SE.swing = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/swing.mp3");
 	SE.pitch = ResourceManager::GetInstance().LoadSound("../Sound/Octopus/punch.mp3");

@@ -468,13 +468,31 @@ void GameScene::Run(const Input & p)
 	}
 
 #endif // _DEBUG
+
+	//‘Ì—Í‚Ì‚â‚Â
 	int c = 0;
+	int regeneCnt = 0;
 	for (auto hart = _Harts.begin(); hart != _Harts.end(); hart++)
 	{
 		(*hart)->UpDate();
 		if (_pl->GetLife() < ++c)
 		{
 			(*hart)->Break();
+		}
+	}
+	if (_pl->GetLife() > c)
+	{
+		regeneCnt++;
+	}
+	if (regeneCnt!=0)
+	{
+		for (int i = 0;i< regeneCnt;i++)
+		{
+			_Harts.push_back(std::make_unique<Hart>(Vector2(size.x / 2 + 120 + (_pl->GetLife()+i-1) * 45, 5), (_pl->GetLife() + i - 1)));
+		}
+		for (auto &hart :_Harts)
+		{
+			hart->_ReCnt();
 		}
 	}
 }

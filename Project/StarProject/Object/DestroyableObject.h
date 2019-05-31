@@ -12,6 +12,7 @@ private:
 
 	int _img1;
 	int _img2;
+	int breakSE;
 	std::array<int, 2> _imgs;
 
 	int flame;
