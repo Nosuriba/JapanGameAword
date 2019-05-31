@@ -213,6 +213,7 @@ void Diodon::OnDamage()
 {
 	if (!DAMAGE)
 	{
+		PlaySoundMem(damageSE, DX_PLAYTYPE_BACK);
 		DAMAGE		= true;
 		_escapeTime = 0;
 		_anim_frame = 0;

@@ -72,10 +72,11 @@ void SelectScene::Run(const Input & p)
 	{
 		scrollCnt -= 2;
 	}
-	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
+	if (p.Trigger(BUTTON::A)) {
 		if (!CheckHandleASyncLoad(SE))
 		{
 			flame = 0;
+			PlaySoundMem(decide, DX_PLAYTYPE_BACK);
 			PlaySoundMem(SE, DX_PLAYTYPE_BACK);
 			StopSoundMem(BGM);
 			Stage::GetInstance().LoadStage("../Stage/test"+ std::to_string(Select+1) +".fmf");
@@ -83,12 +84,14 @@ void SelectScene::Run(const Input & p)
 		}
 	}
 	if (p.TriggerTrigger(TRIGGER::RIGHT)) {
+		PlaySoundMem(choice, DX_PLAYTYPE_BACK);
 		Select = (Select<2)?++Select:Select;
 		scrollCnt = 0;
 		scrollWait = WaitScrollDef;
 	}
 
 	if (p.TriggerTrigger(TRIGGER::LEFT)) {
+		PlaySoundMem(choice, DX_PLAYTYPE_BACK);
 		Select = (Select>0)?--Select:Select;
 		scrollCnt = 0;
 		scrollWait = WaitScrollDef;
@@ -144,6 +147,8 @@ SelectScene::SelectScene()
 
 	BGM = ResourceManager::GetInstance().LoadSound("under-the-sea-1.mp3");
 	SE = ResourceManager::GetInstance().LoadSound("se_maoudamashii_effect15.mp3");
+	choice = ResourceManager::GetInstance().LoadSound("System/chose.mp3");
+	decide = ResourceManager::GetInstance().LoadSound("System/decide.mp3");
 }
 
 SelectScene::~SelectScene()

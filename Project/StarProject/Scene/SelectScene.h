@@ -26,6 +26,9 @@ private:
 	int scrollCnt, scrollWait;
 	int shader_time;
 
+	int choice;
+	int decide;
+
 	int BGM;
 	int SE;
 public:

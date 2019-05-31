@@ -48,7 +48,7 @@ void TitleScene::Run(const Input & p)
 {
 	Draw();
 
-	if (p.Trigger(BUTTON::A) || p.IsTrigger(PAD_INPUT_10)) {
+	if (p.Trigger(BUTTON::A)) {
 		if (!CheckHandleASyncLoad(se))
 		{
 			flame = 0;
@@ -62,6 +62,7 @@ TitleScene::TitleScene()
 {
 	title = ResourceManager::GetInstance().LoadImg("../img/title.png");
 	titleback = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
+	BGM = ResourceManager::GetInstance().LoadSound("System/title.mp3");
 	flame = 0;
 	colorflame = 0;
 	blendcolor = 0;
@@ -86,6 +87,9 @@ TitleScene::TitleScene()
 
 TitleScene::~TitleScene()
 {
+	if (CheckSoundMem(BGM)) {
+		StopSoundMem(BGM);
+	}
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
@@ -93,6 +97,9 @@ void TitleScene::Update(const Input & p)
 {
 	flame++;
 	colorflame += blendcolor * 3;
+	if (!CheckSoundMem(BGM)) {
+		PlaySoundMem(BGM, DX_PLAYTYPE_LOOP);
+	}
 	(this->*_updater)(p);
 
 	(*FadeBubble).Draw();

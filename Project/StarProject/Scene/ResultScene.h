@@ -29,6 +29,9 @@ private:
 	int imgbuff;
 	int ResultCnt;
 
+	int BGM;
+	int SE;
+
 	int ResultData[2][(int)R_Data::max];
 	std::vector<std::string>ResultStr;
 

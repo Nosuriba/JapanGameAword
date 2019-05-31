@@ -306,6 +306,7 @@ void Fish::OnDamage()
 
 	if (!DAMAGE)
 	{
+		PlaySoundMem(damageSE, DX_PLAYTYPE_BACK);
 		auto v1 = _vel;
 		auto v2 = POS - _target;
 		v2 += v1;
