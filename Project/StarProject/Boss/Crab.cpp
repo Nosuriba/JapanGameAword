@@ -10,7 +10,7 @@ const double magRate = 1.4;						// Šg‘å—¦
 const float rotVel = DX_PI_F / 540.f;
 const float mVel   = 3.f;
 const int atkMax   = 120;
-const int inviMax  = 180;
+const int inviMax  = 60;
 const int pitchMax = 50;
 const int shotMax  = 240;
 
@@ -808,7 +808,7 @@ void Crab::Draw()
 	/// –³“Gó‘Ô‚ÌŽžA“§–¾“x‚ð’²®‚·‚é
 	if (inviCnt > 0)
 	{
-		if ((inviCnt / 10) % 2)
+		if ((inviCnt / 5) % 2)
 		{
 			SetDrawBlendMode(DX_BLENDMODE_ADD, 128);
 		}
@@ -884,57 +884,60 @@ void Crab::Draw()
 
 void Crab::ShadowDraw()
 {
+	
 	auto c = _camera->CameraCorrection();
 	auto s = _camera->GetShadowPos(0.3f);
-
+	
 	for (auto shot : shot)
 	{
 		DxLib::DrawCircle(shot._pos.x - c.x + s.x, shot._pos.y - c.y + s.y, shot._r, 0xccffff, true);
 	}
 
-	Vector2 p1, p2, p3, p4;
-	for (auto leg : _crab._legs)
+	if (!((inviCnt / 5) % 2))
 	{
-		for (int i = 0; i < leg._points.size() - 1; ++i)
+		Vector2 p1, p2, p3, p4;
+		for (auto leg : _crab._legs)
 		{
-			p1 = leg._vert[i][0] - c + s; p2 = leg._vert[i][1] - c + s;
-			p3 = leg._vert[i][2] - c + s; p4 = leg._vert[i][3] - c + s;
-			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+			for (int i = 0; i < leg._points.size() - 1; ++i)
+			{
+				p1 = leg._vert[i][0] - c + s; p2 = leg._vert[i][1] - c + s;
+				p3 = leg._vert[i][2] - c + s; p4 = leg._vert[i][3] - c + s;
+				DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+			}
 		}
-	}
 
-	auto scis = _scissors.begin();
-	for (; scis != _scissors.end(); ++scis)
-	{
-		auto sCnt = scis - _scissors.begin();
-		p1 = (*scis)[0] - c + s; p2 = (*scis)[1] - c + s;
-		p3 = (*scis)[2] - c + s; p4 = (*scis)[3] - c + s;
-
-		auto vec = (p1 - p4).Normalized();
-		auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - c + s;
-
-		DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
-		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
-	}
-
-	for (auto arm : _crab._arms)
-	{
-		for (int i = 0; i < arm._points.size() - 1; ++i)
+		auto scis = _scissors.begin();
+		for (; scis != _scissors.end(); ++scis)
 		{
-			p1 = arm._vert[i][0] - c + s; p2 = arm._vert[i][1] - c + s;
-			p3 = arm._vert[i][2] - c + s; p4 = arm._vert[i][3] - c + s;
-			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+			auto sCnt = scis - _scissors.begin();
+			p1 = (*scis)[0] - c + s; p2 = (*scis)[1] - c + s;
+			p3 = (*scis)[2] - c + s; p4 = (*scis)[3] - c + s;
+
+			auto vec = (p1 - p4).Normalized();
+			auto vPos = _scisCenter[sCnt] + Vector2((scisSize.width / 3) * vec.x, (scisSize.width / 3) * vec.y) - c + s;
+
+			DrawTriangleAA(p1.x, p1.y, vPos.x, vPos.y, p2.x, p2.y, 0xdd0000, true);
+			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xdd0000, true);
 		}
+
+		for (auto arm : _crab._arms)
+		{
+			for (int i = 0; i < arm._points.size() - 1; ++i)
+			{
+				p1 = arm._vert[i][0] - c + s; p2 = arm._vert[i][1] - c + s;
+				p3 = arm._vert[i][2] - c + s; p4 = arm._vert[i][3] - c + s;
+				DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+			}
+		}
+		/// ŠI–{‘Ì‚Ì•`‰æ
+		p1 = _crab._vert[0] - c + s; p2 = _crab._vert[1] - c + s;
+		p3 = _crab._vert[2] - c + s; p4 = _crab._vert[3] - c + s;
+		DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
+
+		auto vec = (p2 - p1).Normalized();
+		auto rEyePos = p1 + Vector2((_crab._size.width / 3) * vec.x, (_crab._size.width / 3) * vec.y);
+		auto lEyePos = p2 + Vector2((_crab._size.width / 3) * (-vec.x), (_crab._size.width / 3) * (-vec.y));
 	}
-	/// ŠI–{‘Ì‚Ì•`‰æ
-	p1 = _crab._vert[0] - c + s; p2 = _crab._vert[1] - c + s;
-	p3 = _crab._vert[2] - c + s; p4 = _crab._vert[3] - c + s;
-	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
-
-	auto vec = (p2 - p1).Normalized();
-	auto rEyePos = p1 + Vector2((_crab._size.width / 3) * vec.x, (_crab._size.width / 3) * vec.y);
-	auto lEyePos = p2 + Vector2((_crab._size.width / 3) * (-vec.x), (_crab._size.width / 3) * (-vec.y));
-
 }
 
 void Crab::SelectDraw(const Vector2 & pos, const float& scale)
