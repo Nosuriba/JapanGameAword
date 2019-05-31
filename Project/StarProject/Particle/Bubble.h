@@ -8,7 +8,7 @@ private:
 	void Move();
 	bool isSmall,flag;
 	int imgBff;
-	int v_Speed;
+	const int v_Speed;
 	const std::shared_ptr<Camera>c;
 	const int BubbleMax, color;
 public:
