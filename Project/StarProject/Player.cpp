@@ -205,7 +205,7 @@ void Player::Predation(const Input & in)
 	if (_anim_frame > 90)
 	{
 		++_eatCnt;
-		_life = min(MAX_LIFE, ++_life);
+		_life = min(MAX_LIFE, _life + 1);
 		if (_eatCnt % 5 == 0) LevelUP();
 		_updater = &Player::Normal;
 	}
