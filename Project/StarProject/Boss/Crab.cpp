@@ -34,7 +34,7 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	aLength		= (lSize.width + (60 * magRate)) * magRate;
 
 	SE.damage = ResourceManager::GetInstance().LoadSound("../Sound/damage.mp3");
-	SE.die	  = ResourceManager::GetInstance().LoadSound("../Sound/die.mp3");
+	SE.die	  = ResourceManager::GetInstance().LoadSound("../Sound/die2.mp3");
 	SE.pitch  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/pitch.mp3");
 	SE.shot   = ResourceManager::GetInstance().LoadSound("../Sound/Crab/shot.mp3");
 	SE.swing  = ResourceManager::GetInstance().LoadSound("../Sound/Crab/swing.mp3");

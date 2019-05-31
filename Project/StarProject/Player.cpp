@@ -312,7 +312,7 @@ Player::Player(const std::shared_ptr<Camera>& c, const Vector2& p) : _camera(c)
 	_life		= 5;
 	_interval	= 0;
 
-	damageSE = ResourceManager::GetInstance().LoadSound("../Sound/damage.mp3");
+	damageSE = ResourceManager::GetInstance().LoadSound("../Sound/Player/break.mp3");
 	dieSE = ResourceManager::GetInstance().LoadSound("../Sound/Player/p_die.mp3");
 	eatSE = ResourceManager::GetInstance().LoadSound("../Sound/Player/bite1.mp3");
 
