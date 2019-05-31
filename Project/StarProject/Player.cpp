@@ -13,6 +13,7 @@
 
 constexpr float deceleration	= 0.9f;
 constexpr float SPEED			= 0.5f;
+constexpr int MAX_LIFE = 10;
 
 void Player::Normal(const Input & in)
 {
@@ -204,6 +205,7 @@ void Player::Predation(const Input & in)
 	if (_anim_frame > 90)
 	{
 		++_eatCnt;
+		_life = min(MAX_LIFE, ++_life);
 		if (_eatCnt % 5 == 0) LevelUP();
 		_updater = &Player::Normal;
 	}
