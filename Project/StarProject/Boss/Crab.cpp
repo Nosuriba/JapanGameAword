@@ -10,6 +10,7 @@ const double magRate = 1.4;						// 拡大率
 const float rotVel = DX_PI_F / 540.f;
 const float mVel   = 3.f;
 const int atkMax   = 120;
+const int lifeMax  = 20;
 const int inviMax  = 60;
 const int pitchMax = 50;
 const int shotMax  = 240;
@@ -20,7 +21,7 @@ Crab::Crab(const std::shared_ptr<Camera>& c, const std::shared_ptr<Player>& p, c
 	_armPrePos = Vector2();
 	atkCnt = atkMax;
 	_type  = AtkType::NORMAL;
-	_lifeCnt = 20;
+	_lifeCnt = lifeMax;
 	_isDie = false;
 	inviCnt = 0;
 
@@ -713,52 +714,50 @@ void Crab::RegistDamageInfo()
 		vec = (i % 2 ? -vec : vec);
 		da.emplace_back(DamageInfo(_crab._pos + Vector2(_crab._size.height / 3 * vec.x, _crab._size.height / 3 * vec.y), _crab._size.height / 2));
 	}
-
-	for (auto arm : _crab._arms)
-	{
-		da.emplace_back(DamageInfo(arm._points[2], lSize.width / 2));
-	}
-
 }
 
 void Crab::ChangeAtkMode()
 {
 	if (_updater == &Crab::NeutralUpdate && atkCnt < 0)
 	{
-		auto mCnt = 0;
-		auto moveFlag = false;
-
-		auto arm = _crab._arms.begin();
-		for (; arm != _crab._arms.end(); ++arm)
+		if (_lifeCnt >= lifeMax / 2)
 		{
-			auto aCnt = arm - _crab._arms.begin();
-			auto sPoint = _player->GetInfo().center - (*arm)._ctlPoint;
-			auto leng = Vector2(abs((aLength + aLength / 2) * sPoint.Normalized().x),
-				abs((aLength + aLength / 2) * sPoint.Normalized().y));
-			if (abs(sPoint.x) <= leng.x || abs(sPoint.y) <= leng.y)
+			auto mCnt = 0;
+			auto moveFlag = false;
+
+			auto arm = _crab._arms.begin();
+			for (; arm != _crab._arms.end(); ++arm)
 			{
-				if (_plPos.x == 0 && _plPos.y == 0)
+				auto aCnt = arm - _crab._arms.begin();
+				auto sPoint = _player->GetInfo().center - (*arm)._ctlPoint;
+				auto leng = Vector2(abs((aLength + aLength / 2) * sPoint.Normalized().x),
+					abs((aLength + aLength / 2) * sPoint.Normalized().y));
+				if (abs(sPoint.x) <= leng.x || abs(sPoint.y) <= leng.y)
 				{
-					moveFlag = true;
-					_plPos = _player->GetInfo().center;
-					mCnt = aCnt;
-				}
-				else
-				{
-					auto d = _plPos - (*arm)._ctlPoint;
-					mCnt = (abs(d.x) - abs(sPoint.x) < 0 || abs(d.x) - abs(sPoint.y) ? aCnt : mCnt);
+					if (_plPos.x == 0 && _plPos.y == 0)
+					{
+						moveFlag = true;
+						_plPos = _player->GetInfo().center;
+						mCnt = aCnt;
+					}
+					else
+					{
+						auto d = _plPos - (*arm)._ctlPoint;
+						mCnt = (abs(d.x) - abs(sPoint.x) < 0 || abs(d.x) - abs(sPoint.y) ? aCnt : mCnt);
+					}
 				}
 			}
+			if (moveFlag)
+			{
+				Pitch();
+				auto vec = (_plPos - _crab._arms[mCnt]._ctlPoint).Normalized();
+				_crab._arms[mCnt]._vel = Vector2(mVel * vec.x, mVel * vec.y);
+				/// 移動前の制御点を保存
+				_armPrePos = _crab._arms[mCnt]._ctlPoint;
+				return;
+			}
 		}
-		if (moveFlag)
-		{
-			Pitch();
-			auto vec = (_plPos - _crab._arms[mCnt]._ctlPoint).Normalized();
-			_crab._arms[mCnt]._vel = Vector2(mVel * vec.x, mVel * vec.y);
-			/// 移動前の制御点を保存
-			_armPrePos = _crab._arms[mCnt]._ctlPoint;
-			return;
-		}
+		
 		if (_updater == &Crab::NeutralUpdate)
 		{
 			Shot();
