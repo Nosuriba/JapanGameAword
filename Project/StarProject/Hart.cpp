@@ -78,3 +78,8 @@ void Hart::Draw()
 			n%5*10,n/5*10,10,10,1, _isbreak ? _Cnt : 0,img,true);
 	}
 }
+
+bool Hart::isDelete() 
+{
+	return _isdel; 
+};

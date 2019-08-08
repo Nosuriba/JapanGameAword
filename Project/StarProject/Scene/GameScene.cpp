@@ -27,7 +27,8 @@
 
 #define CC _camera->CameraCorrection()
 
-constexpr int GAME_TIME = 120;
+constexpr int GAME_TIME = 180;
+constexpr int BOSS_TIME = 90;
 const int shader_offset = 50;
 const auto size = Game::GetInstance().GetScreenSize();
 
@@ -447,7 +448,7 @@ void GameScene::Run(const Input & p)
 
 	for (auto boss : _bosses) {
 		if (boss->GetDieFlag()) {
-			score.enemy++;
+			score.enemy+=5;
 			clearflag = true;
 			_updater = &GameScene::CutinUpdate;
 		}
@@ -483,8 +484,17 @@ void GameScene::Run(const Input & p)
 	//‘Ì—Í‚Ì‚â‚Â
 	int c = 0;
 	int regeneCnt = 0;
+
 	for (auto hart = _Harts.begin(); hart != _Harts.end(); hart++)
 	{
+		if ((*hart)->isDelete()) {
+			_Harts.erase(hart);
+		}
+		if (hart== _Harts.end())
+		{
+			break;
+		}
+
 		(*hart)->UpDate();
 		if (_pl->GetLife() < ++c)
 		{
@@ -638,8 +648,8 @@ GameScene::GameScene(const int& stagenum)
 	flame	= 0;
 	fadewait = 0;
 
-	time		= GAME_TIME;
-	totaltime	= GAME_TIME;
+	time = stageNum >= 1 ? BOSS_TIME : GAME_TIME;
+	totaltime	= stageNum >= 1 ? BOSS_TIME : GAME_TIME;
 
 	waitNum = 3;
 	waitCnt = 0;

@@ -27,7 +27,7 @@ public:
 	void UpDate();
 	void Draw();
 	void _ReCnt() { _Cnt = 0; };
-	bool isDelete() { return _isdel; };
+	bool isDelete();
 	void Break() { _isbreak = true; };
 };
 

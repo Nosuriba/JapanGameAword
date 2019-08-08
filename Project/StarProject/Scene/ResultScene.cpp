@@ -179,7 +179,7 @@ void ResultScene::Draw()
 				DrawString((size.x - (float)(GetFontSize()) * 2) / 2.0f, size.y / 10 * 9, "button to Title", 0xffffff);
 				SetDrawBlendMode(mode, palam);
 			}
-			auto i =(ResultData[0][(int)R_Data::total] / 25000>5)?5: ResultData[0][(int)R_Data::total] / 25000;
+			auto i =(ResultData[0][(int)R_Data::total] / 35000>5)?5: ResultData[0][(int)R_Data::total] / 35000;
 			SetFontSize(582-StampCnt*2);
 			DrawCircle((size.x + (float)(194 * 4.5f)) / 2, (size.y - (float)(194)) / 10 * 9, GetFontSize()-96, 0xff3333, 0, 10);
 			DrawRotaString((size.x + (float)(194 *3.6f)) / 2+ 194 / 2, (size.y - (float)(194)) / 10 * 7.35f+ 194 / 2,1,1,
