@@ -822,7 +822,7 @@ void GameScene::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	auto one = totaltime % 10;
-	auto ten = totaltime / 10;
+	auto ten = ( totaltime % 100) / 10;
 	auto hun = totaltime / 100;
 
 	DrawCircle(size.x / 2, 50, 45, 0);
@@ -840,9 +840,9 @@ void GameScene::Draw()
 	}
 	else
 	{
-		DrawRectRotaGraph(size.x / 2 - 60, 50, 300 * hun, 0, 300, 300, 0.3f, 0, timeimg, true);
-		DrawRectRotaGraph(size.x / 2, 50, 300 * ten, 0, 300, 300, 0.3f, 0, timeimg, true);
-		DrawRectRotaGraph(size.x / 2 + 60, 50, 300 * one, 0, 300, 300, 0.3f, 0, timeimg, true);
+		DrawRectRotaGraph(size.x / 2 - 60,	50, 300 * hun, 0, 300, 300, 0.3f, 0, timeimg, true);
+		DrawRectRotaGraph(size.x / 2,		50, 300 * ten, 0, 300, 300, 0.3f, 0, timeimg, true);
+		DrawRectRotaGraph(size.x / 2 + 60,	50, 300 * one, 0, 300, 300, 0.3f, 0, timeimg, true);
 	}
 
 	DrawRectRotaGraph(GetFontSize()*3, 30,300*_pl->GetInfo().level,0,300,300,abs((gameCnt%30-15))*0.005f+0.2f,0, lvnumimg,true);

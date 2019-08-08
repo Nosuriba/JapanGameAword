@@ -56,6 +56,17 @@ void TitleScene::Run(const Input & p)
 			_updater = &TitleScene::FadeOut;
 		}
 	}
+#ifdef _DEBUG
+	if (CheckHitKey(KEY_INPUT_SPACE)) 
+	{
+		if (!CheckHandleASyncLoad(se))
+		{
+			flame = 0;
+			PlaySoundMem(se, DX_PLAYTYPE_BACK);
+			_updater = &TitleScene::FadeOut;
+		}
+	}
+#endif // _DEBUG
 }
 
 TitleScene::TitleScene()
