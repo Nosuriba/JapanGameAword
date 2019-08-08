@@ -27,6 +27,7 @@
 
 #define CC _camera->CameraCorrection()
 
+constexpr int GAME_TIME = 120;
 const int shader_offset = 50;
 const auto size = Game::GetInstance().GetScreenSize();
 
@@ -636,8 +637,8 @@ GameScene::GameScene(const int& stagenum)
 	flame	= 0;
 	fadewait = 0;
 
-	time		= 90;
-	totaltime	= 90;
+	time		= GAME_TIME;
+	totaltime	= GAME_TIME;
 
 	waitNum = 3;
 	waitCnt = 0;
