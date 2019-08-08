@@ -27,6 +27,7 @@
 
 #define CC _camera->CameraCorrection()
 
+constexpr int GAME_TIME = 120;
 const int shader_offset = 50;
 const auto size = Game::GetInstance().GetScreenSize();
 
@@ -637,8 +638,8 @@ GameScene::GameScene(const int& stagenum)
 	flame	= 0;
 	fadewait = 0;
 
-	time		= 90;
-	totaltime	= 90;
+	time		= GAME_TIME;
+	totaltime	= GAME_TIME;
 
 	waitNum = 3;
 	waitCnt = 0;
@@ -822,7 +823,8 @@ void GameScene::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	auto one = totaltime % 10;
-	auto ten = totaltime / 10;
+	auto ten = ( totaltime % 100) / 10;
+	auto hun = totaltime / 100;
 
 	DrawCircle(size.x / 2, 50, 45, 0);
 	if (_updater == &GameScene::Wait && waitNum >= 1) {
@@ -832,8 +834,17 @@ void GameScene::Draw()
 	{
 		DrawCircleGauge(size.x / 2, 50, (gameCnt % 60)*1.6666f, cgauge, 0.0);
 	}
-	DrawRectRotaGraph(size.x / 2 - 30, 50, 300 * ten, 0, 300, 300, 0.3f, 0, timeimg, true);
-	DrawRectRotaGraph(size.x / 2 + 30, 50, 300 * one, 0, 300, 300, 0.3f, 0, timeimg, true);
+	if (hun == 0)
+	{
+		DrawRectRotaGraph(size.x / 2 - 30, 50, 300 * ten, 0, 300, 300, 0.3f, 0, timeimg, true);
+		DrawRectRotaGraph(size.x / 2 + 30, 50, 300 * one, 0, 300, 300, 0.3f, 0, timeimg, true);
+	}
+	else
+	{
+		DrawRectRotaGraph(size.x / 2 - 60,	50, 300 * hun, 0, 300, 300, 0.3f, 0, timeimg, true);
+		DrawRectRotaGraph(size.x / 2,		50, 300 * ten, 0, 300, 300, 0.3f, 0, timeimg, true);
+		DrawRectRotaGraph(size.x / 2 + 60,	50, 300 * one, 0, 300, 300, 0.3f, 0, timeimg, true);
+	}
 
 	DrawRectRotaGraph(GetFontSize()*3, 30,300*_pl->GetInfo().level,0,300,300,abs((gameCnt%30-15))*0.005f+0.2f,0, lvnumimg,true);
 	DrawGraph(GetFontSize(), 0,Lvimg,true);

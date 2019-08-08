@@ -89,13 +89,38 @@ void SelectScene::Run(const Input & p)
 		scrollCnt = 0;
 		scrollWait = WaitScrollDef;
 	}
-
 	if (p.TriggerTrigger(TRIGGER::LEFT)) {
 		PlaySoundMem(choice, DX_PLAYTYPE_BACK);
 		Select = (Select>0)?--Select:Select;
 		scrollCnt = 0;
 		scrollWait = WaitScrollDef;
 	}
+
+#ifdef _DEBUG
+	if (CheckHitKey(KEY_INPUT_SPACE)) {
+		if (!CheckHandleASyncLoad(SE))
+		{
+			flame = 0;
+			PlaySoundMem(decide, DX_PLAYTYPE_BACK);
+			PlaySoundMem(SE, DX_PLAYTYPE_BACK);
+			StopSoundMem(BGM);
+			Stage::GetInstance().LoadStage("../Stage/test" + std::to_string(Select + 1) + ".fmf");
+			_updater = &SelectScene::FadeOut;
+		}
+	}
+	if (CheckHitKey(KEY_INPUT_RIGHT)) {
+		PlaySoundMem(choice, DX_PLAYTYPE_BACK);
+		Select = (Select < 2) ? ++Select : Select;
+		scrollCnt = 0;
+		scrollWait = WaitScrollDef;
+	}
+	if (CheckHitKey(KEY_INPUT_LEFT)) {
+		PlaySoundMem(choice, DX_PLAYTYPE_BACK);
+		Select = (Select > 0) ? --Select : Select;
+		scrollCnt = 0;
+		scrollWait = WaitScrollDef;
+	}
+#endif // _DEBUG
 }
 
 SelectScene::SelectScene()
