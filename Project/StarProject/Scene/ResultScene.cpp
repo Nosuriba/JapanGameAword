@@ -80,14 +80,14 @@ ResultScene::ResultScene(const int& enemy, const int& bite, const int & breakobj
 
 	ChangeFont("チェックポイント★リベンジ", DX_CHARSET_DEFAULT);
 	
-	ResultStr = { "たおしたてき　:%02d x 100" ,"たべたかず　　:%02d x 100" , "こわしたかず　:%02d x 10","のこりタイム　:%02d x 1000","","　　総合点　　:%6d", };
+	ResultStr = { "たおしたてき　:%02d x 1000" ,"たべたかず　　:%02d x 100" , "こわしたかず　:%02d x 10","のこりタイム　:%02d x 1000","","　　総合点　　:%6d", };
 
 	imgbuff = ResourceManager::GetInstance().LoadImg("../img/selectback.png");
 	BGM = ResourceManager::GetInstance().LoadSound("System/result.mp3");
 	SE= ResourceManager::GetInstance().LoadSound("System/stamp.mp3");
 	ResultCnt = 0;
 
-	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::enemy]		= enemy		)*100;
+	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::enemy]		= enemy		)*1000;
 	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::bite]		= bite		)*100;
 	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::breakobj]	= breakobj	)*10;
 	ResultData[0][(int)R_Data::total] += (ResultData[0][(int)R_Data::time]		= time		)*1000;
@@ -179,12 +179,12 @@ void ResultScene::Draw()
 				DrawString((size.x - (float)(GetFontSize()) * 2) / 2.0f, size.y / 10 * 9, "button to Title", 0xffffff);
 				SetDrawBlendMode(mode, palam);
 			}
-
+			auto i =(ResultData[0][(int)R_Data::total] / 25000>5)?5: ResultData[0][(int)R_Data::total] / 25000;
 			SetFontSize(582-StampCnt*2);
 			DrawCircle((size.x + (float)(194 * 4.5f)) / 2, (size.y - (float)(194)) / 10 * 9, GetFontSize()-96, 0xff3333, 0, 10);
 			DrawRotaString((size.x + (float)(194 *3.6f)) / 2+ 194 / 2, (size.y - (float)(194)) / 10 * 7.35f+ 194 / 2,1,1,
 				GetFontSize()/2-2.78f, GetFontSize()/2-0.1f,(StampCnt*2 %360)*DX_PI_F/180,
-				0xff3333, 0xff3333,false,s[ResultData[0][(int)R_Data::total] / 25000].c_str());
+				0xff3333, 0xff3333,false,s[i].c_str());
 		}
 		else
 		{

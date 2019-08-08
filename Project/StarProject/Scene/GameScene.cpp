@@ -446,6 +446,7 @@ void GameScene::Run(const Input & p)
 
 	for (auto boss : _bosses) {
 		if (boss->GetDieFlag()) {
+			score.enemy++;
 			clearflag = true;
 			_updater = &GameScene::CutinUpdate;
 		}

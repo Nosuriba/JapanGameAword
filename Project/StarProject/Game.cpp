@@ -30,7 +30,7 @@ void Game::Init()
 {
 	DxLib::SetGraphMode(screen_x, screen_y, 32);
 
-	DxLib::ChangeWindowMode(true);
+	DxLib::ChangeWindowMode(false);
 
 	SetUseDirect3DVersion(DX_DIRECT3D_9EX);
 
