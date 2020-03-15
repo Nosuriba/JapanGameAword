@@ -272,6 +272,7 @@ void Crab::CalVert()
 	Vector2 size, sizePos;
 	float theta, cost, sint;
 
+	/// ‘«‚Ì’¸“_‚ğİ’è‚µ‚Ä‚¢‚é
 	auto leg = _crab._legs.begin();
 	for (; leg != _crab._legs.end(); ++leg)
 	{
@@ -301,6 +302,7 @@ void Crab::CalVert()
 		}
 	}
 
+	//// ˜r‚Ì’¸“_‚ğİ’è‚µ‚Ä‚¢‚é
 	std::vector<float> dirTheta;		/// ‚Í‚³‚İ‚Ì’Ü‚Ì•ûŒü—p
 	auto arm = _crab._arms.begin();
 	for (; arm != _crab._arms.end(); ++arm)
@@ -342,6 +344,7 @@ void Crab::CalVert()
 		}
 	}
 
+	/// ‚Í‚³‚ŞUŒ‚‚ğ‚µ‚Ä‚¢‚È‚¢‚Ì’¸“_‚ğİ’è‚µ‚Ä‚¢‚é
 	if (_type != AtkType::PITCH)
 	{
 		auto aSize = _crab._arms.size();		/// ˜r‚Ì”
@@ -372,8 +375,8 @@ void Crab::CalVert()
 				(*vert) = sPos + sizePos + offset + lengPos;
 			}
 			theta = atan2f((*scis)[2].y - (*scis)[0].y, (*scis)[2].x - (*scis)[0].x);
-			cost = cos(theta);
-			sint = sin(theta);
+			cost  = cos(theta);
+			sint  = sin(theta);
 			_scisCenter[sCnt] = (*scis)[0] + Vector2(scisSize.width / 2 * cost, scisSize.width / 2 * sint);
 		}
 	}
@@ -503,7 +506,6 @@ void Crab::MoveLeg()
 				_legMovePos[cnt] = (*leg)._points[2] + Vector2((length / 2) * dirVec.x, (length / 2) * dirVec.y);
 				(*leg)._vel = Vector2((mVel + _legAccel[cnt].x) * dirVec.x,
 									  (mVel + _legAccel[cnt].y) * dirVec.y);
-			
 			}
 
 			if (_legMovePos[cnt].x != 0)
@@ -956,6 +958,8 @@ void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 	MoveJoint();
 	CalVert();
 
+
+
 	Vector2 p1, p2, p3, p4;
 	for (auto leg : _crab._legs)
 	{
@@ -986,6 +990,9 @@ void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 			DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
 		}
 	}
+
+
+
 	/// ŠI–{‘Ì‚Ì•`‰æ
 	p1 = _crab._vert[0]; p2 = _crab._vert[1]; p3 = _crab._vert[2]; p4 = _crab._vert[3];
 	DxLib::DrawQuadrangleAA(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y, 0xcc3300, true);
@@ -997,6 +1004,10 @@ void Crab::SelectDraw(const Vector2 & pos, const float& scale)
 	/// –Ú‚Ì•`‰æ
 	DxLib::DrawCircle(rEyePos.x, rEyePos.y, 5 * scale, 0x000000, true);
 	DxLib::DrawCircle(lEyePos.x, lEyePos.y, 5 * scale, 0x000000, true);
+
+
+
+
 }
 
 void Crab::DebugDraw(const Vector2& camera)

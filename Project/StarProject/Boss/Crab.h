@@ -13,8 +13,6 @@ enum class AtkType
 	MAX
 };
 
-
-
 using sqr_vert = std::array<Vector2, 4>;
 
 struct JointInfo
